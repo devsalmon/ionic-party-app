@@ -1,5 +1,13 @@
-import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import React, { Component } from 'react';
+import { Redirect, Route, Link, NavLink, BrowserRouter } from 'react-router-dom';
+import axios from 'axios'
+import { makeStyles } from '@material-ui/core/styles';
+import BottomNavigation from '@material-ui/core/BottomNavigation';
+import BottomNavigationAction from '@material-ui/core/BottomNavigationAction';
+
+
+
+
 import {
   IonApp,
   IonIcon,
@@ -42,7 +50,7 @@ const App: React.FC = () => (
         </IonRouterOutlet>
         <IonTabBar slot="bottom">
           <IonTabButton tab="tab1" href="/tab1">
-            <IonIcon icon={square} />
+            <IonIcon icon={ellipse} />
             <IonLabel>Tab 1</IonLabel>
           </IonTabButton>
           <IonTabButton tab="tab2" href="/tab2">
