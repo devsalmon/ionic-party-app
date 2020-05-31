@@ -39,6 +39,9 @@ const arr = [
 const Home: React.FC = () => {
   return(
     <IonPage>
+      <IonToolbar>
+        <IonTitle className="ion-text-center">Upcoming parties</IonTitle>
+      </IonToolbar>
       <IonContent className="ion-padding">
         <IonList>
           {arr.map(elem => (
