@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import {
   IonApp,
@@ -8,20 +8,26 @@ import {
   IonTabBar,
   IonTabButton,
   IonTabs, 
+  IonTab,
   IonText, 
   IonItem,
   IonList, 
   IonButton,
-  IonItemOption,
-  IonItemOptions,
-  IonItemSliding, 
-  IonMenuButton
+  IonPage,
+  IonHeader, 
+  IonContent, 
+  IonToolbar, 
+  IonButtons, 
+  IonMenuButton,
+  IonBackButton,
+  IonTitle,
+  IonSplitPane
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { ellipse, square, triangle } from 'ionicons/icons';
-import Tab1 from './pages/Tab1';
-import Tab2 from './pages/Tab2';
-import Tab3 from './pages/Tab3';
+import { home, add, addCircle, logIn } from 'ionicons/icons';
+import Create from './pages/Create';
+import Home from './pages/Home';
+import Menu from './components/Menu'
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */
@@ -37,130 +43,55 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
-import { 
-  IonMenu,
-  IonAvatar,
-  IonPage,
-  IonHeader, 
-  IonContent, 
-  IonToolbar, 
-  IonButtons, 
-  IonBackButton, 
-  IonTitle 
-  } from '@ionic/react';
-
-const Menu: React.FC = () => {
-  return(
-    <IonRouterOutlet id="main">
-    <IonMenu side="start" menuId="menu">
-      <IonHeader>
-        <IonToolbar color="primary">
-          <IonTitle>Menu</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent>
-        <IonList>
-          <IonItem>Menu Item</IonItem>
-          <IonItem>Menu Item</IonItem>
-          <IonItem>Menu Item</IonItem>
-          <IonItem>Menu Item</IonItem>
-          <IonItem>Menu Item</IonItem>
-        </IonList>
-      </IonContent>
-    </IonMenu>
-    </IonRouterOutlet>
-  )
-}
 
 const Login: React.FC = () => {
   return(
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle className="ion-text-center">Login Page</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        <IonButton className="ion-text-center" color="secondary" routerLink="/home">Login</IonButton>
+      <IonContent className="ion-text-center">
+        <IonButton color="secondary" routerLink="/home">Login</IonButton>
       </IonContent>
     </IonPage>
   )
 }
 
-const arr = [
-  {
-    name: 'party1',
-    id: 1
-  },
-  {
-    name: 'party2',
-    id: 2
+
+class App extends React.Component {
+
+  render() {
+    return(
+    <IonApp>
+        <Menu /> 
+        <IonButtons slot="start">
+          <IonMenuButton autoHide={false} menu="main-menu"></IonMenuButton>
+          <IonBackButton defaultHref="/login" />
+        </IonButtons>
+      <IonContent>
+        <IonReactRouter>
+          <IonTabs>
+            <IonRouterOutlet>
+              <Route path="/login" component={Login} exact />
+              <Route path="/create" component={Create} exact />
+              <Route path="/home" component={Home} />
+              <Route path="/" render={() => <Redirect to="/login"/>} exact={true} />
+            </IonRouterOutlet>
+
+            <IonTabBar slot="bottom">
+              <IonTabButton tab="home" href="/home">
+                <IonIcon icon={home} />
+                <IonLabel>Home</IonLabel>
+              </IonTabButton>
+
+              <IonTabButton tab="create" href="/create">
+                <IonIcon icon={addCircle} />
+                <IonLabel>Create</IonLabel>
+              </IonTabButton>
+            </IonTabBar>
+          </IonTabs>
+        </IonReactRouter>
+      </IonContent>
+    </IonApp>
+    )
   }
-]
-
-const Home: React.FC = () => {
-  return(
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonMenuButton menu="menu" />
-            <IonBackButton defaultHref="login" />
-          </IonButtons>
-          <IonTitle className="ion-text-center">Upcoming Parties</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        <IonList>
-          {arr.map(elem => (
-            <IonItemSliding key = {elem.name}> 
-              <IonItem>
-                <IonAvatar>
-                  <img src={'https://ionicframework.com/docs/demos/api/list/avatar-finn.png'} />
-                </IonAvatar>
-                <IonLabel className="ion-padding">
-                  <h2>{elem.name}</h2>
-                </IonLabel>
-              </IonItem>
-              <IonItemOptions side="end">
-                <IonItemOption>See details</IonItemOption>
-              </IonItemOptions> 
-            </IonItemSliding> 
-          ))}
-        </IonList>
-      </IonContent>
-    </IonPage>
-  )
-}
-
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonTabs>
-        <IonRouterOutlet>
-          <Route path="/login" component={Login} exact={true} />
-          <Route path="/tab1" component={Tab1} exact={true} />
-          <Route path="/tab2" component={Tab2} exact={true} />
-          <Route path="/home" component={Home} />
-          <Route path="/" render={() => <Redirect to="/login" />} exact={true} />
-        </IonRouterOutlet>
-        <IonTabBar slot="bottom">
-          <IonTabButton tab="home" href="/home">
-            <IonIcon icon={ellipse} />
-            <IonLabel>Home</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab2" href="/tab2">
-            <IonIcon icon={ellipse} />
-            <IonLabel>Tab 2</IonLabel>
-          </IonTabButton>
-          <IonTabButton tab="tab1" href="/tab1">
-            <IonIcon icon={square} />
-            <IonLabel>tab1</IonLabel>
-          </IonTabButton>
-        </IonTabBar>
-      </IonTabs>
-    </IonReactRouter>
-  </IonApp>
-);
+};
 
 export default App;
