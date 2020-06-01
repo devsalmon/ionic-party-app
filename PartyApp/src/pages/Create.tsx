@@ -6,6 +6,7 @@ IonPage,
 IonTitle, 
 IonToolbar, 
 IonButton, 
+IonButtons,
 IonItemDivider, 
 IonInput, 
 IonModal, 
@@ -51,8 +52,21 @@ const Create: React.FC = () => {
           </IonItem>
         </IonList>
         <IonModal isOpen={showModal} cssClass='my-custom-class'>
-          <p>This is modal content</p>
-          <IonButton onClick={() => setShowModal(false)}>Close Modal</IonButton>
+          <IonHeader>
+            <IonToolbar>
+              <IonTitle>Select people to invite</IonTitle>
+              <IonButtons slot="end">
+              <IonButton onClick={() => setShowModal(false)}>Done</IonButton>
+              </IonButtons>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <IonList>
+              <IonItem>
+                Test
+              </IonItem>
+            </IonList>
+          </IonContent>
         </IonModal>
         <IonButton expand="block" onClick={() => setShowModal(true)}>Invite People</IonButton>
         </IonContent>
