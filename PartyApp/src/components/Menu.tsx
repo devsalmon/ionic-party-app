@@ -31,27 +31,29 @@ class Menu extends React.Component{
   render() {
     return(
       <div>
-      <IonMenu type="overlay" contentId="main" menuId="main-menu">
-        <IonHeader>
-          <IonToolbar color="primary">
-            <IonTitle>Menu</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent color="primary">
-          <IonList>
-            {appPages.map((appPage, index) => {
-            return (
-              <IonMenuToggle key={index} auto-hide="false">
-              <IonItem color="primary" href={appPage.url}>
-                  <IonIcon slot="start" icon={appPage.icon} />
-                  <IonLabel>{appPage.title}</IonLabel>
-              </IonItem>
-              </IonMenuToggle>
-            );
-            })}
-          </IonList>
-        </IonContent>
-      </IonMenu>
+      <IonMenuToggle>
+        <IonMenu type="overlay" contentId="main" menuId="main-menu">
+          <IonHeader>
+            <IonToolbar color="primary">
+              <IonTitle>Menu</IonTitle>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent color="primary">
+            <IonList>
+              {appPages.map((appPage, index) => {
+              return (
+                <IonMenuToggle key={index} auto-hide="false">
+                <IonItem color="primary" href={appPage.url}>
+                    <IonIcon slot="start" icon={appPage.icon} />
+                    <IonLabel>{appPage.title}</IonLabel>
+                </IonItem>
+                </IonMenuToggle>
+              );
+              })}
+            </IonList>
+          </IonContent>
+        </IonMenu>
+      </IonMenuToggle>
       <IonRouterOutlet id="main"></IonRouterOutlet>
       </div>
     );
