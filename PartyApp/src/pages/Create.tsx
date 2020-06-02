@@ -13,7 +13,12 @@ IonModal,
 IonItem, 
 IonList, 
 IonLabel, 
-IonDatetime 
+IonDatetime,
+IonCheckbox, 
+IonSearchbar, 
+IonGrid,
+IonRow,
+IonCol
 } from '@ionic/react';
 import './Create.css';
 
@@ -21,8 +26,23 @@ const Create: React.FC = () => {
   
   const [text, setText] = useState<string>();
   const [showModal, setShowModal] = useState(false);
+
+  const friendsList = [
+  { val: 'Mark', isChecked: false },
+  { val: 'Max', isChecked: false },
+  { val: 'Harry', isChecked: false },
+  { val: 'Harry', isChecked: false },
+  { val: 'Harry', isChecked: false },
+  { val: 'Harry', isChecked: false },
+  { val: 'Harry', isChecked: false },
+  { val: 'Harry', isChecked: false },
+  ];
+
+  const [checked, setChecked] = useState(false);
+  const [searchText, setSearchText] = useState('');
+
   return (
-    <IonPage>
+    <IonPage className="ion-padding">
       <IonToolbar>
         <IonTitle className="ion-text-center">Create a party</IonTitle>
       </IonToolbar>
@@ -51,24 +71,35 @@ const Create: React.FC = () => {
             <IonDatetime display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
           </IonItem>
         </IonList>
-        <IonModal isOpen={showModal} cssClass='my-custom-class'>
+        <IonModal isOpen={showModal}>
           <IonHeader>
             <IonToolbar>
-              <IonTitle>Select people to invite</IonTitle>
-              <IonButtons slot="end">
-              <IonButton onClick={() => setShowModal(false)}>Done</IonButton>
-              </IonButtons>
+              <IonTitle className="ion-text-center">Select people to invite</IonTitle>
+              <IonGrid>
+                <IonRow>
+                  <IonCol size="9">
+                    <IonSearchbar value={searchText} onIonChange={e => setSearchText(e.detail.value!)} showCancelButton="focus" color="danger"></IonSearchbar>                  
+                  </IonCol>
+                  <IonCol>
+                    <IonButton fill="clear" onClick={() => setShowModal(false)}>Done</IonButton>
+                  </IonCol>                  
+                </IonRow>
+              </IonGrid>
             </IonToolbar>
           </IonHeader>
           <IonContent>
             <IonList>
-              <IonItem>
-                Test
-              </IonItem>
+              {friendsList.map(({ val, isChecked }, i) => (
+                <IonItem key={i}>
+                  <IonLabel>{val}</IonLabel>
+                  <IonCheckbox slot="end" color="danger" value={val} checked={isChecked} />
+                </IonItem>
+              ))}
             </IonList>
           </IonContent>
         </IonModal>
         <IonButton expand="block" onClick={() => setShowModal(true)}>Invite People</IonButton>
+        <IonButton expand="block" size="large">Create!</IonButton>
         </IonContent>
     </IonPage>
   );
