@@ -29,38 +29,10 @@ const arr = [
   {
     name: 'party1',
     id: 1
-  },
-  {
-    name: 'party2',
-    id: 2
-  },
-  {
-    name: 'party3',
-    id: 3
-  },
-  {
-    name: 'party4',
-    id: 4
-  },
-  {
-    name: 'party5',
-    id: 5
-  },
-  {
-    name: 'party6',
-    id: 6
-  },
-  {
-    name: 'party7',
-    id: 7
-  },
-  {
-    name: 'party8',
-    id: 8
   }
 ]
 
-const Home: React.FC = () => {
+const Home: React.FC = (props) => {
   return(
     <IonPage>
       <IonToolbar>

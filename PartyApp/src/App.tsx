@@ -27,6 +27,7 @@ import { IonReactRouter } from '@ionic/react-router';
 import { home, add, addCircle, logIn } from 'ionicons/icons';
 import Create from './pages/Create';
 import Home from './pages/Home';
+import Memories from './pages/Memories'
 import Menu from './components/Menu'
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -71,6 +72,7 @@ class App extends React.Component {
             <IonRouterOutlet>
               <Route path="/login" component={Login} exact />
               <Route path="/create" component={Create} exact />
+              <Route path="/memories" component={Memories} exact />
               <Route path="/home" component={Home} />
               <Route path="/" render={() => <Redirect to="/login"/>} exact={true} />
             </IonRouterOutlet>

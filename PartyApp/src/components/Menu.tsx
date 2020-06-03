@@ -14,7 +14,7 @@ import {
   IonIcon,
   IonLabel
   } from '@ionic/react';
-import { home, add, addCircle, logIn } from 'ionicons/icons';
+import { home, add, addCircle, logIn, peopleCircleOutline, starSharp } from 'ionicons/icons';
 
 class Page {
   title: string = '';
@@ -25,6 +25,7 @@ const appPages: Page[] = [
   {title: 'Upcoming parties', url: '/home', icon: home},
   {title: 'Create a party', url: '/create', icon: addCircle},
   {title: 'Login page', url: '/login', icon: logIn},
+  {title: 'Memories', url: '/memories', icon: peopleCircleOutline}
 ]
 
 class Menu extends React.Component{
@@ -40,6 +41,10 @@ class Menu extends React.Component{
           </IonHeader>
           <IonContent color="primary">
             <IonList>
+              <IonItem color="primary">
+                <IonIcon slot="start" icon={starSharp}/>
+                <IonLabel>Guest rating: </IonLabel>
+              </IonItem>
               {appPages.map((appPage, index) => {
               return (
                 <IonMenuToggle key={index} auto-hide="false">
