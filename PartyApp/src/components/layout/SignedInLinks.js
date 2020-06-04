@@ -21,17 +21,17 @@ import { home, add, addCircle, logIn, triangle } from 'ionicons/icons';
 
 const SignedInLinks = () => {
     return(
-<IonReactRouter>
-  <IonRouterOutlet>
-    <Route path="/login" component={Login} exact />
-    <Route path="/create" component={Create} exact />
-    <Route path="/home" component={Home} />
-    <Route path="/nickspage" component={Nick} />
-    <Route path="/nickstestpage" component={Test} />
-    <Route path="/" render={() => <Redirect to="/login"/>} exact={true} />
-  </IonRouterOutlet>
-  </IonReactRouter>
-  )
-  }
+      <IonReactRouter>
+        <IonRouterOutlet>
+          <Route path="/login" component={Login} exact />
+          <Route path="/create" component={Create} exact />
+          <Route path="/home" component={Home} />
+          <Route path="/nickspage" component={Nick} />
+          <Route path="/nickstestpage" component={Test} />
+          <Route path="/" render={() => <Redirect to="/login"/>} exact={true} />
+        </IonRouterOutlet>
+      </IonReactRouter>
+    )
+};
 
   export default SignedInLinks

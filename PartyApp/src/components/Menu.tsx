@@ -14,8 +14,7 @@ import {
   IonIcon,
   IonLabel
   } from '@ionic/react';
-import { home, add, addCircle, logIn, peopleCircleOutline, starSharp } from 'ionicons/icons';
-import { home, add, addCircle, logIn, triangle } from 'ionicons/icons';
+import { home, add, addCircle, logIn, peopleCircleOutline, starSharp, triangle } from 'ionicons/icons';
 
 class Page {
   title: string = '';
@@ -26,9 +25,9 @@ const appPages: Page[] = [
   {title: 'Upcoming parties', url: '/home', icon: home},
   {title: 'Create a party', url: '/create', icon: addCircle},
   {title: 'Login page', url: '/login', icon: logIn},
-  {title: 'Memories', url: '/memories', icon: peopleCircleOutline}
+  {title: 'Memories', url: '/memories', icon: peopleCircleOutline},
   {title: "Nick's page", url: '/nickspage', icon: triangle},
-  {title: "Nick's 2nd page", url: '/nickstestpage', icon: triangle}
+  {title: "Nick's 2nd page", url: '/nickstestpage', icon: triangle},
 ]
 
 class Menu extends React.Component{

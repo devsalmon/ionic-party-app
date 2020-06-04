@@ -148,7 +148,7 @@ class App extends React.Component {
   render() {
     return(
     <IonApp>
-        <Menu /> 
+      <Menu /> 
         <IonButtons slot="start">
           <IonMenuButton autoHide={false} menu="main-menu"></IonMenuButton>
           <IonBackButton defaultHref="/login" />
