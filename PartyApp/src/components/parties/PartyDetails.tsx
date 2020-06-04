@@ -16,12 +16,12 @@ import {
 }
 from '@ionic/react'
 
-const PartySummary = () => {
+const PartyDetails = (props) => {
+    const id = props.match.params.id;
     return(
     <IonCard>
         <IonCardHeader>
-        <IonCardSubtitle>Card Subtitle</IonCardSubtitle>
-        <IonCardTitle>Card Title</IonCardTitle>
+        <IonCardTitle>Party Title - {id}</IonCardTitle>
         </IonCardHeader>
 
         <IonCardContent>
@@ -32,4 +32,4 @@ const PartySummary = () => {
     )
 }
 
-export default PartySummary
+export default PartyDetails

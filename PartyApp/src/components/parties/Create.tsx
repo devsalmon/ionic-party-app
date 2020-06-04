@@ -21,9 +21,10 @@ IonRow,
 IonCol,
 IonTextarea
 } from '@ionic/react';
-import './Create.css';
+import { createParty } from '../../store/actions/partyActions'
+import { connect } from 'react-redux'
 
-class Create extends React.Component {
+class Create extends React.Component<ICreateProps, ICreateState> {
 
   state = {
     title : '',
@@ -45,7 +46,17 @@ class Create extends React.Component {
       { val: 'Harry', isChecked: false },
       { val: 'Harry', isChecked: false },
     ],
-  };
+  }
+
+  handleChange = (e) => {
+      this.setState({
+          [e.target.id]: e.target.value
+      })
+  }
+  handleSubmit = (e) => {
+      e.preventDefault()
+      this.props.createParty(this.state)
+  }
   render(){
     return(
     <IonPage className="ion-padding">
@@ -55,30 +66,30 @@ class Create extends React.Component {
       <IonContent>
         <IonList>
           <IonItem>
-            <IonInput value={this.state.title} placeholder="Title (e.g. Bruno's 17th)" clearInput></IonInput>
+            <IonInput id="title" onIonChange={this.handleChange} placeholder="Title (e.g. Bruno's 17th)" clearInput></IonInput>
           </IonItem>
 
           <IonItem>
-            <IonInput value={this.state.location} placeholder="Location" clearInput></IonInput>
+            <IonInput id="location" onIonChange={this.handleChange} placeholder="Location" clearInput></IonInput>
           </IonItem>
 
           <IonItem>
             <IonLabel>Date</IonLabel>
-            <IonDatetime value={this.state.date} placeholder="Select Date"></IonDatetime>
+            <IonDatetime id="date" onIonChange={this.handleChange} placeholder="Select Date"></IonDatetime>
           </IonItem>
 
           <IonItem>
             <IonLabel>Time</IonLabel>
-            <IonDatetime value={this.state.startTime} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
+            <IonDatetime id="startTime" onIonChange={this.handleChange} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
           </IonItem>
  
           <IonItem>
             <IonLabel>Ends</IonLabel>
-            <IonDatetime value={this.state.endTime} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
+            <IonDatetime id="endTime" onIonChange={this.handleChange} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
           </IonItem>
 
           <IonItem>
-            <IonTextarea value={this.state.details} placeholder="Additional Details"></IonTextarea>
+            <IonTextarea id="details" onIonChange={this.handleChange} placeholder="Additional Details"></IonTextarea>
           </IonItem>
         </IonList>
         <IonModal isOpen={this.state.showModal}>
@@ -109,11 +120,22 @@ class Create extends React.Component {
           </IonContent>
         </IonModal>
         <IonButton expand="block" onClick={e => this.setState({showModal:true})}>Invite People</IonButton>
-        <IonButton expand="block" size="large">Create!</IonButton>
+        <IonButton onClick={this.handleSubmit} expand="block" size="large">Create!</IonButton>
         </IonContent>
     </IonPage>
     )
   }
 };
 
-export default Create;
+interface ICreateProps {
+  createParty: (string) => string[]
+}
+interface ICreateState {}
+
+const mapDispatchToProps = (dispatch) => {
+  return{
+    createParty: (party) => dispatch(createParty(party))
+  }
+}
+
+export default connect(null, mapDispatchToProps)(Create);

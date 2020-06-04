@@ -30,12 +30,14 @@ import {
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { home, add, addCircle, logIn } from 'ionicons/icons';
-// import pages
-import Create from './pages/Create';
+
+import Create from './components/parties/Create';
 import Home from './components/dashboard/Home';
-import Memories from './pages/Memories';
-import Menu from './components/Menu';
-import SignedInLinks from './components/layout/SignedInLinks';
+import Memories from './components/parties/Memories';
+import Menu from './components/layout/Menu';
+import PartyDetails from './components/parties/PartyDetails';
+import SignIn from './components/auth/SignIn';
+import SignUp from './components/auth/SignUp';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */
@@ -52,16 +54,6 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 
-const Login: React.FC = () => {
-  return(
-    <IonPage>
-      <IonContent className="ion-text-center">
-        <IonButton color="secondary" routerLink="/home">Login</IonButton>
-      </IonContent>
-    </IonPage>
-  )
-}
-
 class App extends React.Component {
 
   render() {
@@ -70,15 +62,17 @@ class App extends React.Component {
       <Menu /> 
         <IonButtons slot="start">
           <IonMenuButton autoHide={false} menu="main-menu"></IonMenuButton>
-          <IonBackButton defaultHref="/login" />
+          <IonBackButton defaultHref="/signin" />
         </IonButtons>
       <IonContent>
         <IonReactRouter>
           <IonTabs>
-            <IonRouterOutlet> 
-              <SignedInLinks />        
-              <Route path="/" component={Home} />      
-              <Route path="/" render={() => <Redirect to="/home"/>} exact={true} />
+            <IonRouterOutlet>       
+              <Route path='/party/:id' component={PartyDetails} />
+              <Route path='/signin' component={SignIn} />
+              <Route path='/signup' component={SignUp} />
+              <Route path='/create' component={Create} />
+              <Route path='/' component={Home} exact />      
             </IonRouterOutlet> 
             {/* 
             MIGHT NOT NEED THIS IF ROUTES ARE IN SIGNEDINLINKS PAGE
@@ -86,13 +80,10 @@ class App extends React.Component {
               <Route path="/create" component={Create} exact />
               <Route path="/memories" component={Memories} exact />
               <Route path="/home" component={Home} />
-              <Route path="/nickspage" component={Nick} />
-              <Route path="/nickstestpage" component={Test} />
-              <Route path="/mario" component={Mariopage} />
               <Route path="/" render={() => <Redirect to="/login"/>} exact={true} />
             */}  
             <IonTabBar slot="bottom">
-              <IonTabButton tab="home" href="/home">
+              <IonTabButton tab="home" href="/">
                 <IonIcon icon={home} />
                 <IonLabel>Home</IonLabel>
               </IonTabButton>
