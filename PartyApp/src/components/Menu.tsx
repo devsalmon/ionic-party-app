@@ -28,6 +28,7 @@ const appPages: Page[] = [
   {title: 'Memories', url: '/memories', icon: peopleCircleOutline},
   {title: "Nick's page", url: '/nickspage', icon: triangle},
   {title: "Nick's 2nd page", url: '/nickstestpage', icon: triangle},
+  {title: "Mario Page", url: '/mario', icon: home}
 ]
 
 class Menu extends React.Component{

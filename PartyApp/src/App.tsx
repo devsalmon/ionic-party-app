@@ -32,8 +32,9 @@ import { IonReactRouter } from '@ionic/react-router';
 import { home, add, addCircle, logIn } from 'ionicons/icons';
 import Create from './pages/Create';
 import Home from './pages/Home';
-import Memories from './pages/Memories'
-import Menu from './components/Menu'
+import Memories from './pages/Memories';
+import Menu from './components/Menu';
+import Mario from './pages/Mariopage';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */
@@ -163,6 +164,7 @@ class App extends React.Component {
               <Route path="/home" component={Home} />
               <Route path="/nickspage" component={Nick} />
               <Route path="/nickstestpage" component={Test} />
+              <Route path="/mario" component={Mario} />
               <Route path="/" render={() => <Redirect to="/login"/>} exact={true} />
             </IonRouterOutlet>
 
