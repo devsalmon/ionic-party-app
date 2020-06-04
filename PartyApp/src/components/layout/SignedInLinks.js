@@ -1,4 +1,5 @@
 import React from 'react';
+import { Redirect, Route } from 'react-router-dom'
 import { 
   IonMenu,
   IonPage,
@@ -14,23 +15,17 @@ import {
   IonIcon,
   IonLabel,
   IonTabs,
-  IonReactRouter
   } from '@ionic/react';
-import { home, add, addCircle, logIn, triangle } from 'ionicons/icons';
-
+import Create from '../../pages/Create';
+import Memories from '../../pages/Memories';
+import Menu from '../Menu';
 
 const SignedInLinks = () => {
     return(
-      <IonReactRouter>
-        <IonRouterOutlet>
-          <Route path="/login" component={Login} exact />
-          <Route path="/create" component={Create} exact />
-          <Route path="/home" component={Home} />
-          <Route path="/nickspage" component={Nick} />
-          <Route path="/nickstestpage" component={Test} />
-          <Route path="/" render={() => <Redirect to="/login"/>} exact={true} />
-        </IonRouterOutlet>
-      </IonReactRouter>
+      <IonPage>
+      <Route path="/create" component={Create} exact />
+      <Route path="/memories" component={Memories} exact />
+      </IonPage>
     )
 };
 
