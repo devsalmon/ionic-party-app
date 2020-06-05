@@ -6,19 +6,45 @@ import { createStore, compose, applyMiddleware } from 'redux'
 import rootReducer from './store/reducers/rootReducer'
 import { Provider } from 'react-redux'
 import thunk from 'redux-thunk'
-import { reduxFirestore, getFirestore } from 'redux-firestore'
-import { reactReduxFirebase, getFirebase } from 'react-redux-firebase'
-import fbConfig from './config/fbConfig'
+import { createFirestoreInstance, getFirestore } from 'redux-firestore'
+import { ReactReduxFirebaseProvider, getFirebase} from 'react-redux-firebase'
+import firebase from 'firebase/app'
+import 'firebase/firestore'
+import 'firebase/auth'
+
+// Your web app's Firebase configuration
+var firebaseConfig = {
+  apiKey: "AIzaSyAVvp3VEXlFr-G--hwhIWFPxj_taJdnUx8",
+  authDomain: "party-up-dd240.firebaseapp.com",
+  databaseURL: "https://party-up-dd240.firebaseio.com",
+  projectId: "party-up-dd240",
+  storageBucket: "party-up-dd240.appspot.com",
+  messagingSenderId: "514271758518",
+  appId: "1:514271758518:web:8cd56ee0a6768cf195be17",
+  measurementId: "G-0B2KD82CVF"
+};
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+firebase.firestore().settings({ timestampsInSnapshots: true });
 
 const store = createStore(rootReducer, 
     compose(
-    applyMiddleware(thunk.withExtraArgument({getFirebase, getFirestore})),
-    reduxFirestore(fbConfig),
-    reactReduxFirebase(fbConfig)
-    )
-);
+        applyMiddleware(thunk.withExtraArgument({getFirebase, getFirestore})),
+));
 
-ReactDOM.render(<Provider store={store}><App /></Provider>, document.getElementById('root'));
+const rrfConfig = {
+    userProfile: 'users',
+    useFirestoreForProfile: true // Firestore for Profile instead of Realtime DB
+  }
+ const rrfProps = {
+      firebase,
+      config: rrfConfig,
+      dispatch: store.dispatch,
+      createFirestoreInstance // <- needed if using firestore
+    }
+
+ReactDOM.render(<Provider store={store}><ReactReduxFirebaseProvider {...fbProps}><App /></ReactReduxFirebaseProvider></Provider>, document.getElementById('root'));
+
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

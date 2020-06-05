@@ -9,9 +9,14 @@ const initState = {
 const partyReducer = (state=initState, action) => {
     switch (action.type) {
         case 'CREATE_PARTY':
-            console.log('created project', action.party)
+            console.log('created project', action.party);
+            return state;
+        case 'CREATE_PARTY_ERROR':
+            console.log('error creating project', action.err);
+            return state;
+        default:
+            return state;
     }
-    return state
 }
 
 export default partyReducer

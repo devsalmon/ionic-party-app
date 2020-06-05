@@ -13,6 +13,8 @@ import { home, add, addCircle, logIn } from 'ionicons/icons';
 import Notifications from './Notifications'
 import PartyList from '../parties/PartyList'
 import { connect } from 'react-redux'
+import { compose } from 'redux'
+import { firestoreConnect } from 'react-redux-firebase';
 
 class Home extends React.Component<IHomeProps, IHomeState> {
   render(){
@@ -51,4 +53,4 @@ const mapStateToProps = (state) => {
   }
 }
 
-export default connect(mapStateToProps)(Home)
+export default compose(firestoreConnect(()=>['parties']),connect(mapStateToProps)(Home))
