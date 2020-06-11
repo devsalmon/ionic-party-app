@@ -1,5 +1,5 @@
 
-export const createParty = (party) => {
+const createParty = (party) => {
     return(dispatch, getState, { getFirebase, getFirestore }) => {
         // make async call to database
         const firestore = getFirestore();
@@ -16,3 +16,4 @@ export const createParty = (party) => {
         })
     }
 }
+export default createParty

@@ -43,7 +43,7 @@ const rrfConfig = {
       createFirestoreInstance // <- needed if using firestore
     }
 
-ReactDOM.render(<Provider store={store}><ReactReduxFirebaseProvider {...fbProps}><App /></ReactReduxFirebaseProvider></Provider>, document.getElementById('root'));
+ReactDOM.render(<Provider store={store}><ReactReduxFirebaseProvider {...rrfProps}><App /></ReactReduxFirebaseProvider></Provider>, document.getElementById('root'));
 
 
 // If you want your app to work offline and load faster, you can change
