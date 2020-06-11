@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import { createStore, compose, applyMiddleware } from 'redux'
-import rootReducer from './store/reducers/rootReducer'
+import rootReducer from './store/rootReducer'
 import { Provider } from 'react-redux'
 import thunk from 'redux-thunk'
 import { createFirestoreInstance, getFirestore } from 'redux-firestore'
