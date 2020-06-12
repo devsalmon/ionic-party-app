@@ -64,27 +64,27 @@ import './theme/variables.css';
 
 const SignIn = () => {
 
-    const [email] = useState<string>('');
-    const [password] = useState<string>('');
+  const [email] = useState<string>('');
+  const [password] = useState<string>('');
 
-    return (
-      <IonPage>
-          <IonToolbar>
-            <IonTitle>Sign in</IonTitle>
-          </IonToolbar>
-          <IonContent>
-            <IonItem>
-                <IonLabel>Email</IonLabel>
-                <IonInput value={email} placeholder="username"></IonInput>
-            </IonItem>  
-            <IonItem>
-                <IonLabel>Password</IonLabel>
-                <IonInput value={password} placeholder="password"></IonInput>
-            </IonItem>  
-            <IonButton>Login</IonButton>
-          </IonContent>
-      </IonPage>
-    )
+  return (
+    <IonPage>
+        <IonToolbar>
+          <IonTitle>Sign in</IonTitle>
+        </IonToolbar>
+        <IonContent className="ion-padding ion-text-center">
+          <IonItem>
+              <IonLabel>Email</IonLabel>
+              <IonInput value={email} placeholder="username"></IonInput>
+          </IonItem>  
+          <IonItem>
+              <IonLabel>Password</IonLabel>
+              <IonInput value={password} placeholder="password"></IonInput>
+          </IonItem>  
+          <IonButton>Login</IonButton>
+        </IonContent>
+    </IonPage>
+  )
 }
 
 class Page {
@@ -98,23 +98,23 @@ const appPages: Page[] = [
 ]
 
 const Links = () => {
-    return(
-      <IonList>
-        <IonItem color="primary">
-          <IonIcon slot="start" icon={starSharp}/>
-          <IonLabel>Guest rating: </IonLabel>
+  return(
+    <IonList>
+      <IonItem color="primary">
+        <IonIcon slot="start" icon={starSharp}/>
+        <IonLabel>Guest rating: </IonLabel>
+      </IonItem>
+      {appPages.map((appPage, index) => {
+      return (
+        <IonMenuToggle key={index} auto-hide="false">
+        <IonItem color="primary" href={appPage.url}>
+            <IonIcon slot="start" icon={appPage.icon} />
+            <IonLabel>{appPage.title}</IonLabel>
         </IonItem>
-        {appPages.map((appPage, index) => {
-        return (
-          <IonMenuToggle key={index} auto-hide="false">
-          <IonItem color="primary" href={appPage.url}>
-              <IonIcon slot="start" icon={appPage.icon} />
-              <IonLabel>{appPage.title}</IonLabel>
-          </IonItem>
-          </IonMenuToggle>
-        );
-        })}
-      </IonList>
+        </IonMenuToggle>
+      );
+      })}
+    </IonList>
 )
 };
 
@@ -258,7 +258,7 @@ const CreateParty = ({initialValue, clear}) => {
 
   return(
 
-    <IonContent>
+    <IonContent className="ion-padding">
     <IonList>
       <IonItem>
         <IonInput value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title (e.g. Bruno's 17th)" clearInput></IonInput>
@@ -274,7 +274,7 @@ const CreateParty = ({initialValue, clear}) => {
       </IonItem>
 
       <IonItem>
-        <IonLabel>Time</IonLabel>
+        <IonLabel>Starts</IonLabel>
         <IonDatetime value={startTime} onIonChange={e => setStartTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
       </IonItem>
 
