@@ -6,7 +6,7 @@ import {
   IonIcon,
   IonLabel,
   IonRouterOutlet,
-  IonTabBar, 
+  IonTabBar,
   IonTabButton,
   IonTabs, 
   IonItem,
@@ -62,40 +62,29 @@ import './theme/variables.css';
 
 // once finished, run ionic build then npx cap add ios and npx cap add android
 
-export class SignIn extends React.Component {
-    state = {
-        email: '',
-        password: '',
-    }
-    handleChange = (e) => {
-        this.setState({
-            [e.detail.id]: e.detail.value
-        })
-    }
-    handleSubmit = (e) => {
-        e.preventDefault()
-        console.log(this.state)
-    }
-    render() {
-        return (
-            <IonPage>
-                <IonToolbar>
-                    <IonTitle>Sign in</IonTitle>
-                </IonToolbar>
-                <IonContent>
-                    <IonItem>
-                        <IonLabel>Email</IonLabel>
-                        <IonInput id="email" onIonChange={this.handleChange} placeholder="username"></IonInput>
-                    </IonItem>  
-                    <IonItem>
-                        <IonLabel>Password</IonLabel>
-                        <IonInput id="password" onIonChange={this.handleChange} placeholder="password"></IonInput>
-                    </IonItem>  
-                    <IonButton onClick={this.handleSubmit} >Login</IonButton>
-                </IonContent>
-            </IonPage>
-        )
-    }
+const SignIn = () => {
+
+    const [email] = useState<string>('');
+    const [password] = useState<string>('');
+
+    return (
+      <IonPage>
+          <IonToolbar>
+            <IonTitle>Sign in</IonTitle>
+          </IonToolbar>
+          <IonContent>
+            <IonItem>
+                <IonLabel>Email</IonLabel>
+                <IonInput value={email} placeholder="username"></IonInput>
+            </IonItem>  
+            <IonItem>
+                <IonLabel>Password</IonLabel>
+                <IonInput value={password} placeholder="password"></IonInput>
+            </IonItem>  
+            <IonButton>Login</IonButton>
+          </IonContent>
+      </IonPage>
+    )
 }
 
 class Page {
@@ -106,15 +95,11 @@ class Page {
 const appPages: Page[] = [
   {title: 'Upcoming parties', url: '/', icon: home},
   {title: 'Create a party', url: '/create', icon: addCircle},
-  {title: 'Sign in page', url: '/signin', icon: logIn},
 ]
 
 const Links = () => {
     return(
       <IonList>
-        <IonItem href='/'>
-          <IonLabel>Log Out</IonLabel>
-        </IonItem>
         <IonItem color="primary">
           <IonIcon slot="start" icon={starSharp}/>
           <IonLabel>Guest rating: </IonLabel>
@@ -160,32 +145,24 @@ const Party = ({doc}) => {
   // party card
   let data = doc.data()
   return(
-    <IonItemSliding>
-      <IonItem>
-        <IonLabel class="ion-text-wrap">
-          <IonText className="item-title">
-            {data.name}
-          </IonText>
-          <IonText className="item-sub-title">
-            {new Date(data.createdOn) + ""}
-          </IonText>             
-        </IonLabel>
-      </IonItem>
-    </IonItemSliding>
+    <IonCard>
+      <IonCardHeader>
+      <IonCardTitle>{data.title}</IonCardTitle>
+      </IonCardHeader>
+      <IonCardContent>
+        party details...
+      </IonCardContent>
+    </IonCard>
   )
 }
 
 const PartyList = () => {
   const [value, loading, error] = useCollection(
     firebase.firestore().collection("parties").orderBy("createdOn", "desc"),
-    {
-      snapshotListenOptions: {includeMetadataChanges: true}
-    }
   );
 
   return(
     <IonList>
-      <h3>Parties</h3>
       {value && value.docs.map(doc => {
         return(
           !loading && (
@@ -233,7 +210,7 @@ const CreateParty = ({initialValue, clear}) => {
 
   useEffect(() => {
     if (value != undefined) {
-    !loading && initialValue && setTitle(value.data().name);
+    !loading && initialValue && setTitle(value.data().title);
     }
   },
   [loading, initialValue, value]);
@@ -243,8 +220,7 @@ const CreateParty = ({initialValue, clear}) => {
     let collectionRef = firebase.firestore().collection("parties");
     if(initialValue) {
       await (collectionRef).doc(initialValue).set(
-        {name: title, 
-        //   title: title, 
+        {title: title, 
         //   date: date, 
         //   location: location,
         //   details: details,
@@ -257,7 +233,7 @@ const CreateParty = ({initialValue, clear}) => {
         clear();
     }
     else {
-      await collectionRef.add({name: title, createdOn: new Date().getTime() })
+      await collectionRef.add({title: title, createdOn: new Date().getTime() })
       setTitle("");
       clear();
     }
@@ -357,14 +333,7 @@ class Home extends React.Component {
           <IonTitle className="ion-text-center">Upcoming parties</IonTitle>
         </IonToolbar>
         <IonContent className="ion-padding">
-        <IonGrid>
-          <IonRow>
-            <IonCol>
-              <p>PARTY LIST</p>
-              <PartyList />
-            </IonCol>
-          </IonRow>  
-        </IonGrid>
+          <PartyList />
         </IonContent>
       </IonPage>
     )
@@ -379,7 +348,7 @@ class App extends React.Component {
       <Menu /> 
         <IonButtons slot="start">
           <IonMenuButton autoHide={false} menu="main-menu"></IonMenuButton>
-          <IonBackButton defaultHref="/signin" />
+          <IonButton href="/signin" slot="end">SignOut</IonButton>
         </IonButtons>
       <IonContent>
         <IonReactRouter>
