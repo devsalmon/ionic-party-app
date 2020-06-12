@@ -1,5 +1,6 @@
 import React, { useState, useEffect} from 'react';
 import { Route, Redirect } from 'react-router-dom';
+import {useDocument, useCollection} from "react-firebase-hooks/firestore"
 import {
   IonApp,
   IonIcon,
@@ -35,6 +36,8 @@ import {
   IonCardTitle,
   IonMenu,
   IonMenuToggle,
+  IonItemSliding,
+  IonText
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { home, addCircle, logIn, peopleCircleOutline, personCircleOutline, starSharp } from 'ionicons/icons';
@@ -157,148 +160,200 @@ class Menu extends React.Component{
   }  
 }
 
-const Create: React.FC = (props) => {
+const Party = ({doc}) => {
+  // party card
+  let data = doc.data()
+  return(
+    <IonItemSliding>
+      <IonItem>
+        <IonLabel class="ion-text-wrap">
+          <IonText className="item-title">
+            {data.name}
+          </IonText>
+          <IonText className="item-sub-title">
+            {new Date(data.createdOn) + ""}
+          </IonText>             
+        </IonLabel>
+      </IonItem>
+    </IonItemSliding>
+  )
+}
 
-  const [showLoading, setShowLoading] = useState(false);
+const PartyList = () => {
+  const [value, loading, error] = useCollection(
+    firebase.firestore().collection("parties").orderBy("createdOn", "desc"),
+    {
+      snapshotListenOptions: {includeMetadataChanges: true}
+    }
+  );
+
+  return(
+    <IonList>
+      <h3>Parties</h3>
+      {value && value.docs.map(doc => {
+        return(
+          !loading && (
+            <Party doc={doc} key={doc.id} />
+          )
+        )
+      })}
+    </IonList>
+  )
+}
+
+const Create: React.FC = () => {
+  
+  const [current, setCurrent] = useState(null);
+
+  return(
+    <IonPage>
+      <IonToolbar className="ion-padding">
+        <IonTitle className="ion-text-center">Create a party</IonTitle>  
+      </IonToolbar>
+      <CreateParty initialValue={current} clear={() => setCurrent(null)}/>
+    </IonPage>
+  )
+
+}
+
+
+const CreateParty = ({initialValue, clear}) => {
+
+
   const [date, setDate] = useState<string>('')
   const [title, setTitle] = useState<string>('')
   const [location, setLocation] = useState<string>('')
-  const [details, setDetails] = useState<string>('')
+  const [Details, setDetails] = useState<string>('')
   const [endTime, setEndTime] = useState<string>('')
   const [startTime, setStartTime] = useState<string>('')
   const [searchText, setSearchText] = useState<string>('')
   const [friendList, setFriendList] = useState([])
   const [showModal, setShowModal] = useState(false);
   const [checked, setChecked] = useState(false);
-  const fbRef = firebase.database().ref('parties/') 
 
-  const createParty = () => {
-    fbRef.orderByChild('date').once('value', resp => {
-      let cdata = snapshotToArray(resp)
-        let partyDetails = { 
-          title: title, 
-          date: date, 
-          location: location,
-          details: details,
-          endTime: endTime,
-          startTime: startTime,          
-        }
-        fbRef.push(partyDetails, (error) =>{
-          if (error) {
-            console.log("Data could not be saved." + error);
-          } else { // reset everything
-            console.log('worked')
-            setDate('')
-            setTitle('')
-            setLocation('')
-            setDetails('')
-            setEndTime('')
-            setStartTime('')
-            let prop: any = props;
-            prop.history.push({
-              pathname: '/'
-            })
-          }
-        })
-    })
-  }
+  const [value, loading, error] = useDocument(
+    firebase.firestore().doc("parties/" + initialValue),
+    {
+      snapshotListenOptions: {includeMetadataChanges: true}
+    }
+  );
 
-  const snapshotToArray = (snapshot: any) => {
-    const returnArr: any[] = []
-  
-    snapshot.forEach((childSnapshot: any) => {
-      const item = childSnapshot.val()
-      item.key = childSnapshot.key
-      returnArr.push(item)
-    });
-  
-    return returnArr;
+  useEffect(() => {
+    if (value != undefined) {
+    !loading && initialValue && value.exists && setTitle(value.data().name);
+    }
+  },
+  [loading, initialValue, value]);
+
+  const onSave = async() => {
+
+    let collectionRef = firebase.firestore().collection("parties");
+    if(initialValue) {
+      await (collectionRef).doc(initialValue).set(
+        {name: title, 
+        //   title: title, 
+        //   date: date, 
+        //   location: location,
+        //   targets: targets,
+        //   endTime: endTime,
+        //   startTime: startTime,       
+        createdOn: new Date().getTime()}, 
+        {merge:true} 
+        );
+        setTitle("");
+        clear();
+    }
+
+        // fbRef.push(partytargets, (error) =>{
+        //   if (error) {
+        //     console.log("Data could not be saved." + error);
+        //   } else { // reset everything
+        //     console.log('worked')
+        //     setDate('')
+        //     setTitle('')
+        //     setLocation('')
+        //     setDetails('')
+        //     setEndTime('')
+        //     setStartTime('')
+        //     let prop: any = props;
+        //     prop.history.push({
+        //       pathname: '/'
+        //     })
+        //   }
+        // })
   }
 
   return(
 
-  <IonPage className="ion-padding">
-    <IonToolbar>
-      <IonTitle className="ion-text-center">Create a party</IonTitle>
-    </IonToolbar>
     <IonContent>
-      <IonLoading
-        isOpen={showLoading}
-        onDidDismiss={() => setShowLoading(false)}
-        message={'Loading...'}
-      />
-      <IonList>
-        <IonItem>
-          <IonInput value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title (e.g. Bruno's 17th)" clearInput></IonInput>
-        </IonItem>
+    <IonList>
+      <IonItem>
+        <IonInput value={title} onIonChange={e => setTitle(e.target.value)} placeholder="Title (e.g. Bruno's 17th)" clearInput></IonInput>
+      </IonItem>
 
-        <IonItem>
-          <IonInput value={location} onIonChange={e => setLocation(e.detail.value!)} placeholder="Location" clearInput></IonInput>
-        </IonItem>
+      <IonItem>
+        <IonInput value={location} onIonChange={e => setLocation(e.target.value!)} placeholder="Location" clearInput></IonInput>
+      </IonItem>
 
-        <IonItem>
-          <IonLabel>Date</IonLabel>
-          <IonDatetime value={date} onIonChange={e => setDate(e.detail.value!)} placeholder="Select Date"></IonDatetime>
-        </IonItem>
+      <IonItem>
+        <IonLabel>Date</IonLabel>
+        <IonDatetime value={date} onIonChange={e => setDate(e.target.value!)} placeholder="Select Date"></IonDatetime>
+      </IonItem>
 
-        <IonItem>
-          <IonLabel>Time</IonLabel>
-          <IonDatetime value={startTime} onIonChange={e => setStartTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
-        </IonItem>
+      <IonItem>
+        <IonLabel>Time</IonLabel>
+        <IonDatetime value={startTime} onIonChange={e => setStartTime(e.target.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
+      </IonItem>
 
-        <IonItem>
-          <IonLabel>Ends</IonLabel>
-          <IonDatetime value={endTime} onIonChange={e => setEndTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
-        </IonItem>
+      <IonItem>
+        <IonLabel>Ends</IonLabel>
+        <IonDatetime value={endTime} onIonChange={e => setEndTime(e.target.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
+      </IonItem>
 
-        <IonItem>
-          <IonTextarea value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional Details"></IonTextarea>
-        </IonItem>
-      </IonList>
-      <IonModal isOpen={showModal}>
-        <IonHeader>
-          <IonToolbar>              
-            <IonGrid>
-              <IonRow>
-                <IonCol>
-                <IonTitle className="ion-text-center">Select people to invite</IonTitle>
-                </IonCol>
-              </IonRow>
-              <IonRow>
-                <IonCol size="9">
-                  <IonSearchbar value={searchText} onIonChange={e => setSearchText(e.detail.value!)} showCancelButton="focus" color="danger"></IonSearchbar>                  
-                </IonCol>
-                <IonCol>
-                  <IonButton fill="clear" onClick={e => setShowModal(false)}>Done</IonButton>
-                </IonCol>                  
-              </IonRow>
-            </IonGrid>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent>
-          <IonList>
-            {friendList.map(({ val, isChecked }, i) => (
-              <IonItem key={i}>
-                <IonLabel>{val}</IonLabel>
-                <IonCheckbox slot="end" color="danger" value={val} checked={isChecked} />
-              </IonItem>
-            ))}
-          </IonList>
-        </IonContent>
-      </IonModal>
-      <IonButton expand="block" onClick={e => setShowModal(true)}>Invite People</IonButton>
-      <IonButton expand="block" onClick={() => { createParty() }}>CREATE!</IonButton>
-
+      <IonItem>
+        <IonTextarea value={targets} onIonChange={e => settargets(e.target.value!)} placeholder="Additional targets"></IonTextarea>
+      </IonItem>
+    </IonList>
+    <IonModal isOpen={showModal}>
+      <IonHeader>
+        <IonToolbar>              
+          <IonGrid>
+            <IonRow>
+              <IonCol>
+              <IonTitle className="ion-text-center">Select people to invite</IonTitle>
+              </IonCol>
+            </IonRow>
+            <IonRow>
+              <IonCol size="9">
+                <IonSearchbar value={searchText} onIonChange={e => setSearchText(e.target.value!)} showCancelButton="focus" color="danger"></IonSearchbar>                  
+              </IonCol>
+              <IonCol>
+                <IonButton fill="clear" onClick={e => setShowModal(false)}>Done</IonButton>
+              </IonCol>                  
+            </IonRow>
+          </IonGrid>
+        </IonToolbar>
+      </IonHeader>
+      <IonContent>
+        <IonList>
+          {friendList.map(({ val, isChecked }, i) => (
+            <IonItem key={i}>
+              <IonLabel>{val}</IonLabel>
+              <IonCheckbox slot="end" color="danger" value={val} checked={isChecked} />
+            </IonItem>
+          ))}
+        </IonList>
       </IonContent>
-  </IonPage>
+    </IonModal>
+    <IonButton expand="block" onClick={e => setShowModal(true)}>Invite People</IonButton>
+    <IonButton expand="block" onClick={() => onSave()}>CREATE!</IonButton>
+    </IonContent>
   )
 };
-
 
 class Home extends React.Component {
 
   render(){
-    const fbRef = firebase.database().ref('party-up/') // firebase project reference
     return(
       <IonPage>
         <IonToolbar>
