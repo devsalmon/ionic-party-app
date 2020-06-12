@@ -69,7 +69,7 @@ export class SignIn extends React.Component {
     }
     handleChange = (e) => {
         this.setState({
-            [e.target.id]: e.target.value
+            [e.detail.id]: e.detail.value
         })
     }
     handleSubmit = (e) => {
@@ -223,7 +223,7 @@ const CreateParty = ({initialValue, clear}) => {
   const [date, setDate] = useState<string>('')
   const [title, setTitle] = useState<string>('')
   const [location, setLocation] = useState<string>('')
-  const [Details, setDetails] = useState<string>('')
+  const [details, setDetails] = useState<string>('')
   const [endTime, setEndTime] = useState<string>('')
   const [startTime, setStartTime] = useState<string>('')
   const [searchText, setSearchText] = useState<string>('')
@@ -240,7 +240,7 @@ const CreateParty = ({initialValue, clear}) => {
 
   useEffect(() => {
     if (value != undefined) {
-    !loading && initialValue && value.exists && setTitle(value.data().name);
+    !loading && initialValue && setTitle(value.data().name);
     }
   },
   [loading, initialValue, value]);
@@ -254,7 +254,7 @@ const CreateParty = ({initialValue, clear}) => {
         //   title: title, 
         //   date: date, 
         //   location: location,
-        //   targets: targets,
+        //   details: details,
         //   endTime: endTime,
         //   startTime: startTime,       
         createdOn: new Date().getTime()}, 
@@ -264,7 +264,7 @@ const CreateParty = ({initialValue, clear}) => {
         clear();
     }
 
-        // fbRef.push(partytargets, (error) =>{
+        // fbRef.push(partydetails, (error) =>{
         //   if (error) {
         //     console.log("Data could not be saved." + error);
         //   } else { // reset everything
@@ -288,30 +288,30 @@ const CreateParty = ({initialValue, clear}) => {
     <IonContent>
     <IonList>
       <IonItem>
-        <IonInput value={title} onIonChange={e => setTitle(e.target.value)} placeholder="Title (e.g. Bruno's 17th)" clearInput></IonInput>
+        <IonInput value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title (e.g. Bruno's 17th)" clearInput></IonInput>
       </IonItem>
 
       <IonItem>
-        <IonInput value={location} onIonChange={e => setLocation(e.target.value!)} placeholder="Location" clearInput></IonInput>
+        <IonInput value={location} onIonChange={e => setLocation(e.detail.value!)} placeholder="Location" clearInput></IonInput>
       </IonItem>
 
       <IonItem>
         <IonLabel>Date</IonLabel>
-        <IonDatetime value={date} onIonChange={e => setDate(e.target.value!)} placeholder="Select Date"></IonDatetime>
+        <IonDatetime value={date} onIonChange={e => setDate(e.detail.value!)} placeholder="Select Date"></IonDatetime>
       </IonItem>
 
       <IonItem>
         <IonLabel>Time</IonLabel>
-        <IonDatetime value={startTime} onIonChange={e => setStartTime(e.target.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
+        <IonDatetime value={startTime} onIonChange={e => setStartTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
       </IonItem>
 
       <IonItem>
         <IonLabel>Ends</IonLabel>
-        <IonDatetime value={endTime} onIonChange={e => setEndTime(e.target.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
+        <IonDatetime value={endTime} onIonChange={e => setEndTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
       </IonItem>
 
       <IonItem>
-        <IonTextarea value={targets} onIonChange={e => settargets(e.target.value!)} placeholder="Additional targets"></IonTextarea>
+        <IonTextarea value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
       </IonItem>
     </IonList>
     <IonModal isOpen={showModal}>
@@ -325,7 +325,7 @@ const CreateParty = ({initialValue, clear}) => {
             </IonRow>
             <IonRow>
               <IonCol size="9">
-                <IonSearchbar value={searchText} onIonChange={e => setSearchText(e.target.value!)} showCancelButton="focus" color="danger"></IonSearchbar>                  
+                <IonSearchbar value={searchText} onIonChange={e => setSearchText(e.detail.value!)} showCancelButton="focus" color="danger"></IonSearchbar>                  
               </IonCol>
               <IonCol>
                 <IonButton fill="clear" onClick={e => setShowModal(false)}>Done</IonButton>
