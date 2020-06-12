@@ -232,10 +232,7 @@ const CreateParty = ({initialValue, clear}) => {
   const [checked, setChecked] = useState(false);
 
   const [value, loading, error] = useDocument(
-    firebase.firestore().doc("parties/" + initialValue),
-    {
-      snapshotListenOptions: {includeMetadataChanges: true}
-    }
+    firebase.firestore().doc("parties/" + initialValue)
   );
 
   useEffect(() => {
@@ -263,7 +260,11 @@ const CreateParty = ({initialValue, clear}) => {
         setTitle("");
         clear();
     }
-
+    else {
+      await collectionRef.add({name: title, createdOn: new Date().getTime() })
+      setTitle("");
+      clear();
+    }
         // fbRef.push(partydetails, (error) =>{
         //   if (error) {
         //     console.log("Data could not be saved." + error);
