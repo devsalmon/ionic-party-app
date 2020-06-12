@@ -365,6 +365,7 @@ class Home extends React.Component {
           <IonRow>
             <IonCol>
               <p>PARTY LIST</p>
+              <PartyList />
             </IonCol>
           </IonRow>  
         </IonGrid>
