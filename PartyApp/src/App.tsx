@@ -106,8 +106,7 @@ class Page {
 const appPages: Page[] = [
   {title: 'Upcoming parties', url: '/', icon: home},
   {title: 'Create a party', url: '/create', icon: addCircle},
-  {title: 'Login page', url: '/login', icon: logIn},
-  {title: 'Memories', url: '/memories', icon: peopleCircleOutline},
+  {title: 'Sign in page', url: '/signin', icon: logIn},
 ]
 
 const Links = () => {
@@ -115,9 +114,6 @@ const Links = () => {
       <IonList>
         <IonItem href='/'>
           <IonLabel>Log Out</IonLabel>
-        </IonItem>
-        <IonItem href='/'>
-          <IonIcon icon={personCircleOutline}></IonIcon>
         </IonItem>
         <IonItem color="primary">
           <IonIcon slot="start" icon={starSharp}/>
