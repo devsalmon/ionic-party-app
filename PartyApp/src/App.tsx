@@ -59,8 +59,48 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
+import { sign } from 'crypto';
 
 // once finished, run ionic build then npx cap add ios and npx cap add android
+
+    // Signs-in Messaging with GOOGLE POP UP
+    const SignInGooglepu = async() => {
+      // Initiate Firebase Auth.
+      // Sign into Firebase using popup auth & Google as the identity provider.
+      var provider = new firebase.auth.GoogleAuthProvider();
+      //Sign in with pop up
+      firebase.auth().signInWithPopup(provider).then(function (result) {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        //var token = result.credential.accessToken;
+        // The signed-in user info.
+        var user = result.user;
+        // ...
+      }).catch(function (error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // The email of the user's account used.
+        var email = error.email;
+        // The firebase.auth.AuthCredential type that was used.
+        var credential = error.credential;
+      });
+
+      // Get the signed-in user's profile pic and name.
+      //var profilePicUrl = getProfilePicUrl();
+      //var userName = getUserName();
+
+      // Set the user's profile pic and name.
+      //document.getElementById('user-pic').style.backgroundImage = 'url(' + addSizeToGoogleProfilePic(profilePicUrl) + ')';
+      //document.getElementById('user-name').textContent = userName;
+    }
+
+        // Signs out of Party app.
+        const signOut = async() => {
+          // Sign out of Firebase.
+          firebase.auth().signOut();
+          //alert("YOU JUST SIGNED OUT")
+         }
+
 
 const SignIn = () => {
 
@@ -81,7 +121,7 @@ const SignIn = () => {
               <IonLabel>Password</IonLabel>
               <IonInput value={password} placeholder="password"></IonInput>
           </IonItem>  
-          <IonButton>Login</IonButton>
+          <IonButton onClick={() => SignInGooglepu()}>Login</IonButton>
         </IonContent>
     </IonPage>
   )
@@ -222,18 +262,18 @@ const CreateParty = ({initialValue, clear}) => {
       await (collectionRef).doc(initialValue).set(
         {title: title, 
         //   date: date, 
-        //   location: location,
+           location: location,
         //   details: details,
         //   endTime: endTime,
         //   startTime: startTime,       
-        createdOn: new Date().getTime()}, 
+        createdOn: firebase.firestore.FieldValue.serverTimestamp()}, 
         {merge:true} 
         );
         setTitle("");
         clear();
     }
     else {
-      await collectionRef.add({title: title, createdOn: new Date().getTime() })
+      await collectionRef.add({title: title, location: location, createdOn: new Date().getTime() })
       setTitle("");
       clear();
     }
@@ -348,7 +388,7 @@ class App extends React.Component {
       <Menu /> 
         <IonButtons slot="start">
           <IonMenuButton autoHide={false} menu="main-menu"></IonMenuButton>
-          <IonButton href="/signin" slot="end">SignOut</IonButton>
+          <IonButton href="/signin" slot="end" onClick={() => signOut()}>SignOut</IonButton>
         </IonButtons>
       <IonContent>
         <IonReactRouter>
