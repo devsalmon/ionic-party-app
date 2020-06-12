@@ -1,5 +1,5 @@
-import React from 'react';
-import { Route, RouteComponentProps } from 'react-router-dom';
+import React, { useState, useEffect} from 'react';
+import { Route, Redirect } from 'react-router-dom';
 import {
   IonApp,
   IonIcon,
@@ -9,6 +9,7 @@ import {
   IonTabButton,
   IonTabs, 
   IonItem,
+  IonLoading,
   IonList, 
   IonButton,
   IonPage,
@@ -38,11 +39,8 @@ import {
 import { IonReactRouter } from '@ionic/react-router';
 import { home, addCircle, logIn, peopleCircleOutline, personCircleOutline, starSharp } from 'ionicons/icons';
 
-import createParty from './store/partyActions';
+import firebase from './firestore'
 
-import { connect } from 'react-redux'
-import { compose } from 'redux'
-import { firestoreConnect } from 'react-redux-firebase';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */
@@ -60,54 +58,6 @@ import '@ionic/react/css/display.css';
 import './theme/variables.css';
 
 // once finished, run ionic build then npx cap add ios and npx cap add android
-
-
-export class SignUp extends React.Component {
-    state = {
-        email: '',
-        password: '',
-        firstName:'',
-        lastName: '',
-    }
-    handleChange = (e) => {
-        this.setState({
-            [e.target.id]: e.target.value
-        })
-    }
-    handleSubmit = (e) => {
-        e.preventDefault()
-        console.log(this.state)
-    }
-    render() {
-        return (
-            <IonPage>
-                <IonToolbar>
-                    <IonTitle>Sign Up</IonTitle>
-                </IonToolbar>
-                <IonContent>
-                    <IonItem>
-                        <IonLabel>Email</IonLabel>
-                        <IonInput id="email" onIonChange={this.handleChange} placeholder="username"></IonInput>
-                    </IonItem>  
-                    <IonItem>
-                        <IonLabel>Password</IonLabel>
-                        <IonInput id="password" onIonChange={this.handleChange} placeholder="password"></IonInput>
-                    </IonItem>   
-                    <IonItem>
-                        <IonLabel>First Name</IonLabel>
-                        <IonInput id="firstName" onIonChange={this.handleChange} placeholder="first name"></IonInput>
-                    </IonItem>   
-                    <IonItem>
-                        <IonLabel>Last Name</IonLabel>
-                        <IonInput id="lastName" onIonChange={this.handleChange} placeholder="last name"></IonInput>
-                    </IonItem>  
-                    <IonButton onClick={this.handleSubmit} >Sign Up</IonButton>
-                </IonContent>
-            </IonPage>
-        )
-    }
-}
-
 
 export class SignIn extends React.Component {
     state = {
@@ -145,22 +95,6 @@ export class SignIn extends React.Component {
     }
 }
 
-const SignedOutLinks = () => {
-    return(
-      <IonList>
-        <IonMenuToggle>
-        <IonItem href='/signin'>
-          <IonLabel>Log In</IonLabel>
-        </IonItem>
-        <IonItem href='/signup'>
-          <IonLabel>Sign Up</IonLabel>
-        </IonItem>
-        </IonMenuToggle>
-      </IonList>
-)
-};
-
-
 class Page {
   title: string = '';
   url: string = '';
@@ -173,7 +107,7 @@ const appPages: Page[] = [
   {title: 'Memories', url: '/memories', icon: peopleCircleOutline},
 ]
 
-const SignedInLinks = () => {
+const Links = () => {
     return(
       <IonList>
         <IonItem href='/'>
@@ -200,68 +134,6 @@ const SignedInLinks = () => {
 )
 };
 
-
-const PartyDetails = (props) => {
-    const id = props.match.params.id;
-    return(
-    <IonCard>
-        <IonCardHeader>
-        <IonCardTitle>Party Title - {id}</IonCardTitle>
-        </IonCardHeader>
-
-        <IonCardContent>
-        Keep close to Nature's heart... and break clear away, once in awhile,
-        and climb a mountain or spend a week in the woods. Wash your spirit clean.
-        </IonCardContent>
-    </IonCard>
-    )
-}
-
-const PartyList = ({parties}) => {
-    return(
-    <IonList>
-      { parties && parties.map(party =>{
-        return(
-          <PartySummary party={party} key={party.id}/>
-        )
-      })} 
-      
-      {/* {arr.map(elem => (
-          <IonItemSliding key = {elem.name}> 
-            <IonItem>
-              <IonAvatar>
-                <img src={'https://ionicframework.com/docs/demos/api/list/avatar-finn.png'} />
-              </IonAvatar>
-              <IonLabel className="ion-padding">
-                <h2>{elem.name}</h2>
-              </IonLabel>
-            </IonItem>
-            <IonItemOptions side="end">
-              <IonItemOption>See details</IonItemOption>
-            </IonItemOptions> 
-          </IonItemSliding> 
-        ))}*/}
-    </IonList>
-    )
-}
-
-
-const PartySummary = ({party}) => {
-    return(
-    <IonCard>
-        <IonCardHeader>
-        <IonCardTitle>{party.title}</IonCardTitle>
-        </IonCardHeader>
-
-        <IonCardContent>
-        Keep close to Nature's heart... and break clear away, once in awhile,
-        and climb a mountain or spend a week in the woods. Wash your spirit clean.
-        </IonCardContent>
-    </IonCard>
-    )
-}
-
-
 class Menu extends React.Component{
   render() {
     return(
@@ -274,8 +146,7 @@ class Menu extends React.Component{
             </IonToolbar>
           </IonHeader>
           <IonContent color="primary">
-            <SignedInLinks /> 
-            <SignedOutLinks />  
+            <Links /> 
           </IonContent>
         </IonMenu>
       </IonMenuToggle>
@@ -286,153 +157,148 @@ class Menu extends React.Component{
   }  
 }
 
-const Notifications = () => {
-    return(
-    <IonList>
-        <IonItem>Notifications</IonItem>
-    </IonList>
-    )
-}
+const Create: React.FC = (props) => {
 
-const Memories: React.FC = () => {
-    return(
-        <IonPage>
-            <IonHeader>
-                <IonToolbar>
-                    <IonTitle className="ion-text-center">Memories</IonTitle>
-                </IonToolbar>
-            </IonHeader>
-        </IonPage>
-    );
-};
+  const [showLoading, setShowLoading] = useState(false);
+  const [date, setDate] = useState<string>('')
+  const [title, setTitle] = useState<string>('')
+  const [location, setLocation] = useState<string>('')
+  const [details, setDetails] = useState<string>('')
+  const [endTime, setEndTime] = useState<string>('')
+  const [startTime, setStartTime] = useState<string>('')
+  const [searchText, setSearchText] = useState<string>('')
+  const [friendList, setFriendList] = useState([])
+  const [showModal, setShowModal] = useState(false);
+  const [checked, setChecked] = useState(false);
+  const fbRef = firebase.database().ref('parties/') 
 
-class Create extends React.Component<ICreateProps> {
-
-  state = {
-    title : '',
-    location: '',
-    date: '',
-    startTime: '',
-    endTime: '',
-    details: '',
-    showModal : Boolean(false),
-    checked : Boolean(false),
-    searchText : '',
-    friendsList : [
-      { val: 'Mark', isChecked: false },
-      { val: 'Max', isChecked: false },
-      { val: 'Harry', isChecked: false },
-      { val: 'Harry', isChecked: false },
-      { val: 'Harry', isChecked: false },
-      { val: 'Harry', isChecked: false },
-      { val: 'Harry', isChecked: false },
-      { val: 'Harry', isChecked: false },
-    ],
+  const createParty = () => {
+    fbRef.orderByChild('date').once('value', resp => {
+      let cdata = snapshotToArray(resp)
+        let partyDetails = { 
+          title: title, 
+          date: date, 
+          location: location,
+          details: details,
+          endTime: endTime,
+          startTime: startTime,          
+        }
+        fbRef.push(partyDetails, (error) =>{
+          if (error) {
+            console.log("Data could not be saved." + error);
+          } else { // reset everything
+            console.log('worked')
+            setDate('')
+            setTitle('')
+            setLocation('')
+            setDetails('')
+            setEndTime('')
+            setStartTime('')
+            let prop: any = props;
+            prop.history.push({
+              pathname: '/'
+            })
+          }
+        })
+    })
   }
 
-  handleChange = (e) => {
-      this.setState({
-          [e.target.id]: e.target.value
-      })
+  const snapshotToArray = (snapshot: any) => {
+    const returnArr: any[] = []
+  
+    snapshot.forEach((childSnapshot: any) => {
+      const item = childSnapshot.val()
+      item.key = childSnapshot.key
+      returnArr.push(item)
+    });
+  
+    return returnArr;
   }
-  handleSubmit = (e) => {
-      e.preventDefault()
-      this.props.createParty(this.state)
-  }
-  render(){
-    return(
-    <IonPage className="ion-padding">
-      <IonToolbar>
-        <IonTitle className="ion-text-center">Create a party</IonTitle>
-      </IonToolbar>
-      <IonContent>
-        <IonList>
-          <IonItem>
-            <IonInput id="title" onIonChange={this.handleChange} placeholder="Title (e.g. Bruno's 17th)" clearInput></IonInput>
-          </IonItem>
 
-          <IonItem>
-            <IonInput id="location" onIonChange={this.handleChange} placeholder="Location" clearInput></IonInput>
-          </IonItem>
+  return(
 
-          <IonItem>
-            <IonLabel>Date</IonLabel>
-            <IonDatetime id="date" onIonChange={this.handleChange} placeholder="Select Date"></IonDatetime>
-          </IonItem>
+  <IonPage className="ion-padding">
+    <IonToolbar>
+      <IonTitle className="ion-text-center">Create a party</IonTitle>
+    </IonToolbar>
+    <IonContent>
+      <IonLoading
+        isOpen={showLoading}
+        onDidDismiss={() => setShowLoading(false)}
+        message={'Loading...'}
+      />
+      <IonList>
+        <IonItem>
+          <IonInput value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title (e.g. Bruno's 17th)" clearInput></IonInput>
+        </IonItem>
 
-          <IonItem>
-            <IonLabel>Time</IonLabel>
-            <IonDatetime id="startTime" onIonChange={this.handleChange} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
-          </IonItem>
- 
-          <IonItem>
-            <IonLabel>Ends</IonLabel>
-            <IonDatetime id="endTime" onIonChange={this.handleChange} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
-          </IonItem>
+        <IonItem>
+          <IonInput value={location} onIonChange={e => setLocation(e.detail.value!)} placeholder="Location" clearInput></IonInput>
+        </IonItem>
 
-          <IonItem>
-            <IonTextarea id="details" onIonChange={this.handleChange} placeholder="Additional Details"></IonTextarea>
-          </IonItem>
-        </IonList>
-        <IonModal isOpen={this.state.showModal}>
-          <IonHeader>
-            <IonToolbar>              
-              <IonGrid>
-                <IonRow>
-                  <IonCol>
-                  <IonTitle className="ion-text-center">Select people to invite</IonTitle>
-                  </IonCol>
-                </IonRow>
-                <IonRow>
-                  <IonCol size="9">
-                    <IonSearchbar value={this.state.searchText} onIonChange={e => this.setState({searchText:e.detail.value!})} showCancelButton="focus" color="danger"></IonSearchbar>                  
-                  </IonCol>
-                  <IonCol>
-                    <IonButton fill="clear" onClick={e => this.setState({showModal:false})}>Done</IonButton>
-                  </IonCol>                  
-                </IonRow>
-              </IonGrid>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            <IonList>
-              {this.state.friendsList.map(({ val, isChecked }, i) => (
-                <IonItem key={i}>
-                  <IonLabel>{val}</IonLabel>
-                  <IonCheckbox slot="end" color="danger" value={val} checked={isChecked} />
-                </IonItem>
-              ))}
-            </IonList>
-          </IonContent>
-        </IonModal>
-        <IonButton expand="block" onClick={e => this.setState({showModal:true})}>Invite People</IonButton>
-        <IonButton onClick={this.handleSubmit} expand="block" size="large">Create!</IonButton>
+        <IonItem>
+          <IonLabel>Date</IonLabel>
+          <IonDatetime value={date} onIonChange={e => setDate(e.detail.value!)} placeholder="Select Date"></IonDatetime>
+        </IonItem>
+
+        <IonItem>
+          <IonLabel>Time</IonLabel>
+          <IonDatetime value={startTime} onIonChange={e => setStartTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
+        </IonItem>
+
+        <IonItem>
+          <IonLabel>Ends</IonLabel>
+          <IonDatetime value={endTime} onIonChange={e => setEndTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
+        </IonItem>
+
+        <IonItem>
+          <IonTextarea value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional Details"></IonTextarea>
+        </IonItem>
+      </IonList>
+      <IonModal isOpen={showModal}>
+        <IonHeader>
+          <IonToolbar>              
+            <IonGrid>
+              <IonRow>
+                <IonCol>
+                <IonTitle className="ion-text-center">Select people to invite</IonTitle>
+                </IonCol>
+              </IonRow>
+              <IonRow>
+                <IonCol size="9">
+                  <IonSearchbar value={searchText} onIonChange={e => setSearchText(e.detail.value!)} showCancelButton="focus" color="danger"></IonSearchbar>                  
+                </IonCol>
+                <IonCol>
+                  <IonButton fill="clear" onClick={e => setShowModal(false)}>Done</IonButton>
+                </IonCol>                  
+              </IonRow>
+            </IonGrid>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent>
+          <IonList>
+            {friendList.map(({ val, isChecked }, i) => (
+              <IonItem key={i}>
+                <IonLabel>{val}</IonLabel>
+                <IonCheckbox slot="end" color="danger" value={val} checked={isChecked} />
+              </IonItem>
+            ))}
+          </IonList>
         </IonContent>
-    </IonPage>
-    )
-  }
+      </IonModal>
+      <IonButton expand="block" onClick={e => setShowModal(true)}>Invite People</IonButton>
+      <IonButton expand="block" onClick={() => { createParty() }}>CREATE!</IonButton>
+
+      </IonContent>
+  </IonPage>
+  )
 };
 
-interface ICreateProps {
-  createParty: (string) => string[]
-}
 
-const mapDispatchToProps = (dispatch) => {
-  return{
-    createParty: (party) => dispatch(createParty(party))
-  }
-}
-
-connect(null, mapDispatchToProps)(Create);
-
-interface IHomeProps extends RouteComponentProps<any> {
-  parties?: string[]
-}
-
-class Home extends React.Component<IHomeProps> {
+class Home extends React.Component {
 
   render(){
-    const { parties } = this.props;
+    const fbRef = firebase.database().ref('party-up/') // firebase project reference
     return(
       <IonPage>
         <IonToolbar>
@@ -442,10 +308,7 @@ class Home extends React.Component<IHomeProps> {
         <IonGrid>
           <IonRow>
             <IonCol>
-              <PartyList parties={parties}/>
-            </IonCol>
-            <IonCol>
-              <Notifications />
+              <p>PARTY LIST</p>
             </IonCol>
           </IonRow>  
         </IonGrid>
@@ -454,12 +317,6 @@ class Home extends React.Component<IHomeProps> {
     )
   }
 }
-
-const mapStateToProps = (state) => {
-  return { parties: state.party.parties }
-}
-// compose(firestoreConnect(()=>['parties']),connect(mapStateToProps)(HomeWithRouter))
-
 
 class App extends React.Component {
 
@@ -475,15 +332,13 @@ class App extends React.Component {
         <IonReactRouter>
           <IonTabs>
             <IonRouterOutlet>       
-              <Route path='/party/:id' component={PartyDetails} />
               <Route path='/signin' component={SignIn} />
-              <Route path='/signup' component={SignUp} />
               <Route path='/create' component={Create} />
-              <Route path='/memories' component={Memories} />
-              <Route path='/' component={Home} exact />      
+              <Route path='/home' component={Home} exact />      
+              <Route exact path="/" render={() => <Redirect to="/home" />} />
             </IonRouterOutlet> 
             <IonTabBar slot="bottom">
-              <IonTabButton tab="home" href="/">
+              <IonTabButton tab="home" href="/home">
                 <IonIcon icon={home} />
                 <IonLabel>Home</IonLabel>
               </IonTabButton>
