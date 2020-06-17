@@ -1,6 +1,6 @@
 import React, { useState, useEffect} from 'react';
 import { Route, Redirect } from 'react-router-dom';
-import {useDocument, useCollection} from "react-firebase-hooks/firestore"
+import {useDocument, useCollection} from 'react-firebase-hooks/firestore';
 import {
   IonApp,
   IonIcon,
@@ -37,7 +37,9 @@ import {
   IonMenu,
   IonMenuToggle,
   IonItemSliding,
-  IonText
+  IonText,
+  IonToast,
+  IonCardSubtitle
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { home, addCircle, logIn, peopleCircleOutline, personCircleOutline, starSharp } from 'ionicons/icons';
@@ -63,43 +65,43 @@ import { sign } from 'crypto';
 
 // once finished, run ionic build then npx cap add ios and npx cap add android
 
-    // Signs-in Messaging with GOOGLE POP UP
-    const SignInGooglepu = async() => {
-      // Initiate Firebase Auth.
-      // Sign into Firebase using popup auth & Google as the identity provider.
-      var provider = new firebase.auth.GoogleAuthProvider();
-      //Sign in with pop up
-      firebase.auth().signInWithPopup(provider).then(function (result) {
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        //var token = result.credential.accessToken;
-        // The signed-in user info.
-        var user = result.user;
-        // ...
-      }).catch(function (error) {
-        // Handle Errors here.
-        var errorCode = error.code;
-        var errorMessage = error.message;
-        // The email of the user's account used.
-        var email = error.email;
-        // The firebase.auth.AuthCredential type that was used.
-        var credential = error.credential;
-      });
+// Signs-in Messaging with GOOGLE POP UP
+const SignInGooglepu = async() => {
+  // Initiate Firebase Auth.
+  // Sign into Firebase using popup auth & Google as the identity provider.
+  var provider = new firebase.auth.GoogleAuthProvider();
+  //Sign in with pop up
+  firebase.auth().signInWithPopup(provider).then(function (result) {
+    // This gives you a Google Access Token. You can use it to access the Google API.
+    //var token = result.credential.accessToken;
+    // The signed-in user info.
+    var user = result.user;
+    // ...
+  }).catch(function (error) {
+    // Handle Errors here.
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    // The email of the user's account used.
+    var email = error.email;
+    // The firebase.auth.AuthCredential type that was used.
+    var credential = error.credential;
+  });
 
-      // Get the signed-in user's profile pic and name.
-      //var profilePicUrl = getProfilePicUrl();
-      //var userName = getUserName();
+  // Get the signed-in user's profile pic and name.
+  //var profilePicUrl = getProfilePicUrl();
+  //var userName = getUserName();
 
-      // Set the user's profile pic and name.
-      //document.getElementById('user-pic').style.backgroundImage = 'url(' + addSizeToGoogleProfilePic(profilePicUrl) + ')';
-      //document.getElementById('user-name').textContent = userName;
-    }
+  // Set the user's profile pic and name.
+  //document.getElementById('user-pic').style.backgroundImage = 'url(' + addSizeToGoogleProfilePic(profilePicUrl) + ')';
+  //document.getElementById('user-name').textContent = userName;
+}
 
-        // Signs out of Party app.
-        const signOut = async() => {
-          // Sign out of Firebase.
-          firebase.auth().signOut();
-          //alert("YOU JUST SIGNED OUT")
-         }
+// Signs out of Party app.
+const signOut = async() => {
+  // Sign out of Firebase.
+  firebase.auth().signOut();
+  //alert("YOU JUST SIGNED OUT")
+  }
 
 
 const SignIn = () => {
@@ -181,16 +183,35 @@ class Menu extends React.Component{
   }  
 }
 
+
+//TODO - 
+// Add friends page
+// create toast to let user know they created a party successfully
+// after user signs in, direct to the home page
+// log in function after signing up
+// delete party document in firebase after it's happened
+// display other details on party card
+
 const Party = ({doc}) => {
   // party card
   let data = doc.data()
   return(
     <IonCard>
       <IonCardHeader>
+      <IonCardSubtitle>{data.date}</IonCardSubtitle>
       <IonCardTitle>{data.title}</IonCardTitle>
       </IonCardHeader>
       <IonCardContent>
-        party details...
+        <IonList>  
+          <IonLabel>Details:</IonLabel>
+          <IonItem>{data.details}</IonItem>
+          <IonLabel>Location:</IonLabel>
+          <IonItem>{data.location}</IonItem>
+          <IonLabel>Starts:</IonLabel>          
+          <IonItem>{data.startTime}</IonItem>
+          <IonLabel>Ends:</IonLabel>
+          <IonItem>{data.endTime}</IonItem>
+        </IonList>
       </IonCardContent>
     </IonCard>
   )
@@ -216,7 +237,7 @@ const PartyList = () => {
 
 const Create: React.FC = () => {
   
-  const [current, setCurrent] = useState(null);
+  const [current, setCurrent] = useState(null); // used to reset input form values
 
   return(
     <IonPage>
@@ -232,6 +253,7 @@ const Create: React.FC = () => {
 
 const CreateParty = ({initialValue, clear}) => {
 
+  // initialValue is null
 
   const [date, setDate] = useState<string>('')
   const [title, setTitle] = useState<string>('')
@@ -243,6 +265,7 @@ const CreateParty = ({initialValue, clear}) => {
   const [friendList, setFriendList] = useState([])
   const [showModal, setShowModal] = useState(false);
   const [checked, setChecked] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
   const [value, loading, error] = useDocument(
     firebase.firestore().doc("parties/" + initialValue)
@@ -260,40 +283,46 @@ const CreateParty = ({initialValue, clear}) => {
     let collectionRef = firebase.firestore().collection("parties");
     if(initialValue) {
       await (collectionRef).doc(initialValue).set(
-        {title: title, 
-        //   date: date, 
-           location: location,
-        //   details: details,
-        //   endTime: endTime,
-        //   startTime: startTime,       
-        createdOn: firebase.firestore.FieldValue.serverTimestamp()}, 
+        { title: title, 
+          date: date, 
+          location: location,
+          details: details,
+          endTime: endTime,
+          startTime: startTime,       
+          // convert firestore timestamp to date format
+          createdOn: new Date(firebase.firestore.Timestamp.now().seconds*1000).toLocaleDateString()
+        }, 
         {merge:true} 
         );
         setTitle("");
+        setDate("")
+        setLocation("");
+        setDetails("");
+        setEndTime("");
+        setStartTime("");
+        // TODO setShowToast(true) if all inputs added
+        // convert date format from iondatetime's format
         clear();
     }
     else {
-      await collectionRef.add({title: title, location: location, createdOn: new Date().getTime() })
-      setTitle("");
+      await collectionRef.add(
+        {title: title, 
+        location: location, 
+        date: date, 
+        details: details,
+        endTime: endTime,
+        startTime: startTime,
+        // convert firestore timestamp to date format
+        createdOn: new Date(firebase.firestore.Timestamp.now().seconds*1000).toLocaleDateString()})
+        setTitle("");
+        setDate("")
+        setLocation("");
+        setDetails("");
+        setEndTime("");
+        setStartTime("");
+      setShowToast(true);
       clear();
     }
-        // fbRef.push(partydetails, (error) =>{
-        //   if (error) {
-        //     console.log("Data could not be saved." + error);
-        //   } else { // reset everything
-        //     console.log('worked')
-        //     setDate('')
-        //     setTitle('')
-        //     setLocation('')
-        //     setDetails('')
-        //     setEndTime('')
-        //     setStartTime('')
-        //     let prop: any = props;
-        //     prop.history.push({
-        //       pathname: '/'
-        //     })
-        //   }
-        // })
   }
 
   return(
@@ -360,6 +389,13 @@ const CreateParty = ({initialValue, clear}) => {
     </IonModal>
     <IonButton expand="block" onClick={e => setShowModal(true)}>Invite People</IonButton>
     <IonButton expand="block" onClick={() => onSave()}>CREATE!</IonButton>
+    <IonToast
+      isOpen={showToast}
+      onDidDismiss={() => setShowToast(false)}
+      duration={2000}
+      message="Party Created!"
+      position="bottom"
+    />
     </IonContent>
   )
 };
