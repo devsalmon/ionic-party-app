@@ -152,19 +152,19 @@ const UserCard = ({doc}) => {
   );
 };
 
-const Users = () => {
+const Users: React.FC = () => {
   const [value, loading, error] = useCollection(
     firebase.firestore().collection("users"),
   );
-  //const [searchText, setSearchText] = useState<string>('');
+  const [searchText, setSearchText] = useState<string>('');
   return(
     <IonPage>
-    {/* <IonHeader>
+    <IonHeader>
       <IonToolbar>
-        <IonTitle>IonSearchBar Examples</IonTitle> 
+        <IonTitle>Users</IonTitle> 
         <IonSearchbar value={searchText} onIonChange={e => setSearchText(e.detail.value!)}></IonSearchbar>
       </IonToolbar>
-    </IonHeader> */}
+    </IonHeader>
     <IonContent>
       <IonList>
         {value && value.docs.map(doc => {
