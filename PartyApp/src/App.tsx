@@ -79,7 +79,7 @@ const SignInGooglepu = async() => {
     var user = result.user;
     const isNewUser = result.additionalUserInfo.isNewUser
     if (isNewUser) {
-    firebase.firestore().collection('users').add({
+      firebase.firestore().collection('users').add({
       name: user.displayName }) }
 
   }).catch(function (error) {
@@ -134,34 +134,52 @@ const SignIn = () => {
   )
 }
 
-const Users = () => {
+const UserCard = ({doc}) => {
 
-  const [searchText, setSearchText] = useState('');
-  const [title, setTitle] = useState<string>('');
-
-  return (
-    <IonPage>
-    <IonHeader>
-      <IonToolbar>
-        {/* <IonTitle>IonSearchBar Examples</IonTitle> */}
-        <IonSearchbar value={searchText} onIonChange={e => setSearchText(e.detail.value!)}></IonSearchbar>
-      </IonToolbar>
-    </IonHeader>
-    <IonContent className="ion-padding">
+  // user card
+  let data = doc.data()
+  return(
     <IonCard>
       <IonCardHeader>
-      <IonCardTitle>{data.title}</IonCardTitle>
+        <IonCardTitle>{data.name}</IonCardTitle>
       </IonCardHeader>
+      <IonCardContent>
+        <IonList>  
+          <IonLabel>Details:</IonLabel>
+        </IonList>
+      </IonCardContent>
     </IonCard>
-    </IonContent>
-      {/*<IonFooter>
-        <IonToolbar>
-          Search Text: {searchText ?? '(none)'}
-        </IonToolbar>
-      </IonFooter>*/}
-    </IonPage>
   );
 };
+
+const Users = () => {
+  const [value, loading, error] = useCollection(
+    firebase.firestore().collection("users"),
+  );
+  //const [searchText, setSearchText] = useState<string>('');
+  return(
+    <IonPage>
+    {/* <IonHeader>
+      <IonToolbar>
+        <IonTitle>IonSearchBar Examples</IonTitle> 
+        <IonSearchbar value={searchText} onIonChange={e => setSearchText(e.detail.value!)}></IonSearchbar>
+      </IonToolbar>
+    </IonHeader> */}
+    <IonContent>
+      <IonList>
+        {value && value.docs.map(doc => {
+          return(
+            !loading && (
+              <UserCard doc={doc} key={doc.id} />
+            )
+          )
+        })}
+      </IonList>
+    </IonContent>
+    </IonPage>
+  )
+}
+
 
 class Page {
   title: string = '';
