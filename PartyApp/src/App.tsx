@@ -39,10 +39,11 @@ import {
   IonItemSliding,
   IonText,
   IonToast,
-  IonCardSubtitle
+  IonCardSubtitle,
+  IonFooter
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { home, addCircle, logIn, peopleCircleOutline, personCircleOutline, starSharp } from 'ionicons/icons';
+import { home, addCircle, logIn, peopleCircleOutline, personCircleOutline, starSharp, triangle } from 'ionicons/icons';
 
 import firebase from './firestore'
 
@@ -76,7 +77,11 @@ const SignInGooglepu = async() => {
     //var token = result.credential.accessToken;
     // The signed-in user info.
     var user = result.user;
-    // ...
+    const isNewUser = result.additionalUserInfo.isNewUser
+    if (isNewUser) {
+    firebase.firestore().collection('users').add({
+      name: user.displayName }) }
+
   }).catch(function (error) {
     // Handle Errors here.
     var errorCode = error.code;
@@ -129,6 +134,35 @@ const SignIn = () => {
   )
 }
 
+const Users = () => {
+
+  const [searchText, setSearchText] = useState('');
+  const [title, setTitle] = useState<string>('');
+
+  return (
+    <IonPage>
+    <IonHeader>
+      <IonToolbar>
+        {/* <IonTitle>IonSearchBar Examples</IonTitle> */}
+        <IonSearchbar value={searchText} onIonChange={e => setSearchText(e.detail.value!)}></IonSearchbar>
+      </IonToolbar>
+    </IonHeader>
+    <IonContent className="ion-padding">
+    <IonCard>
+      <IonCardHeader>
+      <IonCardTitle>{data.title}</IonCardTitle>
+      </IonCardHeader>
+    </IonCard>
+    </IonContent>
+      {/*<IonFooter>
+        <IonToolbar>
+          Search Text: {searchText ?? '(none)'}
+        </IonToolbar>
+      </IonFooter>*/}
+    </IonPage>
+  );
+};
+
 class Page {
   title: string = '';
   url: string = '';
@@ -137,6 +171,7 @@ class Page {
 const appPages: Page[] = [
   {title: 'Upcoming parties', url: '/', icon: home},
   {title: 'Create a party', url: '/create', icon: addCircle},
+  {title: 'Users', url: '/users', icon: triangle}
 ]
 
 const Links = () => {
@@ -432,6 +467,7 @@ class App extends React.Component {
             <IonRouterOutlet>       
               <Route path='/signin' component={SignIn} />
               <Route path='/create' component={Create} />
+              <Route path='/users' component={Users} />
               <Route path='/home' component={Home} exact />      
               <Route exact path="/" render={() => <Redirect to="/home" />} />
             </IonRouterOutlet> 
