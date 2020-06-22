@@ -143,7 +143,7 @@ const SignIn = () => {
   return (
     <IonPage>
         <IonToolbar>
-          <IonTitle>Sign in</IonTitle>
+          <IonTitle size="large">Sign in</IonTitle>
         </IonToolbar>
         <IonContent className="ion-padding ion-text-center">
           <IonItem>
@@ -165,7 +165,7 @@ const Profile: React.FC = () => {
   return(
     <IonPage>
       <IonToolbar>
-        <IonTitle></IonTitle>
+        <IonTitle size="large">Profile</IonTitle>
         <IonAvatar></IonAvatar>
       </IonToolbar>
       <IonContent>
@@ -193,7 +193,7 @@ const Users: React.FC = () => {
     <IonPage>
     <IonHeader>
       <IonToolbar>
-        <IonTitle>Users</IonTitle> 
+        <IonTitle size="large">Users</IonTitle> 
         <IonSearchbar onIonChange={e => filterUsers(e.detail.value!)}></IonSearchbar>
       </IonToolbar>
     </IonHeader>
@@ -255,7 +255,7 @@ class Menu extends React.Component{
         <IonMenu type="overlay" contentId="main" menuId="main-menu">
           <IonHeader>
             <IonToolbar color="primary">
-              <IonTitle>Menu</IonTitle>
+              <IonTitle size="large">Menu</IonTitle>
             </IonToolbar>
           </IonHeader>
           <IonContent color="primary">
@@ -344,7 +344,7 @@ const Create: React.FC = () => {
   return(
     <IonPage>
       <IonToolbar className="ion-padding">
-        <IonTitle className="ion-text-center">Create a party</IonTitle>  
+        <IonTitle className="ion-text-center" size="large">Create a party</IonTitle>  
       </IonToolbar>
       <CreateParty initialValue={current} clear={() => setCurrent(null)}/>
     </IonPage>
@@ -464,7 +464,7 @@ const CreateParty = ({initialValue, clear}) => {
           <IonGrid>
             <IonRow>
               <IonCol>
-              <IonTitle className="ion-text-center">Select people to invite</IonTitle>
+              <IonTitle className="ion-text-center" size="large">Select people to invite</IonTitle>
               </IonCol>
             </IonRow>
             <IonRow>
@@ -507,7 +507,7 @@ const Camera: React.FC = () => {
   return(
     <IonPage>
       <IonToolbar>
-        <IonTitle className="ion-text-center">Camera</IonTitle>
+        <IonTitle className="ion-text-center" size="large">Camera</IonTitle>
       </IonToolbar>
     </IonPage>
   )
@@ -519,7 +519,7 @@ const Inbox: React.FC = () => {
   return(
     <IonPage>
       <IonToolbar>
-        <IonTitle className="ion-text-center">Invites</IonTitle>
+        <IonTitle className="ion-text-center" size="large">Invites</IonTitle>
       </IonToolbar>
       <IonContent className="ion-padding">
         <IonFab vertical="top" horizontal="end" slot="fixed" edge>
@@ -543,7 +543,7 @@ const Memories: React.FC = () => {
   return(
     <IonPage>
       <IonToolbar>
-        <IonTitle className="ion-text-center">Memories</IonTitle>
+        <IonTitle className="ion-text-center" size="large">Memories</IonTitle>
       </IonToolbar>
       <IonContent className="ion-padding">
         <IonFab vertical="top" horizontal="end" slot="fixed" edge>
@@ -567,7 +567,7 @@ const Home: React.FC = () => {
   return(
     <IonPage>
       <IonToolbar>
-        <IonTitle className="ion-text-center">Upcoming parties</IonTitle>
+        <IonTitle className="ion-text-center" size="large">Upcoming parties</IonTitle>
       </IonToolbar>
       <IonContent className="ion-padding">
         <IonFab vertical="top" horizontal="end" slot="fixed" edge>
