@@ -77,24 +77,6 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './variables.css';
 
-// Triggers when the auth state change for instance when the user signs-in or signs-out.
-firebase.auth().onAuthStateChanged(function (user) {
-
-  var user = firebase.auth().currentUser;
-  //var name;
-  //if user is present (singed in), their name will display appropriately.
-  if (user != null) {
-    //ons.notification.alert('User Signed In!')
-    //name = user.displayName;
-    //I could also display email and profile pic and other things later.
-    //email = user.email;
-  }
-  else { 
-    //alert("No one is signed in")
-    
-    //document.getElementById('text-display').innerHTML = null;
-   }
-  });
 
 // once finished, run ionic build then npx cap add ios and npx cap add android
 
@@ -572,56 +554,77 @@ const Home: React.FC = () => {
 
 class App extends React.Component {
 
+  // Triggers when the auth state change for instance when the user signs-in or signs-out.
+  //firebase.auth().onAuthStateChanged(function())
   render() {
     return(
     <IonApp>
-      <Menu /> 
-        <IonReactRouter>
-          <IonTabs>
-            <IonRouterOutlet>       
+      <>
+        {firebase.auth().currentUser != null ? (
+          //ons.notification.alert('User Signed In!')
+          //name = user.displayName;
+          //I could also display email and profile pic and other things later.
+          //email = user.email;
+          <>
+          <Menu /> 
+            <IonReactRouter>
+              <IonTabs>
+                <IonRouterOutlet>       
+                  <Route path='/signin' component={SignIn} />
+                  <Route path='/create' component={Create} />
+                  <Route path='/users' component={Users} />
+                  <Route path='/profile' component={Profile} />
+                  <Route path='/inbox' component={Inbox} />
+                  <Route path='/camera' component={Camera} />
+                  <Route path='/memories' component={Memories} />
+                  <Route path='/home' component={Home} exact />      
+                  <Route exact path="/" render={() => <Redirect to="/home" />} />
+                </IonRouterOutlet> 
+                <IonTabBar slot="bottom">
+                  <IonTabButton tab="home" href="/home">
+                    <IonIcon icon={home} />
+                    <IonLabel>Home</IonLabel>
+                    <IonRippleEffect></IonRippleEffect>
+                  </IonTabButton>
+
+                  <IonTabButton tab="memories" href="/memories">
+                    <IonIcon icon={imageSharp} />
+                    <IonLabel>Memories</IonLabel>
+                    <IonRippleEffect></IonRippleEffect>
+                  </IonTabButton>
+                  
+                  <IonTabButton tab="create" href="/create">
+                    <IonIcon icon={addCircle} />
+                    <IonLabel>Create</IonLabel>
+                    <IonRippleEffect></IonRippleEffect>
+                  </IonTabButton>  
+
+                  <IonTabButton tab="inbox" href="/inbox">
+                    <IonIcon icon={notificationsSharp} />
+                    <IonLabel>Inbox</IonLabel>
+                    <IonRippleEffect></IonRippleEffect>
+                  </IonTabButton>
+
+                  <IonTabButton tab="profile" href="/profile">
+                    <IonIcon icon={personCircleSharp} />
+                    <IonLabel>Profile</IonLabel>
+                    <IonRippleEffect></IonRippleEffect>                
+                  </IonTabButton>                
+                </IonTabBar>
+              </IonTabs>
+            </IonReactRouter>   
+          </> 
+      ) : (
+          //alert("No one is signed in")
+          <IonReactRouter>
+            <IonRouterOutlet>
               <Route path='/signin' component={SignIn} />
-              <Route path='/create' component={Create} />
-              <Route path='/users' component={Users} />
-              <Route path='/profile' component={Profile} />
-              <Route path='/inbox' component={Inbox} />
-              <Route path='/camera' component={Camera} />
-              <Route path='/memories' component={Memories} />
-              <Route path='/home' component={Home} exact />      
-              <Route exact path="/" render={() => <Redirect to="/home" />} />
-            </IonRouterOutlet> 
-            <IonTabBar slot="bottom">
-              <IonTabButton tab="home" href="/home">
-                <IonIcon icon={home} />
-                <IonLabel>Home</IonLabel>
-                <IonRippleEffect></IonRippleEffect>
-              </IonTabButton>
-
-              <IonTabButton tab="memories" href="/memories">
-                <IonIcon icon={imageSharp} />
-                <IonLabel>Memories</IonLabel>
-                <IonRippleEffect></IonRippleEffect>
-              </IonTabButton>
-              
-              <IonTabButton tab="create" href="/create">
-                <IonIcon icon={addCircle} />
-                <IonLabel>Create</IonLabel>
-                <IonRippleEffect></IonRippleEffect>
-              </IonTabButton>  
-
-              <IonTabButton tab="inbox" href="/inbox">
-                <IonIcon icon={notificationsSharp} />
-                <IonLabel>Inbox</IonLabel>
-                <IonRippleEffect></IonRippleEffect>
-              </IonTabButton>
-
-              <IonTabButton tab="profile" href="/profile">
-                <IonIcon icon={personCircleSharp} />
-                <IonLabel>Profile</IonLabel>
-                <IonRippleEffect></IonRippleEffect>                
-              </IonTabButton>                
-            </IonTabBar>
-          </IonTabs>
-        </IonReactRouter>
+              <Route exact path="/" render={() => <Redirect to="/signin" />} />
+            </IonRouterOutlet>    
+          </IonReactRouter>
+          //document.getElementById('text-display').innerHTML = null;        
+        )}
+      </>
     </IonApp>
     )
   }
