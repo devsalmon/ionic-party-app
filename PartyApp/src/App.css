@@ -4,14 +4,22 @@
   }
   
 ion-button {
---background: red; 
---background-hover: rgb(248, 85, 85);
+--background: blue; 
 --background-hover-opacity: 0.3;
 --box-shadow: 30px;
 --color: white;
 }
 
 ion-title {
-    size: 'large';
-    --color: red;
+    text-align: center;
+    --size: 'large';
+    --color: blue;
+}
+
+ion-toolbar {
+    padding: 10px;
+}
+
+ion-content {
+    padding: 10px;
 }

@@ -10,7 +10,6 @@ import {
   IonTabButton,
   IonTabs, 
   IonItem,
-  IonLoading,
   IonList, 
   IonButton,
   IonPage,
@@ -19,7 +18,6 @@ import {
   IonToolbar, 
   IonButtons, 
   IonMenuButton,
-  IonBackButton,
   IonTitle,
   IonSearchbar,
   IonRow,
@@ -37,30 +35,22 @@ import {
   IonCardTitle,
   IonMenu,
   IonMenuToggle,
-  IonItemSliding,
   IonText,
   IonToast,
   IonCardSubtitle,
   IonFooter,
   IonAvatar,
-  IonFab,
   IonPopover,
-  IonFabButton,
-  IonFabList,
-  IonRefresher,
-  IonRefresherContent,
   IonRippleEffect
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { 
   home, 
   addCircle, 
-  logIn, 
+  personAddSharp,  
   peopleCircleOutline, 
-  chevronDownCircleOutline, 
   arrowDownCircle, 
   arrowForwardCircle, 
-  personCircleOutline, 
   starSharp,  
   imageSharp,
   notificationsSharp,
@@ -86,7 +76,6 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 /* Theme variables */
 import './variables.css';
-import { sign } from 'crypto';
 
 // once finished, run ionic build then npx cap add ios and npx cap add android
 
@@ -145,7 +134,7 @@ const SignIn = () => {
         <IonToolbar>
           <IonTitle size="large">Sign in</IonTitle>
         </IonToolbar>
-        <IonContent className="ion-padding ion-text-center">
+        <IonContent className="ion-text-center">
           <IonItem>
               <IonLabel>Email</IonLabel>
               <IonInput value={email} placeholder="username"></IonInput>
@@ -160,70 +149,13 @@ const SignIn = () => {
   )
 }
 
-const Profile: React.FC = () => {
-
-  return(
-    <IonPage>
-      <IonToolbar>
-        <IonTitle size="large">Profile</IonTitle>
-        <IonAvatar></IonAvatar>
-      </IonToolbar>
-      <IonContent>
-        User details...
-      </IonContent>
-    </IonPage>
-  )
-}
-
-
-const Users: React.FC = () => {
-  const [value, loading, error] = useCollection(
-    firebase.firestore().collection('users'),
-  );
-
-  const userList = []
-  const filterUsers = (event) => {
-    requestAnimationFrame(() => {    
-      value.docs.map(doc => {   
-        userList.push(doc.data().name.toLowerCase())
-      });
-    })
-  }
-  return(
-    <IonPage>
-    <IonHeader>
-      <IonToolbar>
-        <IonTitle size="large">Users</IonTitle> 
-        <IonSearchbar onIonChange={e => filterUsers(e.detail.value!)}></IonSearchbar>
-      </IonToolbar>
-    </IonHeader>
-    <IonContent>
-      <IonList>
-        {value && value.docs.map(doc => {
-          return(
-            !loading && ( //filter list data with searchbar            
-              <IonCard button={true} key={doc.id}>
-                <IonCardHeader>
-                  <IonCardTitle>{doc.data().name}</IonCardTitle>
-                </IonCardHeader>
-              </IonCard>
-            )
-          )
-        })}
-      </IonList>
-    </IonContent>
-    </IonPage>
-  )
-}
-
-
 class Page {
   title: string = '';
   url: string = '';
   icon: string = '';
 };
 const appPages: Page[] = [
-  {title: 'Users', url: '/users', icon: peopleCircleOutline},
+  {title: 'Users', url: '/users', icon: peopleCircleOutline},  
 ]
 
 const Links = () => {
@@ -256,6 +188,7 @@ class Menu extends React.Component{
           <IonHeader>
             <IonToolbar color="primary">
               <IonTitle size="large">Menu</IonTitle>
+              <IonButton href="/signin" slot="end" onClick={() => signOut()}>SignOut</IonButton>
             </IonToolbar>
           </IonHeader>
           <IonContent color="primary">
@@ -343,8 +276,8 @@ const Create: React.FC = () => {
 
   return(
     <IonPage>
-      <IonToolbar className="ion-padding">
-        <IonTitle className="ion-text-center" size="large">Create a party</IonTitle>  
+      <IonToolbar>
+        <IonTitle>Create a party</IonTitle>  
       </IonToolbar>
       <CreateParty initialValue={current} clear={() => setCurrent(null)}/>
     </IonPage>
@@ -352,6 +285,43 @@ const Create: React.FC = () => {
 
 }
 
+
+const Users: React.FC = () => {
+  const [value, loading, error] = useCollection(
+    firebase.firestore().collection('users'),
+  );
+
+  const userList = []
+  const filterUsers = (event) => {
+    requestAnimationFrame(() => {    
+      value.docs.map(doc => {   
+        userList.push(doc.data().name.toLowerCase())
+      });
+    })
+  }
+  return(
+    <IonPage>
+    <IonToolbar>
+      <IonSearchbar onIonChange={e => filterUsers(e.detail.value!)}></IonSearchbar>
+    </IonToolbar>
+    <IonContent>
+      <IonList>
+        {value && value.docs.map(doc => {
+          return(
+            !loading && ( //filter list data with searchbar            
+              <IonCard button={true} key={doc.id}>
+                <IonCardHeader>
+                  <IonCardTitle>{doc.data().name}</IonCardTitle>
+                </IonCardHeader>
+              </IonCard>
+            )
+          )
+        })}
+      </IonList>
+    </IonContent>
+    </IonPage>
+  )
+}
 
 const CreateParty = ({initialValue, clear}) => {
 
@@ -429,7 +399,7 @@ const CreateParty = ({initialValue, clear}) => {
 
   return(
 
-    <IonContent className="ion-padding">
+    <IonContent>
     <IonList>
       <IonItem>
         <IonInput value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title (e.g. Bruno's 17th)" clearInput></IonInput>
@@ -507,31 +477,35 @@ const Camera: React.FC = () => {
   return(
     <IonPage>
       <IonToolbar>
-        <IonTitle className="ion-text-center" size="large">Camera</IonTitle>
+        <IonTitle>Camera</IonTitle>
       </IonToolbar>
     </IonPage>
   )
 }
 
 
+const Profile: React.FC = () => {
+
+  return(
+    <IonPage>
+      <IonToolbar>
+        <IonTitle>Profile</IonTitle>
+      </IonToolbar>
+      <IonContent>
+        User details...
+      </IonContent>
+    </IonPage>
+  )
+}
+
 const Inbox: React.FC = () => {
 
   return(
     <IonPage>
       <IonToolbar>
-        <IonTitle className="ion-text-center" size="large">Invites</IonTitle>
+        <IonTitle>Invites</IonTitle>
       </IonToolbar>
       <IonContent className="ion-padding">
-        <IonFab vertical="top" horizontal="end" slot="fixed" edge>
-          <IonFabButton>
-            <IonIcon icon={arrowDownCircle} />
-          </IonFabButton>          
-          <IonFabList side="bottom">
-            <IonFabButton><IonIcon icon={starSharp} /></IonFabButton>
-            <IonFabButton><IonIcon icon={addCircle} /></IonFabButton>
-            <IonFabButton><IonIcon icon={home} /></IonFabButton>
-          </IonFabList>
-        </IonFab>      
         Friend requests, activity....  
       </IonContent>
     </IonPage>
@@ -543,19 +517,9 @@ const Memories: React.FC = () => {
   return(
     <IonPage>
       <IonToolbar>
-        <IonTitle className="ion-text-center" size="large">Memories</IonTitle>
+        <IonTitle>Memories</IonTitle>
       </IonToolbar>
-      <IonContent className="ion-padding">
-        <IonFab vertical="top" horizontal="end" slot="fixed" edge>
-          <IonFabButton>
-            <IonIcon icon={arrowDownCircle} />
-          </IonFabButton>          
-          <IonFabList side="bottom">
-            <IonFabButton><IonIcon icon={starSharp} /></IonFabButton>
-            <IonFabButton><IonIcon icon={addCircle} /></IonFabButton>
-            <IonFabButton><IonIcon icon={home} /></IonFabButton>
-          </IonFabList>
-        </IonFab>      
+      <IonContent>
         Past party list.........    
       </IonContent>
     </IonPage>
@@ -567,19 +531,17 @@ const Home: React.FC = () => {
   return(
     <IonPage>
       <IonToolbar>
-        <IonTitle className="ion-text-center" size="large">Upcoming parties</IonTitle>
+        <IonButtons slot="start">
+          <IonMenuButton autoHide={false} menu="main-menu"></IonMenuButton>        
+        </IonButtons>  
+        <IonButtons slot="end">   
+          <IonButton href='/users'>
+            <IonIcon icon={personAddSharp} />
+          </IonButton>          
+        </IonButtons>                
+        <IonTitle>Upcoming parties</IonTitle>
       </IonToolbar>
-      <IonContent className="ion-padding">
-        <IonFab vertical="top" horizontal="end" slot="fixed" edge>
-          <IonFabButton>
-            <IonIcon icon={arrowDownCircle} />
-          </IonFabButton>          
-          <IonFabList side="bottom">
-            <IonFabButton><IonIcon icon={starSharp} /></IonFabButton>
-            <IonFabButton><IonIcon icon={addCircle} /></IonFabButton>
-            <IonFabButton><IonIcon icon={home} /></IonFabButton>
-          </IonFabList>
-        </IonFab>        
+      <IonContent> 
         <PartyList />     
       </IonContent>
     </IonPage>
@@ -592,11 +554,6 @@ class App extends React.Component {
     return(
     <IonApp>
       <Menu /> 
-      <IonButtons slot="start">
-        <IonMenuButton autoHide={false} menu="main-menu"></IonMenuButton>
-        <IonButton href="/signin" slot="end" onClick={() => signOut()}>SignOut</IonButton>
-      </IonButtons>
-      <IonContent>
         <IonReactRouter>
           <IonTabs>
             <IonRouterOutlet>       
@@ -643,7 +600,6 @@ class App extends React.Component {
             </IonTabBar>
           </IonTabs>
         </IonReactRouter>
-      </IonContent>
     </IonApp>
     )
   }
