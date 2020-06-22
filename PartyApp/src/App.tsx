@@ -299,6 +299,7 @@ const Users: React.FC = () => {
       });
     })
   }
+  
   return(
     <IonPage>
     <IonToolbar>
