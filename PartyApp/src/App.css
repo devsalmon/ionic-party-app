@@ -3,10 +3,16 @@
     --width: 75%;
   }
   
-  ion-button {
-    --background: red; 
-    --background-hover: rgb(248, 85, 85);
-    --background-hover-opacity: 0.3;
-    --box-shadow: 30px;
-    --color: white;
-  }
+ion-button {
+--background: var(--ion-color-danger-shade); 
+--background-hover: rgb(248, 85, 85);
+--background-hover-opacity: 0.3;
+--box-shadow: 30px;
+--color: white;
+}
+
+big-heading {
+    font-family: "Heebo-bold" !important;
+    font-size: 70px !important;
+    color: black;
+}

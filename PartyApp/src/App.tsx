@@ -61,8 +61,11 @@ import {
   arrowDownCircle, 
   arrowForwardCircle, 
   personCircleOutline, 
-  starSharp, 
-  triangle 
+  starSharp,  
+  imageSharp,
+  notificationsSharp,
+  personCircleSharp,
+  cameraSharp
 } from 'ionicons/icons';
 
 import './App.css'
@@ -140,7 +143,7 @@ const SignIn = () => {
   return (
     <IonPage>
         <IonToolbar>
-          <IonTitle>Sign in</IonTitle>
+          <IonTitle class="big-heading">Sign in</IonTitle>
         </IonToolbar>
         <IonContent className="ion-padding ion-text-center">
           <IonItem>
@@ -220,10 +223,7 @@ class Page {
   icon: string = '';
 };
 const appPages: Page[] = [
-  {title: 'Upcoming parties', url: '/', icon: home},
-  {title: 'Create a party', url: '/create', icon: addCircle},
-  {title: 'Users', url: '/users', icon: triangle},
-  {title: 'Profile', url: '/profile', icon: triangle}
+  {title: 'Users', url: '/users', icon: peopleCircleOutline},
 ]
 
 const Links = () => {
@@ -285,9 +285,20 @@ const Party = ({doc}) => {
   return(
     <>
     <IonCard button onClick={() => setShowPopover(true)}>
-      <IonCardHeader>
-      <IonCardSubtitle>{data.date}</IonCardSubtitle>
-      <IonCardTitle>{data.title}</IonCardTitle>
+      <IonCardHeader>      
+      <IonGrid>
+        <IonRow>
+          <IonCol size="8">
+            <IonCardSubtitle>{data.date}</IonCardSubtitle>
+            <IonCardTitle>{data.title}</IonCardTitle>
+          </IonCol>
+          <IonCol className="ion-text-right">
+            <IonButton expand="full" href='/camera'>
+              <IonIcon icon={cameraSharp} />
+            </IonButton>
+          </IonCol>
+        </IonRow>        
+      </IonGrid>
       </IonCardHeader>
     </IonCard>
     <IonPopover
@@ -493,6 +504,42 @@ const CreateParty = ({initialValue, clear}) => {
   )
 };
 
+const Camera: React.FC = () => {
+
+  return(
+    <IonPage>
+      <IonToolbar>
+        <IonTitle className="ion-text-center">Camera</IonTitle>
+      </IonToolbar>
+    </IonPage>
+  )
+}
+
+
+const Inbox: React.FC = () => {
+
+  return(
+    <IonPage>
+      <IonToolbar>
+        <IonTitle className="ion-text-center">Invites</IonTitle>
+      </IonToolbar>
+      <IonContent className="ion-padding">
+        <IonFab vertical="top" horizontal="end" slot="fixed" edge>
+          <IonFabButton>
+            <IonIcon icon={arrowDownCircle} />
+          </IonFabButton>          
+          <IonFabList side="bottom">
+            <IonFabButton><IonIcon icon={starSharp} /></IonFabButton>
+            <IonFabButton><IonIcon icon={addCircle} /></IonFabButton>
+            <IonFabButton><IonIcon icon={home} /></IonFabButton>
+          </IonFabList>
+        </IonFab>      
+        Friend requests, activity....  
+      </IonContent>
+    </IonPage>
+  )
+}
+
 const Memories: React.FC = () => {
 
   return(
@@ -509,7 +556,6 @@ const Memories: React.FC = () => {
             <IonFabButton><IonIcon icon={starSharp} /></IonFabButton>
             <IonFabButton><IonIcon icon={addCircle} /></IonFabButton>
             <IonFabButton><IonIcon icon={home} /></IonFabButton>
-            <IonFabButton><IonIcon icon={triangle} /></IonFabButton>
           </IonFabList>
         </IonFab>      
         Past party list.........    
@@ -523,9 +569,6 @@ const Home: React.FC = () => {
   return(
     <IonPage>
       <IonToolbar>
-        <IonButton href='/create'>
-          <IonIcon icon={addCircle} />
-        </IonButton>
         <IonTitle className="ion-text-center">Upcoming parties</IonTitle>
       </IonToolbar>
       <IonContent className="ion-padding">
@@ -537,7 +580,6 @@ const Home: React.FC = () => {
             <IonFabButton><IonIcon icon={starSharp} /></IonFabButton>
             <IonFabButton><IonIcon icon={addCircle} /></IonFabButton>
             <IonFabButton><IonIcon icon={home} /></IonFabButton>
-            <IonFabButton><IonIcon icon={triangle} /></IonFabButton>
           </IonFabList>
         </IonFab>        
         <PartyList />     
@@ -564,6 +606,8 @@ class App extends React.Component {
               <Route path='/create' component={Create} />
               <Route path='/users' component={Users} />
               <Route path='/profile' component={Profile} />
+              <Route path='/inbox' component={Inbox} />
+              <Route path='/camera' component={Camera} />
               <Route path='/memories' component={Memories} />
               <Route path='/home' component={Home} exact />      
               <Route exact path="/" render={() => <Redirect to="/home" />} />
@@ -576,10 +620,28 @@ class App extends React.Component {
               </IonTabButton>
 
               <IonTabButton tab="memories" href="/memories">
-                <IonIcon icon={addCircle} />
+                <IonIcon icon={imageSharp} />
                 <IonLabel>Memories</IonLabel>
                 <IonRippleEffect></IonRippleEffect>
               </IonTabButton>
+              
+              <IonTabButton tab="create" href="/create">
+                <IonIcon icon={addCircle} />
+                <IonLabel>Create</IonLabel>
+                <IonRippleEffect></IonRippleEffect>
+              </IonTabButton>  
+
+              <IonTabButton tab="inbox" href="/inbox">
+                <IonIcon icon={notificationsSharp} />
+                <IonLabel>Inbox</IonLabel>
+                <IonRippleEffect></IonRippleEffect>
+              </IonTabButton>
+
+              <IonTabButton tab="profile" href="/profile">
+                <IonIcon icon={personCircleSharp} />
+                <IonLabel>Profile</IonLabel>
+                <IonRippleEffect></IonRippleEffect>                
+              </IonTabButton>                
             </IonTabBar>
           </IonTabs>
         </IonReactRouter>
