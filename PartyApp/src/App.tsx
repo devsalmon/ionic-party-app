@@ -143,7 +143,7 @@ const SignIn = () => {
   return (
     <IonPage>
         <IonToolbar>
-          <IonTitle class="big-heading">Sign in</IonTitle>
+          <IonTitle>Sign in</IonTitle>
         </IonToolbar>
         <IonContent className="ion-padding ion-text-center">
           <IonItem>
@@ -284,22 +284,20 @@ const Party = ({doc}) => {
   let data = doc.data()
   return(
     <>
-    <IonCard button onClick={() => setShowPopover(true)}>
-      <IonCardHeader>      
+    <IonCard button onClick={() => setShowPopover(true)}>           
       <IonGrid>
         <IonRow>
           <IonCol size="8">
             <IonCardSubtitle>{data.date}</IonCardSubtitle>
             <IonCardTitle>{data.title}</IonCardTitle>
           </IonCol>
-          <IonCol className="ion-text-right">
-            <IonButton expand="full" href='/camera'>
+          <IonCol>
+            <IonButton expand="block" href='/camera'>
               <IonIcon icon={cameraSharp} />
             </IonButton>
           </IonCol>
         </IonRow>        
-      </IonGrid>
-      </IonCardHeader>
+      </IonGrid>      
     </IonCard>
     <IonPopover
       isOpen={showPopover}

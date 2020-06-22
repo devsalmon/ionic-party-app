@@ -10,9 +10,3 @@ ion-button {
 --box-shadow: 30px;
 --color: white;
 }
-
-big-heading {
-    font-family: "Heebo-bold" !important;
-    font-size: 70px !important;
-    color: black;
-}
