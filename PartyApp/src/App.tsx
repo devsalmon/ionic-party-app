@@ -77,6 +77,25 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './variables.css';
 
+// Triggers when the auth state change for instance when the user signs-in or signs-out.
+firebase.auth().onAuthStateChanged(function (user) {
+
+  var user = firebase.auth().currentUser;
+  //var name;
+  //if user is present (singed in), their name will display appropriately.
+  if (user != null) {
+    //ons.notification.alert('User Signed In!')
+    //name = user.displayName;
+    //I could also display email and profile pic and other things later.
+    //email = user.email;
+  }
+  else { 
+    //alert("No one is signed in")
+    
+    //document.getElementById('text-display').innerHTML = null;
+   }
+  });
+
 // once finished, run ionic build then npx cap add ios and npx cap add android
 
 // Signs-in Messaging with GOOGLE POP UP
@@ -487,13 +506,15 @@ const Camera: React.FC = () => {
 
 const Profile: React.FC = () => {
 
+    var user = firebase.auth().currentUser;
+
   return(
     <IonPage>
       <IonToolbar>
         <IonTitle>Profile</IonTitle>
       </IonToolbar>
       <IonContent>
-        User details...
+        User details...{user.displayName}
       </IonContent>
     </IonPage>
   )
