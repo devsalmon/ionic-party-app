@@ -1,0 +1,12 @@
+.popover{
+    --height: 50%;
+    --width: 75%;
+  }
+  
+  ion-button {
+    --background: red; 
+    --background-hover: rgb(248, 85, 85);
+    --background-hover-opacity: 0.3;
+    --box-shadow: 30px;
+    --color: white;
+  }

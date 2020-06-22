@@ -30,6 +30,7 @@ import {
   IonCheckbox, 
   IonGrid,
   IonTextarea,
+  IonItemGroup,
   IonCard,
   IonCardHeader,
   IonCardContent,
@@ -40,11 +41,31 @@ import {
   IonText,
   IonToast,
   IonCardSubtitle,
-  IonFooter
+  IonFooter,
+  IonAvatar,
+  IonFab,
+  IonPopover,
+  IonFabButton,
+  IonFabList,
+  IonRefresher,
+  IonRefresherContent,
+  IonRippleEffect
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { home, addCircle, logIn, peopleCircleOutline, personCircleOutline, starSharp, triangle } from 'ionicons/icons';
+import { 
+  home, 
+  addCircle, 
+  logIn, 
+  peopleCircleOutline, 
+  chevronDownCircleOutline, 
+  arrowDownCircle, 
+  arrowForwardCircle, 
+  personCircleOutline, 
+  starSharp, 
+  triangle 
+} from 'ionicons/icons';
 
+import './App.css'
 import firebase from './firestore'
 
 /* Core CSS required for Ionic components to work properly */
@@ -61,7 +82,7 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 /* Theme variables */
-import './theme/variables.css';
+import './variables.css';
 import { sign } from 'crypto';
 
 // once finished, run ionic build then npx cap add ios and npx cap add android
@@ -80,7 +101,9 @@ const SignInGooglepu = async() => {
     const isNewUser = result.additionalUserInfo.isNewUser
     if (isNewUser) {
       firebase.firestore().collection('users').add({
-      name: user.displayName }) }
+      name: user.displayName,
+      photoUrl: user.photoURL
+      }) }
 
   }).catch(function (error) {
     // Handle Errors here.
@@ -134,43 +157,53 @@ const SignIn = () => {
   )
 }
 
-const UserCard = ({doc}) => {
+const Profile: React.FC = () => {
 
-  // user card
-  let data = doc.data()
   return(
-    <IonCard>
-      <IonCardHeader>
-        <IonCardTitle>{data.name}</IonCardTitle>
-      </IonCardHeader>
-      <IonCardContent>
-        <IonList>  
-          <IonLabel>Details:</IonLabel>
-        </IonList>
-      </IonCardContent>
-    </IonCard>
-  );
-};
+    <IonPage>
+      <IonToolbar>
+        <IonTitle></IonTitle>
+        <IonAvatar></IonAvatar>
+      </IonToolbar>
+      <IonContent>
+        User details...
+      </IonContent>
+    </IonPage>
+  )
+}
+
 
 const Users: React.FC = () => {
   const [value, loading, error] = useCollection(
-    firebase.firestore().collection("users"),
+    firebase.firestore().collection('users'),
   );
-  const [searchText, setSearchText] = useState<string>('');
+
+  const userList = []
+  const filterUsers = (event) => {
+    requestAnimationFrame(() => {    
+      value.docs.map(doc => {   
+        userList.push(doc.data().name.toLowerCase())
+      });
+    })
+  }
   return(
     <IonPage>
     <IonHeader>
       <IonToolbar>
         <IonTitle>Users</IonTitle> 
-        <IonSearchbar value={searchText} onIonChange={e => setSearchText(e.detail.value!)}></IonSearchbar>
+        <IonSearchbar onIonChange={e => filterUsers(e.detail.value!)}></IonSearchbar>
       </IonToolbar>
     </IonHeader>
     <IonContent>
       <IonList>
         {value && value.docs.map(doc => {
           return(
-            !loading && (
-              <UserCard doc={doc} key={doc.id} />
+            !loading && ( //filter list data with searchbar            
+              <IonCard button={true} key={doc.id}>
+                <IonCardHeader>
+                  <IonCardTitle>{doc.data().name}</IonCardTitle>
+                </IonCardHeader>
+              </IonCard>
             )
           )
         })}
@@ -189,7 +222,8 @@ class Page {
 const appPages: Page[] = [
   {title: 'Upcoming parties', url: '/', icon: home},
   {title: 'Create a party', url: '/create', icon: addCircle},
-  {title: 'Users', url: '/users', icon: triangle}
+  {title: 'Users', url: '/users', icon: triangle},
+  {title: 'Profile', url: '/profile', icon: triangle}
 ]
 
 const Links = () => {
@@ -243,30 +277,36 @@ class Menu extends React.Component{
 // after user signs in, direct to the home page
 // log in function after signing up
 // delete party document in firebase after it's happened
-// display other details on party card
 
 const Party = ({doc}) => {
   // party card
+  const [showPopover, setShowPopover] = useState(false);
   let data = doc.data()
   return(
-    <IonCard>
+    <>
+    <IonCard button onClick={() => setShowPopover(true)}>
       <IonCardHeader>
       <IonCardSubtitle>{data.date}</IonCardSubtitle>
       <IonCardTitle>{data.title}</IonCardTitle>
       </IonCardHeader>
-      <IonCardContent>
-        <IonList>  
-          <IonLabel>Details:</IonLabel>
-          <IonItem>{data.details}</IonItem>
-          <IonLabel>Location:</IonLabel>
-          <IonItem>{data.location}</IonItem>
-          <IonLabel>Starts:</IonLabel>          
-          <IonItem>{data.startTime}</IonItem>
-          <IonLabel>Ends:</IonLabel>
-          <IonItem>{data.endTime}</IonItem>
-        </IonList>
-      </IonCardContent>
     </IonCard>
+    <IonPopover
+      isOpen={showPopover}
+      cssClass='popover'
+      onDidDismiss={e => setShowPopover(false)}
+    >
+      <IonItemGroup className="ion-padding">  
+        <IonLabel>Details:</IonLabel>
+        <IonItem>{data.details}</IonItem>
+        <IonLabel>Location:</IonLabel>
+        <IonItem>{data.location}</IonItem>
+        <IonLabel>Starts:</IonLabel>          
+        <IonItem>{data.startTime}</IonItem>
+        <IonLabel>Ends:</IonLabel>
+        <IonItem>{data.endTime}</IonItem>
+      </IonItemGroup>   
+    </IonPopover>
+    </>
   )
 }
 
@@ -325,7 +365,7 @@ const CreateParty = ({initialValue, clear}) => {
   );
 
   useEffect(() => {
-    if (value != undefined) {
+    if (value !== undefined) {
     !loading && initialValue && setTitle(value.data().title);
     }
   },
@@ -334,7 +374,7 @@ const CreateParty = ({initialValue, clear}) => {
   const onSave = async() => {
 
     let collectionRef = firebase.firestore().collection("parties");
-    if(initialValue) {
+    if(initialValue) { // maybe delete this await
       await (collectionRef).doc(initialValue).set(
         { title: title, 
           date: date, 
@@ -453,20 +493,57 @@ const CreateParty = ({initialValue, clear}) => {
   )
 };
 
-class Home extends React.Component {
+const Memories: React.FC = () => {
 
-  render(){
-    return(
-      <IonPage>
-        <IonToolbar>
-          <IonTitle className="ion-text-center">Upcoming parties</IonTitle>
-        </IonToolbar>
-        <IonContent className="ion-padding">
-          <PartyList />
-        </IonContent>
-      </IonPage>
-    )
-  }
+  return(
+    <IonPage>
+      <IonToolbar>
+        <IonTitle className="ion-text-center">Memories</IonTitle>
+      </IonToolbar>
+      <IonContent className="ion-padding">
+        <IonFab vertical="top" horizontal="end" slot="fixed" edge>
+          <IonFabButton>
+            <IonIcon icon={arrowDownCircle} />
+          </IonFabButton>          
+          <IonFabList side="bottom">
+            <IonFabButton><IonIcon icon={starSharp} /></IonFabButton>
+            <IonFabButton><IonIcon icon={addCircle} /></IonFabButton>
+            <IonFabButton><IonIcon icon={home} /></IonFabButton>
+            <IonFabButton><IonIcon icon={triangle} /></IonFabButton>
+          </IonFabList>
+        </IonFab>      
+        Past party list.........    
+      </IonContent>
+    </IonPage>
+  )
+}
+
+const Home: React.FC = () => {
+
+  return(
+    <IonPage>
+      <IonToolbar>
+        <IonButton href='/create'>
+          <IonIcon icon={addCircle} />
+        </IonButton>
+        <IonTitle className="ion-text-center">Upcoming parties</IonTitle>
+      </IonToolbar>
+      <IonContent className="ion-padding">
+        <IonFab vertical="top" horizontal="end" slot="fixed" edge>
+          <IonFabButton>
+            <IonIcon icon={arrowDownCircle} />
+          </IonFabButton>          
+          <IonFabList side="bottom">
+            <IonFabButton><IonIcon icon={starSharp} /></IonFabButton>
+            <IonFabButton><IonIcon icon={addCircle} /></IonFabButton>
+            <IonFabButton><IonIcon icon={home} /></IonFabButton>
+            <IonFabButton><IonIcon icon={triangle} /></IonFabButton>
+          </IonFabList>
+        </IonFab>        
+        <PartyList />     
+      </IonContent>
+    </IonPage>
+  )
 }
 
 class App extends React.Component {
@@ -475,10 +552,10 @@ class App extends React.Component {
     return(
     <IonApp>
       <Menu /> 
-        <IonButtons slot="start">
-          <IonMenuButton autoHide={false} menu="main-menu"></IonMenuButton>
-          <IonButton href="/signin" slot="end" onClick={() => signOut()}>SignOut</IonButton>
-        </IonButtons>
+      <IonButtons slot="start">
+        <IonMenuButton autoHide={false} menu="main-menu"></IonMenuButton>
+        <IonButton href="/signin" slot="end" onClick={() => signOut()}>SignOut</IonButton>
+      </IonButtons>
       <IonContent>
         <IonReactRouter>
           <IonTabs>
@@ -486,6 +563,8 @@ class App extends React.Component {
               <Route path='/signin' component={SignIn} />
               <Route path='/create' component={Create} />
               <Route path='/users' component={Users} />
+              <Route path='/profile' component={Profile} />
+              <Route path='/memories' component={Memories} />
               <Route path='/home' component={Home} exact />      
               <Route exact path="/" render={() => <Redirect to="/home" />} />
             </IonRouterOutlet> 
@@ -493,11 +572,13 @@ class App extends React.Component {
               <IonTabButton tab="home" href="/home">
                 <IonIcon icon={home} />
                 <IonLabel>Home</IonLabel>
+                <IonRippleEffect></IonRippleEffect>
               </IonTabButton>
 
-              <IonTabButton tab="create" href="/create">
+              <IonTabButton tab="memories" href="/memories">
                 <IonIcon icon={addCircle} />
-                <IonLabel>Create</IonLabel>
+                <IonLabel>Memories</IonLabel>
+                <IonRippleEffect></IonRippleEffect>
               </IonTabButton>
             </IonTabBar>
           </IonTabs>
