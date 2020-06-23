@@ -56,7 +56,8 @@ import {
   imageSharp,
   notificationsSharp,
   personCircleSharp,
-  cameraSharp
+  cameraSharp,
+  createSharp
 } from 'ionicons/icons';
 
 import './App.css'
@@ -189,8 +190,7 @@ class Menu extends React.Component{
         <IonMenu type="overlay" contentId="main" menuId="main-menu">
           <IonHeader>
             <IonToolbar color="primary">
-              <IonTitle size="large">Menu</IonTitle>
-              <IonButton href="/signin" slot="end" onClick={() => signOut()}>SignOut</IonButton>
+              <IonTitle size="large">Menu</IonTitle>              
             </IonToolbar>
           </IonHeader>
           <IonContent color="primary">
@@ -227,7 +227,7 @@ const Party = ({doc}) => {
             <IonCardTitle>{data.title}</IonCardTitle>
           </IonCol>
           <IonCol>
-            <IonButton expand="block" href='/camera'>
+            <IonButton class="custom-button" expand="block" href='/camera'>
               <IonIcon icon={cameraSharp} />
             </IonButton>
           </IonCol>
@@ -495,9 +495,24 @@ const Profile: React.FC = () => {
     <IonPage>
       <IonToolbar>
         <IonTitle>Profile</IonTitle>
+        <IonButton href="/signin" slot="end" onClick={() => signOut()}>SignOut</IonButton>
       </IonToolbar>
       <IonContent>
-        User details...{user.displayName}
+        <IonCard>           
+          <IonGrid>
+            <IonRow>
+              <IonCol size="8">
+                <IonCardSubtitle>{user.displayName}</IonCardSubtitle>
+                <IonCardTitle>(Username)</IonCardTitle>
+              </IonCol>
+              <IonCol className="ion-text-right">
+                <IonButton>
+                  <IonIcon icon={createSharp} />
+                </IonButton>                
+              </IonCol>
+            </IonRow>        
+          </IonGrid>      
+        </IonCard>
       </IonContent>
     </IonPage>
   )
