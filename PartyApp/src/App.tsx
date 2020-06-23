@@ -42,7 +42,8 @@ import {
   IonAvatar,
   IonPopover,
   IonRippleEffect,
-  IonLoading
+  IonLoading,
+  IonAlert
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { 
@@ -62,7 +63,7 @@ import {
 
 import './App.css'
 import firebase from './firestore'
-
+import moment from 'moment'
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */
@@ -207,10 +208,8 @@ class Menu extends React.Component{
 
 
 //TODO - 
-// Add friends page
+// Add friends
 // create toast to let user know they created a party successfully
-// after user signs in, direct to the home page
-// log in function after signing up
 // delete party document in firebase after it's happened
 
 const Party = ({doc}) => {
@@ -223,8 +222,9 @@ const Party = ({doc}) => {
       <IonGrid>
         <IonRow>
           <IonCol size="8">
-            <IonCardSubtitle>{data.date}</IonCardSubtitle>
+            <IonCardSubtitle>Created On - <br/> {data.createdOn}</IonCardSubtitle>
             <IonCardTitle>{data.title}</IonCardTitle>
+            <IonCardSubtitle>Party Date - {data.date}</IonCardSubtitle>
           </IonCol>
           <IonCol>
             <IonButton class="custom-button" expand="block" href='/camera'>
@@ -328,7 +328,9 @@ const Users: React.FC = () => {
 
 const CreateParty = ({initialValue, clear}) => {
 
-  // initialValue is null
+  useEffect(() => {  
+  },
+  []);
 
   const [date, setDate] = useState<string>('')
   const [title, setTitle] = useState<string>('')
@@ -336,68 +338,54 @@ const CreateParty = ({initialValue, clear}) => {
   const [details, setDetails] = useState<string>('')
   const [endTime, setEndTime] = useState<string>('')
   const [startTime, setStartTime] = useState<string>('')
-  const [searchText, setSearchText] = useState<string>('')
-  const [friendList, setFriendList] = useState([])
+
+  const [searchText, setSearchText] = useState<string>('');
+  const [friendList, setFriendList] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [checked, setChecked] = useState(false);
   const [showToast, setShowToast] = useState(false);
-
+  const [showAlert, setShowAlert] = useState(false);
   const [value, loading, error] = useDocument(
     firebase.firestore().doc("parties/" + initialValue)
   );
 
-  useEffect(() => {
-    if (value !== undefined) {
-    !loading && initialValue && setTitle(value.data().title);
-    }
-  },
-  [loading, initialValue, value]);
+  const validation = () => {
+    // validate inputs  
+    const valid = Boolean((date != "") && (title != "") && (location != "") && (startTime != "") && (endTime != "") && (details != ""));
 
-  const onSave = async() => {
+    setShowToast(valid);
+    if (valid == false) {
+      setShowAlert(true)    
+    } 
+    return valid;
+  }
 
-    let collectionRef = firebase.firestore().collection("parties");
-    if(initialValue) { // maybe delete this await
-      await (collectionRef).doc(initialValue).set(
-        { title: title, 
-          date: date, 
-          location: location,
-          details: details,
-          endTime: endTime,
-          startTime: startTime,       
-          // convert firestore timestamp to date format
-          createdOn: new Date(firebase.firestore.Timestamp.now().seconds*1000).toLocaleDateString()
-        }, 
-        {merge:true} 
-        );
-        setTitle("");
-        setDate("")
-        setLocation("");
-        setDetails("");
-        setEndTime("");
-        setStartTime("");
-        // TODO setShowToast(true) if all inputs added
-        // convert date format from iondatetime's format
-        clear();
-    }
-    else {
-      await collectionRef.add(
-        {title: title, 
-        location: location, 
-        date: date, 
-        details: details,
-        endTime: endTime,
-        startTime: startTime,
-        // convert firestore timestamp to date format
-        createdOn: new Date(firebase.firestore.Timestamp.now().seconds*1000).toLocaleDateString()})
-        setTitle("");
-        setDate("")
-        setLocation("");
-        setDetails("");
-        setEndTime("");
-        setStartTime("");
-      setShowToast(true);
-      clear();
-    }
+  const onSave = () => {  
+    validation()      
+    if (validation == true) {
+      console.log('true')
+      // let collectionRef = firebase.firestore().collection("parties");
+      // // only add documents to collection if forms are validated
+      //   collectionRef.add(
+      //     {title: title, 
+      //     location: location, 
+      //     date: moment(date).format('LL'), 
+      //     details: details,
+      //     endTime: moment(endTime).format('LLL'),
+      //     startTime: moment(startTime).format('LLL'),
+      //     // todo convert firestore timestamp to date format
+      //     createdOn: moment(new Date()).format('LLL')
+      //     })
+      //     //clear fields
+      //     setTitle("");
+      //     setDate("")
+      //     setLocation("");
+      //     setDetails("");
+      //     setEndTime("");
+      //     setStartTime("");
+      //     clear();
+    } 
+  
   }
 
   return(
@@ -471,6 +459,13 @@ const CreateParty = ({initialValue, clear}) => {
       message="Party Created!"
       position="bottom"
     />
+    <IonAlert
+      isOpen={showAlert}
+      onDidDismiss={() => setShowAlert(false)}
+      header={'Alert'}
+      message={'One or more input fields missing'}
+      buttons={['OK']}
+    />    
     </IonContent>
   )
 };
@@ -583,7 +578,7 @@ const SignedInRoutes: React.FC = () => {
             <Route path='/camera' component={Camera} />
             <Route path='/memories' component={Memories} />
             <Route path='/home' component={Home} exact />      
-            <Route exact path="/signin" render={() => <Redirect to="/home" />} />
+            <Route exact path={["/signin", "/"]} render={() => <Redirect to="/home" />} />
           </IonRouterOutlet> 
           <IonTabBar slot="bottom">
             <IonTabButton tab="home" href="/home">

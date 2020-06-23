@@ -16,6 +16,7 @@ ion-button {
 
 ion-title {
     text-align: center;
+    font-weight: bold;
     --size: 'large';
     --color: blue;
 }
@@ -34,6 +35,7 @@ ion-card-subtitle {
 }
 
 ion-card-title {
+    font-weight: bold;
     padding-left: 10px;
     padding-bottom: 10px
 }
