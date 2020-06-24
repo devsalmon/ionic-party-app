@@ -1,12 +1,17 @@
 .popover{
     --height: 50%;
     --width: 75%;
-  }
-  
+}
+
+.popover-label {
+    padding-left: 10px;
+    padding-top: 10px;
+}
+
 .custom-button {
     --background: blue; 
     --background-hover-opacity: 0.3;
-    height: 75px;
+    height: 50px;
 }
 
 ion-button {

@@ -58,7 +58,8 @@ import {
   notificationsSharp,
   personCircleSharp,
   cameraSharp,
-  createSharp
+  createSharp,
+  chatbubblesSharp
 } from 'ionicons/icons';
 
 import './App.css'
@@ -228,8 +229,11 @@ const Party = ({doc}) => {
           </IonCol>
           <IonCol>
             <IonButton class="custom-button" expand="block" href='/camera'>
-              <IonIcon icon={cameraSharp} />
+              <IonIcon icon={chatbubblesSharp} />
             </IonButton>
+            <IonButton class="custom-button" expand="block" href='/camera'>
+              <IonIcon icon={cameraSharp} />
+            </IonButton>            
           </IonCol>
         </IonRow>        
       </IonGrid>      
@@ -239,14 +243,14 @@ const Party = ({doc}) => {
       cssClass='popover'
       onDidDismiss={e => setShowPopover(false)}
     >
-      <IonItemGroup className="ion-padding">  
-        <IonLabel>Details:</IonLabel>
-        <IonItem>{data.details}</IonItem>
-        <IonLabel>Location:</IonLabel>
+      <IonItemGroup>  
+        <IonLabel class="popover-label">Details:</IonLabel>
+        <IonItem >{data.details}</IonItem>
+        <IonLabel class="popover-label">Location:</IonLabel>
         <IonItem>{data.location}</IonItem>
-        <IonLabel>Starts:</IonLabel>          
+        <IonLabel class="popover-label">Starts:</IonLabel>          
         <IonItem>{data.startTime}</IonItem>
-        <IonLabel>Ends:</IonLabel>
+        <IonLabel class="popover-label">Ends:</IonLabel>
         <IonItem>{data.endTime}</IonItem>
       </IonItemGroup>   
     </IonPopover>
@@ -349,41 +353,35 @@ const CreateParty = ({initialValue, clear}) => {
     firebase.firestore().doc("parties/" + initialValue)
   );
 
-  const validation = () => {
-    // validate inputs  
-    const valid = Boolean((date != "") && (title != "") && (location != "") && (startTime != "") && (endTime != "") && (details != ""));
-
-    setShowToast(valid);
-    if (valid == false) {
-      setShowAlert(true)    
-    } 
-    return valid;
-  }
 
   const onSave = () => {  
-    validation()      
-    if (validation == true) {
-      console.log('true')
-      // let collectionRef = firebase.firestore().collection("parties");
-      // // only add documents to collection if forms are validated
-      //   collectionRef.add(
-      //     {title: title, 
-      //     location: location, 
-      //     date: moment(date).format('LL'), 
-      //     details: details,
-      //     endTime: moment(endTime).format('LLL'),
-      //     startTime: moment(startTime).format('LLL'),
-      //     // todo convert firestore timestamp to date format
-      //     createdOn: moment(new Date()).format('LLL')
-      //     })
-      //     //clear fields
-      //     setTitle("");
-      //     setDate("")
-      //     setLocation("");
-      //     setDetails("");
-      //     setEndTime("");
-      //     setStartTime("");
-      //     clear();
+    // validate inputs  
+    const valid = Boolean((date != "") && (title != "") && (location != "") && (startTime != "") && (endTime != "") && (details != ""));
+    
+    if (valid == false) {
+      setShowAlert(true)    
+    } else if (valid == true) {
+      setShowToast(valid);
+      let collectionRef = firebase.firestore().collection("parties");
+      // only add documents to collection if forms are validated
+        collectionRef.add(
+          {title: title, 
+          location: location, 
+          date: moment(date).format('LL'), 
+          details: details,
+          endTime: moment(endTime).format('LLL'),
+          startTime: moment(startTime).format('LLL'),
+          // todo convert firestore timestamp to date format
+          createdOn: moment(new Date()).format('LLL')
+          })
+          //clear fields
+          setTitle("");
+          setDate("")
+          setLocation("");
+          setDetails("");
+          setEndTime("");
+          setStartTime("");
+          clear();
     } 
   
   }
