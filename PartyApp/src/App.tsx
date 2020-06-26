@@ -43,7 +43,8 @@ import {
   IonPopover,
   IonRippleEffect,
   IonLoading,
-  IonAlert
+  IonAlert,
+  IonImg
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { 
@@ -61,6 +62,9 @@ import {
   createSharp,
   chatbubblesSharp
 } from 'ionicons/icons';
+import {Plugins} from '@capacitor/core';
+import {useCamera} from '@ionic/react-hooks/camera';
+import {CameraResultType, CameraSource} from '@capacitor/core';
 
 import './App.css'
 import firebase from './firestore'
@@ -81,7 +85,6 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './variables.css';
 
-
 // once finished, run ionic build then npx cap add ios and npx cap add android
 
 // Signs-in Messaging with GOOGLE POP UP
@@ -100,7 +103,8 @@ const SignInGooglepu = async() => {
       firebase.firestore().collection('users').add({
       name: user.displayName,
       photoUrl: user.photoURL
-      }) }
+      })       
+    }
 
   }).catch(function (error) {
     // Handle Errors here.
@@ -207,19 +211,76 @@ class Menu extends React.Component{
   }  
 }
 
-
 //TODO - 
 // Add friends
-// create toast to let user know they created a party successfully
 // delete party document in firebase after it's happened
+const Memory = ({doc}) => {
+  // party card
+  let data = doc.data()
+  return(
+    <IonCard button>
+      <IonCardTitle>{data.title}</IonCardTitle>
+      <IonCardSubtitle>Party Date - {data.date}</IonCardSubtitle>      
+    </IonCard>
+  )
+}
+
+const MemoryList = () => {
+  const [value, loading, error] = useCollection(
+    firebase.firestore().collection("parties").orderBy("date", "asc"), 
+  );
+
+  const today = moment(new Date()).format('LLL')
+  return(
+    <IonList>
+      {value && value.docs.map(doc => {
+        // if the party has happened display on memories
+        return(
+          !loading && (
+            <Memory doc={doc} key={doc.id} />
+          )
+        )      
+      })}
+    </IonList>
+  )
+}
 
 const Party = ({doc}) => {
   // party card
+
+  const [value, loading, error] = useDocument(
+    firebase.firestore().doc("parties/" + doc.id)
+  );
+
+  useEffect(() => {
+  }, [])
+
+  console.log(doc.id)
+  const [picture, setPicture] = useState<string>('')
+  const {getPhoto} = useCamera();
+
+  const takePhoto = async() => {
+    const cameraPhoto = await getPhoto({
+      resultType: CameraResultType.Base64,
+      source: CameraSource.Camera,
+      quality: 100
+    });
+    const photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`
+    return(setPicture(photo));
+  }
+
+  const onSave = async() => {
+    let collectionRef = firebase.firestore().collection("parties");
+    collectionRef.doc(doc.id).set({
+      picture: picture ? picture : ''}, {merge: true});
+      setPicture('');
+  }
+
   const [showPopover, setShowPopover] = useState(false);
   let data = doc.data()
   return(
     <>
-    <IonCard button onClick={() => setShowPopover(true)}>           
+    <IonCard>           
       <IonGrid>
         <IonRow>
           <IonCol size="8">
@@ -228,15 +289,22 @@ const Party = ({doc}) => {
             <IonCardSubtitle>Party Date - {data.date}</IonCardSubtitle>
           </IonCol>
           <IonCol>
-            <IonButton class="custom-button" expand="block" href='/camera'>
+            <IonButton class="custom-button" expand="block">
               <IonIcon icon={chatbubblesSharp} />
             </IonButton>
-            <IonButton class="custom-button" expand="block" href='/camera'>
+            <IonButton class="custom-button" expand="block" onClick={takePhoto}>
               <IonIcon icon={cameraSharp} />
-            </IonButton>            
+            </IonButton>   
+            <IonButton class="custom-button" expand="block" onClick={onSave}>
+              Upload picture
+            </IonButton>    
+            <IonButton onClick={() => setShowPopover(true)}>
+              See details
+            </IonButton>                    
           </IonCol>
         </IonRow>        
       </IonGrid>      
+      <IonImg src = {data.picture}></IonImg>
     </IonCard>
     <IonPopover
       isOpen={showPopover}
@@ -259,18 +327,22 @@ const Party = ({doc}) => {
 }
 
 const PartyList = () => {
+
   const [value, loading, error] = useCollection(
-    firebase.firestore().collection("parties").orderBy("createdOn", "desc"),
+    firebase.firestore().collection("parties").orderBy("date", "desc"), //order by parties closest to today's date 
   );
 
+  const today = moment(new Date()).format('LLL')
   return(
     <IonList>
       {value && value.docs.map(doc => {
+        // if the party has happened don't display
+        console.log(doc.data().date, today)
         return(
           !loading && (
             <Party doc={doc} key={doc.id} />
           )
-        )
+        )      
       })}
     </IonList>
   )
@@ -293,40 +365,39 @@ const Create: React.FC = () => {
 
 
 const Users: React.FC = () => {
-  const [value, loading, error] = useCollection(
-    firebase.firestore().collection('users'),
-  );
 
-  const userList = []
-  const filterUsers = (event) => {
-    requestAnimationFrame(() => {    
-      value.docs.map(doc => {   
-        userList.push(doc.data().name.toLowerCase())
-      });
+  const userList = document.querySelector('#user-list')
+  const db = firebase.firestore()
+
+  const renderUsers = (doc) => {
+    let li = document.createElement('li');
+    let name = document.createElement('span');    
+
+    li.setAttribute('data-id', doc.id);
+    name.textContent = doc.data().name 
+      li.appendChild(name);
+      userList.appendChild(li)    
+  }    
+
+
+  const filterUsers = (event) => { 
+    // get users from collection    
+    db.collection('users').where('name', '==', event).get().then((snapshot) => {
+      snapshot.docs.forEach(doc => {
+        renderUsers(doc)
+      })
     })
   }
   
   return(
     <IonPage>
-    <IonToolbar>
+    <IonToolbar>   
       <IonSearchbar onIonChange={e => filterUsers(e.detail.value!)}></IonSearchbar>
     </IonToolbar>
     <IonContent>
-      <IonList>
-        {value && value.docs.map(doc => {
-          return(
-            !loading && ( //filter list data with searchbar            
-              <IonCard button={true} key={doc.id}>
-                <IonCardHeader>
-                  <IonCardTitle>{doc.data().name}</IonCardTitle>
-                </IonCardHeader>
-              </IonCard>
-            )
-          )
-        })}
-      </IonList>
+      <ul id="user-list"></ul>
     </IonContent>
-    </IonPage>
+    </IonPage>    
   )
 }
 
@@ -341,7 +412,7 @@ const CreateParty = ({initialValue, clear}) => {
   const [location, setLocation] = useState<string>('')
   const [details, setDetails] = useState<string>('')
   const [endTime, setEndTime] = useState<string>('')
-  const [startTime, setStartTime] = useState<string>('')
+  const [startTime, setStartTime] = useState<string>('')  
 
   const [searchText, setSearchText] = useState<string>('');
   const [friendList, setFriendList] = useState([]);
@@ -372,8 +443,8 @@ const CreateParty = ({initialValue, clear}) => {
           endTime: moment(endTime).format('LLL'),
           startTime: moment(startTime).format('LLL'),
           // todo convert firestore timestamp to date format
-          createdOn: moment(new Date()).format('LLL')
-          })
+          createdOn: moment(new Date()).format('LLL'), 
+          });
           //clear fields
           setTitle("");
           setDate("")
@@ -400,7 +471,7 @@ const CreateParty = ({initialValue, clear}) => {
 
       <IonItem>
         <IonLabel>Date</IonLabel>
-        <IonDatetime value={date} onIonChange={e => setDate(e.detail.value!)} placeholder="Select Date"></IonDatetime>
+        <IonDatetime value={date} max="2050" min={moment(new Date()).format('YYYY')} onIonChange={e => setDate(e.detail.value!)} placeholder="Select Date"></IonDatetime>
       </IonItem>
 
       <IonItem>
@@ -468,17 +539,6 @@ const CreateParty = ({initialValue, clear}) => {
   )
 };
 
-const Camera: React.FC = () => {
-
-  return(
-    <IonPage>
-      <IonToolbar>
-        <IonTitle>Camera</IonTitle>
-      </IonToolbar>
-    </IonPage>
-  )
-}
-
 
 const Profile: React.FC = () => {
 
@@ -533,7 +593,7 @@ const Memories: React.FC = () => {
         <IonTitle>Memories</IonTitle>
       </IonToolbar>
       <IonContent>
-        Past party list.........    
+        <MemoryList />   
       </IonContent>
     </IonPage>
   )
@@ -554,7 +614,7 @@ const Home: React.FC = () => {
         </IonButtons>                
         <IonTitle>Upcoming parties</IonTitle>
       </IonToolbar>
-      <IonContent> 
+      <IonContent>     
         <PartyList />     
       </IonContent>
     </IonPage>
@@ -573,7 +633,6 @@ const SignedInRoutes: React.FC = () => {
             <Route path='/users' component={Users} />
             <Route path='/profile' component={Profile} />
             <Route path='/inbox' component={Inbox} />
-            <Route path='/camera' component={Camera} />
             <Route path='/memories' component={Memories} />
             <Route path='/home' component={Home} exact />      
             <Route exact path={["/signin", "/"]} render={() => <Redirect to="/home" />} />
