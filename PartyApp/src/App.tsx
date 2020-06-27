@@ -217,7 +217,7 @@ const Gallery = ({id, click}) => {
   // party card
   const [value, loading, error] = useCollection(
     firebase.firestore().collection('parties').doc(id).collection('pictures'),
-  );
+  );  
   // const deletePhoto = async() => {
   //   await collectionRef.doc(doc.id).update({
   //     picture: firebase.firestore.FieldValue.delete()
@@ -247,13 +247,63 @@ const Gallery = ({id, click}) => {
 // delete party document in firebase after it's happened
 const Memory = ({doc, click}) => {
   // party card
+  const [showToast, setShowToast] = useState(false);
+  const [picture, setPicture] = useState<string>('')
+  const {getPhoto} = useCamera(); 
+  const collectionRef = firebase.firestore().collection("parties");
+
+  const takePhoto = async() => {
+    const cameraPhoto = await getPhoto({
+      resultType: CameraResultType.Base64,
+      source: CameraSource.Camera,
+      quality: 100
+    });
+    const photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`
+    return(setPicture(photo));  
+  }
+
+  const onSave = async() => { 
+    await collectionRef.doc(doc.id).collection('pictures').add({
+        picture: picture ? (picture) : (''),
+        createdAt: moment(new Date()).format('LT'),
+    })
+      .then(function() {
+        setShowToast(true)
+      })
+      .catch(function(error) {
+        console.log(error)
+      });
+      setPicture('');
+  }  
   let data = doc.data();
   
   return(
-    <IonCard button onClick={click}>
-      <IonCardTitle>{data.title}</IonCardTitle>
-      <IonCardSubtitle>Party Date - {data.date}</IonCardSubtitle>    
-    </IonCard>
+    <IonCard>
+      <IonGrid>
+        <IonRow>
+          <IonCol size="8">
+            <IonCardTitle>{data.title}</IonCardTitle>
+            <IonCardSubtitle>Party Date - {data.date}</IonCardSubtitle> 
+            <IonButton onClick={click}>See Memories</IonButton>
+          </IonCol>   
+          <IonCol>
+            <IonButton class="custom-button" expand="block" onClick={takePhoto}>
+              <IonIcon icon={cameraSharp} />
+            </IonButton>   
+            <IonButton class="custom-button" expand="block" onClick={onSave}>
+              <IonIcon icon={cloudUploadSharp} />
+            </IonButton>   
+          </IonCol>
+        </IonRow>
+      </IonGrid> 
+      <IonToast 
+      isOpen={showToast}
+      onDidDismiss={() => setShowToast(false)}
+      duration={2000}
+      message="Picture uploaded!"
+      position="bottom"
+    />                  
+    </IonCard>    
   )
 }
 
@@ -317,44 +367,7 @@ const Party = ({doc}) => {
   // party card
 
   const [showPopover, setShowPopover] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [picture, setPicture] = useState<string>('')
-  const {getPhoto} = useCamera(); 
-  const collectionRef = firebase.firestore().collection("parties");
-
-  const takePhoto = async() => {
-    const cameraPhoto = await getPhoto({
-      resultType: CameraResultType.Base64,
-      source: CameraSource.Camera,
-      quality: 100
-    });
-    const photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`
-    return(setPicture(photo));  
-  }
-
-  const onSave = async() => { 
-    await collectionRef.doc(doc.id).collection('pictures').add({
-        picture: picture ? (picture) : (''),
-        createdAt: moment(new Date()).format('LT'),
-    })
-      .then(function() {
-        setShowToast(true)
-      })
-      .catch(function(error) {
-        console.log(error)
-      });
-      setPicture('');
-  }
-  // const deletePhoto = async() => {
-  //   await collectionRef.doc(doc.id).update({
-  //     picture: firebase.firestore.FieldValue.delete()
-  //   })
-  //   .then(function() { 
-  //   console.log("field successfully deleted!")})
-  //   .catch(function(error) { 
-  //   console.error("Error removing document: ", error); 
-  // });  
-  // }  
+  
   let data = doc.data()
   return(
     <>
@@ -364,21 +377,15 @@ const Party = ({doc}) => {
           <IonCol size="8">
             <IonCardSubtitle>Created On - <br/> {data.createdOn}</IonCardSubtitle>
             <IonCardTitle>{data.title}</IonCardTitle>
-            <IonCardSubtitle>Party Date - {data.date}</IonCardSubtitle>
-          <IonButton expand="block" onClick={() => setShowPopover(true)}>
-            See details
-          </IonButton>               
+            <IonCardSubtitle>Party Date - {data.date}</IonCardSubtitle>            
           </IonCol>
           <IonCol>
+            <IonButton class="custom-button" expand="block" onClick={() => setShowPopover(true)}>
+              Info
+            </IonButton>             
             <IonButton class="custom-button" expand="block" href='/chat'>
               <IonIcon icon={chatbubblesSharp} />
-            </IonButton>
-            <IonButton class="custom-button" expand="block" onClick={takePhoto}>
-              <IonIcon icon={cameraSharp} />
-            </IonButton>   
-            <IonButton class="custom-button" expand="block" onClick={onSave}>
-              <IonIcon icon={cloudUploadSharp} />
-            </IonButton>                     
+            </IonButton>                          
           </IonCol>          
         </IonRow>        
       </IonGrid>         
@@ -398,14 +405,7 @@ const Party = ({doc}) => {
         <IonLabel class="popover-label">Ends:</IonLabel>
         <IonItem>{data.endTime}</IonItem>
       </IonItemGroup>   
-    </IonPopover>
-      <IonToast 
-      isOpen={showToast}
-      onDidDismiss={() => setShowToast(false)}
-      duration={2000}
-      message="Picture uploaded!"
-      position="bottom"
-    />    
+    </IonPopover> 
     </>
   )
 }
