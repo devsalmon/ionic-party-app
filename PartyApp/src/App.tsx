@@ -252,16 +252,6 @@ const Memory = ({doc, click}) => {
   const {getPhoto} = useCamera(); 
   const collectionRef = firebase.firestore().collection("parties");
 
-  const takePhoto = async() => {
-    const cameraPhoto = await getPhoto({
-      resultType: CameraResultType.Base64,
-      source: CameraSource.Camera,
-      quality: 100
-    });
-    const photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`
-    return(setPicture(photo));  
-  }
-
   const onSave = async() => { 
     await collectionRef.doc(doc.id).collection('pictures').add({
         picture: picture ? (picture) : (''),
@@ -275,6 +265,18 @@ const Memory = ({doc, click}) => {
       });
       setPicture('');
   }  
+
+  const takePhoto = async() => {
+    const cameraPhoto = await getPhoto({
+      resultType: CameraResultType.Base64,
+      source: CameraSource.Camera,
+      quality: 100
+    });
+    const photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`
+    onSave();
+    return(setPicture(photo));  
+  }
+
   let data = doc.data();
   
   return(
