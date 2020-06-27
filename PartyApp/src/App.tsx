@@ -276,6 +276,7 @@ const Party = ({doc}) => {
       setPicture('');
   }
 
+  
   const [showPopover, setShowPopover] = useState(false);
   let data = doc.data()
   return(
@@ -304,7 +305,15 @@ const Party = ({doc}) => {
           </IonCol>
         </IonRow>        
       </IonGrid>      
-      <IonImg src = {data.picture}></IonImg>
+      <IonRow>
+        <IonCol size="6">
+        {data.map((data, index) => (
+            <IonItem key={index}>
+              <IonImg src = {data.picture}></IonImg>
+            </IonItem>
+          ))}
+        </IonCol>
+    </IonRow>
     </IonCard>
     <IonPopover
       isOpen={showPopover}
