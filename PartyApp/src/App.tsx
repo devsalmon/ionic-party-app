@@ -60,7 +60,9 @@ import {
   personCircleSharp,
   cameraSharp,
   createSharp,
-  chatbubblesSharp
+  chatbubblesSharp,
+  trashBinSharp,
+  cloudUploadSharp
 } from 'ionicons/icons';
 import {Plugins} from '@capacitor/core';
 import {useCamera} from '@ionic/react-hooks/camera';
@@ -211,53 +213,114 @@ class Menu extends React.Component{
   }  
 }
 
+const Gallery = ({id, click}) => {
+  // party card
+  const [value, loading, error] = useCollection(
+    firebase.firestore().collection('parties').doc(id).collection('pictures'),
+  );
+  // const deletePhoto = async() => {
+  //   await collectionRef.doc(doc.id).update({
+  //     picture: firebase.firestore.FieldValue.delete()
+  //   })
+  //   .then(function() { 
+  //   console.log("field successfully deleted!")})
+  //   .catch(function(error) { 
+  //   console.error("Error removing document: ", error); 
+  // });  
+  // }
+  return(
+    <>
+    <IonButton onClick={click}>Back</IonButton>
+    <IonList>   
+      {value && value.docs.map(doc => {
+        return(
+          <IonImg src={doc.data().picture} key={doc.id} ></IonImg>
+        )
+      })}      
+    </IonList>
+    </>
+  )
+} 
+
 //TODO - 
 // Add friends
 // delete party document in firebase after it's happened
-const Memory = ({doc}) => {
+const Memory = ({doc, click}) => {
   // party card
-  let data = doc.data()
+  let data = doc.data();
+  
   return(
-    <IonCard button>
+    <IonCard button onClick={click}>
       <IonCardTitle>{data.title}</IonCardTitle>
-      <IonCardSubtitle>Party Date - {data.date}</IonCardSubtitle>      
+      <IonCardSubtitle>Party Date - {data.date}</IonCardSubtitle>    
     </IonCard>
   )
 }
 
 const MemoryList = () => {
+
+  const [id, setID] = useState<string>('');
+  const [currid, setCurrid] = useState<string>('');
+  const [inG, setInG] = useState(false);
   const [value, loading, error] = useCollection(
     firebase.firestore().collection("parties").orderBy("date", "asc"), 
   );
+  
+  useEffect(() => {
+    if(id != currid ) {
+      setInG(true)
+      setCurrid(id)
+    }
+  }, [id]);
 
-  const today = moment(new Date()).format('LLL')
-  return(
-    <IonList>
-      {value && value.docs.map(doc => {
-        // if the party has happened display on memories
-        return(
-          !loading && (
-            <Memory doc={doc} key={doc.id} />
-          )
-        )      
-      })}
-    </IonList>
-  )
+  const today = moment(new Date()).format('LLL');
+
+  if (inG) {
+    return(
+      !loading && (
+        <Gallery id={id} key={id} click={() => setInG(false)}/>
+      )
+    )
+  } else {
+    return(
+      <IonList>
+        {value && value.docs.map(doc => {
+          // if the party has happened display on memories 
+          if (moment(doc.data().date).isBefore(today)) {
+            return(
+              !loading && (
+                <Memory doc={doc} key={doc.id} click={() => setID(doc.id)}/>
+              )
+            )   
+          } else {}
+        })}
+      </IonList>
+    )
+  }
 }
+
+const Chat = () => {
+  // party card
+  const db = firebase.firestore().collection("parties");
+  return(
+    <IonPage>
+      <IonToolbar>
+        <IonTitle>Party Chat</IonTitle>
+      </IonToolbar>
+      <IonContent>      
+      </IonContent>
+    </IonPage>
+  )
+} 
 
 const Party = ({doc}) => {
   // party card
 
-  const [value, loading, error] = useDocument(
-    firebase.firestore().doc("parties/" + doc.id)
-  );
-
-  useEffect(() => {
-  }, [])
-
-  console.log(doc.id)
+  const [showPopover, setShowPopover] = useState(false);
+  const [showToast, setShowToast] = useState(false);
   const [picture, setPicture] = useState<string>('')
-  const {getPhoto} = useCamera();
+  const {getPhoto} = useCamera(); 
+  const collectionRef = firebase.firestore().collection("parties");
 
   const takePhoto = async() => {
     const cameraPhoto = await getPhoto({
@@ -266,45 +329,59 @@ const Party = ({doc}) => {
       quality: 100
     });
     const photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`
-    return(setPicture(photo));
+    return(setPicture(photo));  
   }
 
-  const onSave = async() => {
-    let collectionRef = firebase.firestore().collection("parties");
-    collectionRef.doc(doc.id).set({
-      picture: picture ? picture : ''}, {merge: true});
+  const onSave = async() => { 
+    await collectionRef.doc(doc.id).collection('pictures').add({
+        picture: picture ? (picture) : (''),
+        createdAt: moment(new Date()).format('LT'),
+    })
+      .then(function() {
+        setShowToast(true)
+      })
+      .catch(function(error) {
+        console.log(error)
+      });
       setPicture('');
   }
-
-  const [showPopover, setShowPopover] = useState(false);
+  // const deletePhoto = async() => {
+  //   await collectionRef.doc(doc.id).update({
+  //     picture: firebase.firestore.FieldValue.delete()
+  //   })
+  //   .then(function() { 
+  //   console.log("field successfully deleted!")})
+  //   .catch(function(error) { 
+  //   console.error("Error removing document: ", error); 
+  // });  
+  // }  
   let data = doc.data()
   return(
     <>
-    <IonCard>           
+    <IonCard>          
       <IonGrid>
         <IonRow>
           <IonCol size="8">
             <IonCardSubtitle>Created On - <br/> {data.createdOn}</IonCardSubtitle>
             <IonCardTitle>{data.title}</IonCardTitle>
             <IonCardSubtitle>Party Date - {data.date}</IonCardSubtitle>
+          <IonButton expand="block" onClick={() => setShowPopover(true)}>
+            See details
+          </IonButton>               
           </IonCol>
           <IonCol>
-            <IonButton class="custom-button" expand="block">
+            <IonButton class="custom-button" expand="block" href='/chat'>
               <IonIcon icon={chatbubblesSharp} />
             </IonButton>
             <IonButton class="custom-button" expand="block" onClick={takePhoto}>
               <IonIcon icon={cameraSharp} />
             </IonButton>   
             <IonButton class="custom-button" expand="block" onClick={onSave}>
-              Upload picture
-            </IonButton>    
-            <IonButton onClick={() => setShowPopover(true)}>
-              See details
-            </IonButton>                    
-          </IonCol>
+              <IonIcon icon={cloudUploadSharp} />
+            </IonButton>                     
+          </IonCol>          
         </IonRow>        
-      </IonGrid>      
-      <IonImg src = {data.picture}></IonImg>
+      </IonGrid>         
     </IonCard>
     <IonPopover
       isOpen={showPopover}
@@ -322,6 +399,13 @@ const Party = ({doc}) => {
         <IonItem>{data.endTime}</IonItem>
       </IonItemGroup>   
     </IonPopover>
+      <IonToast 
+      isOpen={showToast}
+      onDidDismiss={() => setShowToast(false)}
+      duration={2000}
+      message="Picture uploaded!"
+      position="bottom"
+    />    
     </>
   )
 }
@@ -337,12 +421,14 @@ const PartyList = () => {
     <IonList>
       {value && value.docs.map(doc => {
         // if the party has happened don't display
-        console.log(doc.data().date, today)
-        return(
-          !loading && (
-            <Party doc={doc} key={doc.id} />
-          )
-        )      
+        console.log("p date: " + doc.data().date + "today: " + today)
+        if (moment(doc.data().date).isAfter(today)) {
+          return(
+            !loading && (
+              <Party doc={doc} key={doc.id} />
+            )
+          )      
+        } else {}
       })}
     </IonList>
   )
@@ -391,12 +477,12 @@ const Users: React.FC = () => {
   
   return(
     <IonPage>
-    <IonToolbar>   
-      <IonSearchbar onIonChange={e => filterUsers(e.detail.value!)}></IonSearchbar>
-    </IonToolbar>
-    <IonContent>
-      <ul id="user-list"></ul>
-    </IonContent>
+      <IonToolbar>   
+        <IonSearchbar onIonChange={e => filterUsers(e.detail.value!)}></IonSearchbar>
+      </IonToolbar>
+      <IonContent>
+        <ul id="user-list"></ul>
+      </IonContent>
     </IonPage>    
   )
 }
@@ -452,7 +538,7 @@ const CreateParty = ({initialValue, clear}) => {
           setDetails("");
           setEndTime("");
           setStartTime("");
-          clear();
+          clear();        
     } 
   
   }
@@ -593,7 +679,7 @@ const Memories: React.FC = () => {
         <IonTitle>Memories</IonTitle>
       </IonToolbar>
       <IonContent>
-        <MemoryList />   
+        <MemoryList />
       </IonContent>
     </IonPage>
   )
@@ -633,6 +719,8 @@ const SignedInRoutes: React.FC = () => {
             <Route path='/users' component={Users} />
             <Route path='/profile' component={Profile} />
             <Route path='/inbox' component={Inbox} />
+            <Route path='/chat' component={Chat} />
+            <Route path='/gallery' component={Gallery} />
             <Route path='/memories' component={Memories} />
             <Route path='/home' component={Home} exact />      
             <Route exact path={["/signin", "/"]} render={() => <Redirect to="/home" />} />

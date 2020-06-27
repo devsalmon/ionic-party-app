@@ -44,3 +44,8 @@ ion-card-title {
     padding-left: 10px;
     padding-bottom: 10px
 }
+
+ion-card-subtitle {
+    padding-top: 0px;
+    font-weight: bold
+}
