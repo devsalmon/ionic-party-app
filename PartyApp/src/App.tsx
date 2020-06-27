@@ -284,7 +284,7 @@ const Memory = ({doc, click}) => {
           <IonCol size="8">
             <IonCardTitle>{data.title}</IonCardTitle>
             <IonCardSubtitle>Party Date - {data.date}</IonCardSubtitle> 
-            <IonButton onClick={click}>See Memories</IonButton>
+            <IonButton expand="block" onClick={click}>See Memories</IonButton>
           </IonCol>   
           <IonCol>
             <IonButton class="custom-button" expand="block" onClick={takePhoto}>
@@ -311,24 +311,25 @@ const MemoryList = () => {
 
   const [id, setID] = useState<string>('');
   const [currid, setCurrid] = useState<string>('');
-  const [inG, setInG] = useState(false);
+  const [inGallery, setInGallery] = useState(false);
   const [value, loading, error] = useCollection(
     firebase.firestore().collection("parties").orderBy("date", "asc"), 
   );
   
   useEffect(() => {
+    // if memory card clicked, go to gallery
     if(id != currid ) {
-      setInG(true)
+      setInGallery(true)
       setCurrid(id)
     }
   }, [id]);
 
   const today = moment(new Date()).format('LLL');
 
-  if (inG) {
+  if (inGallery) {
     return(
       !loading && (
-        <Gallery id={id} key={id} click={() => setInG(false)}/>
+        <Gallery id={id} key={id} click={() => setInGallery(false)}/>
       )
     )
   } else {
