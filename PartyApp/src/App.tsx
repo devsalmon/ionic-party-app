@@ -453,38 +453,105 @@ const Create: React.FC = () => {
 }
 
 
-const Users: React.FC = () => {
+const Users = async() => {
 
-  const userList = document.querySelector('#user-list')
+  //const userList = document.querySelector('#user-list')
+  const searchbar = document.querySelector('IonSearchbar');
+  
   const db = firebase.firestore()
+  const citiesRef = db.collection('users');
+const snapshot = await citiesRef.where('name', '==', searchbar).get();
+if (snapshot.empty) {
+  console.log('No matching documents.');
+  return;
+}  
 
-  const renderUsers = (doc) => {
-    let li = document.createElement('li');
-    let name = document.createElement('span');    
+snapshot.forEach(doc => {
+  console.log(doc.id, '=>', doc.data());
+});
 
-    li.setAttribute('data-id', doc.id);
-    name.textContent = doc.data().name 
-      li.appendChild(name);
-      userList.appendChild(li)    
-  }    
+  //const renderUsers = (doc) => {
+    //let li = document.createElement('li');
+    //let name = document.createElement('span');    
+
+    //li.setAttribute('data-id', doc.id);
+    //name.textContent = doc.data().name 
+    //  li.appendChild(name);
+      //userList.appendChild(li)    
+      
 
 
-  const filterUsers = (event) => { 
+  //const filterUsers = (event) => { 
     // get users from collection    
-    db.collection('users').where('name', '==', event).get().then((snapshot) => {
-      snapshot.docs.forEach(doc => {
-        renderUsers(doc)
-      })
-    })
-  }
+    //db.collection('users').where('name', '==', event).get().then((snapshot) => {
+      //snapshot.docs.forEach(doc => {
+        //renderUsers(doc)
+      //})
+   // })
+  //}
+ // e => filterUsers(e.detail.value!)
+
+ //const searchbar = document.querySelector('IonSearchbar');
+    //const items = Array.from(document.querySelector('IonList').children);
+
+   // searchbar.addEventListener('ionInput', handleInput);
+
+   // function handleInput(event) {
+     // const query = event.target.value.toLowerCase();
+      //requestAnimationFrame(() => {
+        //items.forEach(item => {
+          //const shouldShow = item.textContent.toLowerCase().indexOf(query) > -1;
+          //item.style.display = shouldShow ? 'block' : 'none';
+    //   });
+     // });
+   // }
   
   return(
     <IonPage>
       <IonToolbar>   
-        <IonSearchbar onIonChange={e => filterUsers(e.detail.value!)}></IonSearchbar>
+        <IonSearchbar></IonSearchbar>
       </IonToolbar>
       <IonContent>
-        <ul id="user-list"></ul>
+        {/* <ul id="user-list"></ul> */}
+      <IonList>
+        <IonItem>Amsterdam</IonItem>
+        <IonItem>Bogota</IonItem>
+        <IonItem>Buenos Aires</IonItem>
+        <IonItem>Cairo</IonItem>
+        <IonItem>Dhaka</IonItem>
+        <IonItem>Edinburgh</IonItem>
+        <IonItem>Geneva</IonItem>
+        <IonItem>Genoa</IonItem>
+        <IonItem>Glasgow</IonItem>
+        <IonItem>Hanoi</IonItem>
+        <IonItem>Hong Kong</IonItem>
+        <IonItem>Islamabad</IonItem>
+        <IonItem>Istanbul</IonItem>
+        <IonItem>Jakarta</IonItem>
+        <IonItem>Kiel</IonItem>
+        <IonItem>Kyoto</IonItem>
+        <IonItem>Le Havre</IonItem>
+        <IonItem>Lebanon</IonItem>
+        <IonItem>Lhasa</IonItem>
+        <IonItem>Lima</IonItem>
+        <IonItem>London</IonItem>
+        <IonItem>Los Angeles</IonItem>
+        <IonItem>Madrid</IonItem>
+        <IonItem>Manila</IonItem>
+        <IonItem>New York</IonItem>
+        <IonItem>Olympia</IonItem>
+        <IonItem>Oslo</IonItem>
+        <IonItem>Panama City</IonItem>
+        <IonItem>Peking</IonItem>
+        <IonItem>Philadelphia</IonItem>
+        <IonItem>San Francisco</IonItem>
+        <IonItem>Seoul</IonItem>
+        <IonItem>Taipeh</IonItem>
+        <IonItem>Tel Aviv</IonItem>
+        <IonItem>Tokio</IonItem>
+        <IonItem>Uelzen</IonItem>
+        <IonItem>Washington</IonItem>
+      </IonList>
       </IonContent>
     </IonPage>    
   )
