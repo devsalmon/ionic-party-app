@@ -62,7 +62,8 @@ import {
   createSharp,
   chatbubblesSharp,
   trashBinSharp,
-  cloudUploadSharp
+  cloudUploadSharp,
+  triangle
 } from 'ionicons/icons';
 import {Plugins} from '@capacitor/core';
 import {useCamera} from '@ionic/react-hooks/camera';
@@ -462,9 +463,18 @@ const Users: React.FC = () => {
     const result = await index.search(query);
     setHits(result.hits);
     console.log(hits)
+    return query;
   }
 
-  if (hits) {
+  const addFriend = (objectID) => {
+
+    var receiver_user_id = objectID
+    var sender_user_id = firebase.auth().currentUser.uid
+    console.log(receiver_user_id)
+
+  }
+
+  if (hits &&  search !== null) {
     console.log("no")
     return(
       <IonPage>
@@ -478,13 +488,28 @@ const Users: React.FC = () => {
               <IonAvatar>
                 <img src={hit.photoUrl} />
               </IonAvatar>
-              {hit.name}
+              <IonText>{hit.name}</IonText>
+              <IonButton slot="end" onClick={() => addFriend(hit.objectID)}>
+              <IonIcon slot="icon-only" icon={personAddSharp} />
+              </IonButton>
             </IonItem>)}
           </IonList>
         </IonContent>
       </IonPage>    
     )
   } 
+  else {
+    return(
+      <IonPage>
+        <IonToolbar>   
+          <IonSearchbar onIonChange={e => search(e.detail.value!)}></IonSearchbar>
+        </IonToolbar>
+        <IonContent>
+
+        </IonContent>
+      </IonPage>
+    )
+  }
 }
 
 const CreateParty = ({initialValue, clear}) => {
