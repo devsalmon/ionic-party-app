@@ -86,6 +86,7 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 /* Theme variables */
 import './variables.css';
+import algoliasearch from 'algoliasearch/lite';
 
 // once finished, run ionic build then npx cap add ios and npx cap add android
 
@@ -273,7 +274,6 @@ const Memory = ({doc, click}) => {
       quality: 100
     });
     const photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`
-    onSave();
     return(setPicture(photo));  
   }
 
@@ -424,7 +424,6 @@ const PartyList = () => {
     <IonList>
       {value && value.docs.map(doc => {
         // if the party has happened don't display
-        console.log("p date: " + doc.data().date + "today: " + today)
         if (moment(doc.data().date).isAfter(today)) {
           return(
             !loading && (
@@ -455,39 +454,37 @@ const Create: React.FC = () => {
 
 const Users: React.FC = () => {
 
-  const userList = document.querySelector('#user-list')
-  const db = firebase.firestore()
+  const searchClient = algoliasearch('N5BVZA4FRH', '10173d946e2ba5aa9ba4f9ae445cef48');
+  const index = searchClient.initIndex('Users');
+  const [hits, setHits] = useState([]);
 
-  const renderUsers = (doc) => {
-    let li = document.createElement('li');
-    let name = document.createElement('span');    
-
-    li.setAttribute('data-id', doc.id);
-    name.textContent = doc.data().name 
-      li.appendChild(name);
-      userList.appendChild(li)    
-  }    
-
-
-  const filterUsers = (event) => { 
-    // get users from collection    
-    db.collection('users').where('name', '==', event).get().then((snapshot) => {
-      snapshot.docs.forEach(doc => {
-        renderUsers(doc)
-      })
-    })
+  async function search(query) {
+    const result = await index.search(query);
+    setHits(result.hits);
+    console.log(hits)
   }
-  
-  return(
-    <IonPage>
-      <IonToolbar>   
-        <IonSearchbar onIonChange={e => filterUsers(e.detail.value!)}></IonSearchbar>
-      </IonToolbar>
-      <IonContent>
-        <ul id="user-list"></ul>
-      </IonContent>
-    </IonPage>    
-  )
+
+  if (hits) {
+    console.log("no")
+    return(
+      <IonPage>
+        <IonToolbar>   
+          <IonSearchbar onIonChange={e => search(e.detail.value!)}></IonSearchbar>
+        </IonToolbar>
+        <IonContent>
+          <IonList>      
+            {hits.map(hit => 
+            <IonItem key={hit.objectID}>
+              <IonAvatar>
+                <img src={hit.photoUrl} />
+              </IonAvatar>
+              {hit.name}
+            </IonItem>)}
+          </IonList>
+        </IonContent>
+      </IonPage>    
+    )
+  } 
 }
 
 const CreateParty = ({initialValue, clear}) => {
@@ -516,7 +513,7 @@ const CreateParty = ({initialValue, clear}) => {
 
   const onSave = () => {  
     // validate inputs  
-    const valid = Boolean((date != "") && (title != "") && (location != "") && (startTime != "") && (endTime != "") && (details != ""));
+    const valid = Boolean((date !== "") && (title !== "") && (location !== "") && (startTime !== "") && (endTime !== "") && (details !== ""));
     
     if (valid == false) {
       setShowAlert(true)    
@@ -631,7 +628,7 @@ const CreateParty = ({initialValue, clear}) => {
 
 const Profile: React.FC = () => {
 
-    var user = firebase.auth().currentUser;
+  var user = firebase.auth().currentUser;
 
   return(
     <IonPage>

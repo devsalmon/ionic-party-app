@@ -1,4 +1,5 @@
 import firebase from 'firebase'
+// For the default version
 
 // Your web app's Firebase configuration
 var fbConfig = {
