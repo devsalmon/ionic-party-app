@@ -452,7 +452,7 @@ const Create: React.FC = () => {
 }
 
 
-const Users: React.FC = () => {
+const Users = async() => {
 
   const searchClient = algoliasearch('N5BVZA4FRH', '10173d946e2ba5aa9ba4f9ae445cef48');
   const index = searchClient.initIndex('Users');
