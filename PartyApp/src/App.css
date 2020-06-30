@@ -14,6 +14,10 @@
     height: 50px;
 }
 
+ion-label {
+    font-weight: bold;
+}
+
 ion-button {
     --background: blue;
     --background-hover-opacity: 0.3;
@@ -48,4 +52,12 @@ ion-card-title {
 ion-card-subtitle {
     padding-top: 0px;
     font-weight: bold
+}
+
+ion-slides {
+    height: 100%;    
+}
+
+ion-slide {
+    padding: 30px;
 }
