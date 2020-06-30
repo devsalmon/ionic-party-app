@@ -44,7 +44,10 @@ import {
   IonRippleEffect,
   IonLoading,
   IonAlert,
-  IonImg
+  IonImg,
+  IonSlides,
+  IonSlide,
+  IonBackButton
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { 
@@ -62,13 +65,12 @@ import {
   createSharp,
   chatbubblesSharp,
   trashBinSharp,
-  cloudUploadSharp,
-  triangle
+  cloudUploadSharp,  
+  chevronBackSharp
 } from 'ionicons/icons';
 import {Plugins} from '@capacitor/core';
 import {useCamera} from '@ionic/react-hooks/camera';
 import {CameraResultType, CameraSource} from '@capacitor/core';
-
 import './App.css'
 import firebase from './firestore'
 import moment from 'moment'
@@ -88,9 +90,7 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './variables.css';
 import algoliasearch from 'algoliasearch/lite';
-
 // once finished, run ionic build then npx cap add ios and npx cap add android
-
 // Signs-in Messaging with GOOGLE POP UP
 const SignInGooglepu = async() => {
   // Initiate Firebase Auth.
@@ -109,7 +109,6 @@ const SignInGooglepu = async() => {
       photoUrl: user.photoURL
       })       
     }
-
   }).catch(function (error) {
     // Handle Errors here.
     var errorCode = error.code;
@@ -119,29 +118,22 @@ const SignInGooglepu = async() => {
     // The firebase.auth.AuthCredential type that was used.
     var credential = error.credential;
   });
-
   // Get the signed-in user's profile pic and name.
   //var profilePicUrl = getProfilePicUrl();
   //var userName = getUserName();
-
   // Set the user's profile pic and name.
   //document.getElementById('user-pic').style.backgroundImage = 'url(' + addSizeToGoogleProfilePic(profilePicUrl) + ')';
   //document.getElementById('user-name').textContent = userName;
 }
-
 // Signs out of Party app.
 const signOut = async() => {
   // Sign out of Firebase.
   firebase.auth().signOut();
   //alert("YOU JUST SIGNED OUT")
   }
-
-
 const SignIn = () => {
-
   const [email] = useState<string>('');
   const [password] = useState<string>('');
-
   return (
     <IonPage>
         <IonToolbar>
@@ -161,7 +153,6 @@ const SignIn = () => {
     </IonPage>
   )
 }
-
 class Page {
   title: string = '';
   url: string = '';
@@ -170,7 +161,6 @@ class Page {
 const appPages: Page[] = [
   {title: 'Users', url: '/users', icon: peopleCircleOutline},  
 ]
-
 const Links = () => {
   return(
     <IonList>
@@ -191,7 +181,6 @@ const Links = () => {
     </IonList>
 )
 };
-
 class Menu extends React.Component{
   render() {
     return(
@@ -214,7 +203,6 @@ class Menu extends React.Component{
     );
   }  
 }
-
 const Gallery = ({id, click}) => {
   // party card
   const [value, loading, error] = useCollection(
@@ -230,17 +218,30 @@ const Gallery = ({id, click}) => {
   //   console.error("Error removing document: ", error); 
   // });  
   // }
-  return(
-    <>
-    <IonButton onClick={click}>Back</IonButton>
-    <IonList>   
-      {value && value.docs.map(doc => {
-        return(
-          <IonImg src={doc.data().picture} key={doc.id} ></IonImg>
-        )
-      })}      
-    </IonList>
-    </>
+  return(     
+    <IonGrid>
+      <IonRow>
+        <IonButton onClick={click}>
+          <IonIcon icon={chevronBackSharp} />
+        </IonButton>     
+      </IonRow>
+        <IonSlides scrollbar={false} pager={true} options={{initialSlide: 1, preloadImages: true, loop: true}}>
+          {value && value.docs.map(doc => {
+            return(                        
+              <IonSlide key={doc.id}>        
+                <IonGrid>
+                  <IonRow>
+                    <IonImg src={doc.data().picture} />
+                  </IonRow>     
+                  <IonRow className="ion-padding">
+                    <IonLabel>Taken at {doc.data().createdAt}</IonLabel>
+                  </IonRow>                               
+                </IonGrid>
+              </IonSlide>
+            )
+          })}      
+        </IonSlides>  
+    </IonGrid>
   )
 } 
 
@@ -253,10 +254,10 @@ const Memory = ({doc, click}) => {
   const [picture, setPicture] = useState<string>('')
   const {getPhoto} = useCamera(); 
   const collectionRef = firebase.firestore().collection("parties");
-
   const onSave = async() => { 
+    if (picture !== "") {
     await collectionRef.doc(doc.id).collection('pictures').add({
-        picture: picture ? (picture) : (''),
+        picture: picture,
         createdAt: moment(new Date()).format('LT'),
     })
       .then(function() {
@@ -266,10 +267,13 @@ const Memory = ({doc, click}) => {
         console.log(error)
       });
       setPicture('');
+    }
   }  
 
+  // TODO - add IOS AND ANDROID permissions from pwa elements
   const takePhoto = async() => {
     const cameraPhoto = await getPhoto({
+      allowEditing: true,      
       resultType: CameraResultType.Base64,
       source: CameraSource.Camera,
       quality: 100
@@ -277,7 +281,6 @@ const Memory = ({doc, click}) => {
     const photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`
     return(setPicture(photo));  
   }
-
   let data = doc.data();
   
   return(
@@ -309,26 +312,20 @@ const Memory = ({doc, click}) => {
     </IonCard>    
   )
 }
-
 const MemoryList = () => {
-
   const [id, setID] = useState<string>('');
-  const [currid, setCurrid] = useState<string>('');
   const [inGallery, setInGallery] = useState(false);
   const [value, loading, error] = useCollection(
     firebase.firestore().collection("parties").orderBy("date", "asc"), 
   );
-  
-  useEffect(() => {
-    // if memory card clicked, go to gallery
-    if(id != currid ) {
-      setInGallery(true)
-      setCurrid(id)
-    }
-  }, [id]);
+
+  // if memory card clicked, go to gallery
+  const enter = (id) => {
+    setInGallery(true)
+    setID(id)
+  }  
 
   const today = moment(new Date()).format('LLL');
-
   if (inGallery) {
     return(
       !loading && (
@@ -343,7 +340,7 @@ const MemoryList = () => {
           if (moment(doc.data().date).isBefore(today)) {
             return(
               !loading && (
-                <Memory doc={doc} key={doc.id} click={() => setID(doc.id)}/>
+                <Memory doc={doc} key={doc.id} click={() => enter(doc.id)}/>
               )
             )   
           } else {}
@@ -352,7 +349,6 @@ const MemoryList = () => {
     )
   }
 }
-
 const Chat = () => {
   // party card
   const db = firebase.firestore().collection("parties");
@@ -366,10 +362,8 @@ const Chat = () => {
     </IonPage>
   )
 } 
-
 const Party = ({doc}) => {
   // party card
-
   const [showPopover, setShowPopover] = useState(false);
   
   let data = doc.data()
@@ -413,13 +407,10 @@ const Party = ({doc}) => {
     </>
   )
 }
-
 const PartyList = () => {
-
   const [value, loading, error] = useCollection(
     firebase.firestore().collection("parties").orderBy("date", "desc"), //order by parties closest to today's date 
   );
-
   const today = moment(new Date()).format('LLL')
   return(
     <IonList>
@@ -436,11 +427,9 @@ const PartyList = () => {
     </IonList>
   )
 }
-
 const Create: React.FC = () => {
   
   const [current, setCurrent] = useState(null); // used to reset input form values
-
   return(
     <IonPage>
       <IonToolbar>
@@ -449,7 +438,6 @@ const Create: React.FC = () => {
       <CreateParty initialValue={current} clear={() => setCurrent(null)}/>
     </IonPage>
   )
-
 }
 
 
@@ -462,7 +450,6 @@ const Users: React.FC = () => {
   async function search(query) {
     const result = await index.search(query);
     setHits(result.hits);
-    console.log(hits)
     return query;
   }
 
@@ -474,42 +461,27 @@ const Users: React.FC = () => {
 
   }
 
-  if (hits &&  search !== null) {
-    console.log("no")
-    return(
-      <IonPage>
-        <IonToolbar>   
-          <IonSearchbar onIonChange={e => search(e.detail.value!)}></IonSearchbar>
-        </IonToolbar>
-        <IonContent>
-          <IonList>      
-            {hits.map(hit => 
-            <IonItem key={hit.objectID}>
-              <IonAvatar>
-                <img src={hit.photoUrl} />
-              </IonAvatar>
-              <IonText>{hit.name}</IonText>
-              <IonButton slot="end" onClick={() => addFriend(hit.objectID)}>
+  return(
+    <IonPage>
+      <IonToolbar>   
+        <IonSearchbar onIonChange={e => search(e.detail.value!)}></IonSearchbar>
+      </IonToolbar>
+      <IonContent>
+        <IonList>      
+          {hits.map(hit => 
+          <IonItem key={hit.objectID}>
+            <IonAvatar>
+              <img src={hit.photoUrl} />
+            </IonAvatar>
+            <IonText>{hit.name}</IonText>
+            <IonButton slot="end" onClick={() => addFriend(hit.objectID)}>
               <IonIcon slot="icon-only" icon={personAddSharp} />
-              </IonButton>
-            </IonItem>)}
-          </IonList>
-        </IonContent>
-      </IonPage>    
+            </IonButton>
+          </IonItem>)}
+        </IonList>
+      </IonContent>
+    </IonPage>    
     )
-  } 
-  else {
-    return(
-      <IonPage>
-        <IonToolbar>   
-          <IonSearchbar onIonChange={e => search(e.detail.value!)}></IonSearchbar>
-        </IonToolbar>
-        <IonContent>
-
-        </IonContent>
-      </IonPage>
-    )
-  }
 }
 
 const CreateParty = ({initialValue, clear}) => {
@@ -517,14 +489,12 @@ const CreateParty = ({initialValue, clear}) => {
   useEffect(() => {  
   },
   []);
-
   const [date, setDate] = useState<string>('')
   const [title, setTitle] = useState<string>('')
   const [location, setLocation] = useState<string>('')
   const [details, setDetails] = useState<string>('')
   const [endTime, setEndTime] = useState<string>('')
   const [startTime, setStartTime] = useState<string>('')  
-
   const [searchText, setSearchText] = useState<string>('');
   const [friendList, setFriendList] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -534,8 +504,6 @@ const CreateParty = ({initialValue, clear}) => {
   const [value, loading, error] = useDocument(
     firebase.firestore().doc("parties/" + initialValue)
   );
-
-
   const onSave = () => {  
     // validate inputs  
     const valid = Boolean((date !== "") && (title !== "") && (location !== "") && (startTime !== "") && (endTime !== "") && (details !== ""));
@@ -567,34 +535,27 @@ const CreateParty = ({initialValue, clear}) => {
     } 
   
   }
-
   return(
-
     <IonContent>
     <IonList>
       <IonItem>
         <IonInput value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title (e.g. Bruno's 17th)" clearInput></IonInput>
       </IonItem>
-
       <IonItem>
         <IonInput value={location} onIonChange={e => setLocation(e.detail.value!)} placeholder="Location" clearInput></IonInput>
       </IonItem>
-
       <IonItem>
         <IonLabel>Date</IonLabel>
         <IonDatetime value={date} max="2050" min={moment(new Date()).format('YYYY')} onIonChange={e => setDate(e.detail.value!)} placeholder="Select Date"></IonDatetime>
       </IonItem>
-
       <IonItem>
         <IonLabel>Starts</IonLabel>
         <IonDatetime value={startTime} onIonChange={e => setStartTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
       </IonItem>
-
       <IonItem>
         <IonLabel>Ends</IonLabel>
         <IonDatetime value={endTime} onIonChange={e => setEndTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
       </IonItem>
-
       <IonItem>
         <IonTextarea value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
       </IonItem>
@@ -649,12 +610,8 @@ const CreateParty = ({initialValue, clear}) => {
     </IonContent>
   )
 };
-
-
 const Profile: React.FC = () => {
-
   var user = firebase.auth().currentUser;
-
   return(
     <IonPage>
       <IonToolbar>
@@ -681,9 +638,7 @@ const Profile: React.FC = () => {
     </IonPage>
   )
 }
-
 const Inbox: React.FC = () => {
-
   return(
     <IonPage>
       <IonToolbar>
@@ -695,9 +650,7 @@ const Inbox: React.FC = () => {
     </IonPage>
   )
 }
-
 const Memories: React.FC = () => {
-
   return(
     <IonPage>
       <IonToolbar>
@@ -709,9 +662,7 @@ const Memories: React.FC = () => {
     </IonPage>
   )
 }
-
 const Home: React.FC = () => {
-
   return(
     <IonPage>
       <IonToolbar>
@@ -731,7 +682,6 @@ const Home: React.FC = () => {
     </IonPage>
   )
 }
-
 const SignedInRoutes: React.FC = () => {
   return(
     <>
@@ -756,7 +706,6 @@ const SignedInRoutes: React.FC = () => {
               <IonLabel>Home</IonLabel>
               <IonRippleEffect></IonRippleEffect>
             </IonTabButton>
-
             <IonTabButton tab="memories" href="/memories">
               <IonIcon icon={imageSharp} />
               <IonLabel>Memories</IonLabel>
@@ -768,13 +717,11 @@ const SignedInRoutes: React.FC = () => {
               <IonLabel>Create</IonLabel>
               <IonRippleEffect></IonRippleEffect>
             </IonTabButton>  
-
             <IonTabButton tab="inbox" href="/inbox">
               <IonIcon icon={notificationsSharp} />
               <IonLabel>Inbox</IonLabel>
               <IonRippleEffect></IonRippleEffect>
             </IonTabButton>
-
             <IonTabButton tab="profile" href="/profile">
               <IonIcon icon={personCircleSharp} />
               <IonLabel>Profile</IonLabel>
@@ -786,14 +733,10 @@ const SignedInRoutes: React.FC = () => {
     </> 
   )
 }
-
-
 const App: React.FC =() => {
-
   // Triggers when the auth state change for instance when the user signs-in or signs-out.
   const [loading, setLoading] = useState(true);
   const [signedIn, setSignedIn] = useState(false)
-
   useEffect(() => {
     firebase.auth().onAuthStateChanged(function(user) {
       var user = firebase.auth().currentUser;
@@ -806,7 +749,6 @@ const App: React.FC =() => {
         setLoading(false)
     })
   })
-
   if (loading) {
     return(
       <IonApp>
@@ -833,6 +775,5 @@ const App: React.FC =() => {
   )
   }
 };
-
 
 export default App;
