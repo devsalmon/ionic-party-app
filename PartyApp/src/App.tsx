@@ -458,6 +458,20 @@ const Users: React.FC = () => {
   const searchClient = algoliasearch('N5BVZA4FRH', '10173d946e2ba5aa9ba4f9ae445cef48');
   const index = searchClient.initIndex('Users');
   const [hits, setHits] = useState([]);
+  const [addBtnDisabled, setaddBtnDisabled] = useState(false)
+  const [cancBtnDisabled, setcancBtnDisabled] = useState(true)
+
+  //let collectionRef = firebase.firestore().collection("friend_requests"); //in collection 'firend_requests'...
+  //if {collectionRef.doc(hit.objectID).collection(firebase.auth().currentUser.uid).add(
+
+    //{request_status: 'received'})
+    
+    //if successful
+    //.then(function(docRef) {
+     // //currentState = "request_received"
+      //setaddBtnDisabled(true); //disables add friend button
+      //setcancBtnDisabled(false); //enalbes cancel request button
+    //})
 
   async function search(query) {
     const result = await index.search(query);
@@ -468,9 +482,42 @@ const Users: React.FC = () => {
 
   const addFriend = (objectID) => {
 
+    let collectionRef = firebase.firestore().collection("friend_requests"); //in collection 'firend_requests'...
+    //var currentState = "not_friends"
+    //var disabledState = false
     var receiver_user_id = objectID
     var sender_user_id = firebase.auth().currentUser.uid
     console.log(receiver_user_id)
+
+    //create doc with sender's id and adds receiver's id to collection.
+    collectionRef.doc(sender_user_id).collection(receiver_user_id).add(
+      {request_status: 'sent'})
+
+      //if successful
+      .then(function(docRef) {
+        //console.log("Document written with ID: ", docRef.id);
+        //if successful, create doc w receiver's id and add sender's id to collection
+        collectionRef.doc(receiver_user_id).collection(sender_user_id).add(
+
+          {request_status: 'received'})
+          
+          //if successful
+          .then(function(docRef) {
+            //currentState = "request_received"
+            setaddBtnDisabled(true); //disables add friend button
+            setcancBtnDisabled(false); //enalbes cancel request button
+          })
+
+          //if unsuccessful
+          .catch(function(error) {
+            console.error("Error adding document: ", error);
+        }); 
+      })
+
+    //if unsuccessful
+    .catch(function(error) {
+        console.error("Error adding document: ", error);
+    });
 
   }
 
@@ -489,9 +536,10 @@ const Users: React.FC = () => {
                 <img src={hit.photoUrl} />
               </IonAvatar>
               <IonText>{hit.name}</IonText>
-              <IonButton slot="end" onClick={() => addFriend(hit.objectID)}>
+              <IonButton disabled = {addBtnDisabled} slot="end" onClick={() => addFriend(hit.objectID)}>
               <IonIcon slot="icon-only" icon={personAddSharp} />
               </IonButton>
+              <IonButton disabled = {cancBtnDisabled} slot="end">Cancel</IonButton>
             </IonItem>)}
           </IonList>
         </IonContent>
