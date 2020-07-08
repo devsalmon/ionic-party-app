@@ -472,7 +472,13 @@ const Users: React.FC = () => {
     setHits(result.hits);
     return query;
   }
-
+//  basically if in friend_requests, if under ur id, u have another persons id 
+//  (in a collection) w a doc with request_status equal to 'received' then that
+//  person's id (the collection) should be used to get the persons profile and
+//  display it in inbox w "accept request". To check that u have a new friend
+//  request, I think we need to use an onSnapshot function which would be always
+//  listening for a new entry in friend requests under ur id i think. If you get
+//  that working u can attach the accept request function to the accept button.
   const addFriend = (objectID) => {
 
     let collectionRef = firebase.firestore().collection("friend_requests"); //in collection 'firend_requests'...
