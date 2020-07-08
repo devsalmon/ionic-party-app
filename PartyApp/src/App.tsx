@@ -449,6 +449,12 @@ const Users: React.FC = () => {
   const [addBtnDisabled, setaddBtnDisabled] = useState(false)
   const [cancBtnDisabled, setcancBtnDisabled] = useState(true)
 
+  //let collectionRef = firebase.firestore().collection("friend_requests");
+  //collectionRef.doc("SF")
+  //.onSnapshot(function(doc) {
+    //  console.log("Current data: ", doc.data());
+  //});
+
   //let collectionRef = firebase.firestore().collection("friend_requests"); //in collection 'firend_requests'...
   //if {collectionRef.doc(hit.objectID).collection(firebase.auth().currentUser.uid).add(
 
@@ -474,7 +480,7 @@ const Users: React.FC = () => {
     //var disabledState = false
     var receiver_user_id = objectID
     var sender_user_id = firebase.auth().currentUser.uid
-    console.log(receiver_user_id)
+    //console.log(receiver_user_id)
 
     //create doc with sender's id and adds receiver's id to collection.
     collectionRef.doc(sender_user_id).collection(receiver_user_id).add(
@@ -493,6 +499,48 @@ const Users: React.FC = () => {
             //currentState = "request_received"
             setaddBtnDisabled(true); //disables add friend button
             setcancBtnDisabled(false); //enalbes cancel request button
+          })
+
+          //if unsuccessful
+          .catch(function(error) {
+            console.error("Error adding document: ", error);
+        }); 
+      })
+
+    //if unsuccessful
+    .catch(function(error) {
+        console.error("Error adding document: ", error);
+    });
+
+  }
+
+  const acceptFriend = (objectID) => {
+
+    let collectionRef = firebase.firestore().collection("friends"); //in collection 'firend_requests'...
+    //var currentState = "not_friends"
+    //var disabledState = false
+    var receiver_user_id = objectID
+    var sender_user_id = firebase.auth().currentUser.uid
+    var date = moment(new Date()).format('LLL')
+    //get date? watch vid #31
+
+    //create doc with sender's id and adds receiver's id to collection.
+    collectionRef.doc(sender_user_id).collection(receiver_user_id).add(
+      {date: date})
+
+      //if successful
+      .then(function(docRef) {
+        //console.log("Document written with ID: ", docRef.id);
+        //if successful, create doc w receiver's id and add sender's id to collection
+        collectionRef.doc(receiver_user_id).collection(sender_user_id).add(
+
+          {date: date})
+          
+          //if successful
+          .then(function(docRef) {
+            //currentState = "request_received"
+            //setaddBtnDisabled(true); //disables add friend button
+            //setcancBtnDisabled(false); //enalbes cancel request button
           })
 
           //if unsuccessful
