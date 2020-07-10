@@ -163,7 +163,7 @@ const appPages: Page[] = [
 ]
 const Links = () => {
   return(
-    <IonList>
+    <IonList class="gradient">
       <IonItem color="primary">
         <IonIcon slot="start" icon={starSharp}/>
         <IonLabel>Guest rating: </IonLabel>
@@ -334,7 +334,7 @@ const MemoryList = () => {
     )
   } else {
     return(
-      <IonList>
+      <IonList class="gradient">
         {value && value.docs.map(doc => {
           // if the party has happened display on memories 
           if (moment(doc.data().date).isBefore(today)) {
@@ -369,13 +369,13 @@ const Party = ({doc}) => {
   let data = doc.data()
   return(
     <>
-    <IonCard>          
+    <IonItem>          
       <IonGrid>
         <IonRow>
           <IonCol size="8">
-            <IonCardSubtitle>Created On - <br/> {data.createdOn}</IonCardSubtitle>
-            <IonCardTitle>{data.title}</IonCardTitle>
-            <IonCardSubtitle>Party Date - {data.date}</IonCardSubtitle>            
+            <IonText>Created On - <br/> {data.createdOn}</IonText>
+            <IonTitle>{data.title}</IonTitle>
+            <IonText>Party Date - {data.date}</IonText>            
           </IonCol>
           <IonCol>
             <IonButton class="custom-button" expand="block" onClick={() => setShowPopover(true)}>
@@ -387,7 +387,7 @@ const Party = ({doc}) => {
           </IonCol>          
         </IonRow>        
       </IonGrid>         
-    </IonCard>
+    </IonItem>
     <IonPopover
       isOpen={showPopover}
       cssClass='popover'
@@ -413,7 +413,7 @@ const PartyList = () => {
   );
   const today = moment(new Date()).format('LLL')
   return(
-    <IonList>
+    <IonList class="gradient">
       {value && value.docs.map(doc => {
         // if the party has happened don't display
         if (moment(doc.data().date).isAfter(today)) {
@@ -440,37 +440,20 @@ const Create: React.FC = () => {
   )
 }
 
-
 const Users: React.FC = () => {
 
+  const collectionRef = firebase.firestore().collection("friend_requests");
   const searchClient = algoliasearch('N5BVZA4FRH', '10173d946e2ba5aa9ba4f9ae445cef48');
   const index = searchClient.initIndex('Users');
   const [hits, setHits] = useState([]);
-  const [addBtnDisabled, setaddBtnDisabled] = useState(false)
-  const [cancBtnDisabled, setcancBtnDisabled] = useState(true)
-
-  //let collectionRef = firebase.firestore().collection("friend_requests");
-  //collectionRef.doc("SF")
-  //.onSnapshot(function(doc) {
-    //  console.log("Current data: ", doc.data());
-  //});
-
-  //let collectionRef = firebase.firestore().collection("friend_requests"); //in collection 'firend_requests'...
-  //if {collectionRef.doc(hit.objectID).collection(firebase.auth().currentUser.uid).add(
-
-    //{request_status: 'received'})
-    
-    //if successful
-    //.then(function(docRef) {
-     // //currentState = "request_received"
-      //setaddBtnDisabled(true); //disables add friend button
-      //setcancBtnDisabled(false); //enalbes cancel request button
-    //})
+  const [query, setQuery] = useState('');
+  const [addDisabled, setAddDisabled] = useState(false)
+  const [cancelDisabled, setCancelDisabled] = useState(true)
 
   async function search(query) {
     const result = await index.search(query);
     setHits(result.hits);
-    return query;
+    setQuery(query)    
   }
 //  basically if in friend_requests, if under ur id, u have another persons id 
 //  (in a collection) w a doc with request_status equal to 'received' then that
@@ -480,8 +463,7 @@ const Users: React.FC = () => {
 //  listening for a new entry in friend requests under ur id i think. If you get
 //  that working u can attach the accept request function to the accept button.
   const addFriend = (objectID) => {
-
-    let collectionRef = firebase.firestore().collection("friend_requests"); //in collection 'firend_requests'...
+    
     //var currentState = "not_friends"
     //var disabledState = false
     var receiver_user_id = objectID
@@ -503,8 +485,8 @@ const Users: React.FC = () => {
           //if successful
           .then(function(docRef) {
             //currentState = "request_received"
-            setaddBtnDisabled(true); //disables add friend button
-            setcancBtnDisabled(false); //enalbes cancel request button
+            setAddDisabled(true); //disables add friend button
+            setCancelDisabled(false); //enalbes cancel request button
           })
 
           //if unsuccessful
@@ -520,15 +502,56 @@ const Users: React.FC = () => {
 
   }
 
-  const acceptFriend = (objectID) => {
+  const resetButtons = () => {
+    setAddDisabled(false); //disables add friend button
+    setCancelDisabled(true); //enalbes cancel request button
+  }
 
-    let collectionRef = firebase.firestore().collection("friends"); //in collection 'firend_requests'...
-    //var currentState = "not_friends"
-    //var disabledState = false
-    var receiver_user_id = objectID
+  if (hits && query !== "" && query !== " ") {
+    return(
+      <IonPage>
+        <IonToolbar>   
+          <IonSearchbar onIonChange={e => search(e.detail.value!)}></IonSearchbar>
+        </IonToolbar>
+        <IonContent>
+          <IonList class="gradient">      
+            {hits.map(hit => 
+            <IonItem key={hit.objectID}>
+              <IonAvatar>
+                <img src={hit.photoUrl} />
+              </IonAvatar>
+              <IonText>{hit.name}</IonText>
+              <IonButton disabled = {addDisabled} slot="end" onClick={() => addFriend(hit.objectID)}>
+                <IonIcon slot="icon-only" icon={personAddSharp} />
+              </IonButton>
+              <IonButton disabled = {cancelDisabled} slot="end" onClick={resetButtons}>Cancel</IonButton>
+            </IonItem>)}
+          </IonList>
+        </IonContent>
+      </IonPage>    
+    )
+  } 
+  else {
+    return(
+      <IonPage>
+        <IonToolbar>   
+          <IonSearchbar onIonChange={e => search(e.detail.value!)}></IonSearchbar>
+        </IonToolbar>
+        <IonContent>
+
+        </IonContent>
+      </IonPage>
+    )}}
+
+const FriendRequests = () => {
+
+  const collectionRef = firebase.firestore().collection("friend_requests");
+
+  const acceptFriend = (objectID) => {
     var sender_user_id = firebase.auth().currentUser.uid
+    var receiver_user_id = objectID
+    
     var date = moment(new Date()).format('LLL')
-    //get date? watch vid #31
 
     //create doc with sender's id and adds receiver's id to collection.
     collectionRef.doc(sender_user_id).collection(receiver_user_id).add(
@@ -560,44 +583,36 @@ const Users: React.FC = () => {
         console.error("Error adding document: ", error);
     });
 
-  }
+  collectionRef.doc(firebase.auth().currentUser.uid).collection('0gOOtbVUGwYrMAyoOQCCXDjXJax2')
+  .onSnapshot(function(doc) {
+    doc.docChanges().forEach(function(change) {
+      if (change.doc.data().request_status = "received") {
+        // if on receiver's account, return list of friend requests
+        let userRef = firebase.firestore().collection("users").doc('DMhdq4BpaksyJtfnbhBe');
+        // get document of user who sent the request 
+        console.log("Current data: ", change.doc.data());
 
-  if (hits &&  search !== null) {
-    console.log("no")
-    return(
-      <IonPage>
-        <IonToolbar>   
-          <IonSearchbar onIonChange={e => search(e.detail.value!)}></IonSearchbar>
-        </IonToolbar>
-        <IonContent>
-          <IonList>      
-            {hits.map(hit => 
-            <IonItem key={hit.objectID}>
-              <IonAvatar>
-                <img src={hit.photoUrl} />
-              </IonAvatar>
-              <IonText>{hit.name}</IonText>
-              <IonButton disabled = {addBtnDisabled} slot="end" onClick={() => addFriend(hit.objectID)}>
-              <IonIcon slot="icon-only" icon={personAddSharp} />
+        userRef.get().then(function(doc) {
+          return (
+            <IonItem key={doc.id}>
+              <IonText>{doc.data().name} wants to be friends</IonText>
+              <IonButton slot="end" onClick={() => acceptFriend(doc.id)}>
+                Accept
               </IonButton>
-              <IonButton disabled = {cancBtnDisabled} slot="end">Cancel</IonButton>
-            </IonItem>)}
-          </IonList>
-        </IonContent>
-      </IonPage>    
-    )
-  } 
-  else {
-    return(
-      <IonPage>
-        <IonToolbar>   
-          <IonSearchbar onIonChange={e => search(e.detail.value!)}></IonSearchbar>
-        </IonToolbar>
-        <IonContent>
+            </IonItem>
+          )  
+        })              
+      }
+    })
+  });   
+  }    
 
-        </IonContent>
-      </IonPage>
-    )}}
+  return(
+    <IonList class="gradient">
+      
+    </IonList>
+  )
+}
 
 const CreateParty = ({initialValue, clear}) => {
 
@@ -652,7 +667,7 @@ const CreateParty = ({initialValue, clear}) => {
   }
   return(
     <IonContent>
-    <IonList>
+    <IonList class="gradient">
       <IonItem>
         <IonInput value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title (e.g. Bruno's 17th)" clearInput></IonInput>
       </IonItem>
@@ -696,7 +711,7 @@ const CreateParty = ({initialValue, clear}) => {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <IonList>
+        <IonList class="gradient">
           {friendList.map(({ val, isChecked }, i) => (
             <IonItem key={i}>
               <IonLabel>{val}</IonLabel>
@@ -757,10 +772,11 @@ const Inbox: React.FC = () => {
   return(
     <IonPage>
       <IonToolbar>
-        <IonTitle>Invites</IonTitle>
+        <IonTitle>Notifications</IonTitle>
       </IonToolbar>
       <IonContent className="ion-padding">
-        Friend requests, activity....  
+        Invites....
+        <FriendRequests />
       </IonContent>
     </IonPage>
   )

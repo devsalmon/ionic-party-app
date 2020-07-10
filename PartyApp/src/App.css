@@ -1,3 +1,13 @@
+.custom-button {
+    --background: blue; 
+    --background-hover-opacity: 0.3;
+    height: 50px;
+}
+
+.gradient {
+    background-image: linear-gradient(black 70%, 90%, yellow)
+}
+
 .popover{
     --height: 50%;
     --width: 75%;
@@ -8,34 +18,9 @@
     padding-top: 10px;
 }
 
-.custom-button {
-    --background: blue; 
-    --background-hover-opacity: 0.3;
-    height: 50px;
-}
-
-ion-label {
-    font-weight: bold;
-}
-
 ion-button {
     --background: blue;
     --background-hover-opacity: 0.3;
-}
-
-ion-title {
-    text-align: center;
-    font-weight: bold;
-    --size: 'large';
-    --color: blue;
-}
-
-ion-toolbar {
-    padding: 20px;
-}
-
-ion-content {
-    padding: 10px;
 }
 
 ion-card-subtitle {
@@ -54,6 +39,30 @@ ion-card-subtitle {
     font-weight: bold
 }
 
+ion-content {
+    padding: 10px;
+}
+
+ion-item{
+    --background: black
+}
+
+ion-label {
+    font-weight: bold;
+}
+
+ion-list {
+    height: 100%;
+    display: block;
+}
+
+ion-title {
+    text-align: center;
+    font-weight: bold;
+    --size: 'large';
+    --color: yellow;
+}
+
 ion-slides {
     height: 100%;    
 }
@@ -61,3 +70,17 @@ ion-slides {
 ion-slide {
     padding: 30px;
 }
+
+ion-text {
+    color: yellow;
+}
+
+ion-tab-bar {
+    --ion-background-color: yellow;
+}
+
+ion-toolbar {
+    padding: 20px;
+    --ion-background-color: black;
+}
+
