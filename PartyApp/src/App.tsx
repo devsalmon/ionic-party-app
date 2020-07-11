@@ -1,4 +1,11 @@
 import React, { useState, useEffect} from 'react';
+import {
+    Accordion,
+    AccordionItem,
+    AccordionItemHeading,
+    AccordionItemButton,
+    AccordionItemPanel,
+} from 'react-accessible-accordion';
 import { Route, Redirect } from 'react-router-dom';
 import {useDocument, useCollection} from 'react-firebase-hooks/firestore';
 import {
@@ -159,21 +166,21 @@ class Page {
   icon: string = '';
 };
 const appPages: Page[] = [
-  {title: 'Users', url: '/users', icon: peopleCircleOutline},  
+  {title: 'Users', url: '/users', icon: "./customIcons/People.svg"},  
 ]
 const Links = () => {
   return(
     <IonList class="gradient">
-      <IonItem color="primary">
-        <IonIcon slot="start" icon={starSharp}/>
-        <IonLabel>Guest rating: </IonLabel>
+      <IonItem>
+        <IonIcon color="warning" slot="start" icon={starSharp}/>
+        <IonLabel color="warning">Guest rating: </IonLabel>
       </IonItem>
       {appPages.map((appPage, index) => {
       return (
         <IonMenuToggle key={index} auto-hide="false">
-        <IonItem color="primary" href={appPage.url}>
-            <IonIcon slot="start" icon={appPage.icon} />
-            <IonLabel>{appPage.title}</IonLabel>
+        <IonItem href={appPage.url}>
+            <IonIcon color="warning" slot="start" icon={appPage.icon} />
+            <IonLabel color="warning">{appPage.title}</IonLabel>
         </IonItem>
         </IonMenuToggle>
       );
@@ -188,11 +195,11 @@ class Menu extends React.Component{
       <IonMenuToggle>
         <IonMenu type="overlay" contentId="main" menuId="main-menu">
           <IonHeader>
-            <IonToolbar color="primary">
+            <IonToolbar>
               <IonTitle size="large">Menu</IonTitle>              
             </IonToolbar>
           </IonHeader>
-          <IonContent color="primary">
+          <IonContent>
             <Links /> 
           </IonContent>
         </IonMenu>
@@ -228,15 +235,13 @@ const Gallery = ({id, click}) => {
         <IonSlides scrollbar={false} pager={true} options={{initialSlide: 1, preloadImages: true, loop: true}}>
           {value && value.docs.map(doc => {
             return(                        
-              <IonSlide key={doc.id}>        
-                <IonGrid>
-                  <IonRow>
-                    <IonImg src={doc.data().picture} />
-                  </IonRow>     
-                  <IonRow className="ion-padding">
-                    <IonLabel>Taken at {doc.data().createdAt}</IonLabel>
-                  </IonRow>                               
-                </IonGrid>
+              <IonSlide key={doc.id}>
+                <IonRow>
+                  <IonImg src={doc.data().picture} />
+                </IonRow>     
+                <IonRow className="ion-padding">
+                  <IonLabel>Taken at {doc.data().createdAt}</IonLabel>
+                </IonRow>   
               </IonSlide>
             )
           })}      
@@ -284,24 +289,37 @@ const Memory = ({doc, click}) => {
   let data = doc.data();
   
   return(
-    <IonCard>
-      <IonGrid>
+    <AccordionItem>
+      <AccordionItemHeading>
+        <AccordionItemButton>
+          <IonRow>
+            <IonCol size="7">
+              <IonText>{data.title} <br/></IonText>
+              <IonText class="white-text">{data.date}<br/></IonText> 
+              <IonText class="white-text">Hosted By - ...</IonText>
+            </IonCol>
+            <IonCol>
+              <IonButton class="custom-button" expand="block" onClick={click}>
+                <IonIcon src="assets/icon/Memories.svg"/> Memories
+              </IonButton>
+            </IonCol>   
+          </IonRow>
+        </AccordionItemButton>
+      </AccordionItemHeading>
+      <AccordionItemPanel>
         <IonRow>
-          <IonCol size="8">
-            <IonCardTitle>{data.title}</IonCardTitle>
-            <IonCardSubtitle>Party Date - {data.date}</IonCardSubtitle> 
-            <IonButton expand="block" onClick={click}>See Memories</IonButton>
-          </IonCol>   
-          <IonCol>
-            <IonButton class="custom-button" expand="block" onClick={takePhoto}>
-              <IonIcon icon={cameraSharp} />
-            </IonButton>   
-            <IonButton class="custom-button" expand="block" onClick={onSave}>
-              <IonIcon icon={cloudUploadSharp} />
-            </IonButton>   
-          </IonCol>
+        <IonCol>
+          <IonButton class="custom-button" expand="block" onClick={takePhoto}>
+            <IonIcon icon={cameraSharp} />
+          </IonButton>   
+        </IonCol>
+        <IonCol>
+          <IonButton class="custom-button" expand="block" onClick={onSave}>
+            <IonIcon icon={cloudUploadSharp} />
+          </IonButton>   
+        </IonCol>      
         </IonRow>
-      </IonGrid> 
+      </AccordionItemPanel>
       <IonToast 
       isOpen={showToast}
       onDidDismiss={() => setShowToast(false)}
@@ -309,7 +327,7 @@ const Memory = ({doc, click}) => {
       message="Picture uploaded!"
       position="bottom"
     />                  
-    </IonCard>    
+    </AccordionItem>    
   )
 }
 const MemoryList = () => {
@@ -334,7 +352,7 @@ const MemoryList = () => {
     )
   } else {
     return(
-      <IonList class="gradient">
+      <Accordion allowZeroExpanded={true} allowMultipleExpanded={true} className="gradient">
         {value && value.docs.map(doc => {
           // if the party has happened display on memories 
           if (moment(doc.data().date).isBefore(today)) {
@@ -345,7 +363,7 @@ const MemoryList = () => {
             )   
           } else {}
         })}
-      </IonList>
+      </Accordion>
     )
   }
 }
@@ -369,25 +387,36 @@ const Party = ({doc}) => {
   let data = doc.data()
   return(
     <>
-    <IonItem>          
-      <IonGrid>
+    <AccordionItem>
+      <AccordionItemHeading>
+          <AccordionItemButton>
+            <IonRow>
+              <IonCol size="3" >
+                <IonText>{data.date}</IonText>    
+              </IonCol>
+              <IonCol>            
+                <IonText>{data.title} <br/></IonText>  
+                <IonText class="white-text">{data.location} <br/></IonText>
+                <IonText class="white-text">Created {data.createdOn}</IonText>
+              </IonCol>         
+            </IonRow>       
+          </AccordionItemButton>
+      </AccordionItemHeading>
+      <AccordionItemPanel>        
         <IonRow>
-          <IonCol size="8">
-            <IonText>Created On - <br/> {data.createdOn}</IonText>
-            <IonTitle>{data.title}</IonTitle>
-            <IonText>Party Date - {data.date}</IonText>            
-          </IonCol>
           <IonCol>
             <IonButton class="custom-button" expand="block" onClick={() => setShowPopover(true)}>
               Info
-            </IonButton>             
+            </IonButton>
+          </IonCol>
+          <IonCol>             
             <IonButton class="custom-button" expand="block" href='/chat'>
               <IonIcon icon={chatbubblesSharp} />
-            </IonButton>                          
-          </IonCol>          
-        </IonRow>        
-      </IonGrid>         
-    </IonItem>
+            </IonButton>
+          </IonCol>  
+        </IonRow>
+      </AccordionItemPanel>
+    </AccordionItem>
     <IonPopover
       isOpen={showPopover}
       cssClass='popover'
@@ -413,7 +442,7 @@ const PartyList = () => {
   );
   const today = moment(new Date()).format('LLL')
   return(
-    <IonList class="gradient">
+    <Accordion allowZeroExpanded={true} allowMultipleExpanded={true} className="gradient">
       {value && value.docs.map(doc => {
         // if the party has happened don't display
         if (moment(doc.data().date).isAfter(today)) {
@@ -424,7 +453,7 @@ const PartyList = () => {
           )      
         } else {}
       })}
-    </IonList>
+    </Accordion>
   )
 }
 const Create: React.FC = () => {
@@ -607,10 +636,7 @@ const FriendRequests = () => {
   });   
   }    
 
-  return(
-    <IonList class="gradient">
-      
-    </IonList>
+  return(null
   )
 }
 
@@ -666,30 +692,36 @@ const CreateParty = ({initialValue, clear}) => {
   
   }
   return(
-    <IonContent>
-    <IonList class="gradient">
-      <IonItem>
-        <IonInput value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title (e.g. Bruno's 17th)" clearInput></IonInput>
-      </IonItem>
-      <IonItem>
-        <IonInput value={location} onIonChange={e => setLocation(e.detail.value!)} placeholder="Location" clearInput></IonInput>
-      </IonItem>
-      <IonItem>
-        <IonLabel>Date</IonLabel>
-        <IonDatetime value={date} max="2050" min={moment(new Date()).format('YYYY')} onIonChange={e => setDate(e.detail.value!)} placeholder="Select Date"></IonDatetime>
-      </IonItem>
-      <IonItem>
-        <IonLabel>Starts</IonLabel>
-        <IonDatetime value={startTime} onIonChange={e => setStartTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
-      </IonItem>
-      <IonItem>
-        <IonLabel>Ends</IonLabel>
-        <IonDatetime value={endTime} onIonChange={e => setEndTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="Select Time"></IonDatetime>
-      </IonItem>
-      <IonItem>
-        <IonTextarea value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
-      </IonItem>
-    </IonList>
+    <IonContent class="create-content">
+    <IonCard>
+    <IonCardContent class="create-card-content">
+      <IonList lines="full" color="warning">
+        <IonItem class="create-card">
+          <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title (e.g. Bruno's 17th)" clearInput></IonInput>
+        </IonItem>
+        <IonItem class="create-card">
+          <IonInput class="create-input" value={location} onIonChange={e => setLocation(e.detail.value!)} placeholder="Location" clearInput></IonInput>
+        </IonItem>
+        <IonItem class="create-card">
+          <IonLabel color="dark">Date</IonLabel>
+          <IonDatetime class="create-datetime" value={date} max="2050" min={moment(new Date()).format('YYYY')} onIonChange={e => setDate(e.detail.value!)}></IonDatetime>
+        </IonItem>
+        <IonItem class="create-card">
+          <IonLabel color="dark">Starts</IonLabel>
+          <IonDatetime class="create-datetime" value={startTime} onIonChange={e => setStartTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A"></IonDatetime>
+        </IonItem>
+        <IonItem class="create-card">
+          <IonLabel color="dark">Ends</IonLabel>
+          <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A"></IonDatetime>
+        </IonItem>
+        <IonItem class="create-card">
+          <IonTextarea class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
+        </IonItem>
+        <IonButton class="custom-button" expand="block" onClick={e => setShowModal(true)}>Invite People</IonButton>
+        <IonButton class="custom-button" expand="block" onClick={() => onSave()}>CREATE!</IonButton>        
+      </IonList>    
+      </IonCardContent>  
+    </IonCard>
     <IonModal isOpen={showModal}>
       <IonHeader>
         <IonToolbar>              
@@ -721,8 +753,6 @@ const CreateParty = ({initialValue, clear}) => {
         </IonList>
       </IonContent>
     </IonModal>
-    <IonButton expand="block" onClick={e => setShowModal(true)}>Invite People</IonButton>
-    <IonButton expand="block" onClick={() => onSave()}>CREATE!</IonButton>
     <IonToast
       isOpen={showToast}
       onDidDismiss={() => setShowToast(false)}
@@ -774,7 +804,7 @@ const Inbox: React.FC = () => {
       <IonToolbar>
         <IonTitle>Notifications</IonTitle>
       </IonToolbar>
-      <IonContent className="ion-padding">
+      <IonContent>
         Invites....
         <FriendRequests />
       </IonContent>
@@ -818,7 +848,6 @@ const SignedInRoutes: React.FC = () => {
     <>
     <Menu /> 
       <IonReactRouter>
-        <IonTabs>
           <IonRouterOutlet>       
             <Route path='/signin' component={SignIn} />
             <Route path='/create' component={Create} />
@@ -831,6 +860,7 @@ const SignedInRoutes: React.FC = () => {
             <Route path='/home' component={Home} exact />      
             <Route exact path={["/signin", "/"]} render={() => <Redirect to="/home" />} />
           </IonRouterOutlet> 
+        
           <IonTabBar slot="bottom">
             <IonTabButton tab="home" href="/home">
               <IonIcon icon={home} />
@@ -838,28 +868,26 @@ const SignedInRoutes: React.FC = () => {
               <IonRippleEffect></IonRippleEffect>
             </IonTabButton>
             <IonTabButton tab="memories" href="/memories">
-              <IonIcon icon={imageSharp} />
+              <IonIcon class="side-icons" src="assets/icon/Memories.svg" />
               <IonLabel>Memories</IonLabel>
               <IonRippleEffect></IonRippleEffect>
-            </IonTabButton>
-            
+            </IonTabButton>            
             <IonTabButton tab="create" href="/create">
-              <IonIcon icon={addCircle} />
+              <IonIcon class="mid-icon" src="assets/icon/Create.svg" />
               <IonLabel>Create</IonLabel>
               <IonRippleEffect></IonRippleEffect>
             </IonTabButton>  
+            <IonTabButton tab="profile" href="/profile">
+              <IonIcon class="side-icons" src="assets/icon/People.svg" />
+              <IonLabel>Profile</IonLabel>
+              <IonRippleEffect></IonRippleEffect>                
+            </IonTabButton>                
             <IonTabButton tab="inbox" href="/inbox">
               <IonIcon icon={notificationsSharp} />
               <IonLabel>Inbox</IonLabel>
               <IonRippleEffect></IonRippleEffect>
-            </IonTabButton>
-            <IonTabButton tab="profile" href="/profile">
-              <IonIcon icon={personCircleSharp} />
-              <IonLabel>Profile</IonLabel>
-              <IonRippleEffect></IonRippleEffect>                
-            </IonTabButton>                
+            </IonTabButton>            
           </IonTabBar>
-        </IonTabs>
       </IonReactRouter>   
     </> 
   )

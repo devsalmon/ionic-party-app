@@ -1,11 +1,46 @@
+
 .custom-button {
-    --background: blue; 
+    --background: yellow; 
+    color: black;
+    font-weight: bold;
     --background-hover-opacity: 0.3;
     height: 50px;
 }
 
+.create-card {
+    --color: black;
+    --background: black;
+}
+
+.create-card-content {
+    --ion-padding: 10px;
+    --color: black;
+    --background: black;
+}
+
+.create-content {
+    --background: yellow;
+}
+
+.create-datetime {
+    --placeholder-color: grey;
+    color: yellow;
+}
+
+.create-input {
+    --background: black;
+    color: yellow;
+    --placeholder-color: grey;
+    --placeholder-font-weight: bold;
+}
+
 .gradient {
-    background-image: linear-gradient(black 70%, 90%, yellow)
+    height: 100%;
+    background-image: linear-gradient(black 70%, 90%, yellow);
+}
+
+.mid-icon {
+    font-size: 70px;
 }
 
 .popover{
@@ -18,8 +53,18 @@
     padding-top: 10px;
 }
 
-ion-button {
-    --background: blue;
+.side-icons {
+    font-size: 50px;
+}
+
+.white-text {
+    font-weight: bold;
+    color: white;
+    font-size: 12px;
+}
+
+ion-buttons {
+    --background: yellow;
     --background-hover-opacity: 0.3;
 }
 
@@ -41,14 +86,19 @@ ion-card-subtitle {
 
 ion-content {
     padding: 10px;
+    --background: transparent;
 }
 
 ion-item{
-    --background: black
+    --background: transparent;
+    --ion-text-colour: yellow;
+    text-transform: uppercase;
 }
 
 ion-label {
     font-weight: bold;
+    text-transform: uppercase;
+    --ion-text-color: yellow;
 }
 
 ion-list {
@@ -56,12 +106,13 @@ ion-list {
     display: block;
 }
 
-ion-title {
-    text-align: center;
-    font-weight: bold;
-    --size: 'large';
-    --color: yellow;
-}
+/* ion-picker {
+    --background: black;
+    --border-color: red;
+    --border-width: 2px;
+    --height: 100%;
+    --width: 90%
+} */
 
 ion-slides {
     height: 100%;    
@@ -71,12 +122,31 @@ ion-slide {
     padding: 30px;
 }
 
+ion-tab-button {
+    --background: transparent;
+    --background-focused: grey;
+    --color-selected: black;
+}
+
 ion-text {
     color: yellow;
+    font-size: 15px;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 ion-tab-bar {
-    --ion-background-color: yellow;
+    --background: transparent;
+    height: 120px;
+    text-transform: uppercase;
+}
+
+ion-title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 18px;
+    --color: yellow;
+    text-transform: uppercase;
 }
 
 ion-toolbar {

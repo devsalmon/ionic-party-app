@@ -26,6 +26,7 @@
     "ionicons": "^5.1.2",
     "moment": "^2.27.0",
     "react": "^16.13.0",
+    "react-accessible-accordion": "^3.3.0",
     "react-dom": "^16.13.0",
     "react-firebase-hooks": "^2.2.0",
     "react-hook-form": "^5.7.2",

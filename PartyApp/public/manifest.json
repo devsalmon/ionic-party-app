@@ -7,11 +7,26 @@
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     },
-    {
+    { 
       "src": "assets/icon/icon.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "maskable"
+    }, 
+    {
+      "src": "assets/icon/Memories.svg"    
+    },
+    {
+      "src": "assets/icon/Create.svg"    
+    },
+    {
+      "src": "assets/icon/People.svg"    
+    },
+    {
+      "src": "assets/icon/Person.svg"    
+    },
+    {
+      "src": "assets/icon/PeopleNotification.svg"   
     }
   ],
   "start_url": ".",
