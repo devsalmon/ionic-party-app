@@ -541,22 +541,35 @@ const Users: React.FC = () => {
     return(
       <IonPage>
         <IonToolbar>   
-          <IonSearchbar onIonChange={e => search(e.detail.value!)}></IonSearchbar>
+          <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)}></IonSearchbar>
         </IonToolbar>
         <IonContent>
-          <IonList>      
+          <Accordion>      
             {hits.map(hit => 
-            <IonItem key={hit.objectID}>
-              <IonAvatar>
-                <img src={hit.photoUrl} />
-              </IonAvatar>
-              <IonText>{hit.name}</IonText>
-              <IonButton disabled = {addDisabled} slot="end" onClick={() => addFriend(hit.objectID)}>
-                <IonIcon slot="icon-only" icon={personAddSharp} />
-              </IonButton>
-              <IonButton disabled = {cancelDisabled} slot="end" onClick={resetButtons}>Cancel</IonButton>
-            </IonItem>)}
-          </IonList>
+            <AccordionItem className="accordion-item" key={hit.objectID}>
+              <AccordionItemHeading>
+                <AccordionItemButton>
+                  <IonRow>
+                    <IonCol size="3">
+                      <IonAvatar>
+                        <img src={hit.photoUrl} />
+                      </IonAvatar>
+                    </IonCol>
+                    <IonCol size="5">
+                      <IonText>{hit.name}</IonText> <br/>
+                      <IonText class="white-text">Friends since ....</IonText>
+                    </IonCol>
+                    <IonCol>
+                      <IonButton  class="custom-button"  disabled={addDisabled} onClick={() => addFriend(hit.objectID)}>
+                        <IonIcon src="assets/icon/Create.svg" />
+                      </IonButton>
+                      <IonButton class="custom-button" disabled={cancelDisabled} onClick={resetButtons}>X</IonButton>
+                    </IonCol>
+                  </IonRow>
+                </AccordionItemButton>
+              </AccordionItemHeading>
+            </AccordionItem>)}
+          </Accordion>
         </IonContent>
       </IonPage>    
     )
@@ -565,7 +578,7 @@ const Users: React.FC = () => {
     return(
       <IonPage>
         <IonToolbar>   
-          <IonSearchbar onIonChange={e => search(e.detail.value!)}></IonSearchbar>
+          <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)}></IonSearchbar>
         </IonToolbar>
         <IonContent>
 
@@ -833,10 +846,10 @@ const Home: React.FC = () => {
     <IonPage>
       <IonToolbar>
         <IonButtons slot="start">
-          <IonMenuButton autoHide={false} menu="main-menu"></IonMenuButton>        
+          <IonMenuButton class="top-icons" autoHide={false} menu="main-menu"></IonMenuButton>        
         </IonButtons>  
         <IonButtons slot="end">   
-          <IonButton href='/users'>
+          <IonButton class="top-icons" href='/users'>
             <IonIcon icon={personAddSharp} />
           </IonButton>          
         </IonButtons>                

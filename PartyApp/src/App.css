@@ -62,8 +62,21 @@
     padding-top: 10px;
 }
 
+.searchbar {
+    --background: yellow;
+    --border-radius: 10px;
+    --cancel-button-color: red;
+    --clear-button-color: red;
+    --icon-color: black;
+    --placeholder-color: black;
+}
+
 .side-icons {
     font-size: 50px;
+}
+
+.top-icons {
+    color: yellow;
 }
 
 .white-text {
