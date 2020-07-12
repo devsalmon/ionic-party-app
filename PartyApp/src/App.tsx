@@ -170,7 +170,7 @@ const appPages: Page[] = [
 ]
 const Links = () => {
   return(
-    <IonList class="gradient">
+    <IonList>
       <IonItem>
         <IonIcon color="warning" slot="start" icon={starSharp}/>
         <IonLabel color="warning">Guest rating: </IonLabel>
@@ -289,17 +289,17 @@ const Memory = ({doc, click}) => {
   let data = doc.data();
   
   return(
-    <AccordionItem>
+    <AccordionItem className="accordion-item">
       <AccordionItemHeading>
-        <AccordionItemButton>
+        <AccordionItemButton className="ion-padding">
           <IonRow>
-            <IonCol size="7">
+            <IonCol size="6">
               <IonText>{data.title} <br/></IonText>
               <IonText class="white-text">{data.date}<br/></IonText> 
               <IonText class="white-text">Hosted By - ...</IonText>
             </IonCol>
             <IonCol>
-              <IonButton class="custom-button" expand="block" onClick={click}>
+              <IonButton class="custom-button" onClick={click}>
                 <IonIcon src="assets/icon/Memories.svg"/> Memories
               </IonButton>
             </IonCol>   
@@ -352,7 +352,7 @@ const MemoryList = () => {
     )
   } else {
     return(
-      <Accordion allowZeroExpanded={true} allowMultipleExpanded={true} className="gradient">
+      <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>
         {value && value.docs.map(doc => {
           // if the party has happened display on memories 
           if (moment(doc.data().date).isBefore(today)) {
@@ -387,12 +387,13 @@ const Party = ({doc}) => {
   let data = doc.data()
   return(
     <>
-    <AccordionItem>
+    <AccordionItem className="accordion-item">
       <AccordionItemHeading>
-          <AccordionItemButton>
+          <AccordionItemButton className="ion-padding">
             <IonRow>
-              <IonCol size="3" >
-                <IonText>{data.date}</IonText>    
+              <IonCol size="2.5" class="date-box">
+                <IonText>{data.month} <br/></IonText>   
+                <IonText class="day-text">{data.day}</IonText> 
               </IonCol>
               <IonCol>            
                 <IonText>{data.title} <br/></IonText>  
@@ -442,7 +443,7 @@ const PartyList = () => {
   );
   const today = moment(new Date()).format('LLL')
   return(
-    <Accordion allowZeroExpanded={true} allowMultipleExpanded={true} className="gradient">
+    <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>
       {value && value.docs.map(doc => {
         // if the party has happened don't display
         if (moment(doc.data().date).isAfter(today)) {
@@ -543,7 +544,7 @@ const Users: React.FC = () => {
           <IonSearchbar onIonChange={e => search(e.detail.value!)}></IonSearchbar>
         </IonToolbar>
         <IonContent>
-          <IonList class="gradient">      
+          <IonList>      
             {hits.map(hit => 
             <IonItem key={hit.objectID}>
               <IonAvatar>
@@ -674,6 +675,8 @@ const CreateParty = ({initialValue, clear}) => {
           {title: title, 
           location: location, 
           date: moment(date).format('LL'), 
+          day: moment(date).format('D'), 
+          month: moment(date).format('MMM'),
           details: details,
           endTime: moment(endTime).format('LLL'),
           startTime: moment(startTime).format('LLL'),
@@ -703,16 +706,16 @@ const CreateParty = ({initialValue, clear}) => {
           <IonInput class="create-input" value={location} onIonChange={e => setLocation(e.detail.value!)} placeholder="Location" clearInput></IonInput>
         </IonItem>
         <IonItem class="create-card">
-          <IonLabel color="dark">Date</IonLabel>
-          <IonDatetime class="create-datetime" value={date} max="2050" min={moment(new Date()).format('YYYY')} onIonChange={e => setDate(e.detail.value!)}></IonDatetime>
+          <IonLabel color="warning">Date</IonLabel>
+          <IonDatetime class="create-datetime" value={date} max="2050" min={moment(new Date()).format('YYYY')} onIonChange={e => setDate(e.detail.value!)} placeholder="select"></IonDatetime>
         </IonItem>
         <IonItem class="create-card">
-          <IonLabel color="dark">Starts</IonLabel>
-          <IonDatetime class="create-datetime" value={startTime} onIonChange={e => setStartTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A"></IonDatetime>
+          <IonLabel color="warning">Starts</IonLabel>
+          <IonDatetime class="create-datetime" value={startTime} onIonChange={e => setStartTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="select"></IonDatetime>
         </IonItem>
         <IonItem class="create-card">
-          <IonLabel color="dark">Ends</IonLabel>
-          <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A"></IonDatetime>
+          <IonLabel color="warning">Ends</IonLabel>
+          <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="select"></IonDatetime>
         </IonItem>
         <IonItem class="create-card">
           <IonTextarea class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
@@ -743,7 +746,7 @@ const CreateParty = ({initialValue, clear}) => {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <IonList class="gradient">
+        <IonList>
           {friendList.map(({ val, isChecked }, i) => (
             <IonItem key={i}>
               <IonLabel>{val}</IonLabel>
@@ -819,6 +822,8 @@ const Memories: React.FC = () => {
       </IonToolbar>
       <IonContent>
         <MemoryList />
+          {/* to allow for last item in list to be clicked (otherwise it's covered by tabbar) */}
+          <br/> <br/> <br/> <br/> <br/> <br/>
       </IonContent>
     </IonPage>
   )
@@ -839,6 +844,7 @@ const Home: React.FC = () => {
       </IonToolbar>
       <IonContent>     
         <PartyList />     
+        <br/> <br/> <br/> <br/> <br/> <br/>
       </IonContent>
     </IonPage>
   )

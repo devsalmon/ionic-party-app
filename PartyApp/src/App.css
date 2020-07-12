@@ -1,3 +1,7 @@
+.accordion-item {
+    border-top: 1px solid yellow;
+    border-bottom: 1px solid yellow;
+}
 
 .custom-button {
     --background: yellow; 
@@ -23,20 +27,25 @@
 }
 
 .create-datetime {
-    --placeholder-color: grey;
+    --placeholder-color: yellow;
     color: yellow;
 }
 
 .create-input {
     --background: black;
     color: yellow;
-    --placeholder-color: grey;
+    --placeholder-color: yellow;
     --placeholder-font-weight: bold;
 }
 
-.gradient {
-    height: 100%;
-    background-image: linear-gradient(black 70%, 90%, yellow);
+.date-box {
+    border: 1px groove red;    
+    border-radius: 5px;
+    text-align: center;
+}
+
+.day-text {
+    font-size: 35px;;
 }
 
 .mid-icon {
@@ -124,19 +133,22 @@ ion-slide {
 
 ion-tab-button {
     --background: transparent;
-    --background-focused: grey;
+    --color: rgb(58, 55, 55);
+    --color-focused: black;
     --color-selected: black;
 }
 
 ion-text {
-    color: yellow;
+    color: yellow;    
     font-size: 15px;
     font-weight: bold;
     text-transform: uppercase;
 }
 
 ion-tab-bar {
-    --background: transparent;
+    --border: none;
+    background: linear-gradient(transparent 5%, 70%, yellow);    
+    opacity: 1;
     height: 120px;
     text-transform: uppercase;
 }
