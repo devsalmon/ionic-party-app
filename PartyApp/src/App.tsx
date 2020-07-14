@@ -665,8 +665,6 @@ const CreateParty = ({initialValue, clear}) => {
   const [details, setDetails] = useState<string>('')
   const [endTime, setEndTime] = useState<string>('')
   const [startTime, setStartTime] = useState<string>('')  
-  const [searchText, setSearchText] = useState<string>('');
-  const [friendList, setFriendList] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [checked, setChecked] = useState(false);
   const [showToast, setShowToast] = useState(false);
@@ -674,6 +672,17 @@ const CreateParty = ({initialValue, clear}) => {
   const [value, loading, error] = useDocument(
     firebase.firestore().doc("parties/" + initialValue)
   );
+
+const searchClient = algoliasearch('N5BVZA4FRH', '10173d946e2ba5aa9ba4f9ae445cef48');
+const index = searchClient.initIndex('Users');
+const [hits, setHits] = useState([]);
+const [query, setQuery] = useState('');
+
+async function search(query) {
+  const result = await index.search(query);
+  setHits(result.hits);
+  setQuery(query)    
+}
   const onSave = () => {  
     // validate inputs  
     const valid = Boolean((date !== "") && (title !== "") && (location !== "") && (startTime !== "") && (endTime !== "") && (details !== ""));
@@ -693,7 +702,6 @@ const CreateParty = ({initialValue, clear}) => {
           details: details,
           endTime: moment(endTime).format('LLL'),
           startTime: moment(startTime).format('LLL'),
-          // todo convert firestore timestamp to date format
           createdOn: moment(new Date()).format('LLL'), 
           });
           //clear fields
@@ -734,39 +742,27 @@ const CreateParty = ({initialValue, clear}) => {
           <IonTextarea class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
         </IonItem>
         <IonButton class="custom-button" expand="block" onClick={e => setShowModal(true)}>Invite People</IonButton>
-        <IonButton class="custom-button" expand="block" onClick={() => onSave()}>CREATE!</IonButton>        
+        <IonButton class="custom-button" expand="block" onClick={() => onSave()}>Create!</IonButton>        
       </IonList>    
       </IonCardContent>  
     </IonCard>
+    <br/><br/><br/><br/><br/><br/><br/>
     <IonModal isOpen={showModal}>
       <IonHeader>
-        <IonToolbar>              
-          <IonGrid>
-            <IonRow>
-              <IonCol>
-              <IonTitle className="ion-text-center" size="large">Select people to invite</IonTitle>
-              </IonCol>
-            </IonRow>
-            <IonRow>
-              <IonCol size="9">
-                <IonSearchbar value={searchText} onIonChange={e => setSearchText(e.detail.value!)} showCancelButton="focus" color="danger"></IonSearchbar>                  
-              </IonCol>
-              <IonCol>
-                <IonButton fill="clear" onClick={e => setShowModal(false)}>Done</IonButton>
-              </IonCol>                  
-            </IonRow>
-          </IonGrid>
+        <IonToolbar>  
+          <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)}></IonSearchbar>                            
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <IonList>
-          {friendList.map(({ val, isChecked }, i) => (
-            <IonItem key={i}>
-              <IonLabel>{val}</IonLabel>
-              <IonCheckbox slot="end" color="danger" value={val} checked={isChecked} />
+        <IonList lines="full">
+          {hits.map(hit => (
+            <IonItem key={hit.objectID}>
+              <IonLabel>{hit.name}</IonLabel>
+              <IonCheckbox slot="end" color="danger" value={hit.name} checked={checked} />
             </IonItem>
           ))}
-        </IonList>
+          <IonButton class="custom-button" onClick={e => setShowModal(false)}>Done</IonButton>
+        </IonList>        
       </IonContent>
     </IonModal>
     <IonToast
@@ -792,7 +788,12 @@ const Profile: React.FC = () => {
     <IonPage>
       <IonToolbar>
         <IonTitle>Profile</IonTitle>
-        <IonButton href="/signin" slot="end" onClick={() => signOut()}>SignOut</IonButton>
+        <IonButtons>
+          <IonButton href="/signin" slot="end" onClick={() => signOut()}>SignOut</IonButton>
+          <IonButton class="top-icons" href='/users'>
+            <IonIcon icon={personAddSharp} />
+          </IonButton>       
+        </IonButtons>
       </IonToolbar>
       <IonContent>
         <IonCard>           
@@ -849,11 +850,11 @@ const Home: React.FC = () => {
           <IonMenuButton class="top-icons" autoHide={false} menu="main-menu"></IonMenuButton>        
         </IonButtons>  
         <IonButtons slot="end">   
-          <IonButton class="top-icons" href='/users'>
-            <IonIcon icon={personAddSharp} />
-          </IonButton>          
+          <IonButton class="top-icons" href= '/profile'>
+            <IonIcon src="assets/icon/People.svg"/> 
+          </IonButton>         
         </IonButtons>                
-        <IonTitle>Upcoming parties</IonTitle>
+        <IonTitle>Upcoming <br/> parties</IonTitle>
       </IonToolbar>
       <IonContent>     
         <PartyList />     
@@ -882,30 +883,20 @@ const SignedInRoutes: React.FC = () => {
         
           <IonTabBar slot="bottom">
             <IonTabButton tab="home" href="/home">
-              <IonIcon icon={home} />
+              <IonIcon class="side-icons" icon={home} />
               <IonLabel>Home</IonLabel>
               <IonRippleEffect></IonRippleEffect>
             </IonTabButton>
-            <IonTabButton tab="memories" href="/memories">
-              <IonIcon class="side-icons" src="assets/icon/Memories.svg" />
-              <IonLabel>Memories</IonLabel>
-              <IonRippleEffect></IonRippleEffect>
-            </IonTabButton>            
             <IonTabButton tab="create" href="/create">
               <IonIcon class="mid-icon" src="assets/icon/Create.svg" />
               <IonLabel>Create</IonLabel>
               <IonRippleEffect></IonRippleEffect>
-            </IonTabButton>  
-            <IonTabButton tab="profile" href="/profile">
-              <IonIcon class="side-icons" src="assets/icon/People.svg" />
-              <IonLabel>Profile</IonLabel>
-              <IonRippleEffect></IonRippleEffect>                
-            </IonTabButton>                
-            <IonTabButton tab="inbox" href="/inbox">
-              <IonIcon icon={notificationsSharp} />
-              <IonLabel>Inbox</IonLabel>
+            </IonTabButton>              
+            <IonTabButton tab="memories" href="/memories">
+              <IonIcon class="side-icons" src="assets/icon/Memories.svg" />
+              <IonLabel>Memories</IonLabel>
               <IonRippleEffect></IonRippleEffect>
-            </IonTabButton>            
+            </IonTabButton>                         
           </IonTabBar>
       </IonReactRouter>   
     </> 
@@ -931,9 +922,10 @@ const App: React.FC =() => {
     return(
       <IonApp>
         <IonLoading 
+        cssClass="loading"
+        spinner="bubbles"
         isOpen={loading} 
-        onDidDismiss={() => setLoading(false)} 
-        message={'Loading...'} />  
+        onDidDismiss={() => setLoading(false)} />  
       </IonApp> 
     )
   } else {
