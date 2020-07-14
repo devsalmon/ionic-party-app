@@ -24,6 +24,8 @@
 
 .create-content {
     --background: yellow;
+    --padding-start: 15px;
+    --padding-end: 15px;
 }
 
 .create-datetime {

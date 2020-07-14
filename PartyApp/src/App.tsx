@@ -462,9 +462,6 @@ const Create: React.FC = () => {
   const [current, setCurrent] = useState(null); // used to reset input form values
   return(
     <IonPage>
-      <IonToolbar color="warning">
-        <IonTitle color="dark">Create a party</IonTitle>  
-      </IonToolbar>
       <CreateParty initialValue={current} clear={() => setCurrent(null)}/>
     </IonPage>
   )
@@ -717,9 +714,10 @@ async function search(query) {
   }
   return(
     <IonContent class="create-content">
-    <IonCard color="warning">
-    <IonCardContent class="create-card-content">
-      <IonList lines="full" color="warning">
+      <IonToolbar color="warning">
+        <IonTitle color="dark">Create a party</IonTitle>  
+      </IonToolbar>
+      <IonList lines="full" background-color="primary">
         <IonItem class="create-card">
           <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title (e.g. Bruno's 17th)" clearInput></IonInput>
         </IonItem>
@@ -743,9 +741,7 @@ async function search(query) {
         </IonItem>
         <IonButton class="custom-button" expand="block" onClick={e => setShowModal(true)}>Invite People</IonButton>
         <IonButton class="custom-button" expand="block" onClick={() => onSave()}>Create!</IonButton>        
-      </IonList>    
-      </IonCardContent>  
-    </IonCard>
+      </IonList>
     <br/><br/><br/><br/><br/><br/><br/>
     <IonModal isOpen={showModal}>
       <IonHeader>
