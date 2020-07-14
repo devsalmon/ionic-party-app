@@ -462,8 +462,8 @@ const Create: React.FC = () => {
   const [current, setCurrent] = useState(null); // used to reset input form values
   return(
     <IonPage>
-      <IonToolbar>
-        <IonTitle>Create a party</IonTitle>  
+      <IonToolbar color="warning">
+        <IonTitle color="dark">Create a party</IonTitle>  
       </IonToolbar>
       <CreateParty initialValue={current} clear={() => setCurrent(null)}/>
     </IonPage>
@@ -717,7 +717,7 @@ async function search(query) {
   }
   return(
     <IonContent class="create-content">
-    <IonCard>
+    <IonCard color="warning">
     <IonCardContent class="create-card-content">
       <IonList lines="full" color="warning">
         <IonItem class="create-card">
