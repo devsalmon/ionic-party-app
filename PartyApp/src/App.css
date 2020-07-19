@@ -7,17 +7,21 @@
     --background: yellow; 
     color: black;
     font-weight: bold;
+    font-size: 18px;
     --background-hover-opacity: 0.3;
     height: 50px;
 }
 
-.create-card {
-    --color: black;
-    --background: black;
+.create-button {
+    --background: black; 
+    color: yellow;
+    font-weight: bold;
+    font-size: 18px;
+    --background-hover-opacity: 0.3;
+    height: 50px;    
 }
 
-.create-card-content {
-    --ion-padding: 10px;
+.create-card {
     --color: black;
     --background: black;
 }
@@ -132,10 +136,6 @@ ion-label {
     --ion-text-color: yellow;
 }
 
-ion-list {
-    height: 100%;
-    display: block;
-}
 
 /* ion-picker {
     --background: black;

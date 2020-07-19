@@ -293,14 +293,14 @@ const Memory = ({doc, click}) => {
       <AccordionItemHeading>
         <AccordionItemButton className="ion-padding">
           <IonRow>
-            <IonCol size="6">
+            <IonCol size="8">
               <IonText>{data.title} <br/></IonText>
               <IonText class="white-text">{data.date}<br/></IonText> 
               <IonText class="white-text">Hosted By - ...</IonText>
             </IonCol>
             <IonCol>
               <IonButton class="custom-button" onClick={click}>
-                <IonIcon src="assets/icon/Memories.svg"/> Memories
+                <IonIcon src="assets/icon/Memories.svg"/> 
               </IonButton>
             </IonCol>   
           </IonRow>
@@ -717,9 +717,8 @@ async function search(query) {
       <IonToolbar color="warning">
         <IonTitle color="dark">Create a party</IonTitle>  
       </IonToolbar>
-      <IonList lines="full" background-color="primary">
         <IonItem class="create-card">
-          <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title (e.g. Bruno's 17th)" clearInput></IonInput>
+          <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>
         </IonItem>
         <IonItem class="create-card">
           <IonInput class="create-input" value={location} onIonChange={e => setLocation(e.detail.value!)} placeholder="Location" clearInput></IonInput>
@@ -739,9 +738,10 @@ async function search(query) {
         <IonItem class="create-card">
           <IonTextarea class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
         </IonItem>
-        <IonButton class="custom-button" expand="block" onClick={e => setShowModal(true)}>Invite People</IonButton>
-        <IonButton class="custom-button" expand="block" onClick={() => onSave()}>Create!</IonButton>        
-      </IonList>
+        <IonItem class="create-card">
+          <IonButton class="create-button" expand="block" onClick={e => setShowModal(true)}>Invite People</IonButton>
+        </IonItem>        
+        <IonButton class="create-button" expand="block" onClick={() => onSave()}>Create!</IonButton>        
     <br/><br/><br/><br/><br/><br/><br/>
     <IonModal isOpen={showModal}>
       <IonHeader>
@@ -757,7 +757,9 @@ async function search(query) {
               <IonCheckbox slot="end" color="danger" value={hit.name} checked={checked} />
             </IonItem>
           ))}
-          <IonButton class="custom-button" onClick={e => setShowModal(false)}>Done</IonButton>
+          <div className="ion-text-center">
+            <IonButton class="custom-button" onClick={e => setShowModal(false)}>Done</IonButton>
+          </div>
         </IonList>        
       </IonContent>
     </IonModal>
