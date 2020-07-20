@@ -1,4 +1,9 @@
 import React, { useState, useEffect} from 'react';
+import Users from './components/users';
+import CreateParty from './components/createparty';
+import Gallery from './components/gallery';
+import Memory from './components/memory';
+import People from './components/people';
 import {
     Accordion,
     AccordionItem,
@@ -100,7 +105,10 @@ import '@ionic/react/css/display.css';
 import './variables.css';
 import algoliasearch from 'algoliasearch/lite';
 // once finished, run ionic build then npx cap add ios and npx cap add android
-// Signs-in Messaging with GOOGLE POP UP
+
+const SignIn = () => {
+
+  // Signs-in Messaging with GOOGLE POP UP
 const SignInGooglepu = async() => {
   // Initiate Firebase Auth.
   // Sign into Firebase using popup auth & Google as the identity provider.
@@ -134,13 +142,7 @@ const SignInGooglepu = async() => {
   //document.getElementById('user-pic').style.backgroundImage = 'url(' + addSizeToGoogleProfilePic(profilePicUrl) + ')';
   //document.getElementById('user-name').textContent = userName;
 }
-// Signs out of Party app.
-const signOut = async() => {
-  // Sign out of Firebase.
-  firebase.auth().signOut();
-  //alert("YOU JUST SIGNED OUT")
-  }
-const SignIn = () => {
+
   const [email] = useState<string>('');
   const [password] = useState<string>('');
   return (
@@ -212,126 +214,12 @@ class Menu extends React.Component{
     );
   }  
 }
-const Gallery = ({id, click}) => {
-  // party card
-  const [value, loading, error] = useCollection(
-    firebase.firestore().collection('parties').doc(id).collection('pictures'),
-  );  
-  // const deletePhoto = async() => {
-  //   await collectionRef.doc(doc.id).update({
-  //     picture: firebase.firestore.FieldValue.delete()
-  //   })
-  //   .then(function() { 
-  //   console.log("field successfully deleted!")})
-  //   .catch(function(error) { 
-  //   console.error("Error removing document: ", error); 
-  // });  
-  // }
-  return(     
-    <IonGrid>
-      <IonRow>
-        <IonButton onClick={click}>
-          <IonIcon icon={chevronBackSharp} />
-        </IonButton>     
-      </IonRow>
-        <IonSlides scrollbar={false} pager={true} options={{initialSlide: 1, preloadImages: true, loop: true}}>
-          {value && value.docs.map(doc => {
-            return(                        
-              <IonSlide key={doc.id}>
-                <IonRow>
-                  <IonImg src={doc.data().picture} />
-                </IonRow>     
-                <IonRow className="ion-padding">
-                  <IonLabel>Taken at {doc.data().createdAt}</IonLabel>
-                </IonRow>   
-              </IonSlide>
-            )
-          })}      
-        </IonSlides>  
-    </IonGrid>
-  )
-} 
+
 
 //TODO - 
 // Add friends
 // delete party document in firebase after it's happened
-const Memory = ({doc, click}) => {
-  // party card
-  const [showToast, setShowToast] = useState(false);
-  const [picture, setPicture] = useState<string>('')
-  const {getPhoto} = useCamera(); 
-  const collectionRef = firebase.firestore().collection("parties");
-  const onSave = async() => { 
-    if (picture !== "") {
-    await collectionRef.doc(doc.id).collection('pictures').add({
-        picture: picture,
-        createdAt: moment(new Date()).format('LT'),
-    })
-      .then(function() {
-        setShowToast(true)
-      })
-      .catch(function(error) {
-        console.log(error)
-      });
-      setPicture('');
-    }
-  }  
 
-  // TODO - add IOS AND ANDROID permissions from pwa elements
-  const takePhoto = async() => {
-    const cameraPhoto = await getPhoto({
-      allowEditing: true,      
-      resultType: CameraResultType.Base64,
-      source: CameraSource.Camera,
-      quality: 100
-    });
-    const photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`
-    return(setPicture(photo));  
-  }
-  let data = doc.data();
-  
-  return(
-    <AccordionItem className="accordion-item">
-      <AccordionItemHeading>
-        <AccordionItemButton className="ion-padding">
-          <IonRow>
-            <IonCol size="8">
-              <IonText>{data.title} <br/></IonText>
-              <IonText class="white-text">{data.date}<br/></IonText> 
-              <IonText class="white-text">Hosted By - ...</IonText>
-            </IonCol>
-            <IonCol>
-              <IonButton class="custom-button" onClick={click}>
-                <IonIcon src="assets/icon/Memories.svg"/> 
-              </IonButton>
-            </IonCol>   
-          </IonRow>
-        </AccordionItemButton>
-      </AccordionItemHeading>
-      <AccordionItemPanel>
-        <IonRow>
-        <IonCol>
-          <IonButton class="custom-button" expand="block" onClick={takePhoto}>
-            <IonIcon icon={cameraSharp} />
-          </IonButton>   
-        </IonCol>
-        <IonCol>
-          <IonButton class="custom-button" expand="block" onClick={onSave}>
-            <IonIcon icon={cloudUploadSharp} />
-          </IonButton>   
-        </IonCol>      
-        </IonRow>
-      </AccordionItemPanel>
-      <IonToast 
-      isOpen={showToast}
-      onDidDismiss={() => setShowToast(false)}
-      duration={2000}
-      message="Picture uploaded!"
-      position="bottom"
-    />                  
-    </AccordionItem>    
-  )
-}
 const MemoryList = () => {
   const [id, setID] = useState<string>('');
   const [inGallery, setInGallery] = useState(false);
@@ -467,121 +355,8 @@ const Create: React.FC = () => {
   )
 }
 
-const Users: React.FC = () => {
 
-  const collectionRef = firebase.firestore().collection("friend_requests");
-  const searchClient = algoliasearch('N5BVZA4FRH', '10173d946e2ba5aa9ba4f9ae445cef48');
-  const index = searchClient.initIndex('Users');
-  const [hits, setHits] = useState([]);
-  const [query, setQuery] = useState('');
-  const [addDisabled, setAddDisabled] = useState(false)
-  const [cancelDisabled, setCancelDisabled] = useState(true)
 
-  async function search(query) {
-    const result = await index.search(query);
-    setHits(result.hits);
-    setQuery(query)    
-  }
-//  basically if in friend_requests, if under ur id, u have another persons id 
-//  (in a collection) w a doc with request_status equal to 'received' then that
-//  person's id (the collection) should be used to get the persons profile and
-//  display it in inbox w "accept request". To check that u have a new friend
-//  request, I think we need to use an onSnapshot function which would be always
-//  listening for a new entry in friend requests under ur id i think. If you get
-//  that working u can attach the accept request function to the accept button.
-  const addFriend = (objectID) => {
-    
-    //var currentState = "not_friends"
-    //var disabledState = false
-    var receiver_user_id = objectID
-    var sender_user_id = firebase.auth().currentUser.uid
-    //console.log(receiver_user_id)
-
-    //create doc with sender's id and adds receiver's id to collection.
-    collectionRef.doc(sender_user_id).collection(receiver_user_id).add(
-      {request_status: 'sent'})
-
-      //if successful
-      .then(function(docRef) {
-        //console.log("Document written with ID: ", docRef.id);
-        //if successful, create doc w receiver's id and add sender's id to collection
-        collectionRef.doc(receiver_user_id).collection(sender_user_id).add(
-
-          {request_status: 'received'})
-          
-          //if successful
-          .then(function(docRef) {
-            //currentState = "request_received"
-            setAddDisabled(true); //disables add friend button
-            setCancelDisabled(false); //enalbes cancel request button
-          })
-
-          //if unsuccessful
-          .catch(function(error) {
-            console.error("Error adding document: ", error);
-        }); 
-      })
-
-    //if unsuccessful
-    .catch(function(error) {
-        console.error("Error adding document: ", error);
-    });
-
-  }
-
-  const resetButtons = () => {
-    setAddDisabled(false); //disables add friend button
-    setCancelDisabled(true); //enalbes cancel request button
-  }
-
-  if (hits && query !== "" && query !== " ") {
-    return(
-      <IonPage>
-        <IonToolbar>   
-          <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)}></IonSearchbar>
-        </IonToolbar>
-        <IonContent>
-          <Accordion>      
-            {hits.map(hit => 
-            <AccordionItem className="accordion-item" key={hit.objectID}>
-              <AccordionItemHeading>
-                <AccordionItemButton>
-                  <IonRow>
-                    <IonCol size="3">
-                      <IonAvatar>
-                        <img src={hit.photoUrl} />
-                      </IonAvatar>
-                    </IonCol>
-                    <IonCol size="5">
-                      <IonText>{hit.name}</IonText> <br/>
-                      <IonText class="white-text">Friends since ....</IonText>
-                    </IonCol>
-                    <IonCol>
-                      <IonButton  class="custom-button"  disabled={addDisabled} onClick={() => addFriend(hit.objectID)}>
-                        <IonIcon src="assets/icon/Create.svg" />
-                      </IonButton>
-                      <IonButton class="custom-button" disabled={cancelDisabled} onClick={resetButtons}>X</IonButton>
-                    </IonCol>
-                  </IonRow>
-                </AccordionItemButton>
-              </AccordionItemHeading>
-            </AccordionItem>)}
-          </Accordion>
-        </IonContent>
-      </IonPage>    
-    )
-  } 
-  else {
-    return(
-      <IonPage>
-        <IonToolbar>   
-          <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)}></IonSearchbar>
-        </IonToolbar>
-        <IonContent>
-
-        </IonContent>
-      </IonPage>
-    )}}
 
 const FriendRequests = () => {
 
@@ -651,183 +426,7 @@ const FriendRequests = () => {
   )
 }
 
-const CreateParty = ({initialValue, clear}) => {
 
-  useEffect(() => {  
-  },
-  []);
-  const [date, setDate] = useState<string>('')
-  const [title, setTitle] = useState<string>('')
-  const [location, setLocation] = useState<string>('')
-  const [details, setDetails] = useState<string>('')
-  const [endTime, setEndTime] = useState<string>('')
-  const [startTime, setStartTime] = useState<string>('')  
-  const [showModal, setShowModal] = useState(false);
-  const [checked, setChecked] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [value, loading, error] = useDocument(
-    firebase.firestore().doc("parties/" + initialValue)
-  );
-
-const searchClient = algoliasearch('N5BVZA4FRH', '10173d946e2ba5aa9ba4f9ae445cef48');
-const index = searchClient.initIndex('Users');
-const [hits, setHits] = useState([]);
-const [query, setQuery] = useState('');
-
-async function search(query) {
-  const result = await index.search(query);
-  setHits(result.hits);
-  setQuery(query)    
-}
-  const onSave = () => {  
-    // validate inputs  
-    const valid = Boolean((date !== "") && (title !== "") && (location !== "") && (startTime !== "") && (endTime !== "") && (details !== ""));
-    
-    if (valid == false) {
-      setShowAlert(true)    
-    } else if (valid == true) {
-      setShowToast(valid);
-      let collectionRef = firebase.firestore().collection("parties");
-      // only add documents to collection if forms are validated
-        collectionRef.add(
-          {title: title, 
-          location: location, 
-          date: moment(date).format('LL'), 
-          day: moment(date).format('D'), 
-          month: moment(date).format('MMM'),
-          details: details,
-          endTime: moment(endTime).format('LLL'),
-          startTime: moment(startTime).format('LLL'),
-          createdOn: moment(new Date()).format('LLL'), 
-          });
-          //clear fields
-          setTitle("");
-          setDate("")
-          setLocation("");
-          setDetails("");
-          setEndTime("");
-          setStartTime("");
-          clear();        
-    } 
-  
-  }
-
-  return(
-    <IonContent class="create-content">
-      <IonToolbar color="warning">
-        <IonTitle color="dark">Create a party</IonTitle>  
-      </IonToolbar>
-        <IonItem class="create-card" lines="none">
-          <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>
-        </IonItem>
-        <IonItem class="create-card" lines="none">
-          <IonInput class="create-input" value={location} onIonChange={e => setLocation(e.detail.value!)} placeholder="Location" clearInput></IonInput>
-        </IonItem>
-        <IonItem class="create-card" lines="none">
-          <IonLabel color="warning">Date</IonLabel>
-          <IonDatetime class="create-datetime" value={date} max="2050" min={moment(new Date()).format('YYYY')} onIonChange={e => setDate(e.detail.value!)} placeholder="select"></IonDatetime>
-        </IonItem>
-        <IonItem class="create-card" lines="none">
-          <IonLabel color="warning">Starts</IonLabel>
-          <IonDatetime class="create-datetime" value={startTime} onIonChange={e => setStartTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="select"></IonDatetime>
-        </IonItem>
-        <IonItem class="create-card" lines="none">
-          <IonLabel color="warning">Ends</IonLabel>
-          <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="select"></IonDatetime>
-        </IonItem>
-        <IonItem class="create-card" lines="none">
-          <IonTextarea maxlength={150} class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
-        </IonItem>
-        <IonItem class="create-card" lines="none">
-          <IonButton class="create-button" expand="block" onClick={e => setShowModal(true)}>Invite People</IonButton>
-        </IonItem>        
-        <IonButton class="create-button" expand="block" onClick={() => onSave()}>Create!</IonButton>        
-    <br/><br/><br/><br/><br/><br/><br/>
-    <IonModal isOpen={showModal}>
-      <IonHeader>
-        <IonToolbar>  
-          <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)}></IonSearchbar>                            
-        </IonToolbar>
-      </IonHeader>
-      <IonContent>
-        <IonList>
-          {hits.map(hit => (
-            <IonItem key={hit.objectID}>
-              <IonLabel>{hit.name}</IonLabel>
-              <IonCheckbox slot="end" color="danger" value={hit.name} checked={checked} />
-            </IonItem>
-          ))}
-          <div className="ion-text-center">
-            <IonButton class="custom-button" onClick={e => setShowModal(false)}>Done</IonButton>
-          </div>
-        </IonList>        
-      </IonContent>
-    </IonModal>
-    <IonToast
-      isOpen={showToast}
-      onDidDismiss={() => setShowToast(false)}
-      duration={2000}
-      message="Party Created!"
-      position="bottom"
-    />
-    <IonAlert
-      isOpen={showAlert}
-      onDidDismiss={() => setShowAlert(false)}
-      header={'Alert'}
-      message={'One or more input fields missing'}
-      buttons={['OK']}
-    />    
-    </IonContent>
-  )
-};
-const People: React.FC = () => {
-  var user = firebase.auth().currentUser;
-  return(
-    <IonPage>
-      <IonToolbar>        
-        <IonButtons slot="start">
-          <IonButton href="/signin" class="top-icons" onClick={() => signOut()}>
-            <IonIcon slot="icon-only" icon={logOutSharp} />
-          </IonButton>
-        </IonButtons>
-        <IonTitle>People</IonTitle>
-        <IonButtons slot="end">
-          <IonButton class="top-icons" href='/users'>
-            <IonIcon slot="icon-only" icon={personAddSharp} />
-          </IonButton>       
-        </IonButtons>
-      </IonToolbar>
-      <IonContent>
-        <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>
-          <AccordionItem className="accordion-item">
-            <AccordionItemHeading>
-              <AccordionItemButton className="ion-padding">
-                <IonRow>
-                  <IonCol size="8">
-                    <IonText>{user.displayName}</IonText>
-                    <IonText>(Username)</IonText>
-                  </IonCol>
-                  <IonCol className="ion-text-right">
-                    <IonButton class="custom-button">
-                      <IonIcon icon={createSharp} />
-                    </IonButton> 
-                  </IonCol>
-                </IonRow>
-              </AccordionItemButton>
-            </AccordionItemHeading>
-            <AccordionItemPanel>  
-                <IonButton class="custom-button" expand="block">
-                  View profile
-                </IonButton>   
-            </AccordionItemPanel>          
-          </AccordionItem>
-        </Accordion>  
-        <IonText>Requests and friends to be done..........</IonText>
-      </IonContent>
-    </IonPage>
-  )
-}
 const Memories: React.FC = () => {
   return(
     <IonPage>
@@ -850,7 +449,7 @@ const Home: React.FC = () => {
           <IonMenuButton class="top-icons" autoHide={false} menu="main-menu"></IonMenuButton>        
         </IonButtons>  
         <IonButtons slot="end">   
-          <IonButton class="top-icons" href= '/people'>
+          <IonButton class="top-icons" href= '/users'>
             <IonIcon slot="icon-only" src="assets/icon/People.svg"/> 
           </IonButton>         
         </IonButtons>                
