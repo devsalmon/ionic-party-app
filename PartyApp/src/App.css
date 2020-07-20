@@ -66,13 +66,22 @@
 }
 
 .popover{
-    --height: 50%;
+    --background: black;
+    --height: 60%;
     --width: 75%;
+}
+
+.popover-item {
+    --background: black;
+    --ion-text-color: yellow;
+    text-transform: uppercase;    
 }
 
 .popover-label {
     padding-left: 10px;
     padding-top: 10px;
+    color: yellow;
+    text-transform: uppercase;      
 }
 
 .searchbar {
@@ -127,7 +136,7 @@ ion-content {
 
 ion-item{
     --background: transparent;
-    --ion-text-colour: yellow;
+    --ion-text-color: yellow;
     text-transform: uppercase;
 }
 

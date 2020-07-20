@@ -54,7 +54,8 @@ import {
   IonImg,
   IonSlides,
   IonSlide,
-  IonBackButton
+  IonBackButton, 
+  createAnimation
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { 
@@ -66,6 +67,7 @@ import {
   arrowForwardCircle, 
   starSharp,  
   imageSharp,
+  logOutSharp,
   notificationsSharp,
   personCircleSharp,
   cameraSharp,
@@ -383,7 +385,7 @@ const Chat = () => {
 const Party = ({doc}) => {
   // party card
   const [showPopover, setShowPopover] = useState(false);
-  
+
   let data = doc.data()
   return(
     <>
@@ -423,16 +425,14 @@ const Party = ({doc}) => {
       cssClass='popover'
       onDidDismiss={e => setShowPopover(false)}
     >
-      <IonItemGroup>  
-        <IonLabel class="popover-label">Details:</IonLabel>
-        <IonItem >{data.details}</IonItem>
-        <IonLabel class="popover-label">Location:</IonLabel>
-        <IonItem>{data.location}</IonItem>
-        <IonLabel class="popover-label">Starts:</IonLabel>          
-        <IonItem>{data.startTime}</IonItem>
-        <IonLabel class="popover-label">Ends:</IonLabel>
-        <IonItem>{data.endTime}</IonItem>
-      </IonItemGroup>   
+      <IonLabel class="popover-label">Details:</IonLabel>
+      <IonItem class="popover-item">{data.details}</IonItem>
+      <IonLabel class="popover-label">Location:</IonLabel>
+      <IonItem class="popover-item">{data.location}</IonItem>
+      <IonLabel class="popover-label">Starts:</IonLabel>          
+      <IonItem class="popover-item">{data.startTime}</IonItem>
+      <IonLabel class="popover-label">Ends:</IonLabel>
+      <IonItem class="popover-item">{data.endTime}</IonItem>
     </IonPopover> 
     </>
   )
@@ -712,33 +712,34 @@ async function search(query) {
     } 
   
   }
+
   return(
     <IonContent class="create-content">
       <IonToolbar color="warning">
         <IonTitle color="dark">Create a party</IonTitle>  
       </IonToolbar>
-        <IonItem class="create-card">
+        <IonItem class="create-card" lines="none">
           <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>
         </IonItem>
-        <IonItem class="create-card">
+        <IonItem class="create-card" lines="none">
           <IonInput class="create-input" value={location} onIonChange={e => setLocation(e.detail.value!)} placeholder="Location" clearInput></IonInput>
         </IonItem>
-        <IonItem class="create-card">
+        <IonItem class="create-card" lines="none">
           <IonLabel color="warning">Date</IonLabel>
           <IonDatetime class="create-datetime" value={date} max="2050" min={moment(new Date()).format('YYYY')} onIonChange={e => setDate(e.detail.value!)} placeholder="select"></IonDatetime>
         </IonItem>
-        <IonItem class="create-card">
+        <IonItem class="create-card" lines="none">
           <IonLabel color="warning">Starts</IonLabel>
           <IonDatetime class="create-datetime" value={startTime} onIonChange={e => setStartTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="select"></IonDatetime>
         </IonItem>
-        <IonItem class="create-card">
+        <IonItem class="create-card" lines="none">
           <IonLabel color="warning">Ends</IonLabel>
           <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="select"></IonDatetime>
         </IonItem>
-        <IonItem class="create-card">
-          <IonTextarea class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
+        <IonItem class="create-card" lines="none">
+          <IonTextarea maxlength={150} class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
         </IonItem>
-        <IonItem class="create-card">
+        <IonItem class="create-card" lines="none">
           <IonButton class="create-button" expand="block" onClick={e => setShowModal(true)}>Invite People</IonButton>
         </IonItem>        
         <IonButton class="create-button" expand="block" onClick={() => onSave()}>Create!</IonButton>        
@@ -750,7 +751,7 @@ async function search(query) {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <IonList lines="full">
+        <IonList>
           {hits.map(hit => (
             <IonItem key={hit.objectID}>
               <IonLabel>{hit.name}</IonLabel>
@@ -780,48 +781,49 @@ async function search(query) {
     </IonContent>
   )
 };
-const Profile: React.FC = () => {
+const People: React.FC = () => {
   var user = firebase.auth().currentUser;
   return(
     <IonPage>
-      <IonToolbar>
-        <IonTitle>Profile</IonTitle>
-        <IonButtons>
-          <IonButton href="/signin" slot="end" onClick={() => signOut()}>SignOut</IonButton>
+      <IonToolbar>        
+        <IonButtons slot="start">
+          <IonButton href="/signin" class="top-icons" onClick={() => signOut()}>
+            <IonIcon slot="icon-only" icon={logOutSharp} />
+          </IonButton>
+        </IonButtons>
+        <IonTitle>People</IonTitle>
+        <IonButtons slot="end">
           <IonButton class="top-icons" href='/users'>
-            <IonIcon icon={personAddSharp} />
+            <IonIcon slot="icon-only" icon={personAddSharp} />
           </IonButton>       
         </IonButtons>
       </IonToolbar>
       <IonContent>
-        <IonCard>           
-          <IonGrid>
-            <IonRow>
-              <IonCol size="8">
-                <IonCardSubtitle>{user.displayName}</IonCardSubtitle>
-                <IonCardTitle>(Username)</IonCardTitle>
-              </IonCol>
-              <IonCol className="ion-text-right">
-                <IonButton>
-                  <IonIcon icon={createSharp} />
-                </IonButton>                
-              </IonCol>
-            </IonRow>        
-          </IonGrid>      
-        </IonCard>
-      </IonContent>
-    </IonPage>
-  )
-}
-const Inbox: React.FC = () => {
-  return(
-    <IonPage>
-      <IonToolbar>
-        <IonTitle>Notifications</IonTitle>
-      </IonToolbar>
-      <IonContent>
-        Invites....
-        <FriendRequests />
+        <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>
+          <AccordionItem className="accordion-item">
+            <AccordionItemHeading>
+              <AccordionItemButton className="ion-padding">
+                <IonRow>
+                  <IonCol size="8">
+                    <IonText>{user.displayName}</IonText>
+                    <IonText>(Username)</IonText>
+                  </IonCol>
+                  <IonCol className="ion-text-right">
+                    <IonButton class="custom-button">
+                      <IonIcon icon={createSharp} />
+                    </IonButton> 
+                  </IonCol>
+                </IonRow>
+              </AccordionItemButton>
+            </AccordionItemHeading>
+            <AccordionItemPanel>  
+                <IonButton class="custom-button" expand="block">
+                  View profile
+                </IonButton>   
+            </AccordionItemPanel>          
+          </AccordionItem>
+        </Accordion>  
+        <IonText>Requests and friends to be done..........</IonText>
       </IonContent>
     </IonPage>
   )
@@ -848,8 +850,8 @@ const Home: React.FC = () => {
           <IonMenuButton class="top-icons" autoHide={false} menu="main-menu"></IonMenuButton>        
         </IonButtons>  
         <IonButtons slot="end">   
-          <IonButton class="top-icons" href= '/profile'>
-            <IonIcon src="assets/icon/People.svg"/> 
+          <IonButton class="top-icons" href= '/people'>
+            <IonIcon slot="icon-only" src="assets/icon/People.svg"/> 
           </IonButton>         
         </IonButtons>                
         <IonTitle>Upcoming <br/> parties</IonTitle>
@@ -870,8 +872,7 @@ const SignedInRoutes: React.FC = () => {
             <Route path='/signin' component={SignIn} />
             <Route path='/create' component={Create} />
             <Route path='/users' component={Users} />
-            <Route path='/profile' component={Profile} />
-            <Route path='/inbox' component={Inbox} />
+            <Route path='/people' component={People} />
             <Route path='/chat' component={Chat} />
             <Route path='/gallery' component={Gallery} />
             <Route path='/memories' component={Memories} />
