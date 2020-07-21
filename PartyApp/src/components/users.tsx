@@ -9,14 +9,9 @@ import {
 import { Route, Redirect } from 'react-router-dom';
 import {useDocument, useCollection} from 'react-firebase-hooks/firestore';
 import {
-  IonApp,
   IonIcon,
-  IonLabel,
-  IonRouterOutlet,
-  IonTabBar,
-  IonTabButton,
-  IonTabs, 
   IonItem,
+  IonGrid,
   IonList, 
   IonButton,
   IonPage,
@@ -24,62 +19,22 @@ import {
   IonContent, 
   IonToolbar, 
   IonButtons, 
-  IonMenuButton,
   IonTitle,
   IonSearchbar,
   IonRow,
   IonCol,
   IonInput,
-  IonModal, 
-  IonDatetime,
-  IonCheckbox, 
-  IonGrid,
-  IonTextarea,
-  IonItemGroup,
-  IonCard,
-  IonCardHeader,
-  IonCardContent,
-  IonCardTitle,
-  IonMenu,
-  IonMenuToggle,
   IonText,
   IonToast,
-  IonCardSubtitle,
   IonFooter,
   IonAvatar,
-  IonPopover,
-  IonRippleEffect,
   IonLoading,
   IonAlert,
   IonImg,
-  IonSlides,
-  IonSlide,
-  IonBackButton, 
-  createAnimation
 } from '@ionic/react';
-import { IonReactRouter } from '@ionic/react-router';
 import { 
-  home, 
-  addCircle, 
-  personAddSharp,  
-  peopleCircleOutline, 
-  arrowDownCircle, 
-  arrowForwardCircle, 
-  starSharp,  
-  imageSharp,
-  logOutSharp,
-  notificationsSharp,
-  personCircleSharp,
-  cameraSharp,
-  createSharp,
-  chatbubblesSharp,
-  trashBinSharp,
-  cloudUploadSharp,  
-  chevronBackSharp
+  closeCircleSharp
 } from 'ionicons/icons';
-import {Plugins} from '@capacitor/core';
-import {useCamera} from '@ionic/react-hooks/camera';
-import {CameraResultType, CameraSource} from '@capacitor/core';
 import '../App.css'
 import firebase from '../firestore'
 import moment from 'moment'
@@ -167,59 +122,40 @@ const Users: React.FC = () => {
     setCancelDisabled(true); //enalbes cancel request button
   }
 
-  if (hits && query !== "" && query !== " ") {
+  if (hits && query.trim() !== "") { // return nothing if query is empty or just white spaces
     return(
       <IonPage>
-        <IonToolbar>   
-        <Accordion>      
-            <AccordionItem className="accordion-item">
-              <AccordionItemHeading>
-                <AccordionItemButton>
-                  <IonRow>
-                    <IonCol size="3">
-                      <IonAvatar>
-                        <img/>
-                      </IonAvatar>
-                    </IonCol>
-                    <IonCol size="5">
-                    <IonButton href='/people'>Edit</IonButton>
-                      <IonText>Me</IonText> <br/>
-                      <IonText class="white-text">Edit Profile</IonText>
-                    </IonCol>
-                  </IonRow>
-                </AccordionItemButton>
-              </AccordionItemHeading>
-            </AccordionItem>)
-          </Accordion>
+        <IonToolbar>
           <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)}></IonSearchbar>
         </IonToolbar>
-        <IonContent>
-          <Accordion>      
+        <IonContent>    
             {hits.map(hit => 
-            <AccordionItem className="accordion-item" key={hit.objectID}>
-              <AccordionItemHeading>
-                <AccordionItemButton>
-                  <IonRow>
-                    <IonCol size="3">
-                      <IonAvatar>
-                        <img src={hit.photoUrl} />
-                      </IonAvatar>
-                    </IonCol>
-                    <IonCol size="5">
-                      <IonText>{hit.name}</IonText> <br/>
-                      <IonText class="white-text">Friends since ....</IonText>
-                    </IonCol>
-                    <IonCol>
-                      <IonButton  class="custom-button"  disabled={addDisabled} onClick={() => addFriend(hit.objectID)}>
-                        <IonIcon src="assets/icon/Create.svg" />
-                      </IonButton>
-                      <IonButton class="custom-button" disabled={cancelDisabled} onClick={resetButtons}>X</IonButton>
-                    </IonCol>
-                  </IonRow>
-                </AccordionItemButton>
-              </AccordionItemHeading>
-            </AccordionItem>)}
-          </Accordion>
+            <IonItem key={hit.objectID}>
+                <IonButton class="profile-item">
+                  <IonGrid>
+                    <IonRow>
+                      <IonCol size="3">                    
+                        <IonAvatar>
+                          <img src={hit.photoUrl} />
+                        </IonAvatar>                    
+                      </IonCol>
+                      <IonCol size="5">
+                        <IonText>{hit.name}</IonText> <br/>
+                        <IonText class="white-text">Friends since ....</IonText>
+                      </IonCol>
+                      <IonCol size="4"></IonCol>
+                    </IonRow>
+                  </IonGrid>
+                </IonButton>
+                <IonCol>
+                  <IonButton class="profile-button" disabled={addDisabled} onClick={() => addFriend(hit.objectID)}>
+                    <IonIcon src="assets/icon/Create.svg" />
+                  </IonButton>
+                  <IonButton class="profile-button" disabled={cancelDisabled} onClick={resetButtons}>
+                    <IonIcon icon={closeCircleSharp} />
+                  </IonButton>                      
+                </IonCol>
+            </IonItem>)}
         </IonContent>
       </IonPage>    
     )

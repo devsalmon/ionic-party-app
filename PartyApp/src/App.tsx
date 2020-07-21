@@ -449,7 +449,7 @@ const Home: React.FC = () => {
           <IonMenuButton class="top-icons" autoHide={false} menu="main-menu"></IonMenuButton>        
         </IonButtons>  
         <IonButtons slot="end">   
-          <IonButton class="top-icons" href= '/users'>
+          <IonButton class="top-icons" href= '/people'>
             <IonIcon slot="icon-only" src="assets/icon/People.svg"/> 
           </IonButton>         
         </IonButtons>                

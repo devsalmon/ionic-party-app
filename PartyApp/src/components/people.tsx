@@ -9,77 +9,28 @@ import {
 import { Route, Redirect } from 'react-router-dom';
 import {useDocument, useCollection} from 'react-firebase-hooks/firestore';
 import {
-  IonApp,
   IonIcon,
-  IonLabel,
-  IonRouterOutlet,
-  IonTabBar,
-  IonTabButton,
-  IonTabs, 
-  IonItem,
-  IonList, 
   IonButton,
-  IonPage,
-  IonHeader, 
+  IonPage, 
   IonContent, 
   IonToolbar, 
-  IonButtons, 
-  IonMenuButton,
-  IonTitle,
   IonSearchbar,
+  IonItem,
+  IonAvatar,
+  IonButtons, 
+  IonTitle,
   IonRow,
   IonCol,
-  IonInput,
-  IonModal, 
-  IonDatetime,
-  IonCheckbox, 
-  IonGrid,
-  IonTextarea,
-  IonItemGroup,
-  IonCard,
-  IonCardHeader,
-  IonCardContent,
-  IonCardTitle,
-  IonMenu,
-  IonMenuToggle,
   IonText,
-  IonToast,
-  IonCardSubtitle,
-  IonFooter,
-  IonAvatar,
-  IonPopover,
-  IonRippleEffect,
   IonLoading,
   IonAlert,
-  IonImg,
-  IonSlides,
-  IonSlide,
-  IonBackButton, 
-  createAnimation
+  IonImg
 } from '@ionic/react';
-import { IonReactRouter } from '@ionic/react-router';
 import { 
-  home, 
-  addCircle, 
   personAddSharp,  
-  peopleCircleOutline, 
-  arrowDownCircle, 
-  arrowForwardCircle, 
-  starSharp,  
-  imageSharp,
   logOutSharp,
-  notificationsSharp,
-  personCircleSharp,
-  cameraSharp,
   createSharp,
-  chatbubblesSharp,
-  trashBinSharp,
-  cloudUploadSharp,  
-  chevronBackSharp
 } from 'ionicons/icons';
-import {Plugins} from '@capacitor/core';
-import {useCamera} from '@ionic/react-hooks/camera';
-import {CameraResultType, CameraSource} from '@capacitor/core';
 import '../App.css'
 import firebase from '../firestore'
 import moment from 'moment'
@@ -98,7 +49,6 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 /* Theme variables */
 import '../variables.css';
-import algoliasearch from 'algoliasearch/lite';
 import { memory } from 'console';
 
 const People: React.FC = () => {
@@ -127,30 +77,19 @@ const People: React.FC = () => {
           </IonButtons>
         </IonToolbar>
         <IonContent>
-          <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>
-            <AccordionItem className="accordion-item">
-              <AccordionItemHeading>
-                <AccordionItemButton className="ion-padding">
-                  <IonRow>
-                    <IonCol size="8">
-                      <IonText>{user.displayName}</IonText>
-                      <IonText>(Username)</IonText>
-                    </IonCol>
-                    <IonCol className="ion-text-right">
-                      <IonButton class="custom-button">
-                        <IonIcon icon={createSharp} />
-                      </IonButton> 
-                    </IonCol>
-                  </IonRow>
-                </AccordionItemButton>
-              </AccordionItemHeading>
-              <AccordionItemPanel>  
-                  <IonButton class="custom-button" expand="block">
-                    View profile
-                  </IonButton>   
-              </AccordionItemPanel>          
-            </AccordionItem>
-          </Accordion>  
+          <IonItem button href="/people">
+            <IonRow>
+              <IonCol size="8">
+                <IonText>{user.displayName}</IonText>
+                <IonText>(Username)</IonText>
+              </IonCol>
+              <IonCol className="ion-text-right">
+                <IonButton class="custom-button">
+                  <IonIcon icon={createSharp} />
+                </IonButton> 
+              </IonCol>
+            </IonRow>          
+          </IonItem>      
           <IonText>Requests and friends to be done..........</IonText>
         </IonContent>
       </IonPage>
