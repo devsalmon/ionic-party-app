@@ -122,7 +122,7 @@ const Users: React.FC = () => {
     setCancelDisabled(true); //enalbes cancel request button
   }
 
-  if (hits && query.trim() !== "") { // return nothing if query is empty or just white spaces
+  if (hits && query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) == true) { // return nothing if query is empty, just white spaces, or not letters
     return(
       <IonPage>
         <IonToolbar>
@@ -130,32 +130,30 @@ const Users: React.FC = () => {
         </IonToolbar>
         <IonContent>    
             {hits.map(hit => 
-            <IonItem key={hit.objectID}>
-                <IonButton class="profile-item">
-                  <IonGrid>
-                    <IonRow>
-                      <IonCol size="3">                    
-                        <IonAvatar>
-                          <img src={hit.photoUrl} />
-                        </IonAvatar>                    
-                      </IonCol>
-                      <IonCol size="5">
-                        <IonText>{hit.name}</IonText> <br/>
-                        <IonText class="white-text">Friends since ....</IonText>
-                      </IonCol>
-                      <IonCol size="4"></IonCol>
-                    </IonRow>
-                  </IonGrid>
-                </IonButton>
-                <IonCol>
-                  <IonButton class="profile-button" disabled={addDisabled} onClick={() => addFriend(hit.objectID)}>
-                    <IonIcon src="assets/icon/Create.svg" />
-                  </IonButton>
-                  <IonButton class="profile-button" disabled={cancelDisabled} onClick={resetButtons}>
-                    <IonIcon icon={closeCircleSharp} />
-                  </IonButton>                      
-                </IonCol>
-            </IonItem>)}
+            <>
+            <IonRow>
+            <IonCol size="9">
+            <IonItem button key={hit.objectID}>    
+              <IonCol size="4">
+                <IonAvatar>
+                  <img src={hit.photoUrl} />
+                </IonAvatar>  
+              </IonCol>
+              <IonCol offset="1" size="7">
+                <IonText>{hit.name}</IonText>   
+              </IonCol>
+            </IonItem>
+            </IonCol>
+            <IonCol>
+              <IonButton class="profile-button" disabled={addDisabled} onClick={() => addFriend(hit.objectID)}>
+                <IonIcon slot="icon-only" src="assets/icon/Create.svg" />
+              </IonButton>
+              <IonButton class="profile-button" disabled={cancelDisabled} onClick={resetButtons}>
+                <IonIcon icon={closeCircleSharp} />
+              </IonButton> 
+            </IonCol>
+            </IonRow>
+            </>)}
         </IonContent>
       </IonPage>    
     )

@@ -17,6 +17,7 @@ import {
   IonSearchbar,
   IonItem,
   IonAvatar,
+  IonLabel,
   IonButtons, 
   IonTitle,
   IonRow,
@@ -30,6 +31,7 @@ import {
   personAddSharp,  
   logOutSharp,
   createSharp,
+  starSharp,
 } from 'ionicons/icons';
 import '../App.css'
 import firebase from '../firestore'
@@ -79,18 +81,42 @@ const People: React.FC = () => {
         <IonContent>
           <IonItem button href="/people">
             <IonRow>
-              <IonCol size="8">
-                <IonText>{user.displayName}</IonText>
-                <IonText>(Username)</IonText>
+              <IonCol size="10">
+                  <IonText>{user.displayName}</IonText> <br/>
+                  <IonIcon color="warning" icon={starSharp}/>
+                  <IonText>  4.8</IonText>
               </IonCol>
-              <IonCol className="ion-text-right">
+              <IonCol size="2">
                 <IonButton class="custom-button">
                   <IonIcon icon={createSharp} />
                 </IonButton> 
               </IonCol>
             </IonRow>          
-          </IonItem>      
-          <IonText>Requests and friends to be done..........</IonText>
+          </IonItem> <br/>
+          <IonText>Requests</IonText>
+          <IonItem button>
+            <IonText>Nick</IonText> <br/>
+            <IonIcon color="warning" icon={starSharp}/>
+            <IonText>  4.2</IonText>    
+          </IonItem> 
+          <IonItem button>
+            <IonText>Alex</IonText> <br/>
+            <IonIcon color="warning" icon={starSharp}/>
+            <IonText>  4.1</IonText>    
+          </IonItem>        
+          <br/>
+          <IonText>Friends</IonText>     
+          <IonItem button>
+            <IonText>Nick</IonText> <br/>
+            <IonIcon color="warning" icon={starSharp}/>
+            <IonText>  4.2</IonText>
+          </IonItem> 
+          <IonItem button>
+            <IonText>Alex</IonText> <br/>
+            <IonIcon color="warning" icon={starSharp}/>
+            <IonText>  4.1</IonText>
+          </IonItem> 
+          <br/><br/><br/><br/><br/>               
         </IonContent>
       </IonPage>
     )

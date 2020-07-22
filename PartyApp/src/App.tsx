@@ -175,17 +175,13 @@ const appPages: Page[] = [
 const Links = () => {
   return(
     <IonList>
-      <IonItem>
-        <IonIcon color="warning" slot="start" icon={starSharp}/>
-        <IonLabel color="warning">Guest rating: </IonLabel>
-      </IonItem>
       {appPages.map((appPage, index) => {
       return (
         <IonMenuToggle key={index} auto-hide="false">
-        <IonItem href={appPage.url}>
-            <IonIcon color="warning" slot="start" icon={appPage.icon} />
-            <IonLabel color="warning">{appPage.title}</IonLabel>
-        </IonItem>
+          <IonItem href={appPage.url}>
+              <IonIcon color="dark" slot="start" icon={appPage.icon} />
+              <IonLabel color="dark">{appPage.title}</IonLabel>
+          </IonItem>
         </IonMenuToggle>
       );
       })}
