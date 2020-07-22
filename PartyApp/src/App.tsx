@@ -29,7 +29,6 @@ import {
   IonContent, 
   IonToolbar, 
   IonButtons, 
-  IonMenuButton,
   IonTitle,
   IonSearchbar,
   IonRow,
@@ -45,8 +44,6 @@ import {
   IonCardHeader,
   IonCardContent,
   IonCardTitle,
-  IonMenu,
-  IonMenuToggle,
   IonText,
   IonToast,
   IonCardSubtitle,
@@ -164,53 +161,6 @@ const SignInGooglepu = async() => {
     </IonPage>
   )
 }
-class Page {
-  title: string = '';
-  url: string = '';
-  icon: string = '';
-};
-const appPages: Page[] = [
-  {title: 'Users', url: '/users', icon: "./customIcons/People.svg"},  
-]
-const Links = () => {
-  return(
-    <IonList>
-      {appPages.map((appPage, index) => {
-      return (
-        <IonMenuToggle key={index} auto-hide="false">
-          <IonItem href={appPage.url}>
-              <IonIcon color="dark" slot="start" icon={appPage.icon} />
-              <IonLabel color="dark">{appPage.title}</IonLabel>
-          </IonItem>
-        </IonMenuToggle>
-      );
-      })}
-    </IonList>
-)
-};
-class Menu extends React.Component{
-  render() {
-    return(
-      <div>
-      <IonMenuToggle>
-        <IonMenu type="overlay" contentId="main" menuId="main-menu">
-          <IonHeader>
-            <IonToolbar>
-              <IonTitle size="large">Menu</IonTitle>              
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            <Links /> 
-          </IonContent>
-        </IonMenu>
-      </IonMenuToggle>
-      <IonRouterOutlet id="main">
-      </IonRouterOutlet>
-      </div>
-    );
-  }  
-}
-
 
 //TODO - 
 // Add friends
@@ -442,14 +392,16 @@ const Home: React.FC = () => {
     <IonPage>
       <IonToolbar>
         <IonButtons slot="start">
-          <IonMenuButton class="top-icons" autoHide={false} menu="main-menu"></IonMenuButton>        
-        </IonButtons>  
+          <IonButton class="top-icons" href='/users'>
+            <IonIcon slot="icon-only" icon={personAddSharp} />
+          </IonButton>       
+        </IonButtons>
+        <IonTitle>Upcoming <br/> parties</IonTitle>
         <IonButtons slot="end">   
           <IonButton class="top-icons" href= '/people'>
             <IonIcon slot="icon-only" src="assets/icon/People.svg"/> 
           </IonButton>         
-        </IonButtons>                
-        <IonTitle>Upcoming <br/> parties</IonTitle>
+        </IonButtons>                        
       </IonToolbar>
       <IonContent>     
         <PartyList />     
@@ -460,21 +412,20 @@ const Home: React.FC = () => {
 }
 const SignedInRoutes: React.FC = () => {
   return(
-    <>
-    <Menu /> 
-      <IonReactRouter>
-          <IonRouterOutlet>       
-            <Route path='/signin' component={SignIn} />
-            <Route path='/create' component={Create} />
-            <Route path='/users' component={Users} />
-            <Route path='/people' component={People} />
-            <Route path='/chat' component={Chat} />
-            <Route path='/gallery' component={Gallery} />
-            <Route path='/memories' component={Memories} />
-            <Route path='/home' component={Home} exact />      
-            <Route exact path={["/signin", "/"]} render={() => <Redirect to="/home" />} />
-          </IonRouterOutlet> 
-        
+    <IonReactRouter>
+      <IonTabs>
+        <IonRouterOutlet>       
+          <Route path='/signin' component={SignIn} />
+          <Route path='/create' component={Create} />
+          <Route path='/users' component={Users} />
+          <Route path='/people' component={People} />
+          <Route path='/chat' component={Chat} />
+          <Route path='/gallery' component={Gallery} />
+          <Route path='/memories' component={Memories} />
+          <Route path='/home' component={Home} exact />      
+          <Route exact path={["/signin", "/"]} render={() => <Redirect to="/home" />} />
+        </IonRouterOutlet> 
+              
           <IonTabBar slot="bottom">
             <IonTabButton tab="home" href="/home">
               <IonIcon class="side-icons" icon={home} />
@@ -492,8 +443,8 @@ const SignedInRoutes: React.FC = () => {
               <IonRippleEffect></IonRippleEffect>
             </IonTabButton>                         
           </IonTabBar>
-      </IonReactRouter>   
-    </> 
+        </IonTabs>
+    </IonReactRouter>  
   )
 }
 const App: React.FC =() => {

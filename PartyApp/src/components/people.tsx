@@ -31,6 +31,7 @@ import {
   personAddSharp,  
   logOutSharp,
   createSharp,
+  settingsSharp,
   starSharp,
 } from 'ionicons/icons';
 import '../App.css'
@@ -71,51 +72,37 @@ const People: React.FC = () => {
               <IonIcon slot="icon-only" icon={logOutSharp} />
             </IonButton>
           </IonButtons>
-          <IonTitle>username</IonTitle>
+          <IonTitle>{user.displayName}</IonTitle>
           <IonButtons slot="end">
-            <IonButton class="top-icons" href='/users'>
-              <IonIcon slot="icon-only" icon={personAddSharp} />
-            </IonButton>       
-          </IonButtons>
+            <IonButton class="top-icons">
+              <IonIcon slot="icon-only" icon={settingsSharp} />
+            </IonButton>
+          </IonButtons>          
         </IonToolbar>
         <IonContent>
           <IonItem button href="/people">
-            <IonRow>
-              <IonCol size="10">
-                  <IonText>{user.displayName}</IonText> <br/>
-                  <IonIcon color="warning" icon={starSharp}/>
-                  <IonText>  4.8</IonText>
-              </IonCol>
-              <IonCol size="2">
-                <IonButton class="custom-button">
-                  <IonIcon icon={createSharp} />
-                </IonButton> 
-              </IonCol>
-            </IonRow>          
-          </IonItem> <br/>
-          <IonText>Requests</IonText>
-          <IonItem button>
-            <IonText>Nick</IonText> <br/>
-            <IonIcon color="warning" icon={starSharp}/>
-            <IonText>  4.2</IonText>    
-          </IonItem> 
-          <IonItem button>
-            <IonText>Alex</IonText> <br/>
-            <IonIcon color="warning" icon={starSharp}/>
-            <IonText>  4.1</IonText>    
-          </IonItem>        
-          <br/>
-          <IonText>Friends</IonText>     
-          <IonItem button>
-            <IonText>Nick</IonText> <br/>
-            <IonIcon color="warning" icon={starSharp}/>
-            <IonText>  4.2</IonText>
-          </IonItem> 
-          <IonItem button>
-            <IonText>Alex</IonText> <br/>
-            <IonIcon color="warning" icon={starSharp}/>
-            <IonText>  4.1</IonText>
-          </IonItem> 
+            <IonText>Username: {user.displayName}</IonText> <br/>
+          </IonItem>
+
+          <IonItem button href="/people">
+            <IonText>Friends: 99</IonText> <br/>
+          </IonItem>
+
+          <IonItem button href="/people">
+            <IonText>Parties attended: 9120</IonText> <br/>
+          </IonItem>
+
+          <IonItem button href="/people">
+            <IonText>Parties hosted: -3</IonText> <br/>
+          </IonItem>  
+
+          <IonItem button href="/people">
+            <IonText>Upcoming parties: 2</IonText> <br/>
+          </IonItem>
+
+          <IonItem button href="/people">
+            <IonText>Status: sesh gremlin</IonText> <br/>
+          </IonItem>
           <br/><br/><br/><br/><br/>               
         </IonContent>
       </IonPage>
