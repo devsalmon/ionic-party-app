@@ -1,6 +1,7 @@
 .accordion-item {
     border-top: 1px solid yellow;
     border-bottom: 1px solid yellow;
+    max-height: 70%;    
 }
 
 .custom-button {
@@ -49,11 +50,23 @@
     border: 1px groove red;    
     border-radius: 5px;
     text-align: center;
+    margin: auto
 }
 
 .day-text {
     font-size: 35px;
-    text-shadow: 1px 1px 2px red;
+}
+
+.like-panel {
+    position: absolute;
+    color: yellow;
+    bottom: 10px;
+    right: 15px;    
+}
+
+.live-item {
+    border-top: 1px solid red;
+    border-bottom: 1px solid red;    
 }
 
 .loading {
@@ -63,6 +76,7 @@
 
 .mid-icon {
     font-size: 70px;
+    padding-left: 2px;
 }
 
 .popover{
@@ -112,6 +126,20 @@
     font-size: 50px;
 }
 
+.slide-text{
+    position: absolute;
+    color: yellow;
+    font-weight: bold;
+    font-size: 14px;
+    top: 30px;
+    left: 50px;
+}
+
+.swiper-pagination {
+    position: absolute;
+    color: yellow
+}
+
 .top-icons {
     color: yellow;
     font-size: 50px; 
@@ -148,6 +176,10 @@ ion-content {
     padding: 10px;
     --background: transparent;
 }
+{/*disable scrollbar*/}  
+::-webkit-scrollbar {
+    display: none;
+}
 
 ion-item{
     --background: transparent;
@@ -158,17 +190,11 @@ ion-item{
 ion-label {
     font-weight: bold;
     text-transform: uppercase;
-    --ion-text-color: yellow;
 }
 
-
-/* ion-picker {
-    --background: black;
-    --border-color: red;
-    --border-width: 2px;
-    --height: 100%;
-    --width: 90%
-} */
+ion-picker {
+    size: 10px;
+}
 
 ion-slides {
     height: 100%;    
@@ -180,9 +206,11 @@ ion-slide {
 
 ion-tab-button {
     --background: transparent;
-    --color: rgb(58, 55, 55);
-    --color-focused: black;
-    --color-selected: black;
+    --color: black;
+    --color-focused: white;
+    --color-selected: white;
+    font-weight: bold;
+    text-align: center    
 }
 
 ion-text {
@@ -197,7 +225,13 @@ ion-tab-bar {
     background: linear-gradient(transparent 5%, 70%, yellow);    
     opacity: 1;
     height: 120px;
-    text-transform: uppercase;
+    text-transform: uppercase; 
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
 }
 
 ion-title {
@@ -212,4 +246,3 @@ ion-toolbar {
     padding: 20px;
     --ion-background-color: black;
 }
-

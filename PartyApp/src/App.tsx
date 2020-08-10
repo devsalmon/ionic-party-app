@@ -25,59 +25,27 @@ import {
   IonList, 
   IonButton,
   IonPage,
-  IonHeader, 
   IonContent, 
   IonToolbar, 
+  IonBackButton,
   IonButtons, 
   IonTitle,
   IonSearchbar,
   IonRow,
   IonCol,
-  IonInput,
-  IonModal, 
-  IonDatetime,
-  IonCheckbox, 
-  IonGrid,
-  IonTextarea,
-  IonItemGroup,
-  IonCard,
-  IonCardHeader,
-  IonCardContent,
-  IonCardTitle,
+  IonInput, 
   IonText,
   IonToast,
-  IonCardSubtitle,
-  IonFooter,
-  IonAvatar,
-  IonPopover,
   IonRippleEffect,
   IonLoading,
-  IonAlert,
-  IonImg,
-  IonSlides,
-  IonSlide,
-  IonBackButton, 
-  createAnimation
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { 
   home, 
-  addCircle, 
-  personAddSharp,  
-  peopleCircleOutline, 
-  arrowDownCircle, 
-  arrowForwardCircle, 
-  starSharp,  
-  imageSharp,
-  logOutSharp,
-  notificationsSharp,
-  personCircleSharp,
+  personAddSharp,   
   cameraSharp,
-  createSharp,
-  chatbubblesSharp,
-  trashBinSharp,
-  cloudUploadSharp,  
-  chevronBackSharp
+  cloudUploadSharp,
+  chevronBackSharp,  
 } from 'ionicons/icons';
 import {Plugins} from '@capacitor/core';
 import {useCamera} from '@ionic/react-hooks/camera';
@@ -142,22 +110,26 @@ const SignInGooglepu = async() => {
 
   const [email] = useState<string>('');
   const [password] = useState<string>('');
+
   return (
     <IonPage>
-        <IonToolbar>
-          <IonTitle size="large">Sign in</IonTitle>
-        </IonToolbar>
-        <IonContent className="ion-text-center">
-          <IonItem>
-              <IonLabel>Email</IonLabel>
-              <IonInput value={email} placeholder="username"></IonInput>
-          </IonItem>  
-          <IonItem>
-              <IonLabel>Password</IonLabel>
-              <IonInput value={password} placeholder="password"></IonInput>
-          </IonItem>  
-          <IonButton onClick={() => SignInGooglepu()}>Login</IonButton>
-        </IonContent>
+      <IonToolbar>
+        <IonTitle size="large">Sign in</IonTitle>
+      </IonToolbar>
+      <IonContent>
+        <IonItem class="create-card" lines="none">
+          <IonInput class="create-input" value={email} placeholder="username"></IonInput>
+        </IonItem>
+        <IonItem class="create-card" lines="none">
+          <IonInput class="create-input" value={password} placeholder="password"></IonInput>
+        </IonItem>
+        <IonItem class="create-card" lines="none">
+          <IonButton class="create-button">Login</IonButton>  
+        </IonItem>        
+        <IonItem class="create-card" lines="none">
+          <IonButton class="create-button" onClick={() => SignInGooglepu()}>Google SignIn</IonButton>  
+        </IonItem>
+      </IonContent>
     </IonPage>
   )
 }
@@ -167,6 +139,7 @@ const SignInGooglepu = async() => {
 // delete party document in firebase after it's happened
 
 const MemoryList = () => {
+
   const [id, setID] = useState<string>('');
   const [inGallery, setInGallery] = useState(false);
   const [value, loading, error] = useCollection(
@@ -179,51 +152,116 @@ const MemoryList = () => {
     setID(id)
   }  
 
-  const today = moment(new Date()).format('LLL');
+  const today = new Date();
+  const yourparties = [];
+  const otherparties = [];
+
+  value && value.docs.map(doc => {
+    // if the party has happened display on memories 
+    if (moment(doc.data().endTime).isBefore(today) && doc.data().host == firebase.auth().currentUser.displayName) {           
+      yourparties.push(doc)   
+    } else if (moment(doc.data().endTime).isBefore(today)) {
+      otherparties.push(doc)
+    }
+  });
+
   if (inGallery) {
     return(
       !loading && (
-        <Gallery id={id} key={id} click={() => setInGallery(false)}/>
+        <>
+        <IonToolbar>
+          <IonButtons slot="start">
+            <IonButton color="warning" fill="clear" onClick={() => setInGallery(false)}>
+              <IonIcon icon={chevronBackSharp} />
+            </IonButton>
+          </IonButtons>
+          <IonTitle>Memories</IonTitle>
+          <IonButtons slot="end">
+            <IonButton disabled></IonButton>
+          </IonButtons>
+        </IonToolbar>
+        <Gallery id={id} key={id}/>
+        </>
       )
     )
   } else {
     return(
-      <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>
-        {value && value.docs.map(doc => {
-          // if the party has happened display on memories 
-          if (moment(doc.data().date).isBefore(today)) {
-            return(
-              !loading && (
-                <Memory doc={doc} key={doc.id} click={() => enter(doc.id)}/>
-              )
-            )   
-          } else {}
+      <>
+        <IonToolbar>
+          <IonTitle>Memories</IonTitle>
+        </IonToolbar>
+        <IonContent>
+        <IonText>Your parties</IonText>
+        {yourparties.map(doc => {
+          return(<Memory doc={doc} key={doc.id} click={() => enter(doc.id)}/>)          
         })}
-      </Accordion>
+        {yourparties.length > 0 ? <IonText> <br/> </IonText> : <IonText class="white-text"><br/><br/>No hosted parties... <br/><br/></IonText>}
+        <IonText>Parties attended</IonText>
+        {otherparties.map(doc => {
+          return(<Memory doc={doc} key={doc.id} click={() => enter(doc.id)}/>)          
+        })}        
+        </IonContent>
+      </>
     )
   }
 }
-const Chat = () => {
+const Party = ({doc, live, classname}) => {
   // party card
-  const db = firebase.firestore().collection("parties");
-  return(
-    <IonPage>
-      <IonToolbar>
-        <IonTitle>Party Chat</IonTitle>
-      </IonToolbar>
-      <IonContent>      
-      </IonContent>
-    </IonPage>
-  )
-} 
-const Party = ({doc}) => {
-  // party card
-  const [showPopover, setShowPopover] = useState(false);
 
+  const [showToast, setShowToast] = useState(false);
+  const [picture, setPicture] = useState<string>('')
+  const {getPhoto} = useCamera(); 
+  const [isLive, setIsLive] = useState(live);
+
+  const onSave = async() => { 
+    if (picture !== "") {
+    await collectionRef.doc(doc.id).collection('pictures').add({
+        picture: picture,
+        createdAt: moment(new Date()).format('LT'),
+    })
+      .then(function() {
+        setShowToast(true)
+      })
+      .catch(function(error) {
+        console.log(error)
+      });
+      setPicture('');
+    }
+  }  
+
+  // TODO - add IOS AND ANDROID permissions from pwa elements
+  const takePhoto = async() => {
+    const cameraPhoto = await getPhoto({
+      allowEditing: true,      
+      resultType: CameraResultType.Base64,
+      source: CameraSource.Camera,
+      quality: 100
+    });
+    const photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`
+    return(setPicture(photo));  
+  }    
+
+  const collectionRef = firebase.firestore().collection("parties");
   let data = doc.data()
+
+  let liveParty // not live initially
+  if (isLive) {
+    liveParty = <IonRow> 
+                <IonCol>
+                  <IonButton class="custom-button" expand="block" onClick={takePhoto}>
+                    <IonIcon icon={cameraSharp} />
+                  </IonButton>   
+                </IonCol>
+                <IonCol>
+                  <IonButton class="custom-button" expand="block" onClick={onSave}>
+                    <IonIcon icon={cloudUploadSharp} />
+                  </IonButton>   
+                </IonCol> 
+                </IonRow>
+  } else {};
+
   return(
-    <>
-    <AccordionItem className="accordion-item">
+    <AccordionItem className={classname}>
       <AccordionItemHeading>
           <AccordionItemButton className="ion-padding">
             <IonRow>
@@ -233,62 +271,66 @@ const Party = ({doc}) => {
               </IonCol>
               <IonCol>            
                 <IonText>{data.title} <br/></IonText>  
-                <IonText class="white-text">{data.location} <br/></IonText>
-                <IonText class="white-text">Created {data.createdOn}</IonText>
-              </IonCol>         
-            </IonRow>       
+                <IonText class="white-text">{data.location}</IonText><br/>
+                <IonText class="white-text">By {data.host}</IonText>
+              </IonCol>                    
+            </IonRow>   
+            {/*if live then display camera buttons */}            
+            {liveParty}                
           </AccordionItemButton>
       </AccordionItemHeading>
       <AccordionItemPanel>        
-        <IonRow>
-          <IonCol>
-            <IonButton class="custom-button" expand="block" onClick={() => setShowPopover(true)}>
-              Info
-            </IonButton>
-          </IonCol>
-          <IonCol>             
-            <IonButton class="custom-button" expand="block" href='/chat'>
-              <IonIcon icon={chatbubblesSharp} />
-            </IonButton>
-          </IonCol>  
-        </IonRow>
+        <IonItem>Location: {data.location} (maps plugin)</IonItem>        
+        <IonItem>Starts: {moment(data.dateTime).format('LT')}</IonItem>        
+        <IonItem>Ends: {moment(data.endTime).format('LT')}</IonItem>
+        <IonItem>Pending invites: 10291</IonItem> 
+        <IonItem>Accepted Invites: 138430</IonItem>               
+        <IonLabel className="ion-padding" color="warning">Details:</IonLabel>
+        <IonItem >{data.details}</IonItem>        
       </AccordionItemPanel>
+      <IonToast 
+      isOpen={showToast}
+      onDidDismiss={() => setShowToast(false)}
+      duration={2000}
+      message="Picture uploaded!"
+      position="bottom"
+    />       
     </AccordionItem>
-    <IonPopover
-      isOpen={showPopover}
-      cssClass='popover'
-      onDidDismiss={e => setShowPopover(false)}
-    >
-      <IonLabel class="popover-label">Details:</IonLabel>
-      <IonItem class="popover-item">{data.details}</IonItem>
-      <IonLabel class="popover-label">Location:</IonLabel>
-      <IonItem class="popover-item">{data.location}</IonItem>
-      <IonLabel class="popover-label">Starts:</IonLabel>          
-      <IonItem class="popover-item">{data.startTime}</IonItem>
-      <IonLabel class="popover-label">Ends:</IonLabel>
-      <IonItem class="popover-item">{data.endTime}</IonItem>
-    </IonPopover> 
-    </>
   )
 }
 const PartyList = () => {
+
   const [value, loading, error] = useCollection(
-    firebase.firestore().collection("parties").orderBy("date", "desc"), //order by parties closest to today's date 
+    firebase.firestore().collection("parties").orderBy("dateTime", "asc"), //order by parties closest to today's date 
   );
-  const today = moment(new Date()).format('LLL')
+
+  const today = new Date()
   return(
-    <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>
+    <IonContent>
+      <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>   
       {value && value.docs.map(doc => {
-        // if the party has happened don't display
-        if (moment(doc.data().date).isAfter(today)) {
+        // if the party is now, display in live parties with camera function
+        let data = doc.data()
+        if (moment(today).isBetween(data.dateTime, data.endTime)) {
           return(
-            !loading && (
-              <Party doc={doc} key={doc.id} />
+            !loading && (              
+              <>
+              <IonTitle color="danger">LIVE!</IonTitle>              
+              <Party doc={doc} key={doc.id + "live"} live={true} classname="live-item"/>              
+              <br/>
+              </>
             )
           )      
-        } else {}
-      })}
-    </Accordion>
+        } if (moment(data.dateTime).isAfter(today)) {
+            return(
+              !loading && (   
+                <Party doc={doc} key={doc.id} live={false} classname="accordion-item"/>
+              )
+            )   
+        } else {return null}
+      })} 
+      </Accordion>      
+    </IonContent>
   )
 }
 const Create: React.FC = () => {
@@ -300,9 +342,6 @@ const Create: React.FC = () => {
     </IonPage>
   )
 }
-
-
-
 
 const FriendRequests = () => {
 
@@ -376,14 +415,9 @@ const FriendRequests = () => {
 const Memories: React.FC = () => {
   return(
     <IonPage>
-      <IonToolbar>
-        <IonTitle>Memories</IonTitle>
-      </IonToolbar>
-      <IonContent>
-        <MemoryList />
-          {/* to allow for last item in list to be clicked (otherwise it's covered by tabbar) */}
-          <br/> <br/> <br/> <br/> <br/> <br/>
-      </IonContent>
+      <MemoryList />
+        {/* to allow for last item in list to be clicked (otherwise it's covered by tabbar) */}
+        <br/> <br/> <br/> <br/> <br/> <br/>
     </IonPage>
   )
 }
@@ -403,47 +437,44 @@ const Home: React.FC = () => {
           </IonButton>         
         </IonButtons>                        
       </IonToolbar>
-      <IonContent>     
-        <PartyList />     
-        <br/> <br/> <br/> <br/> <br/> <br/>
-      </IonContent>
+      <PartyList/>
+      <br/> <br/> <br/> <br/> <br/> <br/>
     </IonPage>
   )
 }
 const SignedInRoutes: React.FC = () => {
   return(
-    <IonReactRouter>
+    <IonReactRouter>  
       <IonTabs>
         <IonRouterOutlet>       
           <Route path='/signin' component={SignIn} />
           <Route path='/create' component={Create} />
           <Route path='/users' component={Users} />
           <Route path='/people' component={People} />
-          <Route path='/chat' component={Chat} />
           <Route path='/gallery' component={Gallery} />
           <Route path='/memories' component={Memories} />
           <Route path='/home' component={Home} exact />      
           <Route exact path={["/signin", "/"]} render={() => <Redirect to="/home" />} />
         </IonRouterOutlet> 
-              
-          <IonTabBar slot="bottom">
-            <IonTabButton tab="home" href="/home">
-              <IonIcon class="side-icons" icon={home} />
-              <IonLabel>Home</IonLabel>
-              <IonRippleEffect></IonRippleEffect>
-            </IonTabButton>
-            <IonTabButton tab="create" href="/create">
-              <IonIcon class="mid-icon" src="assets/icon/Create.svg" />
-              <IonLabel>Create</IonLabel>
-              <IonRippleEffect></IonRippleEffect>
-            </IonTabButton>              
-            <IonTabButton tab="memories" href="/memories">
-              <IonIcon class="side-icons" src="assets/icon/Memories.svg" />
-              <IonLabel>Memories</IonLabel>
-              <IonRippleEffect></IonRippleEffect>
-            </IonTabButton>                         
-          </IonTabBar>
-        </IonTabs>
+        
+        <IonTabBar slot="bottom">
+          <IonTabButton tab="home" href="/home">
+            <IonIcon class="side-icons" icon={home} />
+            <IonLabel>Home</IonLabel>
+            <IonRippleEffect></IonRippleEffect>
+          </IonTabButton>
+          <IonTabButton tab="create" href="/create">
+            <IonIcon class="mid-icon" src="assets/icon/Create.svg" />
+            <IonLabel>Create</IonLabel>
+            <IonRippleEffect></IonRippleEffect>
+          </IonTabButton>              
+          <IonTabButton tab="memories" href="/memories">
+            <IonIcon class="side-icons" src="assets/icon/Memories.svg" />
+            <IonLabel>Memories</IonLabel>
+            <IonRippleEffect></IonRippleEffect>
+          </IonTabButton>                         
+        </IonTabBar>
+      </IonTabs>
     </IonReactRouter>  
   )
 }

@@ -15,7 +15,7 @@ import {
   IonContent, 
   IonToolbar, 
   IonSearchbar,
-  IonItem,
+  IonItem ,
   IonAvatar,
   IonLabel,
   IonButtons, 
@@ -80,29 +80,29 @@ const People: React.FC = () => {
           </IonButtons>          
         </IonToolbar>
         <IonContent>
-          <IonItem button href="/people">
+          <IonItem class="accordion-item"  button href="/people">
             <IonText>Username: {user.displayName}</IonText> <br/>
-          </IonItem>
+          </IonItem >
 
-          <IonItem button href="/people">
+          <IonItem class="accordion-item"  button href="/people">
             <IonText>Friends: 99</IonText> <br/>
-          </IonItem>
+          </IonItem >
 
-          <IonItem button href="/people">
+          <IonItem class="accordion-item"  button href="/people">
             <IonText>Parties attended: 9120</IonText> <br/>
-          </IonItem>
+          </IonItem >
 
-          <IonItem button href="/people">
+          <IonItem class="accordion-item"  button href="/people">
             <IonText>Parties hosted: -3</IonText> <br/>
-          </IonItem>  
+          </IonItem >  
 
-          <IonItem button href="/people">
+          <IonItem class="accordion-item"  button href="/people">
             <IonText>Upcoming parties: 2</IonText> <br/>
-          </IonItem>
+          </IonItem >
 
-          <IonItem button href="/people">
+          <IonItem class="accordion-item"  button href="/people">
             <IonText>Status: sesh gremlin</IonText> <br/>
-          </IonItem>
+          </IonItem >
           <br/><br/><br/><br/><br/>               
         </IonContent>
       </IonPage>

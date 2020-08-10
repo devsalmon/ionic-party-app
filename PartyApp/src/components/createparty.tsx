@@ -46,12 +46,11 @@ const CreateParty = ({initialValue, clear}) => {
     useEffect(() => {  
     },
     []);
-    const [date, setDate] = useState<string>('')
     const [title, setTitle] = useState<string>('')
     const [location, setLocation] = useState<string>('')
     const [details, setDetails] = useState<string>('')
     const [endTime, setEndTime] = useState<string>('')
-    const [startTime, setStartTime] = useState<string>('')  
+    const [dateTime, setDateTime] = useState<string>('')  
     const [showModal, setShowModal] = useState(false);
     const [checked, setChecked] = useState(false);
     const [showToast, setShowToast] = useState(false);
@@ -72,37 +71,36 @@ const CreateParty = ({initialValue, clear}) => {
   }
     const onSave = () => {  
       // validate inputs  
-      const valid = Boolean((date !== "") && (title !== "") && (location !== "") && (startTime !== "") && (endTime !== "") && (details !== ""));
+      const valid = Boolean((title !== "") && (location !== "") && (dateTime !== "") && (endTime !== "") && (details !== ""));
       
-      if (valid == false) {
+      if (valid === false) {
         setShowAlert(true)    
-      } else if (valid == true) {
+      } else if (valid === true) {
         setShowToast(valid);
         let collectionRef = firebase.firestore().collection("parties");
         // only add documents to collection if forms are validated
           collectionRef.add(
             {title: title, 
             location: location, 
-            date: moment(date).format('LL'), 
-            day: moment(date).format('D'), 
-            month: moment(date).format('MMM'),
+            date: moment(dateTime).format('LL'), 
+            day: moment(dateTime).format('D'), 
+            month: moment(dateTime).format('MMM'),
             details: details,
             endTime: moment(endTime).format('LLL'),
-            startTime: moment(startTime).format('LLL'),
-            createdOn: moment(new Date()).format('LLL'), 
+            dateTime: moment(dateTime).format('LLL'),
+            host: firebase.auth().currentUser.displayName,
+            createdOn: moment(new Date()).format('LL'), 
             });
             //clear fields
             setTitle("");
-            setDate("")
             setLocation("");
             setDetails("");
             setEndTime("");
-            setStartTime("");
+            setDateTime("");
             clear();        
       } 
     
-    }
-  
+    } 
     return(
       <IonContent class="create-content">
         <IonToolbar color="warning">
@@ -115,24 +113,22 @@ const CreateParty = ({initialValue, clear}) => {
             <IonInput class="create-input" value={location} onIonChange={e => setLocation(e.detail.value!)} placeholder="Location" clearInput></IonInput>
           </IonItem>
           <IonItem class="create-card" lines="none">
-            <IonLabel color="warning">Date</IonLabel>
-            <IonDatetime class="create-datetime" value={date} max="2050" min={moment(new Date()).format('YYYY')} onIonChange={e => setDate(e.detail.value!)} placeholder="select"></IonDatetime>
-          </IonItem>
-          <IonItem class="create-card" lines="none">
             <IonLabel color="warning">Starts</IonLabel>
-            <IonDatetime class="create-datetime" value={startTime} onIonChange={e => setStartTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="select"></IonDatetime>
+            <IonDatetime class="create-datetime" value={dateTime} onIonChange={e => setDateTime(e.detail.value!)} displayFormat="DD-MMM-YY HH:mm" placeholder="select"></IonDatetime>
           </IonItem>
           <IonItem class="create-card" lines="none">
             <IonLabel color="warning">Ends</IonLabel>
-            <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} display-format="h:mm A" picker-format="h:mm A" placeholder="select"></IonDatetime>
+            <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} displayFormat="DD-MMM-YY HH:mm" placeholder="select"></IonDatetime>
           </IonItem>
           <IonItem class="create-card" lines="none">
             <IonTextarea maxlength={150} class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
           </IonItem>
           <IonItem class="create-card" lines="none">
             <IonButton class="create-button" expand="block" onClick={e => setShowModal(true)}>Invite People</IonButton>
-          </IonItem>        
-          <IonButton class="create-button" expand="block" onClick={() => onSave()}>Create!</IonButton>        
+          </IonItem>       
+          <IonItem class="create-card" lines="none"> 
+            <IonButton class="create-button" expand="block" onClick={() => onSave()}>Create!</IonButton>        
+          </IonItem>
       <br/><br/><br/><br/><br/><br/><br/>
       <IonModal isOpen={showModal}>
         <IonHeader>

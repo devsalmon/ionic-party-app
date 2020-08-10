@@ -1,13 +1,7 @@
 import React, { useState, useEffect} from 'react';
 import {
-    Accordion,
-    AccordionItem,
-    AccordionItemHeading,
-    AccordionItemButton,
-    AccordionItemPanel,
-} from 'react-accessible-accordion';
-import {
   IonIcon,
+  IonGrid,
   IonButtons, 
   IonRow,
   IonCol,
@@ -17,15 +11,11 @@ import {
   IonLoading,
   IonAlert,
   IonBackButton, 
+  IonItem,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { 
-  cameraSharp,
-  cloudUploadSharp,  
 } from 'ionicons/icons';
-import {Plugins} from '@capacitor/core';
-import {useCamera} from '@ionic/react-hooks/camera';
-import {CameraResultType, CameraSource} from '@capacitor/core';
 import '../App.css'
 import firebase from '../firestore'
 import moment from 'moment'
@@ -47,80 +37,26 @@ import '../variables.css';
 import { memory } from 'console';
 
 const Memory = ({doc, click}) => {
-  // party card
-  const [showToast, setShowToast] = useState(false);
-  const [picture, setPicture] = useState<string>('')
-  const {getPhoto} = useCamera(); 
-  const collectionRef = firebase.firestore().collection("parties");
-  const onSave = async() => { 
-    if (picture !== "") {
-    await collectionRef.doc(doc.id).collection('pictures').add({
-        picture: picture,
-        createdAt: moment(new Date()).format('LT'),
-    })
-      .then(function() {
-        setShowToast(true)
-      })
-      .catch(function(error) {
-        console.log(error)
-      });
-      setPicture('');
-    }
-  }  
+  // party card  
 
-  // TODO - add IOS AND ANDROID permissions from pwa elements
-  const takePhoto = async() => {
-    const cameraPhoto = await getPhoto({
-      allowEditing: true,      
-      resultType: CameraResultType.Base64,
-      source: CameraSource.Camera,
-      quality: 100
-    });
-    const photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`
-    return(setPicture(photo));  
-  }
   let data = doc.data();
   
   return(
-    <AccordionItem className="accordion-item">
-      <AccordionItemHeading>
-        <AccordionItemButton className="ion-padding">
-          <IonRow>
-            <IonCol size="8">
-              <IonText>{data.title} <br/></IonText>
-              <IonText class="white-text">{data.date}<br/></IonText> 
-              <IonText class="white-text">Hosted By - ...</IonText>
-            </IonCol>
-            <IonCol>
-              <IonButton class="custom-button" onClick={click}>
-                <IonIcon src="assets/icon/Memories.svg"/> 
-              </IonButton>
-            </IonCol>   
-          </IonRow>
-        </AccordionItemButton>
-      </AccordionItemHeading>
-      <AccordionItemPanel>
-        <IonRow>
-        <IonCol>
-          <IonButton class="custom-button" expand="block" onClick={takePhoto}>
-            <IonIcon icon={cameraSharp} />
-          </IonButton>   
+    <IonItem button onClick={click} className="accordion-item">
+    <IonGrid>
+      <IonRow>
+        <IonCol size="12">
+          <IonText>{data.title}</IonText>
         </IonCol>
-        <IonCol>
-          <IonButton class="custom-button" expand="block" onClick={onSave}>
-            <IonIcon icon={cloudUploadSharp} />
-          </IonButton>   
-        </IonCol>      
-        </IonRow>
-      </AccordionItemPanel>
-      <IonToast 
-      isOpen={showToast}
-      onDidDismiss={() => setShowToast(false)}
-      duration={2000}
-      message="Picture uploaded!"
-      position="bottom"
-    />                  
-    </AccordionItem>    
+      </IonRow>               
+      <IonRow>
+        <IonCol size="12">
+          <IonText class="white-text">{data.date}<br/></IonText> 
+          <IonText class="white-text">Hosted By {data.host}</IonText>
+        </IonCol>
+      </IonRow>
+      </IonGrid>
+    </IonItem>        
   )
 }
 

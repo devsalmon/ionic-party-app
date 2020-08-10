@@ -17,10 +17,10 @@ import {
   IonImg,
   IonSlides,
   IonSlide,
-  IonBackButton, 
 } from '@ionic/react';
-import { 
-  chevronBackSharp
+import {   
+  heartOutline,
+  heart
 } from 'ionicons/icons';
 import '../App.css'
 import firebase from '../firestore'
@@ -41,11 +41,39 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import '../variables.css';
 
-const Gallery = ({id, click}) => {
+const Gallery = ({id}) => {
     // party card
+    const [liked, setLiked] = useState(false); 
+    const [host, setHost] = useState('');
+    const [date, setDate] = useState('');
+    const [title, setTitle] = useState('');
+    const [location, setLocation] = useState('');
     const [value, loading, error] = useCollection(
       firebase.firestore().collection('parties').doc(id).collection('pictures'),
     );  
+    const doc = firebase.firestore().collection('parties').doc(id)
+    doc.get().then(function(doc) {
+      if (doc.exists) {
+          setTitle(doc.data().title);
+          setLocation(doc.data().location);
+          setDate(doc.data().date);
+          setHost(doc.data().host);
+      } else {
+          // doc.data() will be undefined in this case
+          console.log("No such document!");
+      }
+      }).catch(function(error) {
+          console.log("Error getting document:", error);
+      });
+
+    const like = () => {
+      if (liked == false) {
+        setLiked(true); 
+      } else {
+        setLiked(false); 
+      };      
+    }
+
     // const deletePhoto = async() => {
     //   await collectionRef.doc(doc.id).update({
     //     picture: firebase.firestore.FieldValue.delete()
@@ -56,28 +84,35 @@ const Gallery = ({id, click}) => {
     //   console.error("Error removing document: ", error); 
     // });  
     // }
-    return(     
-      <IonGrid>
-        <IonRow>
-          <IonButton onClick={click}>
-            <IonIcon icon={chevronBackSharp} />
-          </IonButton>     
-        </IonRow>
-          <IonSlides scrollbar={false} pager={true} options={{initialSlide: 1, preloadImages: true, loop: true}}>
-            {value && value.docs.map(doc => {
-              return(                        
-                <IonSlide key={doc.id}>
-                  <IonRow>
-                    <IonImg src={doc.data().picture} />
-                  </IonRow>     
-                  <IonRow className="ion-padding">
-                    <IonLabel>Taken at {doc.data().createdAt}</IonLabel>
-                  </IonRow>   
-                </IonSlide>
-              )
-            })}      
-          </IonSlides>  
-      </IonGrid>
+    return(   
+      <IonContent fullscreen={true}>
+        <IonSlides class="accordion-item" scrollbar={false} pager={true} options={{initialSlide: 0, preloadImages: false, loop: true}}>
+          {value && value.docs.map(doc => {
+            return( !loading && 
+              <IonSlide key={doc.id}>
+                <IonImg class="gallery-photo" src={doc.data().picture} />
+                <IonButton onClick={like} fill="clear" size="large" class="like-panel">
+                  <IonIcon icon={liked ? heart : heartOutline} />                  
+                </IonButton>         
+                <p className="slide-text">{doc.data().createdAt}</p>
+              </IonSlide>
+            )
+          })}      
+        </IonSlides>  
+        <IonItem>
+          <IonGrid>
+            <IonRow>
+              <IonText>{title}</IonText>
+            </IonRow>
+            <IonRow>
+              <IonText class="white-text">{location}</IonText>
+            </IonRow>
+            <IonRow>
+              <IonText class="white-text">Hosted {date} by {host}</IonText>
+            </IonRow>
+          </IonGrid>
+        </IonItem>
+      </IonContent>
     )
   } 
 
