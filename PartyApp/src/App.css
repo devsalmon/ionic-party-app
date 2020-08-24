@@ -176,7 +176,7 @@ ion-content {
     padding: 10px;
     --background: transparent;
 }
-{/*disable scrollbar*/}  
+
 ::-webkit-scrollbar {
     display: none;
 }

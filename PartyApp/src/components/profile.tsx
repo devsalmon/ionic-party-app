@@ -54,7 +54,7 @@ import '@ionic/react/css/display.css';
 import '../variables.css';
 import { memory } from 'console';
 
-const People: React.FC = () => {
+const Profile: React.FC = () => {
 
     // Signs out of Party app.
     const signOut = async() => {
@@ -109,4 +109,4 @@ const People: React.FC = () => {
     )
   }
 
-export default People;
+export default Profile;

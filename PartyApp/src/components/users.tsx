@@ -85,17 +85,17 @@ const Users: React.FC = () => {
     var sender_user_id = firebase.auth().currentUser.uid
     //console.log(receiver_user_id)
 
-    //create doc with sender's id and adds receiver's id to collection.
-    collectionRef.doc(sender_user_id).collection(receiver_user_id).add(
-      {request_status: 'sent'})
-
+    //create doc with sender's id and adds receiver's id to field.
+    collectionRef.doc(sender_user_id).set(
+      {request_to: [receiver_user_id]})
+      
       //if successful
       .then(function(docRef) {
         //console.log("Document written with ID: ", docRef.id);
         //if successful, create doc w receiver's id and add sender's id to collection
-        collectionRef.doc(receiver_user_id).collection(sender_user_id).add(
+    collectionRef.doc(receiver_user_id).set(
 
-          {request_status: 'received'})
+        {request_from: [sender_user_id]})
           
           //if successful
           .then(function(docRef) {

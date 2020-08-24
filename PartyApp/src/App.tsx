@@ -3,7 +3,7 @@ import Users from './components/users';
 import CreateParty from './components/createparty';
 import Gallery from './components/gallery';
 import Memory from './components/memory';
-import People from './components/people';
+import People from './components/profile';
 import {
     Accordion,
     AccordionItem,
@@ -69,6 +69,7 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './variables.css';
 import algoliasearch from 'algoliasearch/lite';
+import Profile from './components/profile';
 // once finished, run ionic build then npx cap add ios and npx cap add android
 
 const SignIn = () => {
@@ -343,52 +344,60 @@ const Create: React.FC = () => {
   )
 }
 
-const FriendRequests = () => {
+const acceptFriend = (objectID) => {
+  const collectionRef = firebase.firestore().collection("friends_requests");
+  console.log("TEST122")
+  var sender_user_id = firebase.auth().currentUser.uid
+  var receiver_user_id = objectID
+  
+  var date = moment(new Date()).format('LLL')
+
+  //create doc with sender's id and adds receiver's id to collection.
+  collectionRef.doc(sender_user_id).collection(receiver_user_id).add(
+    {date: date})
+
+    //if successful
+    .then(function(docRef) {
+      //console.log("Document written with ID: ", docRef.id);
+      //if successful, create doc w receiver's id and add sender's id to collection
+      collectionRef.doc(receiver_user_id).collection(sender_user_id).add(
+
+        {date: date})
+        
+        //if successful
+        .then(function(docRef) {
+          //currentState = "request_received"
+          //setaddBtnDisabled(true); //disables add friend button
+          //setcancBtnDisabled(false); //enalbes cancel request button
+        })
+
+        //if unsuccessful
+        .catch(function(error) {
+          console.error("Error adding document: ", error);
+      }); 
+    })
+
+  //if unsuccessful
+  .catch(function(error) {
+      console.error("Error adding document: ", error);
+  });
+
+}
+
+/* const FriendRequests = () => {
 
   const collectionRef = firebase.firestore().collection("friend_requests");
-
-  const acceptFriend = (objectID) => {
-    var sender_user_id = firebase.auth().currentUser.uid
-    var receiver_user_id = objectID
-    
-    var date = moment(new Date()).format('LLL')
-
-    //create doc with sender's id and adds receiver's id to collection.
-    collectionRef.doc(sender_user_id).collection(receiver_user_id).add(
-      {date: date})
-
-      //if successful
-      .then(function(docRef) {
-        //console.log("Document written with ID: ", docRef.id);
-        //if successful, create doc w receiver's id and add sender's id to collection
-        collectionRef.doc(receiver_user_id).collection(sender_user_id).add(
-
-          {date: date})
-          
-          //if successful
-          .then(function(docRef) {
-            //currentState = "request_received"
-            //setaddBtnDisabled(true); //disables add friend button
-            //setcancBtnDisabled(false); //enalbes cancel request button
-          })
-
-          //if unsuccessful
-          .catch(function(error) {
-            console.error("Error adding document: ", error);
-        }); 
-      })
-
-    //if unsuccessful
-    .catch(function(error) {
-        console.error("Error adding document: ", error);
-    });
-
-  collectionRef.doc(firebase.auth().currentUser.uid).collection('0gOOtbVUGwYrMAyoOQCCXDjXJax2')
-  .onSnapshot(function(doc) {
+  console.log("TEST121")
+  var sender_user_id = firebase.auth().currentUser.uid
+  //var receiver_user_id = objectID
+  
+//collection(receiver_user_id)
+  collectionRef.doc(firebase.auth().currentUser.uid).onSnapshot(function(doc) {
     doc.docChanges().forEach(function(change) {
       if (change.doc.data().request_status = "received") {
+        console.log("RECEIVED")
         // if on receiver's account, return list of friend requests
-        let userRef = firebase.firestore().collection("users").doc('DMhdq4BpaksyJtfnbhBe');
+        let userRef = firebase.firestore().collection("users").doc(receiver_user_id);
         // get document of user who sent the request 
         console.log("Current data: ", change.doc.data());
 
@@ -409,7 +418,7 @@ const FriendRequests = () => {
 
   return(null
   )
-}
+} */
 
 
 const Memories: React.FC = () => {
@@ -437,6 +446,7 @@ const Home: React.FC = () => {
           </IonButton>         
         </IonButtons>                        
       </IonToolbar>
+      {/* {<FriendRequests/>} */}
       <PartyList/>
       <br/> <br/> <br/> <br/> <br/> <br/>
     </IonPage>
@@ -450,7 +460,7 @@ const SignedInRoutes: React.FC = () => {
           <Route path='/signin' component={SignIn} />
           <Route path='/create' component={Create} />
           <Route path='/users' component={Users} />
-          <Route path='/people' component={People} />
+          <Route path='/people' component={Profile} />
           <Route path='/gallery' component={Gallery} />
           <Route path='/memories' component={Memories} />
           <Route path='/home' component={Home} exact />      
