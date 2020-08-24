@@ -77,7 +77,7 @@ const Users: React.FC = () => {
 //  request, I think we need to use an onSnapshot function which would be always
 //  listening for a new entry in friend requests under ur id i think. If you get
 //  that working u can attach the accept request function to the accept button.
-  const addFriend = (objectID) => {
+  const addFriend = (name, objectID) => {
     
     //var currentState = "not_friends"
     //var disabledState = false
@@ -85,18 +85,34 @@ const Users: React.FC = () => {
     var sender_user_id = firebase.auth().currentUser.uid
     //console.log(receiver_user_id)
 
-    //create doc with sender's id and adds receiver's id to field.
-    collectionRef.doc(sender_user_id).set(
-      {request_to: [receiver_user_id]})
-      
-      //if successful
-      .then(function(docRef) {
+    //create doc with sender's id if it doesn't already exist and adds receiver's id to field.
+    collectionRef.doc(sender_user_id).get()
+      .then((docSnapshot) => {
+        if (docSnapshot.exists) {
+          collectionRef.doc(sender_user_id).onSnapshot((doc) => {
+            collectionRef.doc(sender_user_id).update({
+              request_to: firebase.firestore.FieldValue.arrayUnion(receiver_user_id)
+            })      
+          });
+        } else {
+          collectionRef.doc(sender_user_id).set({request_to: [receiver_user_id]}) // create the document
+        }
+    })
         //console.log("Document written with ID: ", docRef.id);
-        //if successful, create doc w receiver's id and add sender's id to collection
-    collectionRef.doc(receiver_user_id).set(
-
-        {request_from: [sender_user_id]})
-          
+        //if successful, create doc w receiver's id and add sender's id to collection      
+      .then(function(docRef) {
+      collectionRef.doc(receiver_user_id).get()
+        .then((docSnapshot) => {
+          if (docSnapshot.exists) {
+            collectionRef.doc(receiver_user_id).onSnapshot((doc) => {
+              collectionRef.doc(receiver_user_id).update({
+                request_from: firebase.firestore.FieldValue.arrayUnion(sender_user_id)
+              })      
+            });
+          } else {
+            collectionRef.doc(receiver_user_id).set({request_from: [sender_user_id]}) // create the document
+          }
+      })        
           //if successful
           .then(function(docRef) {
             //currentState = "request_received"
@@ -145,7 +161,7 @@ const Users: React.FC = () => {
             </IonItem>
             </IonCol>
             <IonCol>
-              <IonButton class="profile-button" disabled={addDisabled} onClick={() => addFriend(hit.objectID)}>
+              <IonButton class="profile-button" disabled={addDisabled} onClick={() => addFriend(hit.name, hit.objectID)}>
                 <IonIcon slot="icon-only" src="assets/icon/Create.svg" />
               </IonButton>
               <IonButton class="profile-button" disabled={cancelDisabled} onClick={resetButtons}>
