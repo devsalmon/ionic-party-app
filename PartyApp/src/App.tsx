@@ -87,7 +87,7 @@ const SignInGooglepu = async() => {
     var user = result.user;
     const isNewUser = result.additionalUserInfo.isNewUser
     if (isNewUser) {
-      firebase.firestore().collection('users').add({
+      firebase.firestore().collection('users').doc(user.uid).set({
       name: user.displayName,
       photoUrl: user.photoURL
       })       
