@@ -13,10 +13,13 @@ import {
 } from 'react-accessible-accordion';
 import { Route, Redirect } from 'react-router-dom';
 import {useDocument, useCollection} from 'react-firebase-hooks/firestore';
+import { RefresherEventDetail } from '@ionic/core';
 import {
   IonApp,
   IonIcon,
   IonLabel,
+  IonRefresher, 
+  IonRefresherContent,
   IonRouterOutlet,
   IonTabBar,
   IonTabButton,
@@ -44,6 +47,7 @@ import {
   home, 
   personAddSharp,   
   cameraSharp,
+  chevronDownCircleOutline,
   cloudUploadSharp,
   chevronBackSharp,  
 } from 'ionicons/icons';
@@ -344,81 +348,111 @@ const Create: React.FC = () => {
   )
 }
 
-const acceptFriend = (objectID) => {
-  const collectionRef = firebase.firestore().collection("friends_requests");
-  console.log("TEST122")
-  var sender_user_id = firebase.auth().currentUser.uid
-  var receiver_user_id = objectID
+// const acceptFriend = (objectID) => {
+//   const collectionRef = firebase.firestore().collection("friends_requests");
+//   console.log("TEST122")
+//   var sender_user_id = firebase.auth().currentUser.uid
+//   var receiver_user_id = objectID
   
-  var date = moment(new Date()).format('LLL')
+//   var date = moment(new Date()).format('LLL')
 
-  //create doc with sender's id and adds receiver's id to collection.
-  collectionRef.doc(sender_user_id).collection(receiver_user_id).add(
-    {date: date})
+//   //create doc with sender's id and adds receiver's id to collection.
+//   collectionRef.doc(sender_user_id).collection(receiver_user_id).add(
+//     {date: date})
 
-    //if successful
-    .then(function(docRef) {
-      //console.log("Document written with ID: ", docRef.id);
-      //if successful, create doc w receiver's id and add sender's id to collection
-      collectionRef.doc(receiver_user_id).collection(sender_user_id).add(
+//     //if successful
+//     .then(function(docRef) {
+//       //console.log("Document written with ID: ", docRef.id);
+//       //if successful, create doc w receiver's id and add sender's id to collection
+//       collectionRef.doc(receiver_user_id).collection(sender_user_id).add(
 
-        {date: date})
+//         {date: date})
         
-        //if successful
-        .then(function(docRef) {
-          //currentState = "request_received"
-          //setaddBtnDisabled(true); //disables add friend button
-          //setcancBtnDisabled(false); //enalbes cancel request button
-        })
+//         //if successful
+//         .then(function(docRef) {
+//           //currentState = "request_received"
+//           //setaddBtnDisabled(true); //disables add friend button
+//           //setcancBtnDisabled(false); //enalbes cancel request button
+//         })
 
-        //if unsuccessful
-        .catch(function(error) {
-          console.error("Error adding document: ", error);
-      }); 
-    })
+//         //if unsuccessful
+//         .catch(function(error) {
+//           console.error("Error adding document: ", error);
+//       }); 
+//     })
 
-  //if unsuccessful
-  .catch(function(error) {
-      console.error("Error adding document: ", error);
+//   //if unsuccessful
+//   .catch(function(error) {
+//       console.error("Error adding document: ", error);
+//   });
+
+// }
+
+const Request = ({id}) => {
+
+  const [name, setName] = useState('');
+
+  const userRef = firebase.firestore().collection("users").doc(id);
+  userRef.get().then(function(doc) {
+    if (doc.exists) {
+      setName(doc.data().name)
+    } 
+  }).catch(function(error) {
+    console.log(error);
   });
 
+  return(
+    <IonItem>
+      <IonText>{name} wants to be friends</IonText>
+      <IonButton>Accept</IonButton>
+    </IonItem>
+  )
 }
 
-/* const FriendRequests = () => {
+const FriendRequests = () => {
 
-  const collectionRef = firebase.firestore().collection("friend_requests");
-  console.log("TEST121")
-  var sender_user_id = firebase.auth().currentUser.uid
-  //var receiver_user_id = objectID
-  
-//collection(receiver_user_id)
-  collectionRef.doc(firebase.auth().currentUser.uid).onSnapshot(function(doc) {
-    doc.docChanges().forEach(function(change) {
-      if (change.doc.data().request_status = "received") {
-        console.log("RECEIVED")
-        // if on receiver's account, return list of friend requests
-        let userRef = firebase.firestore().collection("users").doc(receiver_user_id);
-        // get document of user who sent the request 
-        console.log("Current data: ", change.doc.data());
+  const collectionRef = firebase.firestore().collection("friend_requests");   
+  const requests_list = [];
 
-        userRef.get().then(function(doc) {
-          return (
-            <IonItem key={doc.id}>
-              <IonText>{doc.data().name} wants to be friends</IonText>
-              <IonButton slot="end" onClick={() => acceptFriend(doc.id)}>
-                Accept
-              </IonButton>
-            </IonItem>
-          )  
-        })              
-      }
-    })
-  });   
+  function doRefresh(event: CustomEvent<RefresherEventDetail>) {
+    console.log('Begin async operation');
+
+    setTimeout(() => {
+      console.log('Async operation has ended');
+      event.detail.complete();
+    }, 2000);
   }    
 
-  return(null
+  collectionRef.where("id", "==", firebase.auth().currentUser.uid).onSnapshot(function(snap) {
+    snap.docChanges().forEach(function(change) {
+      if (change.type === "added") {
+        requests_list.push(change.doc.data()) // new request
+        console.log(change.doc.data())
+      } 
+      if (change.type === "removed") {
+        requests_list.splice(requests_list.indexOf(change.doc.data()), 1)
+      }
+    })
+    //console.log(requests_list)      
+  });       
+
+  return(
+    <IonContent>
+    <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
+      <IonRefresherContent
+        pullingIcon={chevronDownCircleOutline}
+        refreshingSpinner="circles">
+      </IonRefresherContent>
+    </IonRefresher>        
+    <IonList>    
+    {requests_list.map(req => {
+      return(<Request id={req} key={requests_list.indexOf(req)} />)   
+      console.log(req)       
+    })} 
+    </IonList>
+    </IonContent>
   )
-} */
+}
 
 
 const Memories: React.FC = () => {
@@ -431,6 +465,7 @@ const Memories: React.FC = () => {
   )
 }
 const Home: React.FC = () => {
+
   return(
     <IonPage>
       <IonToolbar>
@@ -446,7 +481,7 @@ const Home: React.FC = () => {
           </IonButton>         
         </IonButtons>                        
       </IonToolbar>
-      {/* {<FriendRequests/>} */}
+      <FriendRequests/>
       <PartyList/>
       <br/> <br/> <br/> <br/> <br/> <br/>
     </IonPage>

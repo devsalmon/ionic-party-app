@@ -95,7 +95,7 @@ const Users: React.FC = () => {
             })      
           });
         } else {
-          collectionRef.doc(sender_user_id).set({request_to: [receiver_user_id]}) // create the document
+          collectionRef.doc(sender_user_id).set({id: sender_user_id, request_to: [receiver_user_id]}) // create the document
         }
     })
         //console.log("Document written with ID: ", docRef.id);
@@ -110,7 +110,7 @@ const Users: React.FC = () => {
               })      
             });
           } else {
-            collectionRef.doc(receiver_user_id).set({request_from: [sender_user_id]}) // create the document
+            collectionRef.doc(receiver_user_id).set({id: receiver_user_id, request_from: [sender_user_id]}) // create the document
           }
       })        
           //if successful

@@ -196,6 +196,11 @@ ion-picker {
     size: 10px;
 }
 
+ion-refresher-content {
+    color: white;
+    --color: white
+}
+
 ion-slides {
     height: 100%;    
 }
