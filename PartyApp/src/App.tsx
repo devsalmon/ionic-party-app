@@ -196,12 +196,12 @@ const MemoryList = () => {
           <IonTitle>Memories</IonTitle>
         </IonToolbar>
         <IonContent>
-        <IonText>Your parties</IonText>
+        <IonText class="ion-padding-start">Your parties</IonText>
         {yourparties.map(doc => {
           return(<Memory doc={doc} key={doc.id} click={() => enter(doc.id)}/>)          
         })}
         {yourparties.length > 0 ? <IonText> <br/> </IonText> : <IonText class="white-text"><br/><br/>No hosted parties... <br/><br/></IonText>}
-        <IonText>Parties attended</IonText>
+        <IonText class="ion-padding-start">Parties attended</IonText>
         {otherparties.map(doc => {
           return(<Memory doc={doc} key={doc.id} click={() => enter(doc.id)}/>)          
         })}        

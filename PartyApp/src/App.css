@@ -212,8 +212,8 @@ ion-slide {
 ion-tab-button {
     --background: transparent;
     --color: black;
-    --color-focused: white;
-    --color-selected: white;
+    --color-focused: red;
+    --color-selected: red;
     font-weight: bold;
     text-align: center    
 }
