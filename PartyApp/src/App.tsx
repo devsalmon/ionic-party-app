@@ -409,13 +409,30 @@ const Request = ({id}) => {
   )
 }
 
+//This just handles the requests once they have been made.
 const FriendRequests = () => {
 
   const collectionRef = firebase.firestore().collection("friend_requests");   
   const requests_list = [];
 
+  //On refresh...
   function doRefresh(event: CustomEvent<RefresherEventDetail>) {
     console.log('Begin async operation');
+
+    //get current user
+    var current_user = firebase.auth().currentUser.uid
+
+    //Inside friend_requests, inside current user's doc. HERE
+    collectionRef.doc(current_user).get().then(function(doc) {
+      if (doc.exists) {
+          console.log("req - Document data:", doc.data().request_from);
+      } else {
+          // doc.data() will be undefined in this case
+          console.log("No such document!");
+      }
+  }).catch(function(error) {
+      console.log("Error getting document:", error);
+  });
 
     setTimeout(() => {
       console.log('Async operation has ended');
@@ -423,18 +440,18 @@ const FriendRequests = () => {
     }, 2000);
   }    
 
-  collectionRef.where("id", "==", firebase.auth().currentUser.uid).onSnapshot(function(snap) {
-    snap.docChanges().forEach(function(change) {
-      if (change.type === "added") {
-        requests_list.push(change.doc.data()) // new request
-        console.log(change.doc.data())
-      } 
-      if (change.type === "removed") {
-        requests_list.splice(requests_list.indexOf(change.doc.data()), 1)
-      }
-    })
+  //collectionRef.where("id", "==", firebase.auth().currentUser.uid).onSnapshot(function(snap) {
+    //snap.docChanges().forEach(function(change) {
+      //if (change.type === "added") {
+        //requests_list.push(change.doc.data()) // new request
+        //console.log(change.doc.data())
+      //} 
+      //if (change.type === "removed") {
+        //requests_list.splice(requests_list.indexOf(change.doc.data()), 1)
+      //}
+    //})
     //console.log(requests_list)      
-  });       
+  //});       
 
   return(
     <IonContent>
