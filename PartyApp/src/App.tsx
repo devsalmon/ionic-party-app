@@ -389,13 +389,13 @@ const Create: React.FC = () => {
 // }
 
 const Request = ({id}) => {
+  // notification item
+  const [name, setName] = useState(''); // name of person who requested
 
-  const [name, setName] = useState('');
-
-  const userRef = firebase.firestore().collection("users").doc(id);
+  const userRef = firebase.firestore().collection("users").doc(id); // get document of person who requested
   userRef.get().then(function(doc) {
-    if (doc.exists) {
-      setName(doc.data().name)
+    if (doc.exists) { 
+      setName(doc.data().name) // set name to the name in that document
     } 
   }).catch(function(error) {
     console.log(error);
@@ -413,7 +413,22 @@ const Request = ({id}) => {
 const FriendRequests = () => {
 
   const collectionRef = firebase.firestore().collection("friend_requests");   
-  const requests_list = [];
+  const [reqs, setReqs] = useState([]);
+
+  //get current user
+  var current_user = firebase.auth().currentUser.uid
+
+  //Inside friend_requests, inside current user's doc. HERE
+  collectionRef.doc(current_user).onSnapshot(function(doc) {
+    if (doc.exists) {
+        console.log("req - Document data:", doc.data().request_from[0]);
+        setReqs(doc.data().request_from[0])
+        console.log(reqs)
+    } else {
+        // doc.data() will be undefined in this case
+        console.log("No such document!");
+    }
+  })
 
   //On refresh...
   function doRefresh(event: CustomEvent<RefresherEventDetail>) {
@@ -425,7 +440,10 @@ const FriendRequests = () => {
     //Inside friend_requests, inside current user's doc. HERE
     collectionRef.doc(current_user).get().then(function(doc) {
       if (doc.exists) {
-          console.log("req - Document data:", doc.data().request_from);
+          var req_id = doc.data().request_from[0]
+          console.log("req - Document data:", req_id);
+          setReqs(req_id)
+          console.log(reqs)
       } else {
           // doc.data() will be undefined in this case
           console.log("No such document!");
@@ -440,19 +458,6 @@ const FriendRequests = () => {
     }, 2000);
   }    
 
-  //collectionRef.where("id", "==", firebase.auth().currentUser.uid).onSnapshot(function(snap) {
-    //snap.docChanges().forEach(function(change) {
-      //if (change.type === "added") {
-        //requests_list.push(change.doc.data()) // new request
-        //console.log(change.doc.data())
-      //} 
-      //if (change.type === "removed") {
-        //requests_list.splice(requests_list.indexOf(change.doc.data()), 1)
-      //}
-    //})
-    //console.log(requests_list)      
-  //});       
-
   return(
     <IonContent>
     <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
@@ -462,10 +467,11 @@ const FriendRequests = () => {
       </IonRefresherContent>
     </IonRefresher>        
     <IonList>    
-    {requests_list.map(req => {
-      return(<Request id={req} key={requests_list.indexOf(req)} />)   
-      console.log(req)       
-    })} 
+      {reqs && reqs.map(req => { // loop through requests_list and make notification for each request
+        console.log(reqs)
+        console.log(req)
+        return(<Request id={req} key={reqs.indexOf(req)} />)          
+      })} 
     </IonList>
     </IonContent>
   )
