@@ -424,13 +424,14 @@ const FriendRequests: React.FC = () => {
     collectionRef.doc(current_user).get().then(function(doc) {
       console.log("req - Document data:", doc.data().request_from);
       var i;           
-      for (i = 0; i = doc.data().request_from.length-1; i++) {
+      for (i = 0; i > doc.data().request_from.length; i++) {
       var curr_id = doc.data().request_from[i]
+      console.log(i)
       req_list.push(curr_id)
       // Remove ID from the document
-      var removeID = collectionRef.doc(current_user).update({
-          request_from: firebase.firestore.FieldValue.arrayRemove(curr_id)
-      });        
+      // var removeID = collectionRef.doc(current_user).update({
+      //     request_from: firebase.firestore.FieldValue.arrayRemove(curr_id)
+      // });        
       console.log(req_list)
       };    
       console.log("No such document!");
@@ -455,6 +456,8 @@ const FriendRequests: React.FC = () => {
   //   console.log("No such document!");
   //   })
 
+  const notifications = req_list.map(req => <Request id={req} key={req_list.indexOf(req)} />)
+
    return(
     <IonContent>
     <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
@@ -464,6 +467,7 @@ const FriendRequests: React.FC = () => {
       </IonRefresherContent>
     </IonRefresher>        
     <IonList>    
+    {notifications}
     </IonList>
     </IonContent>
   )
