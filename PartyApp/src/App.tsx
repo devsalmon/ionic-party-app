@@ -410,55 +410,52 @@ const Request = ({id}) => {
 }
 
 //This just handles the requests once they have been made.
-const FriendRequests = () => {
+const FriendRequests: React.FC = () => {
 
-  const collectionRef = firebase.firestore().collection("friend_requests");   
-  const [reqs, setReqs] = useState([]);
-
-  //get current user
-  var current_user = firebase.auth().currentUser.uid
-
-  //Inside friend_requests, inside current user's doc. HERE
-  collectionRef.doc(current_user).onSnapshot(function(doc) {
-    if (doc.exists) {
-        console.log("req - Document data:", doc.data().request_from[0]);
-        setReqs(doc.data().request_from[0])
-        console.log(reqs)
-    } else {
-        // doc.data() will be undefined in this case
-        console.log("No such document!");
-    }
-  })
+  const collectionRef = firebase.firestore().collection("friend_requests"); 
+  var req_list = []; 
 
   //On refresh...
   function doRefresh(event: CustomEvent<RefresherEventDetail>) {
-    console.log('Begin async operation');
-
-    //get current user
-    var current_user = firebase.auth().currentUser.uid
+      //get current user
+    var current_user = firebase.auth().currentUser.uid;    
 
     //Inside friend_requests, inside current user's doc. HERE
     collectionRef.doc(current_user).get().then(function(doc) {
-      if (doc.exists) {
-          var req_id = doc.data().request_from[0]
-          console.log("req - Document data:", req_id);
-          setReqs(req_id)
-          console.log(reqs)
-      } else {
-          // doc.data() will be undefined in this case
-          console.log("No such document!");
-      }
-  }).catch(function(error) {
-      console.log("Error getting document:", error);
-  });
+      console.log("req - Document data:", doc.data().request_from);
+      var i;           
+      for (i = 0; i = doc.data().request_from.length-1; i++) {
+      var curr_id = doc.data().request_from[i]
+      req_list.push(curr_id)
+      // Remove ID from the document
+      var removeID = collectionRef.doc(current_user).update({
+          request_from: firebase.firestore.FieldValue.arrayRemove(curr_id)
+      });        
+      console.log(req_list)
+      };    
+      console.log("No such document!");
+    }).catch(function(error) {
+        console.log("Error getting document:", error);
+    });
 
     setTimeout(() => {
-      console.log('Async operation has ended');
       event.detail.complete();
     }, 2000);
   }    
 
-  return(
+  // var current_user = firebase.auth().currentUser.uid; 
+  // collectionRef.doc(current_user).onSnapshot(function(doc) {
+  //   console.log("req - Document data:", doc.data().request_from);
+  //   var i;           
+  //   for (i = 0; i = doc.data().request_from.length-1; i++) {
+  //     req_list.push(doc.data().request_from[i])
+  //     console.log(req_list)
+  //   };      
+  //   // doc.data() will be undefined in this case
+  //   console.log("No such document!");
+  //   })
+
+   return(
     <IonContent>
     <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
       <IonRefresherContent
@@ -467,11 +464,6 @@ const FriendRequests = () => {
       </IonRefresherContent>
     </IonRefresher>        
     <IonList>    
-      {reqs && reqs.map(req => { // loop through requests_list and make notification for each request
-        console.log(reqs)
-        console.log(req)
-        return(<Request id={req} key={reqs.indexOf(req)} />)          
-      })} 
     </IonList>
     </IonContent>
   )

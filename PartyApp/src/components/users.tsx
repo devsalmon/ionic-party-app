@@ -68,6 +68,7 @@ const Users: React.FC = () => {
   async function search(query) {
     const result = await index.search(query);
     setHits(result.hits);
+    console.log(hits)
     setQuery(query)    
   }
 //  basically if in friend_requests, if under ur id, u have another persons id 
