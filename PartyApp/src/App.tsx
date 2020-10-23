@@ -413,7 +413,7 @@ const Request = ({id}) => {
 const FriendRequests: React.FC = () => {
 
   const collectionRef = firebase.firestore().collection("friend_requests"); 
-  var req_list = []; 
+  const [reqs, setReqs] = useState([]); 
 
   //On refresh...
   function doRefresh(event: CustomEvent<RefresherEventDetail>) {
@@ -421,20 +421,28 @@ const FriendRequests: React.FC = () => {
     var current_user = firebase.auth().currentUser.uid;    
 
     //Inside friend_requests, inside current user's doc. HERE
-    collectionRef.doc(current_user).get().then(function(doc) {
+    collectionRef.doc(current_user).get().then(function(doc) {          
       console.log("req - Document data:", doc.data().request_from);
       var i;           
-      for (i = 0; i > doc.data().request_from.length; i++) {
-      var curr_id = doc.data().request_from[i]
-      console.log(i)
-      req_list.push(curr_id)
-      // Remove ID from the document
-      // var removeID = collectionRef.doc(current_user).update({
-      //     request_from: firebase.firestore.FieldValue.arrayRemove(curr_id)
-      // });        
-      console.log(req_list)
-      };    
-      console.log("No such document!");
+      for (i = 0; i < doc.data().request_from.length; i++) {
+        var curr_id = doc.data().request_from[i]
+        console.log(i, curr_id)
+        if (reqs.includes(curr_id)) {} else {    
+          setReqs(reqs => [
+            ...reqs, 
+            {
+              id: curr_id, 
+              name: curr_id
+            }
+          ]);    
+          console.log(reqs)
+        }
+        // Remove ID from the document
+        // var removeID = collectionRef.doc(current_user).update({
+        //     request_from: firebase.firestore.FieldValue.arrayRemove(curr_id)
+        // });        
+      };
+      console.log(reqs)
     }).catch(function(error) {
         console.log("Error getting document:", error);
     });
@@ -444,20 +452,6 @@ const FriendRequests: React.FC = () => {
     }, 2000);
   }    
 
-  // var current_user = firebase.auth().currentUser.uid; 
-  // collectionRef.doc(current_user).onSnapshot(function(doc) {
-  //   console.log("req - Document data:", doc.data().request_from);
-  //   var i;           
-  //   for (i = 0; i = doc.data().request_from.length-1; i++) {
-  //     req_list.push(doc.data().request_from[i])
-  //     console.log(req_list)
-  //   };      
-  //   // doc.data() will be undefined in this case
-  //   console.log("No such document!");
-  //   })
-
-  const notifications = req_list.map(req => <Request id={req} key={req_list.indexOf(req)} />)
-
    return(
     <IonContent>
     <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
@@ -465,11 +459,11 @@ const FriendRequests: React.FC = () => {
         pullingIcon={chevronDownCircleOutline}
         refreshingSpinner="circles">
       </IonRefresherContent>
-    </IonRefresher>        
-    <IonList>    
-    {notifications}
-    </IonList>
-    </IonContent>
+    </IonRefresher>
+    {reqs && reqs.map(req => 
+        (<Request id={req.name} key={req.id}/>)
+    )}
+    </IonContent>    
   )
 }
 
