@@ -401,10 +401,85 @@ const Request = ({id}) => {
     console.log(error);
   });
 
+  //handles accepting friend requests
+  const acceptFriend = (friendsID) => {
+    
+    const collectionRef = firebase.firestore().collection("friends"); 
+    //const [Friends, setFriends] = useState([]); 
+    
+    //var currentState = "not_friends"
+    //var disabledState = false
+    var friend_user_id = friendsID
+    var current_user_id = firebase.auth().currentUser.uid
+    //console.log(receiver_user_id)
+
+    //create doc with users's id if it doesn't already exist and adds friend's id to field.
+    collectionRef.doc(current_user_id).get()
+      .then((docSnapshot) => {
+        //if the doc exists...
+        if (docSnapshot.exists) {
+          collectionRef.doc(current_user_id).onSnapshot((doc) => {
+            collectionRef.doc(current_user_id).update({
+              //...add friend's UID to array
+              friends: firebase.firestore.FieldValue.arrayUnion(friend_user_id)
+            })      
+          });
+        } else {
+          // if not, create the array
+          collectionRef.doc(current_user_id).set({id: current_user_id, friends: [friend_user_id]}) // create the document
+        }
+    })
+        //console.log("Document written with ID: ", docRef.id);
+        //if successful, create doc w friend's id and add user's id to the other person's friends array
+      .then(function(docRef) {
+      collectionRef.doc(friend_user_id).get()
+        .then((docSnapshot) => {
+          if (docSnapshot.exists) {
+            collectionRef.doc(friend_user_id).onSnapshot((doc) => {
+              collectionRef.doc(friend_user_id).update({
+                friends: firebase.firestore.FieldValue.arrayUnion(current_user_id)
+              })      
+            });
+          } else {
+            collectionRef.doc(friend_user_id).set({id: friend_user_id, friends: [current_user_id]}) // create the document
+          }
+      })        
+          //if successful
+          .then(function(docRef) {
+            //HERE IS WHERE YOU SHOULD REMOVE REQUEST from friends_requests collection
+            firebase.firestore().collection("friend_requests").doc(friend_user_id).update({
+              request_to: firebase.firestore.FieldValue.arrayRemove(current_user_id)
+            })
+                // if requests_to item is removed successfully... then remove item from request_from array
+                .then(function(docRef) {
+                firebase.firestore().collection("friend_requests").doc(current_user_id).update({
+                  request_from: firebase.firestore.FieldValue.arrayRemove(friend_user_id)
+                });
+            
+                }).catch(function(error) {
+                console.error("Error deleting id from requests_from: ", error);
+                }); 
+            //setAddDisabled(true); //disables add friend button
+            //setCancelDisabled(false); //enalbes cancel request button
+          })
+
+          //if unsuccessful
+          .catch(function(error) {
+            console.error("Error adding document: ", error);
+        }); 
+      })
+
+    //if unsuccessful
+    .catch(function(error) {
+        console.error("Error adding document: ", error);
+    });
+
+  }
+
   return(
     <IonItem>
       <IonText>{name} wants to be friends</IonText>
-      <IonButton>Accept</IonButton>
+      <IonButton onClick={() => acceptFriend(id)}>Accept</IonButton>
     </IonItem>
   )
 }
