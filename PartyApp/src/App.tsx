@@ -423,11 +423,14 @@ const FriendRequests: React.FC = () => {
     //Inside friend_requests, inside current user's doc. HERE
     collectionRef.doc(current_user).get().then(function(doc) {          
       console.log("req - Document data:", doc.data().request_from);
-      var i;           
+      var i; // define counter for the for loop     
       for (i = 0; i < doc.data().request_from.length; i++) {
         var curr_id = doc.data().request_from[i]
+        // set curr_id to the current id in the request_from list
         console.log(i, curr_id)
-        if (reqs.includes(curr_id)) {} else {    
+        // if the current id (i.e. request from) is already in the state, don't do anything
+        if (reqs.includes(curr_id)) {} else {  
+          // otherwise, add it to the state   
           setReqs(reqs => [
             ...reqs, 
             {
