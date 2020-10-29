@@ -139,14 +139,14 @@ const Users: React.FC = () => {
     setCancelDisabled(true); //enalbes cancel request button
   }
 
-  if (hits && query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) == true) { // return nothing if query is empty, just white spaces, or not letters
+    // return nothing if query is empty, just white spaces, or not letters
     return(
       <IonPage>
         <IonToolbar>
           <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)}></IonSearchbar>
         </IonToolbar>
         <IonContent>    
-            {hits.map(hit => 
+            {hits && query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map(hit => 
             <>
             <IonRow>
             <IonCol size="9">
@@ -175,16 +175,5 @@ const Users: React.FC = () => {
       </IonPage>    
     )
   } 
-  else {
-    return(
-      <IonPage>
-        <IonToolbar>   
-          <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)}></IonSearchbar>
-        </IonToolbar>
-        <IonContent>
-
-        </IonContent>
-      </IonPage>
-    )}}
 
 export default Users;

@@ -46,11 +46,12 @@ const CreateParty = ({initialValue, clear}) => {
     useEffect(() => {  
     },
     []);
-    const [title, setTitle] = useState<string>('')
-    const [location, setLocation] = useState<string>('')
-    const [details, setDetails] = useState<string>('')
-    const [endTime, setEndTime] = useState<string>('')
-    const [dateTime, setDateTime] = useState<string>('')  
+    const [invitedPeople, setInvitedPeople] = useState([]); // array of invited people
+    const [title, setTitle] = useState<string>('');
+    const [location, setLocation] = useState<string>('');
+    const [details, setDetails] = useState<string>('');
+    const [endTime, setEndTime] = useState<string>('');
+    const [dateTime, setDateTime] = useState<string>('');  
     const [showModal, setShowModal] = useState(false);
     const [checked, setChecked] = useState(false);
     const [showToast, setShowToast] = useState(false);
@@ -89,6 +90,8 @@ const CreateParty = ({initialValue, clear}) => {
             endTime: moment(endTime).format('LLL'),
             dateTime: moment(dateTime).format('LLL'),
             host: firebase.auth().currentUser.displayName,
+            invited_people: invitedPeople, 
+            // use state for invited people - when checkbox clicked in invite people add that id to the state array
             createdOn: moment(new Date()).format('LL'), 
             });
             //clear fields
@@ -101,6 +104,18 @@ const CreateParty = ({initialValue, clear}) => {
       } 
     
     } 
+
+
+    const addInvite = (id, name) => {
+      setInvitedPeople(invitedPeople => [
+            ...invitedPeople, 
+            {              
+              name: name,
+              id: id
+            }
+          ]);
+    }
+
     return(
       <IonContent class="create-content">
         <IonToolbar color="warning">
@@ -136,18 +151,16 @@ const CreateParty = ({initialValue, clear}) => {
             <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)}></IonSearchbar>                            
           </IonToolbar>
         </IonHeader>
-        <IonContent>
-          <IonList>
-            {hits.map(hit => (
-              <IonItem key={hit.objectID}>
+        <IonContent class="create-content">
+            {query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map(hit => (
+              <IonItem class="create-input" lines="none" key={hit.objectID}>
                 <IonLabel>{hit.name}</IonLabel>
-                <IonCheckbox slot="end" color="danger" value={hit.name} checked={checked} />
+                <IonCheckbox slot="end" color="danger" value={hit.name} checked={checked} onIonChange={() => addInvite(hit.objectID, hit.name)} />
               </IonItem>
             ))}
             <div className="ion-text-center">
               <IonButton class="custom-button" onClick={e => setShowModal(false)}>Done</IonButton>
-            </div>
-          </IonList>        
+            </div> 
         </IonContent>
       </IonModal>
       <IonToast
