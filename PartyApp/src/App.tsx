@@ -309,52 +309,47 @@ const PartyList = () => {
 
   var current_user = firebase.auth().currentUser.uid;
   firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {
-    var my_parties = doc.data().myParties;
-    my_parties.map(party => {
+    console.log(doc.data().myParties);
+    var i; // define counter for the for loop     
+    for (i = 0; i < doc.data().myParties.length; i++) {
+      var curr_id = doc.data().myParties[i]  
       setParties([
         ...parties,
         {
-          id: party
+          id: curr_id
         }
       ])
-    })
-    console.log(parties);
+    }
   })
+  console.log(parties);
 
-    const today = new Date()
-    return(
-      <IonContent>
-        <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>   
-        {parties && parties.map(party_id => {
-          firebase.firestore().collection("parties").doc(party_id).get().then(
-            // 
-          )
-          
+  const today = new Date()
+
+  return(
+    <IonContent>
+      <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>   
+      {parties && parties.map(party_id => {
+        firebase.firestore().collection("parties").doc(party_id.id).get().then(function(doc) {
+          let data = doc.data()
           // if the party is now, display in live parties with camera function
-          let data = curr_party.data()
           if (moment(today).isBetween(data.dateTime, data.endTime)) {
-            return(
-              !loading && (              
+            return(          
                 <>
                 <IonTitle color="danger">LIVE!</IonTitle>              
-                <Party doc={curr_party} key={curr_party.id + "live"} live={true} classname="live-item"/>              
+                <Party doc={doc} key={doc.id + "live"} live={true} classname="live-item"/>              
                 <br/>
                 </>
-              )
-            )      
+              )                    
           } if (moment(data.dateTime).isAfter(today)) {
-              return(
-                !loading && (   
-                  <Party doc={curr_party} key={curr_party.id} live={false} classname="accordion-item"/>
-                )
-              )   
+              return( 
+                  <Party doc={doc} key={doc.id} live={false} classname="accordion-item"/>
+                )                
           } else {return null}
-        
+        })        
       })}
       </Accordion>      
     </IonContent>      
     )
-
 }
 const Create: React.FC = () => {
   
