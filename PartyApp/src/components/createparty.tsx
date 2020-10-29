@@ -53,7 +53,6 @@ const CreateParty = ({initialValue, clear}) => {
     const [endTime, setEndTime] = useState<string>('');
     const [dateTime, setDateTime] = useState<string>('');  
     const [showModal, setShowModal] = useState(false);
-    const [checked, setChecked] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
     const [value, loading, error] = useDocument(
@@ -90,10 +89,20 @@ const CreateParty = ({initialValue, clear}) => {
             endTime: moment(endTime).format('LLL'),
             dateTime: moment(dateTime).format('LLL'),
             host: firebase.auth().currentUser.displayName,
-            invited_people: invitedPeople, 
+            invited_people: invitedPeople,             
             // use state for invited people - when checkbox clicked in invite people add that id to the state array
             createdOn: moment(new Date()).format('LL'), 
-            });
+            }).then(function(docRef) {
+              console.log(docRef.id)
+              invitedPeople && invitedPeople.map(person => {
+                firebase.firestore().collection("users").doc(person.id).update({
+                  // add party id to user documents
+                  myParties: firebase.firestore.FieldValue.arrayUnion(docRef.id)
+                }).catch(function(error) {
+                  console.error("error adding party id to user document", error);
+                })           
+              })              
+            })
             //clear fields
             setTitle("");
             setLocation("");
@@ -155,7 +164,7 @@ const CreateParty = ({initialValue, clear}) => {
             {query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map(hit => (
               <IonItem class="create-input" lines="none" key={hit.objectID}>
                 <IonLabel>{hit.name}</IonLabel>
-                <IonCheckbox slot="end" color="danger" value={hit.name} checked={checked} onIonChange={() => addInvite(hit.objectID, hit.name)} />
+                <IonButton slot="end" color="danger" onClick={() => addInvite(hit.objectID, hit.name)}>Invite</IonButton>
               </IonItem>
             ))}
             <div className="ion-text-center">
