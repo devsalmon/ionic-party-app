@@ -305,8 +305,11 @@ const Party = ({doc, live, classname}) => {
 }
 const PartyList = () => {
 
+  var current_user = firebase.auth().currentUser.uid;
+  var parties = firebase.firestore().collection("users").doc(current_user);
+
   const [value, loading, error] = useCollection(
-    firebase.firestore().collection("parties").orderBy("dateTime", "asc"), //order by parties closest to today's date 
+    firebase.firestore().collection("parties").doc(party_id).orderBy("dateTime", "asc"), //order by parties closest to today's date 
   );
 
   const today = new Date()
