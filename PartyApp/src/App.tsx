@@ -305,32 +305,46 @@ const Party = ({doc, live, classname}) => {
 }
 const PartyList = () => {
 
-  const [parties, setParties] = useState([]);
+  const [parties, setParties] = useState([]);  
 
-  var current_user = firebase.auth().currentUser.uid;
-  firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {
-    console.log(doc.data().myParties);
-    var i; // define counter for the for loop     
-    for (i = 0; i < doc.data().myParties.length; i++) {
-      var curr_id = doc.data().myParties[i]  
-      setParties([
-        ...parties,
-        {
-          id: curr_id
-        }
-      ])
-    }
-  })
-  console.log(parties);
+  useEffect(() => {  
+    // useeffect hook only runs after first render so it only runs once
+    displayParties();
+    // this means display parties only runs once
+  },
+  []);  
 
-  const today = new Date()
+  const displayParties = () => {
+    // get current user 
+    var current_user = firebase.auth().currentUser.uid;
+    // get the document of the current user from firestore users collection
+    firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {
+      console.log(doc.data().myParties);  
+      var i; // define counter for the for loop   
+      // loop through all parties in the user's document  
+      for (i = 0; i < doc.data().myParties.length; i++) {              
+        var curr_id = doc.data().myParties[i]  
+        // setstate to contian all the parties from the user's document
+        setParties([
+          ...parties,
+          {
+            id: curr_id
+          }
+        ]);
+      }
+    })        
+  }
+
 
   return(
     <IonContent>
       <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>   
       {parties && parties.map(party_id => {
+        // get the parties of the current user from parties collection
         firebase.firestore().collection("parties").doc(party_id.id).get().then(function(doc) {
-          let data = doc.data()
+          let data = doc.data();      
+          console.log(doc.id);    
+          const today = new Date();        
           // if the party is now, display in live parties with camera function
           if (moment(today).isBetween(data.dateTime, data.endTime)) {
             return(          
@@ -340,11 +354,12 @@ const PartyList = () => {
                 <br/>
                 </>
               )                    
-          } if (moment(data.dateTime).isAfter(today)) {
+          } // if party is after today display it on the home page 
+          if (moment(data.dateTime).isAfter(today)) {
               return( 
                   <Party doc={doc} key={doc.id} live={false} classname="accordion-item"/>
                 )                
-          } else {return null}
+          }
         })        
       })}
       </Accordion>      

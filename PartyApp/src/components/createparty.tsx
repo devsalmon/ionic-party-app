@@ -46,6 +46,7 @@ const CreateParty = ({initialValue, clear}) => {
     useEffect(() => {  
     },
     []);
+    
     const [invitedPeople, setInvitedPeople] = useState([]); // array of invited people
     const [title, setTitle] = useState<string>('');
     const [location, setLocation] = useState<string>('');
@@ -117,12 +118,12 @@ const CreateParty = ({initialValue, clear}) => {
 
     const addInvite = (id, name) => {
       setInvitedPeople(invitedPeople => [
-            ...invitedPeople, 
-            {              
-              name: name,
-              id: id
-            }
-          ]);
+        ...invitedPeople, 
+        {              
+          name: name,
+          id: id
+        }
+      ]);
     }
 
     return(
