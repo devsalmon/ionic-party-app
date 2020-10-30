@@ -324,13 +324,19 @@ const PartyList = () => {
       // loop through all parties in the user's document  
       for (i = 0; i < doc.data().myParties.length; i++) {              
         var curr_id = doc.data().myParties[i]  
-        // setstate to contian all the parties from the user's document
-        setParties([
-          ...parties,
-          {
-            id: curr_id
-          }
-        ]);
+        firebase.firestore().collection("parties").doc(curr_id).get().then(function(doc) {
+          let data = doc.data(); 
+          // setstate to contian all the parties from the user's document
+          setParties([
+            ...parties,
+            {
+              id: curr_id,
+              doc: doc,
+              dateTime: data.dateTime,
+              endTime: data.endTime
+            }
+          ]);
+        })
       }
     })        
   }
@@ -340,30 +346,28 @@ const PartyList = () => {
     <IonContent>
       <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>   
       {parties && parties.map(party_id => {
-        // get the parties of the current user from parties collection
-        firebase.firestore().collection("parties").doc(party_id.id).get().then(function(doc) {
-          let data = doc.data();      
-          console.log(doc.id);    
-          const today = new Date();        
+          const today = new Date();      
+          console.log(parties);  
           // if the party is now, display in live parties with camera function
-          if (moment(today).isBetween(data.dateTime, data.endTime)) {
+          if (moment(today).isBetween(party_id.dateTime, party_id.endTime)) {
             return(          
                 <>
                 <IonTitle color="danger">LIVE!</IonTitle>              
-                <Party doc={doc} key={doc.id + "live"} live={true} classname="live-item"/>              
+                <Party doc={party_id.doc} key={party_id.id + "live"} live={true} classname="live-item"/>              
                 <br/>
                 </>
-              )                    
+              );                    
           } // if party is after today display it on the home page 
-          if (moment(data.dateTime).isAfter(today)) {
-              return( 
-                  <Party doc={doc} key={doc.id} live={false} classname="accordion-item"/>
-                )                
-          }
-        })        
+          if (moment(party_id.dateTime).isAfter(today)) {
+            return( 
+              <>
+              <Party key={party_id.id} doc={party_id.doc} live={false} classname="accordion-item"/>
+              </>
+            );                
+          }        
       })}
-      </Accordion>      
-    </IonContent>      
+      </Accordion> 
+    </IonContent>   
     )
 }
 const Create: React.FC = () => {
