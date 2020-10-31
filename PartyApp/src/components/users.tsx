@@ -78,6 +78,10 @@ const Users: React.FC = () => {
 //  request, I think we need to use an onSnapshot function which would be always
 //  listening for a new entry in friend requests under ur id i think. If you get
 //  that working u can attach the accept request function to the accept button.
+
+// when current user searches for friend, create doc in friend requests with sender's id (current user's id),
+// and add the reciever's id to the current user's request to array. Once this is done successfully, create doc with
+// reciever's id and add current user's id (the sender's id) to the request from array. Next see do refresh.
   const addFriend = (name, objectID) => {
     
     //var currentState = "not_friends"

@@ -333,6 +333,10 @@ const Party = ({doc, live, classname}) => {
     </AccordionItem>
   )
 }
+
+// when party is created and invites are sent, each user invited gets the party id added to their document.
+// Each user then checks their document for parties and then if there is a new party id, this is then checked
+// against the same id in the parties collection in order to display all the details.
 const PartyList = () => {
 
   const [parties, setParties] = useState([]);  
@@ -462,7 +466,10 @@ const Request = ({id}) => {
     console.log(error);
   });
 
-  //handles accepting friend requests
+  // change this to appear in users.
+  //if accept is clicked, inside friends collection, create doc with current user's id and add that friend's id
+  //to array. If that works, inside friends collection inside the friend's document, add the current user's id.
+  // If this is successful then remove eachother from requests.
   const acceptFriend = (friendsID) => {
     
     const collectionRef = firebase.firestore().collection("friends"); 
@@ -481,17 +488,17 @@ const Request = ({id}) => {
         if (docSnapshot.exists) {
           collectionRef.doc(current_user_id).onSnapshot((doc) => {
             collectionRef.doc(current_user_id).update({
-              //...add friend's UID to array
+              //...add friend's UID to array inside current users doc
               friends: firebase.firestore.FieldValue.arrayUnion(friend_user_id)
             })      
           });
         } else {
-          // if not, create the array
+          // if array doesn't exist, create the array
           collectionRef.doc(current_user_id).set({id: current_user_id, friends: [friend_user_id]}) // create the document
         }
     })
         //console.log("Document written with ID: ", docRef.id);
-        //if successful, create doc w friend's id and add user's id to the other person's friends array
+        //if successful, create doc w friend's id and add current user's id to the other person's friends array
       .then(function(docRef) {
       collectionRef.doc(friend_user_id).get()
         .then((docSnapshot) => {
@@ -551,7 +558,8 @@ const FriendRequests: React.FC = () => {
   const collectionRef = firebase.firestore().collection("friend_requests"); 
   const [reqs, setReqs] = useState([]); 
 
-  //On refresh...
+  //On refresh check current user's 'request from' array inside friend requests and display their profile. Then see
+  // accept friend.
   function doRefresh(event: CustomEvent<RefresherEventDetail>) {
       //get current user
     var current_user = firebase.auth().currentUser.uid;    
