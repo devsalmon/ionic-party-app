@@ -145,11 +145,16 @@ const SignInGooglepu = async() => {
 
 const MemoryList = () => {
 
+  const [parties, setParties] = useState([]);  
   const [id, setID] = useState<string>('');
   const [inGallery, setInGallery] = useState(false);
-  const [value, loading, error] = useCollection(
-    firebase.firestore().collection("parties").orderBy("date", "asc"), 
-  );
+
+  useEffect(() => {  
+    // useeffect hook only runs after first render so it only runs once
+    displayParties();
+    // this means display parties only runs once
+  },
+  []);  
 
   // if memory card clicked, go to gallery
   const enter = (id) => {
@@ -161,18 +166,44 @@ const MemoryList = () => {
   const yourparties = [];
   const otherparties = [];
 
-  value && value.docs.map(doc => {
+
+  const displayParties = () => {
+    // get current user 
+    var current_user = firebase.auth().currentUser.uid;
+    // get the document of the current user from firestore users collection
+    firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {
+      console.log(doc.data().myParties);  
+      var i; // define counter for the for loop   
+      // loop through all parties in the user's document  
+      for (i = 0; i < doc.data().myParties.length; i++) {              
+        var curr_id = doc.data().myParties[i]  
+        // get party of the curr_id from the user's document
+        firebase.firestore().collection("parties").doc(curr_id).get().then(function(doc) {
+          // setState to contian all the party documents from the user's document
+          setParties([
+            ...parties,
+            {
+              id: curr_id,
+              doc: doc,
+            }
+          ]);
+        })
+      }
+    })        
+  }
+
+  parties && parties.map(party_id => {
+    let data = party_id.doc.data();
     // if the party has happened display on memories 
-    if (moment(doc.data().endTime).isBefore(today) && doc.data().host == firebase.auth().currentUser.displayName) {           
-      yourparties.push(doc)   
-    } else if (moment(doc.data().endTime).isBefore(today)) {
-      otherparties.push(doc)
+    if (moment(data.endTime).isBefore(today) && data.host == firebase.auth().currentUser.displayName) {           
+      yourparties.push(party_id.doc)   
+    } else if (moment(data.endTime).isBefore(today)) {
+      otherparties.push(party_id.doc)
     }
   });
 
   if (inGallery) {
     return(
-      !loading && (
         <>
         <IonToolbar>
           <IonButtons slot="start">
@@ -188,7 +219,6 @@ const MemoryList = () => {
         <Gallery id={id} key={id}/>
         </>
       )
-    )
   } else {
     return(
       <>
@@ -247,7 +277,7 @@ const Party = ({doc, live, classname}) => {
   }    
 
   const collectionRef = firebase.firestore().collection("parties");
-  let data = doc.data()
+  let data = doc.data();
 
   let liveParty // not live initially
   if (isLive) {
@@ -323,17 +353,15 @@ const PartyList = () => {
       var i; // define counter for the for loop   
       // loop through all parties in the user's document  
       for (i = 0; i < doc.data().myParties.length; i++) {              
-        var curr_id = doc.data().myParties[i]  
+        var curr_id = doc.data().myParties[i];  
+        // get party of the curr_id from the user's document
         firebase.firestore().collection("parties").doc(curr_id).get().then(function(doc) {
-          let data = doc.data(); 
-          // setstate to contian all the parties from the user's document
+          // setState to contian all the party documents from the user's document
           setParties([
             ...parties,
             {
               id: curr_id,
               doc: doc,
-              dateTime: data.dateTime,
-              endTime: data.endTime
             }
           ]);
         })
@@ -348,20 +376,21 @@ const PartyList = () => {
       {parties && parties.map(party_id => {
           const today = new Date();      
           console.log(parties);  
+          let data = party_id.doc.data();
           // if the party is now, display in live parties with camera function
-          if (moment(today).isBetween(party_id.dateTime, party_id.endTime)) {
+          if (moment(today).isBetween(data.dateTime, data.endTime)) {
             return(          
                 <>
                 <IonTitle color="danger">LIVE!</IonTitle>              
-                <Party doc={party_id.doc} key={party_id.id + "live"} live={true} classname="live-item"/>              
+                <Party doc={party_id.doc} key={data.id + "live"} live={true} classname="live-item"/>              
                 <br/>
                 </>
               );                    
           } // if party is after today display it on the home page 
-          if (moment(party_id.dateTime).isAfter(today)) {
+          if (moment(data.dateTime).isAfter(today)) {
             return( 
               <>
-              <Party key={party_id.id} doc={party_id.doc} live={false} classname="accordion-item"/>
+              <Party key={data.id} doc={party_id.doc} live={false} classname="accordion-item"/>
               </>
             );                
           }        
