@@ -343,7 +343,11 @@ const Party = ({doc, live, classname}) => {
 // against the same id in the parties collection in order to display all the details.
 const PartyList = () => {
 
-  const [parties, setParties] = useState([]);  
+  // for friend request bit.
+  const collectionRef = firebase.firestore().collection("friend_requests"); 
+  const [reqs, setReqs] = useState([]); 
+  
+  const [parties, setParties] = useState([]);
 
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once
@@ -351,6 +355,47 @@ const PartyList = () => {
     // this means display parties only runs once
   },
   []);  
+
+  //This just handles the requests once they have been made.
+  //On refresh check current user's 'request from' array inside friend requests and display their profile. Then see
+  // accept friend.
+  function doRefresh(event: CustomEvent<RefresherEventDetail>) {
+    //get current user
+    var current_user = firebase.auth().currentUser.uid;    
+    setReqs([]);
+    //Inside friend_requests, inside current user's doc. HERE
+    collectionRef.doc(current_user).get().then(function(doc) {          
+      console.log("req - Document data:", doc.data().request_from);
+      
+      var i; // define counter for the for loop     
+      for (i = 0; i < doc.data().request_from.length; i++) {
+        var curr_id = doc.data().request_from[i]
+        // set curr_id to the current id in the request_from list
+        console.log(i, curr_id)
+        // if the current id (i.e. request from) is already in the state, don't do anything        
+          // otherwise, add it to the state   
+          setReqs(reqs => [
+            ...reqs, 
+            {
+              id: curr_id, 
+              name: curr_id
+            }
+          ]);              
+          console.log(reqs)
+        // Remove ID from the document
+        // var removeID = collectionRef.doc(current_user).update({
+        //     request_from: firebase.firestore.FieldValue.arrayRemove(curr_id)
+        // });        
+      };
+      console.log(reqs)
+    }).catch(function(error) {
+        console.log("Error getting document:", error);
+    });
+
+    setTimeout(() => {
+      event.detail.complete();
+    }, 2000);
+  }   
 
   const displayParties = () => {
     // get current user 
@@ -381,7 +426,18 @@ const PartyList = () => {
 
 
   return(
+    //refreshing bit first. This just handles the requests once they have been made.
     <IonContent fullscreen={true}>
+      <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
+      <IonRefresherContent
+        pullingIcon={chevronDownCircleOutline}
+        refreshingSpinner="circles">
+      </IonRefresherContent>
+    </IonRefresher>
+    {reqs && reqs.map(req => 
+        (<Request id={req.name} key={req.id}/>)
+    )}
+
       <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>   
       {parties && parties.map(party_id => {
           const today = new Date();  
@@ -557,68 +613,6 @@ const Request = ({id}) => {
   )
 }
 
-//This just handles the requests once they have been made.
-const FriendRequests: React.FC = () => {
-
-  const collectionRef = firebase.firestore().collection("friend_requests"); 
-  const [reqs, setReqs] = useState([]); 
-
-  //On refresh check current user's 'request from' array inside friend requests and display their profile. Then see
-  // accept friend.
-  function doRefresh(event: CustomEvent<RefresherEventDetail>) {
-      //get current user
-    var current_user = firebase.auth().currentUser.uid;    
-    setReqs([]);
-    //Inside friend_requests, inside current user's doc. HERE
-    collectionRef.doc(current_user).get().then(function(doc) {          
-      console.log("req - Document data:", doc.data().request_from);
-      
-      var i; // define counter for the for loop     
-      for (i = 0; i < doc.data().request_from.length; i++) {
-        var curr_id = doc.data().request_from[i]
-        // set curr_id to the current id in the request_from list
-        console.log(i, curr_id)
-        // if the current id (i.e. request from) is already in the state, don't do anything        
-          // otherwise, add it to the state   
-          setReqs(reqs => [
-            ...reqs, 
-            {
-              id: curr_id, 
-              name: curr_id
-            }
-          ]);              
-          console.log(reqs)
-        // Remove ID from the document
-        // var removeID = collectionRef.doc(current_user).update({
-        //     request_from: firebase.firestore.FieldValue.arrayRemove(curr_id)
-        // });        
-      };
-      console.log(reqs)
-    }).catch(function(error) {
-        console.log("Error getting document:", error);
-    });
-
-    setTimeout(() => {
-      event.detail.complete();
-    }, 2000);
-  }    
-
-   return(
-    <IonContent fullscreen={true}>
-    <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
-      <IonRefresherContent
-        pullingIcon={chevronDownCircleOutline}
-        refreshingSpinner="circles">
-      </IonRefresherContent>
-    </IonRefresher>
-    {reqs && reqs.map(req => 
-        (<Request id={req.name} key={req.id}/>)
-    )}
-    </IonContent>    
-  )
-}
-
-
 const Memories: React.FC = () => {
   return(
     <IonPage>
@@ -645,7 +639,6 @@ const Home: React.FC = () => {
           </IonButton>         
         </IonButtons>                        
       </IonToolbar>
-      <FriendRequests/>
       <PartyList/>
       <br/> <br/> <br/> <br/> <br/> <br/>
     </IonPage>
