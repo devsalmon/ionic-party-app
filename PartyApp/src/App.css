@@ -131,8 +131,8 @@
     color: yellow;
     font-weight: bold;
     font-size: 14px;
-    top: 30px;
-    left: 50px;
+    top: 10px;
+    left: 30px;
 }
 
 .swiper-pagination {
@@ -192,6 +192,10 @@ ion-label {
     text-transform: uppercase;
 }
 
+ion-list {
+    --background: black;
+}
+
 ion-picker {
     size: 10px;
 }
@@ -199,14 +203,6 @@ ion-picker {
 ion-refresher-content {
     color: white;
     --color: white
-}
-
-ion-slides {
-    height: 100%;    
-}
-
-ion-slide {
-    padding: 30px;
 }
 
 ion-tab-button {

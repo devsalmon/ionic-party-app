@@ -3,7 +3,6 @@ import {useDocument} from 'react-firebase-hooks/firestore';
 import {
   IonLabel,
   IonItem,
-  IonList, 
   IonButton,
   IonHeader, 
   IonContent, 

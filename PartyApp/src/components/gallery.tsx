@@ -5,6 +5,7 @@ import {
   IonLabel,
   IonItem,
   IonList, 
+  IonListHeader,
   IonButton,
   IonHeader, 
   IonContent, 
@@ -32,7 +33,7 @@ import '@ionic/react/css/normalize.css';
 import '@ionic/react/css/structure.css';
 import '@ionic/react/css/typography.css';
 /* Optional CSS utils that can be commented out */
-import '@ionic/react/css/padding.css';
+import '@ionic/react/css/padding.css'; 
 import '@ionic/react/css/float-elements.css';
 import '@ionic/react/css/text-alignment.css';
 import '@ionic/react/css/text-transformation.css';
@@ -56,7 +57,7 @@ const Gallery = ({id}) => {
       if (doc.exists) {
           setTitle(doc.data().title);
           setLocation(doc.data().location);
-          setDate(doc.data().date);
+          setDate(moment(doc.data().date).format('l'));
           setHost(doc.data().host);
       } else {
           // doc.data() will be undefined in this case
@@ -86,32 +87,20 @@ const Gallery = ({id}) => {
     // }
     return(   
       <IonContent fullscreen={true}>
-        <IonSlides class="accordion-item" scrollbar={false} pager={true} options={{initialSlide: 0, preloadImages: false, loop: true}}>
           {value && value.docs.map(doc => {
             return( !loading && 
-              <IonSlide key={doc.id}>
+            <>
+              <IonButton class="create-button">{doc.data().takenBy}</IonButton>
+              <IonItem key={doc.id}>                
                 <IonImg class="gallery-photo" src={doc.data().picture} />
                 <IonButton onClick={like} fill="clear" size="large" class="like-panel">
                   <IonIcon icon={liked ? heart : heartOutline} />                  
                 </IonButton>         
-                <p className="slide-text">{doc.data().createdAt}</p>
-              </IonSlide>
+                <p className="slide-text">{doc.data().takenAt}</p>
+              </IonItem>
+            </>
             )
-          })}      
-        </IonSlides>  
-        <IonItem>
-          <IonGrid>
-            <IonRow>
-              <IonText>{title}</IonText>
-            </IonRow>
-            <IonRow>
-              <IonText class="white-text">{location}</IonText>
-            </IonRow>
-            <IonRow>
-              <IonText class="white-text">Hosted {date} by {host}</IonText>
-            </IonRow>
-          </IonGrid>
-        </IonItem>
+          })}         
       </IonContent>
     )
   } 
