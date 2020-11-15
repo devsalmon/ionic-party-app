@@ -93,7 +93,6 @@ const CreateParty = ({initialValue, clear}) => {
             // use state for invited people - when checkbox clicked in invite people add that id to the state array
             createdOn: moment(new Date()).format('LL'), 
             }).then(function(docRef) {
-              console.log(docRef.id)
               invitedPeople && invitedPeople.map(person => {
                 firebase.firestore().collection("users").doc(person.id).update({
                   // add party id to user documents

@@ -257,6 +257,8 @@ const Party = ({doc, live, classname}) => {
         picture: picture,
         takenBy: firebase.auth().currentUser.displayName,
         takenAt: moment(new Date()).format('LT'),
+        likeCounter: 0,
+        likes: [],
     })
       .then(function() {
         setShowToast(true)

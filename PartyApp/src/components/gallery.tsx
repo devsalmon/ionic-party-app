@@ -4,6 +4,11 @@ import {
   IonIcon,
   IonLabel,
   IonItem,
+  IonCard,
+  IonCardHeader,
+  IonCardContent,
+  IonCardTitle,
+  IonCardSubtitle,
   IonList, 
   IonListHeader,
   IonButton,
@@ -44,7 +49,6 @@ import '../variables.css';
 
 const Gallery = ({id}) => {
     // party card
-    const [liked, setLiked] = useState(false); 
     const [host, setHost] = useState('');
     const [date, setDate] = useState('');
     const [title, setTitle] = useState('');
@@ -67,14 +71,6 @@ const Gallery = ({id}) => {
           console.log("Error getting document:", error);
       });
 
-    const like = () => {
-      if (liked == false) {
-        setLiked(true); 
-      } else {
-        setLiked(false); 
-      };      
-    }
-
     // const deletePhoto = async() => {
     //   await collectionRef.doc(doc.id).update({
     //     picture: firebase.firestore.FieldValue.delete()
@@ -85,24 +81,69 @@ const Gallery = ({id}) => {
     //   console.error("Error removing document: ", error); 
     // });  
     // }
+
+    // in the return function, we loop through each picture in the collection
+    // and for each document, we create a picture card, 
+    // passing through the document and doc.id to the picture function
     return(   
       <IonContent fullscreen={true}>
+          <IonCard>
+            <IonCardContent>
+              <IonCardTitle>{title}</IonCardTitle>         
+              <IonCardSubtitle>Hosted on {date} by {host}</IonCardSubtitle>   
+              <IonCardSubtitle>{location}</IonCardSubtitle>              
+            </IonCardContent>
+          </IonCard>
           {value && value.docs.map(doc => {
-            return( !loading && 
-            <>
-              <IonButton class="create-button">{doc.data().takenBy}</IonButton>
-              <IonItem key={doc.id}>                
-                <IonImg class="gallery-photo" src={doc.data().picture} />
-                <IonButton onClick={like} fill="clear" size="large" class="like-panel">
-                  <IonIcon icon={liked ? heart : heartOutline} />                  
-                </IonButton>         
-                <p className="slide-text">{doc.data().takenAt}</p>
-              </IonItem>
-            </>
+            return( !loading &&
+              <Picture doc={doc} id={id}/> 
             )
           })}         
       </IonContent>
     )
   } 
+
+const Picture = ({doc, id}) => {
+  const [liked, setLiked] = useState(false); 
+
+  // get pictures collection for the current party 
+  const collectionRef = firebase.firestore().collection('parties').doc(id).collection('pictures'); 
+
+  // function to like pictures
+  const like = () => {
+    // get the picture that was liked or unliked 
+      collectionRef.doc(doc.id).get().then(function(doc){
+      // if the picture wasn't liked in the first place
+      if (liked == false) {
+        setLiked(true);         
+        // update like counter in the picture document, and add current user to the likes array
+        collectionRef.doc(doc.id).update({
+          likes: firebase.firestore.FieldValue.arrayUnion(firebase.auth().currentUser.displayName),
+          likeCounter:  firebase.firestore.FieldValue.increment(1)
+        })
+      }
+      else {
+        // if the picture was already liked by the current user then unlike it
+        setLiked(false);
+        // decrement like counter and remove user from array
+        collectionRef.doc(doc.id).update({
+          likes: firebase.firestore.FieldValue.arrayRemove(firebase.auth().currentUser.displayName),
+          likeCounter: firebase.firestore.FieldValue.increment(-1)
+        })       
+      };       
+    })
+  }
+
+  return(
+    <IonCard class="create-card">
+      <IonCardHeader class="create-button">{doc.data().takenBy}</IonCardHeader>       
+      <IonImg class="gallery-photo" src={doc.data().picture} />  
+      <IonButton onClick={like} fill="clear" class="like-panel">
+        <IonIcon icon={liked ? heart : heartOutline} />   
+      </IonButton>         
+      <p className="slide-text">{doc.data().takenAt}</p>   
+    </IonCard>  
+  )
+}
 
 export default Gallery;
