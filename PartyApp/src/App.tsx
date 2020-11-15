@@ -585,6 +585,9 @@ const Request = ({id}) => {
                 .then(function(docRef) {
                 firebase.firestore().collection("friend_requests").doc(current_user_id).update({
                   request_from: firebase.firestore.FieldValue.arrayRemove(friend_user_id)
+                
+                  //removes text display
+                  
                 });
             
                 }).catch(function(error) {
