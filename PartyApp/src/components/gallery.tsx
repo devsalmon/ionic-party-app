@@ -1,28 +1,15 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState } from 'react';
 import {useCollection} from 'react-firebase-hooks/firestore';
 import {
   IonIcon,
-  IonLabel,
-  IonItem,
   IonCard,
   IonCardHeader,
   IonCardContent,
   IonCardTitle,
   IonCardSubtitle,
-  IonList, 
-  IonListHeader,
   IonButton,
-  IonHeader, 
-  IonContent, 
-  IonToolbar, 
-  IonTitle,
-  IonRow,
-  IonCol,
-  IonGrid,
-  IonText,
+  IonContent,
   IonImg,
-  IonSlides,
-  IonSlide,
 } from '@ionic/react';
 import {   
   heartOutline,
@@ -114,7 +101,7 @@ const Picture = ({doc, id}) => {
     // get the picture that was liked or unliked 
       collectionRef.doc(doc.id).get().then(function(doc){
       // if the picture wasn't liked in the first place
-      if (liked == false) {
+      if (liked === false) {
         setLiked(true);         
         // update like counter in the picture document, and add current user to the likes array
         collectionRef.doc(doc.id).update({

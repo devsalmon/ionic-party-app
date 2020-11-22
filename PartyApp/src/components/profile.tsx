@@ -1,42 +1,22 @@
-import React, { useState, useEffect} from 'react';
-import {
-    Accordion,
-    AccordionItem,
-    AccordionItemHeading,
-    AccordionItemButton,
-    AccordionItemPanel,
-} from 'react-accessible-accordion';
-import { Route, Redirect } from 'react-router-dom';
-import {useDocument, useCollection} from 'react-firebase-hooks/firestore';
+import React from 'react';
 import {
   IonIcon,
   IonButton,
   IonPage, 
   IonContent, 
   IonToolbar, 
-  IonSearchbar,
   IonItem ,
-  IonAvatar,
-  IonLabel,
   IonButtons, 
   IonTitle,
-  IonRow,
-  IonCol,
   IonText,
-  IonLoading,
-  IonAlert,
   IonImg
 } from '@ionic/react';
 import { 
-  personAddSharp,  
   logOutSharp,
-  createSharp,
   settingsSharp,
-  starSharp,
 } from 'ionicons/icons';
 import '../App.css'
 import firebase from '../firestore'
-import moment from 'moment'
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */
@@ -52,7 +32,6 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 /* Theme variables */
 import '../variables.css';
-import { memory } from 'console';
 
 const Profile: React.FC = () => {
 

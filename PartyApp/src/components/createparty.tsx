@@ -1,5 +1,6 @@
 import React, { useState, useEffect} from 'react';
 import {useDocument} from 'react-firebase-hooks/firestore';
+import MapContainer from './mapcontainer';
 import {
   IonLabel,
   IonItem,
@@ -7,17 +8,13 @@ import {
   IonHeader, 
   IonContent, 
   IonToolbar, 
-  IonButtons, 
   IonTitle,
   IonSearchbar,
   IonInput,
   IonModal, 
   IonDatetime,
-  IonCheckbox,
   IonTextarea,
-  IonText,
   IonToast,
-  IonPopover,
   IonAlert,
 } from '@ionic/react';
 import '../App.css'
@@ -52,7 +49,7 @@ const CreateParty = ({initialValue, clear}) => {
     const [details, setDetails] = useState<string>('');
     const [endTime, setEndTime] = useState<string>('');
     const [dateTime, setDateTime] = useState<string>('');  
-    const [showModal, setShowModal] = useState(false);
+    const [showPeopleSearch, setShowPeopleSearch] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [showAlert, setShowAlert] = useState(false);
     const [value, loading, error] = useDocument(
@@ -65,7 +62,7 @@ const CreateParty = ({initialValue, clear}) => {
   const [query, setQuery] = useState('');
   
   async function search(query) {
-    const result = await index.search(query);
+    const result = await index.search(query); 
     setHits(result.hits);
     setQuery(query)    
   }
@@ -135,8 +132,11 @@ const CreateParty = ({initialValue, clear}) => {
           <IonItem class="create-card" lines="none">
             <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>
           </IonItem>
+          <IonItem class="create-card" lines="none">                       
+            Location - {location}
+          </IonItem>
           <IonItem class="create-card" lines="none">
-            <IonInput class="create-input" value={location} onIonChange={e => setLocation(e.detail.value!)} placeholder="Location" clearInput></IonInput>
+            <IonButton class="create-button" expand="block"  href='/googlemap'> Map </IonButton>  
           </IonItem>
           <IonItem class="create-card" lines="none">
             <IonLabel color="warning">Starts</IonLabel>
@@ -150,13 +150,13 @@ const CreateParty = ({initialValue, clear}) => {
             <IonTextarea maxlength={150} class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
           </IonItem>
           <IonItem class="create-card" lines="none">
-            <IonButton class="create-button" expand="block" onClick={e => setShowModal(true)}>Invite People</IonButton>
+            <IonButton class="create-button" expand="block" onClick={e => setShowPeopleSearch(true)}>Invite People</IonButton>
           </IonItem>       
           <IonItem class="create-card" lines="none"> 
             <IonButton class="create-button" expand="block" onClick={() => onSave()}>Create!</IonButton>        
           </IonItem>
       <br/><br/><br/><br/><br/><br/><br/>
-      <IonModal isOpen={showModal}>
+      <IonModal isOpen={showPeopleSearch}>
         <IonHeader>
           <IonToolbar>  
             <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)}></IonSearchbar>                            
@@ -170,10 +170,10 @@ const CreateParty = ({initialValue, clear}) => {
               </IonItem>
             ))}
             <div className="ion-text-center">
-              <IonButton class="custom-button" onClick={e => setShowModal(false)}>Done</IonButton>
+              <IonButton class="custom-button" onClick={e => setShowPeopleSearch(false)}>Done</IonButton>
             </div> 
         </IonContent>
-      </IonModal>
+      </IonModal>    
       <IonToast
         isOpen={showToast}
         onDidDismiss={() => setShowToast(false)}

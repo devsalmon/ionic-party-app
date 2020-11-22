@@ -1,34 +1,16 @@
-import React, { useState, useEffect} from 'react';
-import {
-    Accordion,
-    AccordionItem,
-    AccordionItemHeading,
-    AccordionItemButton,
-    AccordionItemPanel,
-} from 'react-accessible-accordion';
-import { Route, Redirect } from 'react-router-dom';
-import {useDocument, useCollection} from 'react-firebase-hooks/firestore';
+import React, { useState } from 'react';
 import {
   IonIcon,
   IonItem,
-  IonGrid,
   IonButton,
   IonPage,
-  IonHeader, 
   IonContent, 
   IonToolbar, 
-  IonButtons, 
-  IonTitle,
   IonSearchbar,
   IonRow,
   IonCol,
-  IonInput,
   IonText,
-  IonToast,
-  IonFooter,
   IonAvatar,
-  IonLoading,
-  IonAlert,
   IonImg,
 } from '@ionic/react';
 import { 
@@ -36,7 +18,6 @@ import {
 } from 'ionicons/icons';
 import '../App.css'
 import firebase from '../firestore'
-import moment from 'moment'
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */

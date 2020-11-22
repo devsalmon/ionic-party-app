@@ -1,9 +1,9 @@
 import React, { useState, useEffect} from 'react';
 import Users from './components/users';
 import CreateParty from './components/createparty';
+import MapContainer from './components/mapcontainer';
 import Gallery from './components/gallery';
 import Memory from './components/memory';
-import People from './components/profile';
 import {
     Accordion,
     AccordionItem,
@@ -12,7 +12,6 @@ import {
     AccordionItemPanel,
 } from 'react-accessible-accordion';
 import { Route, Redirect } from 'react-router-dom';
-import {useDocument, useCollection} from 'react-firebase-hooks/firestore';
 import { RefresherEventDetail } from '@ionic/core';
 import {
   IonApp,
@@ -29,10 +28,8 @@ import {
   IonPage,
   IonContent, 
   IonToolbar, 
-  IonBackButton,
   IonButtons, 
   IonTitle,
-  IonSearchbar,
   IonRow,
   IonCol,
   IonInput, 
@@ -50,7 +47,6 @@ import {
   cloudUploadSharp,
   chevronBackSharp,  
 } from 'ionicons/icons';
-import {Plugins} from '@capacitor/core';
 import {useCamera} from '@ionic/react-hooks/camera';
 import {CameraResultType, CameraSource} from '@capacitor/core';
 import './App.css'
@@ -71,7 +67,6 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 /* Theme variables */
 import './variables.css';
-import algoliasearch from 'algoliasearch/lite';
 import Profile from './components/profile';
 // once finished, run ionic build then npx cap add ios and npx cap add android
 
@@ -174,15 +169,14 @@ const MemoryList = () => {
       var i; // define counter for the for loop   
       // loop through all parties in the user's document as long as there are parties there
       if (doc.data().myParties.length > 0) {
-        for (i = 0; i < doc.data().myParties.length; i++) {              
-          var curr_id = doc.data().myParties[i]  
+        for (i = 0; i < doc.data().myParties.length; i++) {     
           // get party of the curr_id from the user's document
-          firebase.firestore().collection("parties").doc(curr_id).get().then(function(doc) {
+          firebase.firestore().collection("parties").doc(doc.data().myParties[i]).get().then(function(doc) {
             // setState to contian all the party documents from the user's document
             setParties(parties => [
               ...parties,
               {
-                id: curr_id,
+                id: doc.data().myParties[i],
                 doc: doc,
               }
             ]);
@@ -195,7 +189,7 @@ const MemoryList = () => {
   parties && parties.map(party_id => {
     let data = party_id.doc.data();
     // if the party has happened display on memories - if host is current user, diaply in hosted parties 
-    if (moment(data.endTime).isBefore(today) && data.host == firebase.auth().currentUser.displayName) {           
+    if (moment(data.endTime).isBefore(today) && data.host === firebase.auth().currentUser.displayName) {           
       yourparties.push(party_id.doc)       
     } else if (moment(data.endTime).isBefore(today)) {
       otherparties.push(party_id.doc)
@@ -227,13 +221,13 @@ const MemoryList = () => {
         </IonToolbar>
         <IonContent fullscreen={true}>
         <IonText class="ion-padding-start">Your parties</IonText>
-        {yourparties.length == 0 ?
+        {yourparties.length === 0 ?
         <IonText class="ion-padding-start"> <br/> <br/> No hosted parties yet..</IonText> :
         yourparties.map(doc => {
           return(<Memory doc={doc} key={doc.id} click={() => enter(doc.id)}/>)          
         })}
         <IonText class="ion-padding-start">Parties attended</IonText>
-        {otherparties.length == 0 ?
+        {otherparties.length === 0 ?
         <IonText class="white-text"> <br/> <br/> nothing here yet.. </IonText> : 
         otherparties.map(doc => {
           return(<Memory doc={doc} key={doc.id} click={() => enter(doc.id)}/>)          
@@ -285,6 +279,12 @@ const Party = ({doc, live, classname}) => {
   const collectionRef = firebase.firestore().collection("parties");
   let data = doc.data();
 
+  const today = new Date();  
+  // if the party is now, display in live parties with camera function
+  if (moment(today).isBefore(data.dateTime, data.endTime)) {
+    setIsLive(false);
+  }
+  
   let liveParty // not live initially
   if (isLive) {
     liveParty = <IonRow> 
@@ -653,7 +653,8 @@ const SignedInRoutes: React.FC = () => {
   return(
     <IonReactRouter>  
       <IonTabs>
-        <IonRouterOutlet>       
+        <IonRouterOutlet>    
+          <Route path='/googlemap' component={MapContainer} />   
           <Route path='/signin' component={SignIn} />
           <Route path='/create' component={Create} />
           <Route path='/users' component={Users} />
