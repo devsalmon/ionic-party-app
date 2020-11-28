@@ -1,10 +1,13 @@
 import React, { useState, useEffect} from 'react';
 import {useDocument} from 'react-firebase-hooks/firestore';
 import MapContainer from './mapcontainer';
+import App from '../App';
 import {
   IonLabel,
   IonItem,
   IonButton,
+  IonButtons,
+  IonBackButton,
   IonHeader, 
   IonContent, 
   IonToolbar, 
@@ -16,7 +19,11 @@ import {
   IonTextarea,
   IonToast,
   IonAlert,
+  IonIcon
 } from '@ionic/react';
+import { 
+  chevronBackSharp,  
+} from 'ionicons/icons';
 import '../App.css'
 import firebase from '../firestore'
 import moment from 'moment'
@@ -43,6 +50,18 @@ const CreateParty = ({initialValue, clear}) => {
     },
     []);
     
+
+    // function to hide tabs when in the create page
+    function hideTab() {
+      const tabBar = document.getElementById('appTabBar');
+      tabBar.style.display = 'none';
+    }
+    // show tabs again when create page is exited
+    function showTab() {        
+      const tabBar = document.getElementById('appTabBar');
+      tabBar.style.display = 'flex';
+    }    
+  
     const [invitedPeople, setInvitedPeople] = useState([]); // array of invited people
     const [title, setTitle] = useState<string>('');
     const [location, setLocation] = useState<string>('');
@@ -126,10 +145,16 @@ const CreateParty = ({initialValue, clear}) => {
 
     return(
       <IonContent class="create-content">
+        {hideTab()} 
         <IonToolbar color="warning">
-          <IonTitle color="dark">Create a party</IonTitle>  
+          <IonButtons slot="start">
+            <IonButton onClick={()=>showTab()} href="/home">
+              <IonIcon slot="icon-only" icon={chevronBackSharp}></IonIcon>
+            </IonButton>
+          </IonButtons>        
+          <IonTitle className="ion-text-left" color="dark">Create a party</IonTitle>  
         </IonToolbar>
-          <IonItem class="create-card" lines="none">
+          <IonItem class="rounded-top" lines="none">
             <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>
           </IonItem>
           <IonItem class="create-card" lines="none">                       
@@ -152,7 +177,7 @@ const CreateParty = ({initialValue, clear}) => {
           <IonItem class="create-card" lines="none">
             <IonButton class="create-button" expand="block" onClick={e => setShowPeopleSearch(true)}>Invite People</IonButton>
           </IonItem>       
-          <IonItem class="create-card" lines="none"> 
+          <IonItem class="rounded-bottom" lines="none"> 
             <IonButton class="create-button" expand="block" onClick={() => onSave()}>Create!</IonButton>        
           </IonItem>
       <br/><br/><br/><br/><br/><br/><br/>

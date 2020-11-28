@@ -116,6 +116,18 @@
     width: 180px;
 }
 
+.rounded-top {
+    --border-radius: 10px 10px 0 0;
+    --highlight-height: 0;
+    --background: black;
+}
+
+.rounded-bottom {
+    --border-radius: 0 0 10px 10px;
+    --highlight-height: 0;
+    --background: black;
+}
+
 .searchbar {
     --background: yellow;
     --border-radius: 10px;
@@ -193,6 +205,7 @@ ion-item{
 ion-label {
     font-weight: bold;
     text-transform: uppercase;
+    color: yellow
 }
 
 ion-list {

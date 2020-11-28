@@ -171,12 +171,13 @@ const MemoryList = () => {
       if (doc.data().myParties.length > 0) {
         for (i = 0; i < doc.data().myParties.length; i++) {     
           // get party of the curr_id from the user's document
-          firebase.firestore().collection("parties").doc(doc.data().myParties[i]).get().then(function(doc) {
+          let current_id = doc.data().myParties[i]
+          firebase.firestore().collection("parties").doc(current_id).get().then(function(doc) {
             // setState to contian all the party documents from the user's document
             setParties(parties => [
               ...parties,
               {
-                id: doc.data().myParties[i],
+                id: current_id,
                 doc: doc,
               }
             ]);
@@ -439,7 +440,6 @@ const PartyList = () => {
     {reqs && reqs.map(req => 
         (<Request id={req.name} key={req.id}/>)
     )}
-
       <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>   
       {parties && parties.map(party_id => {
           const today = new Date();  
@@ -650,6 +650,7 @@ const Home: React.FC = () => {
   )
 }
 const SignedInRoutes: React.FC = () => {
+
   return(
     <IonReactRouter>  
       <IonTabs>
@@ -665,7 +666,7 @@ const SignedInRoutes: React.FC = () => {
           <Route exact path={["/signin", "/"]} render={() => <Redirect to="/home" />} />
         </IonRouterOutlet> 
         
-        <IonTabBar slot="bottom">
+        <IonTabBar slot="bottom" id="appTabBar">
           <IonTabButton tab="home" href="/home">
             <IonIcon class="side-icons" icon={home} />
             <IonLabel>Home</IonLabel>
