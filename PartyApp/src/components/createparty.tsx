@@ -4,6 +4,7 @@ import MapContainer from './mapcontainer';
 import App from '../App';
 import {
   IonLabel,
+  IonFooter,
   IonItem,
   IonButton,
   IonButtons,
@@ -19,7 +20,9 @@ import {
   IonTextarea,
   IonToast,
   IonAlert,
-  IonIcon
+  IonIcon,
+  IonList,
+  IonText
 } from '@ionic/react';
 import { 
   chevronBackSharp,  
@@ -132,8 +135,8 @@ const CreateParty = ({initialValue, clear}) => {
     
     } 
 
-
     const addInvite = (id, name) => {
+      setQuery(''); // reset searchbar when invite button pressed so invite item with the button stops showing
       setInvitedPeople(invitedPeople => [
         ...invitedPeople, 
         {              
@@ -141,10 +144,11 @@ const CreateParty = ({initialValue, clear}) => {
           id: id
         }
       ]);
+      console.log(invitedPeople)
     }
 
     return(
-      <IonContent class="create-content">
+      <IonContent class="create-content" fullscreen={true}>
         {hideTab()} 
         <IonToolbar color="warning">
           <IonButtons slot="start">
@@ -157,11 +161,11 @@ const CreateParty = ({initialValue, clear}) => {
           <IonItem class="rounded-top" lines="none">
             <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>
           </IonItem>
-          <IonItem class="create-card" lines="none">                       
-            Location - {location}
+          <IonItem class="create-card" lines="none">   
+            <IonLabel color="warning">Location {location}</IonLabel>                               
           </IonItem>
           <IonItem class="create-card" lines="none">
-            <IonButton class="create-button" expand="block"  href='/googlemap'> Map </IonButton>  
+            <IonButton class="create-button" expand="block"  href='/googlemap'> See Map </IonButton>  
           </IonItem>
           <IonItem class="create-card" lines="none">
             <IonLabel color="warning">Starts</IonLabel>
@@ -188,16 +192,26 @@ const CreateParty = ({initialValue, clear}) => {
           </IonToolbar>
         </IonHeader>
         <IonContent class="create-content">
-            {query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map(hit => (
-              <IonItem class="create-input" lines="none" key={hit.objectID}>
-                <IonLabel>{hit.name}</IonLabel>
-                <IonButton slot="end" color="danger" onClick={() => addInvite(hit.objectID, hit.name)}>Invite</IonButton>
+          {query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map(hit => (
+            <IonItem class="create-input" lines="none" key={hit.objectID}>
+              <IonLabel>{hit.name}</IonLabel>
+              <IonButton slot="end" color="warning" onClick={() => addInvite(hit.objectID, hit.name)}>Invite</IonButton>
+            </IonItem>
+          ))}              
+          <IonItem class="create-card">
+            <IonText>People invited: </IonText>
+          </IonItem>
+          {invitedPeople && invitedPeople.map(person => {
+            return(
+              <IonItem class="create-card">
+                <IonText>{person.name}</IonText>
               </IonItem>
-            ))}
-            <div className="ion-text-center">
-              <IonButton class="custom-button" onClick={e => setShowPeopleSearch(false)}>Done</IonButton>
-            </div> 
+            )
+          })}                    
         </IonContent>
+        <IonFooter>
+          <IonButton class="custom-button" onClick={e => setShowPeopleSearch(false)}>Done</IonButton>
+        </IonFooter>        
       </IonModal>    
       <IonToast
         isOpen={showToast}

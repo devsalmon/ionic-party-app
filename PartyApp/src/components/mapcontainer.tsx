@@ -10,7 +10,6 @@ import {
   IonRadioGroup,
   IonRadio,
   IonItem,
-  IonListHeader,
   IonLabel,
   IonButton,
   IonContent
