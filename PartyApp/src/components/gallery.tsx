@@ -108,18 +108,21 @@ const Picture = ({doc, id}) => {
     // set initial likes by fetching data from the picture document 
     collectionRef.doc(doc.id).get().then(function(doc){
       if (doc.data().likes.includes(firebase.auth().currentUser.displayName)) {
+        // if picture's likes array contains current user, the picture is already liked
         setLiked(true); 
       } else {
+        // otherwise, the picture has not been liked by current user
         setLiked(false); 
       };
+      // set number of likes to the picture document's like counter
       setNumLikes(doc.data().likeCounter ? doc.data().likeCounter : 0);    
     });    
   }
 
   const like = () => {
-    // like a picture
+    // function to like a picture
     collectionRef.doc(doc.id).get().then(function(doc){
-      // update like counter in the picture document, and add current user to the likes array
+      // increase like counter in the picture document, and add current user to the likes array
       collectionRef.doc(doc.id).update({
         likes: firebase.firestore.FieldValue.arrayUnion(firebase.auth().currentUser.displayName),
         likeCounter:  firebase.firestore.FieldValue.increment(1)
@@ -129,9 +132,9 @@ const Picture = ({doc, id}) => {
   }
 
   const unlike = () => {
-    // like a picture
+    // function to unlike a picture
     collectionRef.doc(doc.id).get().then(function(doc){
-      // update like counter in the picture document, and add current user to the likes array
+      // decrease like counter in the picture document, and remove current user to the likes array
       collectionRef.doc(doc.id).update({
         likes: firebase.firestore.FieldValue.arrayRemove(firebase.auth().currentUser.displayName),
         likeCounter:  firebase.firestore.FieldValue.increment(-1)
@@ -141,10 +144,11 @@ const Picture = ({doc, id}) => {
   }
 
   collectionRef.doc(doc.id).onSnapshot(function(doc){
+    // update like counter on the picture when there's an update in the picture document 
     setNumLikes(doc.data().likeCounter);
   })
 
-
+  // display appropriate like button depending on whether photo has been liked or not (either filled or unfilled heart)
   const likeButton = liked ? (
     <IonButton onClick={unlike} fill="clear" class="like-panel">
       <IonIcon icon={heart} />   

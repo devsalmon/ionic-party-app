@@ -227,7 +227,7 @@ const MemoryList = () => {
         yourparties.map(doc => {
           return(<Memory doc={doc} key={doc.id} click={() => enter(doc.id)}/>)          
         })}
-        <IonText class="ion-padding-start">Parties attended</IonText>
+        <IonText class="ion-padding-start"><br/>Parties attended</IonText>
         {otherparties.length === 0 ?
         <IonText class="white-text"> <br/> <br/> nothing here yet.. </IonText> : 
         otherparties.map(doc => {
