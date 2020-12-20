@@ -59,17 +59,6 @@ const Gallery = ({id}) => {
           console.log("Error getting document:", error);
       });
 
-    // const deletePhoto = async() => {
-    //   await collectionRef.doc(doc.id).update({
-    //     picture: firebase.firestore.FieldValue.delete()
-    //   })
-    //   .then(function() { 
-    //   console.log("field successfully deleted!")})
-    //   .catch(function(error) { 
-    //   console.error("Error removing document: ", error); 
-    // });  
-    // }
-
     // in the return function, we loop through each picture in the collection
     // and for each document, we create a picture card, 
     // passing through the document and doc.id to the picture function
@@ -98,11 +87,25 @@ const Picture = ({doc, id}) => {
 
   const [liked, setLiked] = useState(Boolean);
   const [numLikes, setNumLikes] = useState(Number); 
+  const [ownPicture, setOwnPicture] = useState(Boolean)
 
   useEffect(() => {  
-    likedPicture()      
+    likedPicture();
+    checkOwnPicture();
   },
   []);
+
+  const checkOwnPicture = () => {
+    // function to check if the picture was taken by the current user
+    collectionRef.doc(doc.id).get().then(function(doc){
+      // if picture was taken by the current user then they can delete it 
+      if (doc.data().takenBy === firebase.auth().currentUser.displayName) {
+        setOwnPicture(true)
+      } else {
+        setOwnPicture(false)
+      } 
+    })       
+  }
 
   const likedPicture = () => {
     // set initial likes by fetching data from the picture document 
@@ -145,8 +148,16 @@ const Picture = ({doc, id}) => {
 
   collectionRef.doc(doc.id).onSnapshot(function(doc){
     // update like counter on the picture when there's an update in the picture document 
-    setNumLikes(doc.data().likeCounter);
+    doc.data() && setNumLikes(doc.data().likeCounter);
   })
+
+  const deletePicture = () => {
+    // function to delete a picture
+    collectionRef.doc(doc.id).delete()
+    .catch(function(error) { 
+      console.error("Error removing document: ", error); 
+    });     
+  }
 
   // display appropriate like button depending on whether photo has been liked or not (either filled or unfilled heart)
   const likeButton = liked ? (
@@ -159,15 +170,22 @@ const Picture = ({doc, id}) => {
     </IonButton>     
   )
 
+  const removePicture = ownPicture ? (
+    <IonButton onClick={deletePicture} fill="clear" color="warning">
+      Remove
+    </IonButton>
+  ) : null 
+
   return(
     <IonCard class="create-card">
-      <IonCardHeader class="create-button">
-        <IonCol pull="1">{doc.data().takenAt} </IonCol>
-        <IonCol pull="1">{doc.data().takenBy}</IonCol>
-        <IonCol push="1">{numLikes}</IonCol>
+      <IonCardHeader>
+        <IonCol>{doc.data().takenAt}</IonCol> 
+        <IonCol size="5">{doc.data().takenBy}</IonCol> 
+        <IonCol>Likes - {numLikes}</IonCol> 
       </IonCardHeader>       
       <IonImg class="gallery-photo" src={doc.data().picture} />  
-      {likeButton}        
+      {likeButton}    
+      {removePicture}    
     </IonCard>  
   )
 }

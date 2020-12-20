@@ -178,6 +178,12 @@ ion-card {
     border: 2px solid yellow;
 }
 
+ion-card-header {
+    font-size: 15px;
+    font-weight: bold;
+    color: yellow;
+}
+
 ion-card-subtitle {
     color: black;
     padding-left: 10px;
