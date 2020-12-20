@@ -173,20 +173,23 @@ ion-buttons {
     --background-hover-opacity: 0.3;
 }
 
+ion-card {
+    --background: yellow;
+    border: 2px solid yellow;
+}
+
 ion-card-subtitle {
-    padding-top: 10px;
+    color: black;
     padding-left: 10px;
+    padding-top: 0px;
+    font-weight: bold    
 }
 
 ion-card-title {
+    color: black;
     font-weight: bold;
     padding-left: 10px;
     padding-bottom: 10px
-}
-
-ion-card-subtitle {
-    padding-top: 0px;
-    font-weight: bold
 }
 
 ion-content {
@@ -231,8 +234,8 @@ ion-refresher-content {
 ion-tab-button {
     --background: transparent;
     --color: black;
-    --color-focused: red;
-    --color-selected: red;
+    --color-focused: white;
+    --color-selected: white;
     font-weight: bold;
     text-align: center    
 }

@@ -162,11 +162,11 @@ const CreateParty = ({initialValue, clear}) => {
             <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>
           </IonItem>
           <IonItem class="create-card" lines="none">   
-            <IonLabel color="warning">Location {location}</IonLabel>                               
+            <IonInput class="create-input" value={location}  onIonChange={e => setLocation(e.detail.value!)} placeholder="Postcode" clearInput></IonInput>                               
           </IonItem>
-          <IonItem class="create-card" lines="none">
+          {/* <IonItem class="create-card" lines="none">
             <IonButton class="create-button" expand="block"  href='/googlemap'> See Map </IonButton>  
-          </IonItem>
+          </IonItem> */}
           <IonItem class="create-card" lines="none">
             <IonLabel color="warning">Starts</IonLabel>
             <IonDatetime class="create-datetime" value={dateTime} onIonChange={e => setDateTime(e.detail.value!)} displayFormat="DD-MMM-YY HH:mm" placeholder="select"></IonDatetime>

@@ -669,17 +669,17 @@ const SignedInRoutes: React.FC = () => {
         <IonTabBar slot="bottom" id="appTabBar">
           <IonTabButton tab="home" href="/home">
             <IonIcon class="side-icons" icon={home} />
-            <IonLabel>Home</IonLabel>
+            Home
             <IonRippleEffect></IonRippleEffect>
           </IonTabButton>
           <IonTabButton tab="create" href="/create">
             <IonIcon class="mid-icon" src="assets/icon/Create.svg" />
-            <IonLabel>Create</IonLabel>
+            Create
             <IonRippleEffect></IonRippleEffect>
           </IonTabButton>              
           <IonTabButton tab="memories" href="/memories">
             <IonIcon class="side-icons" src="assets/icon/Memories.svg" />
-            <IonLabel>Memories</IonLabel>
+            Memories
             <IonRippleEffect></IonRippleEffect>
           </IonTabButton>                         
         </IonTabBar>

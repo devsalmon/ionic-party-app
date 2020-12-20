@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {useCollection} from 'react-firebase-hooks/firestore';
 import {
   IonIcon,
@@ -10,6 +10,7 @@ import {
   IonButton,
   IonContent,
   IonImg,
+  IonCol
 } from '@ionic/react';
 import {   
   heartOutline,
@@ -83,7 +84,7 @@ const Gallery = ({id}) => {
           </IonCard>
           {value && value.docs.map(doc => {
             return( !loading &&
-              <Picture doc={doc} id={id}/> 
+              <Picture doc={doc} id={id} key={id}/> 
             )
           })}         
       </IonContent>
@@ -91,44 +92,78 @@ const Gallery = ({id}) => {
   } 
 
 const Picture = ({doc, id}) => {
-  const [liked, setLiked] = useState(false); 
 
   // get pictures collection for the current party 
   const collectionRef = firebase.firestore().collection('parties').doc(id).collection('pictures'); 
 
-  // function to like pictures
-  const like = () => {
-    // get the picture that was liked or unliked 
-      collectionRef.doc(doc.id).get().then(function(doc){
-      // if the picture wasn't liked in the first place
-      if (liked === false) {
-        setLiked(true);         
-        // update like counter in the picture document, and add current user to the likes array
-        collectionRef.doc(doc.id).update({
-          likes: firebase.firestore.FieldValue.arrayUnion(firebase.auth().currentUser.displayName),
-          likeCounter:  firebase.firestore.FieldValue.increment(1)
-        })
-      }
-      else {
-        // if the picture was already liked by the current user then unlike it
-        setLiked(false);
-        // decrement like counter and remove user from array
-        collectionRef.doc(doc.id).update({
-          likes: firebase.firestore.FieldValue.arrayRemove(firebase.auth().currentUser.displayName),
-          likeCounter: firebase.firestore.FieldValue.increment(-1)
-        })       
-      };       
-    })
+  const [liked, setLiked] = useState(Boolean);
+  const [numLikes, setNumLikes] = useState(Number); 
+
+  useEffect(() => {  
+    likedPicture()      
+  },
+  []);
+
+  const likedPicture = () => {
+    // set initial likes by fetching data from the picture document 
+    collectionRef.doc(doc.id).get().then(function(doc){
+      if (doc.data().likes.includes(firebase.auth().currentUser.displayName)) {
+        setLiked(true); 
+      } else {
+        setLiked(false); 
+      };
+      setNumLikes(doc.data().likeCounter ? doc.data().likeCounter : 0);    
+    });    
   }
+
+  const like = () => {
+    // like a picture
+    collectionRef.doc(doc.id).get().then(function(doc){
+      // update like counter in the picture document, and add current user to the likes array
+      collectionRef.doc(doc.id).update({
+        likes: firebase.firestore.FieldValue.arrayUnion(firebase.auth().currentUser.displayName),
+        likeCounter:  firebase.firestore.FieldValue.increment(1)
+      })             
+    });
+    setLiked(true); 
+  }
+
+  const unlike = () => {
+    // like a picture
+    collectionRef.doc(doc.id).get().then(function(doc){
+      // update like counter in the picture document, and add current user to the likes array
+      collectionRef.doc(doc.id).update({
+        likes: firebase.firestore.FieldValue.arrayRemove(firebase.auth().currentUser.displayName),
+        likeCounter:  firebase.firestore.FieldValue.increment(-1)
+      })            
+    });
+    setLiked(false);     
+  }
+
+  collectionRef.doc(doc.id).onSnapshot(function(doc){
+    setNumLikes(doc.data().likeCounter);
+  })
+
+
+  const likeButton = liked ? (
+    <IonButton onClick={unlike} fill="clear" class="like-panel">
+      <IonIcon icon={heart} />   
+    </IonButton>       
+  ) : (
+    <IonButton onClick={like} fill="clear" class="like-panel">
+      <IonIcon icon={heartOutline} />   
+    </IonButton>     
+  )
 
   return(
     <IonCard class="create-card">
-      <IonCardHeader class="create-button">{doc.data().takenBy}</IonCardHeader>       
+      <IonCardHeader class="create-button">
+        <IonCol pull="1">{doc.data().takenAt} </IonCol>
+        <IonCol pull="1">{doc.data().takenBy}</IonCol>
+        <IonCol push="1">{numLikes}</IonCol>
+      </IonCardHeader>       
       <IonImg class="gallery-photo" src={doc.data().picture} />  
-      <IonButton onClick={like} fill="clear" class="like-panel">
-        <IonIcon icon={liked ? heart : heartOutline} />   
-      </IonButton>         
-      <p className="slide-text">{doc.data().takenAt}</p>   
+      {likeButton}        
     </IonCard>  
   )
 }
