@@ -72,43 +72,105 @@ import Profile from './components/profile';
 
 const SignIn = () => {
 
-  // Signs-in Messaging with GOOGLE POP UP
-const SignInGooglepu = async() => {
-  // Initiate Firebase Auth.
-  // Sign into Firebase using popup auth & Google as the identity provider.
-  var provider = new firebase.auth.GoogleAuthProvider();
-  //Sign in with pop up
-  firebase.auth().signInWithPopup(provider).then(function (result) {
-    // This gives you a Google Access Token. You can use it to access the Google API.
-    //var token = result.credential.accessToken;
-    // The signed-in user info.
-    var user = result.user;
-    const isNewUser = result.additionalUserInfo.isNewUser
-    if (isNewUser) {
-      firebase.firestore().collection('users').doc(user.uid).set({
-      name: user.displayName,
-      photoUrl: user.photoURL
-      })       
-    }
-  }).catch(function (error) {
-    // Handle Errors here.
-    var errorCode = error.code;
-    var errorMessage = error.message;
-    // The email of the user's account used.
-    var email = error.email;
-    // The firebase.auth.AuthCredential type that was used.
-    var credential = error.credential;
-  });
-  // Get the signed-in user's profile pic and name.
-  //var profilePicUrl = getProfilePicUrl();
-  //var userName = getUserName();
-  // Set the user's profile pic and name.
-  //document.getElementById('user-pic').style.backgroundImage = 'url(' + addSizeToGoogleProfilePic(profilePicUrl) + ')';
-  //document.getElementById('user-name').textContent = userName;
-}
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [googleError, setGoogleError] = useState('');
+  const [hasAccount, setHasAccount] = useState(false);
 
-  const [email] = useState<string>('');
-  const [password] = useState<string>('');
+  const clearInputs = () => {
+    setEmail('');
+    setPassword('');
+  }
+
+  const clearErrors = () => {
+    setEmailError('');
+    setPasswordError('');    
+  }
+
+  const handleLogin = () => {
+    // normal login function 
+    clearErrors();
+    console.log("login")
+    firebase.auth().signInWithEmailAndPassword(email, password)
+    .catch(err => {
+      switch(err.code){
+        case "auth/invalid-email":
+        case "auth/user-disabled":
+        case "auth/user-not-found":
+          setEmailError(err.message);
+          break;
+        case "auth/wrong-password":
+          setPasswordError(err.message);
+          break;
+      }
+    })
+  }
+
+  const handleSignUp = () => {
+    // sign up function for new users
+    clearErrors();
+    firebase.auth().createUserWithEmailAndPassword(email, password)
+    .then(function(result) {
+      var user = result.user;
+      const isNewUser = result.additionalUserInfo.isNewUser
+      if (isNewUser) {
+        firebase.firestore().collection('users').doc(user.uid).set({
+        name: user.displayName,
+        photoUrl: user.photoURL
+        })       
+      }
+    })
+    .catch(err => {
+      switch(err.code){
+        case "auth/email-already-in-use":
+        case "auth/invalid-email":
+          setEmailError(err.message);
+          break;
+        case "auth/weak-password":
+          setPasswordError(err.message);
+          break;
+      }
+    })
+  }  
+
+    // Signs-in Messaging with GOOGLE POP UP
+  const SignInGooglepu = async() => {
+    // Initiate Firebase Auth.
+    // Sign into Firebase using popup auth & Google as the identity provider.
+    setGoogleError(''); // clear errors
+    var provider = new firebase.auth.GoogleAuthProvider();
+    //Sign in with pop up
+    firebase.auth().signInWithPopup(provider).then(function (result) {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      //var token = result.credential.accessToken;
+      // The signed-in user info.
+      var user = result.user;
+      const isNewUser = result.additionalUserInfo.isNewUser
+      if (isNewUser) {
+        firebase.firestore().collection('users').doc(user.uid).set({
+        name: user.displayName,
+        photoUrl: user.photoURL
+        })       
+      }
+    }).catch(function (error) {
+      // Handle Errors here.
+      setGoogleError(error.message);
+      var errorCode = error.code;
+      var errorMessage = error.message;
+      // The email of the user's account used.
+      var email = error.email;
+      // The firebase.auth.AuthCredential type that was used.
+      var credential = error.credential;
+    });
+    // Get the signed-in user's profile pic and name.
+    //var profilePicUrl = getProfilePicUrl();
+    //var userName = getUserName();
+    // Set the user's profile pic and name.
+    //document.getElementById('user-pic').style.backgroundImage = 'url(' + addSizeToGoogleProfilePic(profilePicUrl) + ')';
+    //document.getElementById('user-name').textContent = userName;
+  }
 
   return (
     <IonPage>
@@ -117,17 +179,37 @@ const SignInGooglepu = async() => {
       </IonToolbar>
       <IonContent>
         <IonItem class="create-card" lines="none">
-          <IonInput class="create-input" value={email} placeholder="username"></IonInput>
+          <IonInput 
+          class="create-input" 
+          value={email} 
+          placeholder="username"
+          onIonChange={e => setEmail(e.detail.value!)}
+          ></IonInput>
         </IonItem>
+        <IonText  class="errormsg">{emailError}</IonText>
         <IonItem class="create-card" lines="none">
-          <IonInput class="create-input" value={password} placeholder="password"></IonInput>
+          <IonInput 
+          class="create-input" 
+          value={password} 
+          placeholder="password"
+          type="password"
+          onIonChange={e => setPassword(e.detail.value!)}
+          ></IonInput>
         </IonItem>
-        <IonItem class="create-card" lines="none">
-          <IonButton class="create-button">Login</IonButton>  
-        </IonItem>        
-        <IonItem class="create-card" lines="none">
-          <IonButton class="create-button" onClick={() => SignInGooglepu()}>Google SignIn</IonButton>  
-        </IonItem>
+        <IonText  class="errormsg">{passwordError}</IonText>
+          {hasAccount ? (
+            <>
+              <IonButton class="create-button" onClick={handleLogin}>Sign in</IonButton>
+              <p className="errormsg">Don't have an account? <span onClick={() => setHasAccount(!hasAccount)}>Sign up</span></p>
+            </>
+          ) : (
+            <>
+              <IonButton class="create-button" onClick={handleSignUp}>Sign up</IonButton>
+              <p className="errormsg">Have an account? <span onClick={() => setHasAccount(!hasAccount)}>Sign in</span></p>
+            </>
+          )}       
+        <IonButton class="create-button" onClick={() => SignInGooglepu()}>Sign in with google</IonButton>  
+        <IonText class="errormsg">{googleError}</IonText>
       </IonContent>
     </IonPage>
   )

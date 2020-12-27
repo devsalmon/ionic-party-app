@@ -60,6 +60,12 @@
     font-size: 35px;
 }
 
+.errormsg {
+    color: red;
+    font-size: 15px!;
+    text-align: center;
+}
+
 .like-panel {
     position: absolute;
     color: yellow;
