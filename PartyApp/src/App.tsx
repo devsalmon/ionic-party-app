@@ -395,7 +395,7 @@ const Party = ({doc, live, classname}) => {
               </IonCol>
               <IonCol>            
                 <IonText>{data.title} <br/></IonText>  
-                <IonText class="white-text">{data.location}</IonText><br/>
+                <IonText class="white-text">{data.address}</IonText><br/>
                 <IonText class="white-text">By {data.host}</IonText>
               </IonCol>                    
             </IonRow>   
@@ -404,7 +404,9 @@ const Party = ({doc, live, classname}) => {
           </AccordionItemButton>
       </AccordionItemHeading>
       <AccordionItemPanel>        
-        <IonItem>Location: {data.location} (maps plugin)</IonItem>        
+        {/* <IonItem>Location: {data.location} (maps plugin)</IonItem>         */}
+        <IonItem>Address: {data.address}</IonItem>
+        <IonItem>Postcode: {data.postcode}</IonItem>
         <IonItem>Starts: {moment(data.dateTime).format('LT')}</IonItem>        
         <IonItem>Ends: {moment(data.endTime).format('LT')}</IonItem>
         <IonItem>Pending invites: 10291</IonItem> 

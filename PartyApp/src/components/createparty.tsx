@@ -67,7 +67,8 @@ const CreateParty = ({initialValue, clear}) => {
   
     const [invitedPeople, setInvitedPeople] = useState([]); // array of invited people
     const [title, setTitle] = useState<string>('');
-    const [location, setLocation] = useState<string>('');
+    const [address, setAddress] = useState<string>('');
+    const [postcode, setPostcode] = useState<string>('');
     const [details, setDetails] = useState<string>('');
     const [endTime, setEndTime] = useState<string>('');
     const [dateTime, setDateTime] = useState<string>('');  
@@ -90,7 +91,7 @@ const CreateParty = ({initialValue, clear}) => {
   }
     const onSave = () => {  
       // validate inputs  
-      const valid = Boolean((title !== "") && (location !== "") && (dateTime !== "") && (endTime !== "") && (details !== ""));
+      const valid = Boolean((title !== "") && (address !== "") && (postcode !== "") && (dateTime !== "") && (endTime !== "") && (details !== ""));
       
       if (valid === false) {
         setShowAlert(true)    
@@ -100,7 +101,8 @@ const CreateParty = ({initialValue, clear}) => {
         // only add documents to collection if forms are validated
           collectionRef.add(
             {title: title, 
-            location: location, 
+            address: address,
+            postcode: postcode,
             date: moment(dateTime).format('LL'), 
             day: moment(dateTime).format('D'), 
             month: moment(dateTime).format('MMM'),
@@ -126,7 +128,8 @@ const CreateParty = ({initialValue, clear}) => {
             })
             //clear fields
             setTitle("");
-            setLocation("");
+            setAddress("");
+            setPostcode("");
             setDetails("");
             setEndTime("");
             setDateTime("");
@@ -162,7 +165,10 @@ const CreateParty = ({initialValue, clear}) => {
             <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>
           </IonItem>
           <IonItem class="create-card" lines="none">   
-            <IonInput class="create-input" value={location}  onIonChange={e => setLocation(e.detail.value!)} placeholder="Postcode" clearInput></IonInput>                               
+            <IonInput class="create-input" value={address}  onIonChange={e => setAddress(e.detail.value!)} placeholder="Address" clearInput></IonInput>                               
+          </IonItem>
+          <IonItem class="create-card" lines="none">   
+            <IonInput class="create-input" value={postcode}  onIonChange={e => setPostcode(e.detail.value!)} placeholder="Postcode" clearInput></IonInput>                               
           </IonItem>
           {/* <IonItem class="create-card" lines="none">
             <IonButton class="create-button" expand="block"  href='/googlemap'> See Map </IonButton>  
