@@ -6,6 +6,7 @@ import {
   IonText,
   IonItem,
 } from '@ionic/react';
+
 import { 
 } from 'ionicons/icons';
 import '../App.css'

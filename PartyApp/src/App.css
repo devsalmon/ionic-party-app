@@ -75,6 +75,10 @@
     font-size: 20px;  
 }
 
+.list {
+    background-color: black;
+}
+
 .live-item {
     border-top: 1px solid red;
     border-bottom: 1px solid red;    
@@ -174,6 +178,12 @@
     font-size: 12px;
 }
 
+ion-button {
+    --color: yellow;
+    --background: black;
+    --background-hover-opacity: 0.3;
+}
+
 ion-buttons {
     --background: yellow;
     --background-hover-opacity: 0.3;
@@ -228,10 +238,6 @@ ion-label {
     font-weight: bold;
     text-transform: uppercase;
     color: yellow
-}
-
-ion-list {
-    --background: black;
 }
 
 ion-picker {

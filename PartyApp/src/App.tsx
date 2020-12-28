@@ -3,7 +3,7 @@ import Users from './components/users';
 import CreateParty from './components/createparty';
 import MapContainer from './components/mapcontainer';
 import Gallery from './components/gallery';
-import Memory from './components/memory';
+import MemoryList from './components/memories';
 import {
     Accordion,
     AccordionItem,
@@ -49,9 +49,9 @@ import {
 } from 'ionicons/icons';
 import {useCamera} from '@ionic/react-hooks/camera';
 import {CameraResultType, CameraSource} from '@capacitor/core';
-import './App.css'
-import firebase from './firestore'
-import moment from 'moment'
+import './App.css';
+import firebase from './firestore';
+import moment from 'moment';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */
@@ -186,7 +186,7 @@ const SignIn = () => {
           onIonChange={e => setEmail(e.detail.value!)}
           ></IonInput>
         </IonItem>
-        <IonText  class="errormsg">{emailError}</IonText>
+        <IonText class="errormsg">{emailError}</IonText>
         <IonItem class="create-card" lines="none">
           <IonInput 
           class="create-input" 
@@ -196,7 +196,7 @@ const SignIn = () => {
           onIonChange={e => setPassword(e.detail.value!)}
           ></IonInput>
         </IonItem>
-        <IonText  class="errormsg">{passwordError}</IonText>
+        <IonText class="errormsg">{passwordError}</IonText>
           {hasAccount ? (
             <>
               <IonButton class="create-button" onClick={handleLogin}>Sign in</IonButton>
@@ -219,107 +219,6 @@ const SignIn = () => {
 // Add friends
 // delete party document in firebase after it's happened
 
-const MemoryList = () => {
-
-  const [parties, setParties] = useState([]);  
-  const [id, setID] = useState<string>('');
-  const [inGallery, setInGallery] = useState(false);
-
-  useEffect(() => {  
-    // useeffect hook only runs after first render so it only runs once
-    displayParties();
-    // this means display parties only runs once
-  },
-  []);  
-
-  // if memory card clicked, go to gallery
-  const enter = (id) => {
-    setInGallery(true)
-    setID(id)
-  }  
-
-  const today = new Date();
-  const yourparties = [];
-  const otherparties = [];
-
-
-  const displayParties = () => {
-    // get current user 
-    var current_user = firebase.auth().currentUser.uid;
-    // get the document of the current user from firestore users collection
-    firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {      
-      var i; // define counter for the for loop   
-      // loop through all parties in the user's document as long as there are parties there
-      if (doc.data().myParties.length > 0) {
-        for (i = 0; i < doc.data().myParties.length; i++) {     
-          // get party of the curr_id from the user's document
-          let current_id = doc.data().myParties[i]
-          firebase.firestore().collection("parties").doc(current_id).get().then(function(doc) {
-            // setState to contian all the party documents from the user's document
-            setParties(parties => [
-              ...parties,
-              {
-                id: current_id,
-                doc: doc,
-              }
-            ]);
-          })
-        }
-      }
-    })        
-  }
-
-  parties && parties.map(party_id => {
-    let data = party_id.doc.data();
-    // if the party has happened display on memories - if host is current user, diaply in hosted parties 
-    if (moment(data.endTime).isBefore(today) && data.host === firebase.auth().currentUser.displayName) {           
-      yourparties.push(party_id.doc)       
-    } else if (moment(data.endTime).isBefore(today)) {
-      otherparties.push(party_id.doc)
-    }    
-  });
-
-  if (inGallery) {
-    return(
-        <>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonButton color="warning" fill="clear" onClick={() => setInGallery(false)}>
-              <IonIcon icon={chevronBackSharp} />
-            </IonButton>
-          </IonButtons>
-          <IonTitle>Memories</IonTitle>
-          <IonButtons slot="end">
-            <IonButton disabled></IonButton>
-          </IonButtons>
-        </IonToolbar>
-        <Gallery id={id} key={id}/>
-        </>
-      )
-  } else {
-    return(
-      <>
-        <IonToolbar>
-          <IonTitle>Memories</IonTitle>
-        </IonToolbar>
-        <IonContent fullscreen={true}>
-        <IonText class="ion-padding-start">Your parties</IonText>
-        {yourparties.length === 0 ?
-        <IonText class="ion-padding-start"> <br/> <br/> No hosted parties yet..</IonText> :
-        yourparties.map(doc => {
-          return(<Memory doc={doc} key={doc.id} click={() => enter(doc.id)}/>)          
-        })}
-        <IonText class="ion-padding-start"><br/>Parties attended</IonText>
-        {otherparties.length === 0 ?
-        <IonText class="white-text"> <br/> <br/> nothing here yet.. </IonText> : 
-        otherparties.map(doc => {
-          return(<Memory doc={doc} key={doc.id} click={() => enter(doc.id)}/>)          
-        })}        
-        </IonContent>
-      </>
-    )
-  }
-}
 const Party = ({doc, live, classname}) => {
   // party card
 
@@ -395,7 +294,7 @@ const Party = ({doc, live, classname}) => {
               </IonCol>
               <IonCol>            
                 <IonText>{data.title} <br/></IonText>  
-                <IonText class="white-text">{data.address}</IonText><br/>
+                <IonText class="white-text">{data.location}</IonText><br/>
                 <IonText class="white-text">By {data.host}</IonText>
               </IonCol>                    
             </IonRow>   
@@ -404,9 +303,7 @@ const Party = ({doc, live, classname}) => {
           </AccordionItemButton>
       </AccordionItemHeading>
       <AccordionItemPanel>        
-        {/* <IonItem>Location: {data.location} (maps plugin)</IonItem>         */}
-        <IonItem>Address: {data.address}</IonItem>
-        <IonItem>Postcode: {data.postcode}</IonItem>
+        <IonItem>Location: {data.location} (maps plugin)</IonItem>        
         <IonItem>Starts: {moment(data.dateTime).format('LT')}</IonItem>        
         <IonItem>Ends: {moment(data.endTime).format('LT')}</IonItem>
         <IonItem>Pending invites: 10291</IonItem> 
@@ -705,7 +602,7 @@ const Request = ({id}) => {
 const Memories: React.FC = () => {
   return(
     <IonPage>
-      <MemoryList />
+      <MemoryList memoriesPage={true}/>
         {/* to allow for last item in list to be clicked (otherwise it's covered by tabbar) */}
         <br/> <br/> <br/> <br/> <br/> <br/>
     </IonPage>
