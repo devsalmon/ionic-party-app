@@ -95,8 +95,7 @@ const CreateParty = ({initialValue, clear}) => {
       
       if (valid === false) {
         setShowAlert(true)    
-      } else if (valid === true) {
-        setShowToast(valid);
+      } else if (valid === true) {        
         let collectionRef = firebase.firestore().collection("parties");
         // only add documents to collection if forms are validated
           collectionRef.add(
@@ -115,7 +114,7 @@ const CreateParty = ({initialValue, clear}) => {
             createdOn: moment(new Date()).format('LL'), 
             }).then(function(docRef) {
               console.log(docRef.id)
-              
+              setShowToast(valid);
               //if people accept then add them to list below.
               invitedPeople && invitedPeople.map(person => {
                 firebase.firestore().collection("users").doc(person.id).update({

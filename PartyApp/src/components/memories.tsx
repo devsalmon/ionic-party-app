@@ -43,8 +43,8 @@ const MemoryList = ({memoriesPage}) => {
 
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once
-    displayParties();
-    // this means display parties only runs once
+    findParties();
+    // this means find parties only runs once
   },
   []);  
 
@@ -59,7 +59,7 @@ const MemoryList = ({memoriesPage}) => {
   const partiesAttended = [];
 
 
-  const displayParties = () => {
+  const findParties = () => {
     // get current user 
     var current_user = firebase.auth().currentUser.uid;
     // get the document of the current user from firestore users collection
@@ -69,7 +69,7 @@ const MemoryList = ({memoriesPage}) => {
       if (doc.data().myParties.length > 0) {
         for (i = 0; i < doc.data().myParties.length; i++) {     
           // get party of the curr_id from the user's document
-          let current_id = doc.data().myParties[i]
+          let current_id = doc.data().myParties && doc.data().myParties[i]
           firebase.firestore().collection("parties").doc(current_id).get().then(function(doc) {
             // setState to contian all the party documents from the user's document
             setParties(parties => [

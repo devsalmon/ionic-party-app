@@ -4,6 +4,7 @@ import CreateParty from './components/createparty';
 import MapContainer from './components/mapcontainer';
 import Gallery from './components/gallery';
 import MemoryList from './components/memories';
+import SignIn from './components/signin';
 import {
     Accordion,
     AccordionItem,
@@ -69,151 +70,6 @@ import '@ionic/react/css/display.css';
 import './variables.css';
 import Profile from './components/profile';
 // once finished, run ionic build then npx cap add ios and npx cap add android
-
-const SignIn = () => {
-
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [googleError, setGoogleError] = useState('');
-  const [hasAccount, setHasAccount] = useState(false);
-
-  const clearInputs = () => {
-    setEmail('');
-    setPassword('');
-  }
-
-  const clearErrors = () => {
-    setEmailError('');
-    setPasswordError('');    
-  }
-
-  const handleLogin = () => {
-    // normal login function 
-    clearErrors();
-    console.log("login")
-    firebase.auth().signInWithEmailAndPassword(email, password)
-    .catch(err => {
-      switch(err.code){
-        case "auth/invalid-email":
-        case "auth/user-disabled":
-        case "auth/user-not-found":
-          setEmailError(err.message);
-          break;
-        case "auth/wrong-password":
-          setPasswordError(err.message);
-          break;
-      }
-    })
-  }
-
-  const handleSignUp = () => {
-    // sign up function for new users
-    clearErrors();
-    firebase.auth().createUserWithEmailAndPassword(email, password)
-    .then(function(result) {
-      var user = result.user;
-      const isNewUser = result.additionalUserInfo.isNewUser
-      if (isNewUser) {
-        firebase.firestore().collection('users').doc(user.uid).set({
-        name: user.displayName,
-        photoUrl: user.photoURL
-        })       
-      }
-    })
-    .catch(err => {
-      switch(err.code){
-        case "auth/email-already-in-use":
-        case "auth/invalid-email":
-          setEmailError(err.message);
-          break;
-        case "auth/weak-password":
-          setPasswordError(err.message);
-          break;
-      }
-    })
-  }  
-
-    // Signs-in Messaging with GOOGLE POP UP
-  const SignInGooglepu = async() => {
-    // Initiate Firebase Auth.
-    // Sign into Firebase using popup auth & Google as the identity provider.
-    setGoogleError(''); // clear errors
-    var provider = new firebase.auth.GoogleAuthProvider();
-    //Sign in with pop up
-    firebase.auth().signInWithPopup(provider).then(function (result) {
-      // This gives you a Google Access Token. You can use it to access the Google API.
-      //var token = result.credential.accessToken;
-      // The signed-in user info.
-      var user = result.user;
-      const isNewUser = result.additionalUserInfo.isNewUser
-      if (isNewUser) {
-        firebase.firestore().collection('users').doc(user.uid).set({
-        name: user.displayName,
-        photoUrl: user.photoURL
-        })       
-      }
-    }).catch(function (error) {
-      // Handle Errors here.
-      setGoogleError(error.message);
-      var errorCode = error.code;
-      var errorMessage = error.message;
-      // The email of the user's account used.
-      var email = error.email;
-      // The firebase.auth.AuthCredential type that was used.
-      var credential = error.credential;
-    });
-    // Get the signed-in user's profile pic and name.
-    //var profilePicUrl = getProfilePicUrl();
-    //var userName = getUserName();
-    // Set the user's profile pic and name.
-    //document.getElementById('user-pic').style.backgroundImage = 'url(' + addSizeToGoogleProfilePic(profilePicUrl) + ')';
-    //document.getElementById('user-name').textContent = userName;
-  }
-
-  return (
-    <IonPage>
-      <IonToolbar>
-        <IonTitle size="large">Sign in</IonTitle>
-      </IonToolbar>
-      <IonContent>
-        <IonItem class="create-card" lines="none">
-          <IonInput 
-          class="create-input" 
-          value={email} 
-          placeholder="username"
-          onIonChange={e => setEmail(e.detail.value!)}
-          ></IonInput>
-        </IonItem>
-        <IonText class="errormsg">{emailError}</IonText>
-        <IonItem class="create-card" lines="none">
-          <IonInput 
-          class="create-input" 
-          value={password} 
-          placeholder="password"
-          type="password"
-          onIonChange={e => setPassword(e.detail.value!)}
-          ></IonInput>
-        </IonItem>
-        <IonText class="errormsg">{passwordError}</IonText>
-          {hasAccount ? (
-            <>
-              <IonButton class="create-button" onClick={handleLogin}>Sign in</IonButton>
-              <p className="errormsg">Don't have an account? <span onClick={() => setHasAccount(!hasAccount)}>Sign up</span></p>
-            </>
-          ) : (
-            <>
-              <IonButton class="create-button" onClick={handleSignUp}>Sign up</IonButton>
-              <p className="errormsg">Have an account? <span onClick={() => setHasAccount(!hasAccount)}>Sign in</span></p>
-            </>
-          )}       
-        <IonButton class="create-button" onClick={() => SignInGooglepu()}>Sign in with google</IonButton>  
-        <IonText class="errormsg">{googleError}</IonText>
-      </IonContent>
-    </IonPage>
-  )
-}
 
 //TODO - 
 // Add friends
@@ -330,15 +186,13 @@ const PartyList = () => {
   // for friend request bit.
   const collectionRef = firebase.firestore().collection("friend_requests"); 
   const [reqs, setReqs] = useState([]); 
-  
   const [parties, setParties] = useState([]);
 
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once
     displayParties();
     // this means display parties only runs once
-  },
-  []);  
+  },  []);  
 
   //This just handles the requests once they have been made.
   //On refresh check current user's 'request from' array inside friend requests and display their profile. Then see
@@ -353,7 +207,7 @@ const PartyList = () => {
       
       var i; // define counter for the for loop     
       for (i = 0; i < doc.data().request_from.length; i++) {
-        var curr_id = doc.data().request_from[i]
+        var curr_id = doc.data().request_from && doc.data().request_from[i]
         // set curr_id to the current id in the request_from list
         console.log(i, curr_id)
         // if the current id (i.e. request from) is already in the state, don't do anything        
@@ -389,10 +243,11 @@ const PartyList = () => {
       console.log(doc.data().myParties);  
       var i; // define counter for the for loop   
       // loop through all parties in the user's document as long as there are parties there
-      if (doc.data().myParties) {
-        for (i = 0; i < doc.data().myParties.length; i++) {              
-          var curr_id = doc.data().myParties[i];  
+      // loop through until state (parties) has same number of parties as myParties array
+      if (doc.data().myParties && doc.data().myParties.length !== parties.length) {
+        for (i = 0; i < doc.data().myParties.length; i++) {     
           // get party of the curr_id from the user's document
+          let curr_id = doc.data().myParties && doc.data().myParties[i];
           firebase.firestore().collection("parties").doc(curr_id).get().then(function(doc) {
             // setState to contian all the party documents from the user's document
             setParties(parties => [
@@ -413,24 +268,26 @@ const PartyList = () => {
     //refreshing bit first. This just handles the requests once they have been made.
     <IonContent fullscreen={true}>
       <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
-      <IonRefresherContent
-        pullingIcon={chevronDownCircleOutline}
-        refreshingSpinner="circles">
-      </IonRefresherContent>
-    </IonRefresher>
-    {reqs && reqs.map(req => 
-        (<Request id={req.name} key={req.id}/>)
-    )}
+        <IonRefresherContent
+          pullingIcon={chevronDownCircleOutline}
+          refreshingSpinner="circles">
+        </IonRefresherContent>
+      </IonRefresher> 
+      {reqs && reqs.map(req => 
+          (<Request id={req.name} key={req.id}/>)
+      )}
       <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>   
-      {parties && parties.map(party_id => {
+      {parties && parties.map(party => {
           const today = new Date();  
-          let data = party_id.doc.data();
+          console.log("parties", parties);
+          let data = party.doc.data()
+          console.log(data)
           // if the party is now, display in live parties with camera function
           if (moment(today).isBetween(data.dateTime, data.endTime)) {
             return(          
                 <>
                 <IonTitle color="danger">LIVE!</IonTitle>              
-                <Party doc={party_id.doc} key={data.id + "live"} live={true} classname="live-item"/>              
+                <Party doc={party.doc} key={data.id + "live"} live={true} classname="live-item"/>              
                 <br/>
                 </>
               );                    
@@ -438,7 +295,7 @@ const PartyList = () => {
           if (moment(data.dateTime).isAfter(today)) {
             return( 
               <>
-              <Party key={data.id} doc={party_id.doc} live={false} classname="accordion-item"/>
+              <Party key={data.id} doc={party.doc} live={false} classname="accordion-item"/>
               </>
             );                
           }        
@@ -668,10 +525,12 @@ const SignedInRoutes: React.FC = () => {
     </IonReactRouter>  
   )
 }
-const App: React.FC =() => {
+
+const App: React.FC = () => {
   // Triggers when the auth state change for instance when the user signs-in or signs-out.
   const [loading, setLoading] = useState(true);
   const [signedIn, setSignedIn] = useState(false)
+
   useEffect(() => {
     firebase.auth().onAuthStateChanged(function(user) {
       var user = firebase.auth().currentUser;
@@ -684,6 +543,7 @@ const App: React.FC =() => {
         setLoading(false)
     })
   })
+
   if (loading) {
     return(
       <IonApp>
@@ -700,12 +560,7 @@ const App: React.FC =() => {
         { signedIn ? (
           <SignedInRoutes />
         ) : (     
-          <IonReactRouter>
-            <IonRouterOutlet>
-              <Route path='/signin' component={SignIn} />
-              <Route exact path="/" render={() => <Redirect to="/signin" />} />
-            </IonRouterOutlet>    
-          </IonReactRouter>         
+          <SignIn />    
         )}
     </IonApp>
   )

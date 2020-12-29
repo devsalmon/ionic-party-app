@@ -75,7 +75,19 @@ const Profile: React.FC = () => {
             <IonList class="list">      
               <IonButton href="/signin" onClick={() => signOut()}>
                 Sign out              
-              </IonButton>
+              </IonButton> <br/>
+              <IonButton>
+                Change username              
+              </IonButton> <br/>
+              <IonButton>
+                Change password              
+              </IonButton>  
+              <IonButton>
+                Notifications
+              </IonButton>          
+              <IonButton>
+                Help
+              </IonButton>                 
             </IonList>
           </IonContent>
         </IonMenu>
