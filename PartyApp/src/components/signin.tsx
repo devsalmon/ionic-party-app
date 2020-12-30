@@ -15,65 +15,139 @@ import {
 const SignIn = () => {
 
   const [email, setEmail] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [fullname, setFullname] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [fullnameError, setFullnameError] = useState('');
+  const [usernameError, setUsernameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [googleError, setGoogleError] = useState('');
+  const [fieldsMissing, setFieldsMissing] = useState(false);
   const [hasAccount, setHasAccount] = useState(false);
+  const [linkSent, setLinkSent] = useState(false);
+
+  useEffect(() => {
+    console.log("signin useffect");
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user != null) {
+        var user = firebase.auth().currentUser;
+        if (user.emailVerified === true) { // only log user in if they have verified their email
+          //logged in         
+          console.log("signin verified")
+          firebase.firestore().collection('users').doc(username).set({
+            fullname: fullname,
+            username: username,
+            email: email,
+            mobileNumber: mobileNumber ? mobileNumber : null              
+          })                
+        }     
+      } 
+    })
+  }, [])
 
   const clearInputs = () => {
     setEmail('');
+    setMobileNumber('');
+    setFullname('');
+    setUsername('');
     setPassword('');
+    setLinkSent(false);
   }
 
   const clearErrors = () => {
     setEmailError('');
-    setPasswordError('');    
+    setFullnameError('');
+    setUsernameError('');
+    setPasswordError('');  
+    setFieldsMissing(false);  
   }
 
   const handleLogin = () => {
     // normal login function 
-    clearErrors();    
+    clearErrors();   
+    // check all fields have a value 
+    if (email === "" || password === "") {
+      setFieldsMissing(true);
+    } else { 
+      setFieldsMissing(false);
+    }     
     firebase.auth().signInWithEmailAndPassword(email, password)
-    .then(function(user){
-      console.log("login")
-    })
-    .catch(err => {
-      switch(err.code){
-        case "auth/invalid-email":
-        case "auth/user-disabled":
-        case "auth/user-not-found":
-          setEmailError(err.message);
-          break;
-        case "auth/wrong-password":
-          setPasswordError(err.message);
-          break;
-      }
-    })
+      .then(function(user){
+        clearInputs(); // clear all inputs when a user has signed in       
+      })
+      .catch(err => {
+        switch(err.code){
+          case "auth/invalid-email":
+          case "auth/user-disabled":
+          case "auth/user-not-found":
+            setEmailError(err.message);
+            break;
+          case "auth/wrong-password":
+            setPasswordError(err.message);
+            break;
+        }
+      })
   }
+
+  var actionCodeSettings = {
+    url: 'https://partyuptest.page.link/partyuptestlink',
+    iOS: {
+      bundleId: 'com.partyuptest.ios'
+    },
+    android: {
+      packageName: 'com.partyuptest.android',
+      installApp: true,
+      minimumVersion: '12'
+    },
+    handleCodeInApp: true,
+    // When multiple custom dynamic link domains are defined, specify which
+    // one to use.
+    dynamicLinkDomain: "partyuptest.page.link"
+  };  
 
   const handleSignUp = () => {
     // sign up function for new users
     clearErrors();
-    firebase.auth().createUserWithEmailAndPassword(email, password)
-    .then(function(data) {
-      console.log("signup")
-      firebase.firestore().collection('users').doc(data.user.uid).set({
-        name: data.user.displayName,
-        photoUrl: data.user.photoURL
+    // check all fields have a value
+    if (email === "" || fullname === "" || username === "" || password === "") {
+      setFieldsMissing(true);
+    } else { 
+      setFieldsMissing(false);
+    }
+    // check username doesn't already exist
+    username && firebase.firestore().collection('users').doc(username).get()
+      .then((docSnapshot) => {
+        if (docSnapshot.exists) {
+          // username already exists
+          setUsernameError("Username already exists, try another one");
+        } else {
+          // if username is valid, create user then send verification link before they can access the app
+          usernameError === "" && firebase.auth().createUserWithEmailAndPassword(email, password)
+            .then(function(data) {
+              var user = firebase.auth().currentUser;
+              user.sendEmailVerification(actionCodeSettings).then(function() {
+                // Email sent.
+                setLinkSent(true);
+              }).catch(function(error) {
+                console.log(error.message)
+              });       
+              clearInputs(); // clear all inputs when a user has signed in      
+            })
+            .catch(err => {
+              switch(err.code){
+                case "auth/email-already-exists":
+                case "auth/invalid-email":
+                  setEmailError(err.message);
+                  break;
+                case "auth/weak-password":
+                  setPasswordError(err.message);
+                  break;
+              }
+            })  
+        }
       })
-    })
-    .catch(err => {
-      switch(err.code){
-        case "auth/email-already-in-use":
-        case "auth/invalid-email":
-          setEmailError(err.message);
-          break;
-        case "auth/weak-password":
-          setPasswordError(err.message);
-          break;
-      }
-    })
   }  
 
     // Signs-in Messaging with GOOGLE POP UP
@@ -112,7 +186,8 @@ const SignIn = () => {
       <IonToolbar>
         <IonTitle size="large">Sign in</IonTitle>
       </IonToolbar>
-      <IonContent>         
+      <IonContent>   
+        <IonText>(logo here)</IonText><br/><br/>      
         <IonInput 
         class="create-input"
         value={email} 
@@ -121,6 +196,28 @@ const SignIn = () => {
         onIonChange={e => setEmail(e.detail.value!)}
         ></IonInput>
         <IonText class="errormsg">{emailError}</IonText>
+        {hasAccount ? 
+          null : (
+            <>
+              <IonInput 
+              class="create-input" 
+              value={fullname} 
+              placeholder="Full name"
+              type="text"
+              onIonChange={e => setFullname(e.detail.value!)}
+              ></IonInput>  
+              <IonText class="errormsg">{fullnameError}</IonText>
+              <IonInput 
+              class="create-input" 
+              value={username} 
+              placeholder="Username"
+              type="text"
+              onIonChange={e => setUsername(e.detail.value!)}
+              ></IonInput> 
+              <IonText class="errormsg">{usernameError}</IonText>
+            </>
+          )
+        }       
         <IonInput 
         class="create-input" 
         value={password} 
@@ -129,6 +226,7 @@ const SignIn = () => {
         onIonChange={e => setPassword(e.detail.value!)}
         ></IonInput>
         <IonText class="errormsg">{passwordError}</IonText>
+        <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
           {hasAccount ? (
             <>
               <IonButton class="create-button" onClick={() => handleLogin()}>Sign in</IonButton>
@@ -139,7 +237,10 @@ const SignIn = () => {
               <IonButton class="create-button" onClick={() => handleSignUp()}>Sign up</IonButton>
               <p className="errormsg">Have an account? <span onClick={() => setHasAccount(!hasAccount)}>Sign in</span></p>
             </>
-          )}       
+          )}
+          {linkSent ? (
+            <IonText class="errormsg">A verification link has been sent to your email, please click it to finish signing up</IonText>
+          ) : (null)}       
         <IonButton class="create-button" onClick={() => SignInGooglepu()}>Sign in with google</IonButton>  
         <IonText class="errormsg">{googleError}</IonText>
       </IonContent>

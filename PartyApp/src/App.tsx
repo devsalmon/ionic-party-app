@@ -82,7 +82,7 @@ const Party = ({doc, live, classname}) => {
   const [picture, setPicture] = useState<string>('')
   const {getPhoto} = useCamera(); 
   const [isLive, setIsLive] = useState(live);
-
+ 
   const onSave = async() => { 
     if (picture !== "") {
     await collectionRef.doc(doc.id).collection('pictures').add({
@@ -528,20 +528,24 @@ const SignedInRoutes: React.FC = () => {
 const App: React.FC = () => {
   // Triggers when the auth state change for instance when the user signs-in or signs-out.
   const [loading, setLoading] = useState(true);
-  const [signedIn, setSignedIn] = useState(false)
+  const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
+    console.log("app useeffect")
     firebase.auth().onAuthStateChanged(function(user) {
-      var user = firebase.auth().currentUser;
-        if (user != null) {
-          //logged in 
-          setSignedIn(true)
-        } else {  
-          setSignedIn(false)     
-        }
-        setLoading(false)
+      if (user != null) {
+        var user = firebase.auth().currentUser;
+        if (user.emailVerified === true) { // only log user in if they have verified their email
+          //logged in         
+          console.log("app verified")  
+          setSignedIn(true);                
+        }     
+      } else {  
+        setSignedIn(false)     
+      }
+      setLoading(false)
     })
-  })
+  }, [])
 
   if (loading) {
     return(
@@ -559,12 +563,22 @@ const App: React.FC = () => {
         { signedIn ? (
           <SignedInRoutes />
         ) : (     
-          <IonReactRouter>
-            <IonRouterOutlet>
-              <Route path='/signin' component={SignIn} />
-              <Route exact path="/" render={() => <Redirect to="/signin" />} />
-            </IonRouterOutlet>    
-          </IonReactRouter>
+          <SignIn />
+          // <SignIn 
+          //   email = {email} setEmail = {setEmail}
+          //   mobileNumber = {mobileNumber} setMobilenumber = {setMobilenumber}
+          //   fullname = {fullname} setFullname = {setFullname}
+          //   username = {username} setUsername = {setUsername}
+          //   password = {password} setPassword = {setPassword}
+          //   emailError = {emailError} setEmailError = {setEmailError}
+          //   fullnameError = {fullnameError} setFullnameError = {setFullnameError}
+          //   usernameError = {usernameError} setUsernameError = {setUsernameError}
+          //   passwordError = {passwordError} setPasswordError = {setPasswordError}
+          //   googleError = {googleError} setGoogleError = {setGoogleError}
+          //   fieldsMissing = {fieldsMissing} setFieldsMissing = {setFieldsMissing}
+          //   hasAccount = {hasAccount} setHasAccount = {setHasAccount}
+          //   linkSent = {linkSent} setLinkSent = {setLinkSent}
+          // />
         )}
     </IonApp>
   )
