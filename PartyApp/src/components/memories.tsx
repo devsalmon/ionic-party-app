@@ -66,7 +66,7 @@ const MemoryList = ({memoriesPage}) => {
     firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {      
       var i; // define counter for the for loop   
       // loop through all parties in the user's document as long as there are parties there
-      if (doc.data().myParties.length > 0) {
+      if (doc.data().myParties && doc.data().myParties.length > 0) {
         for (i = 0; i < doc.data().myParties.length; i++) {     
           // get party of the curr_id from the user's document
           let current_id = doc.data().myParties && doc.data().myParties[i]

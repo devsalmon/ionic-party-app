@@ -239,8 +239,7 @@ const PartyList = () => {
     // get current user 
     var current_user = firebase.auth().currentUser.uid;
     // get the document of the current user from firestore users collection
-    firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {
-      console.log(doc.data().myParties);  
+    firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {      
       var i; // define counter for the for loop   
       // loop through all parties in the user's document as long as there are parties there
       // loop through until state (parties) has same number of parties as myParties array
@@ -560,7 +559,12 @@ const App: React.FC = () => {
         { signedIn ? (
           <SignedInRoutes />
         ) : (     
-          <SignIn />    
+          <IonReactRouter>
+            <IonRouterOutlet>
+              <Route path='/signin' component={SignIn} />
+              <Route exact path="/" render={() => <Redirect to="/signin" />} />
+            </IonRouterOutlet>    
+          </IonReactRouter>
         )}
     </IonApp>
   )

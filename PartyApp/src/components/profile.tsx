@@ -81,10 +81,10 @@ const Profile: React.FC = () => {
               </IonButton> <br/>
               <IonButton>
                 Change password              
-              </IonButton>  
+              </IonButton><br/>  
               <IonButton>
                 Notifications
-              </IonButton>          
+              </IonButton><br/>          
               <IonButton>
                 Help
               </IonButton>                 
