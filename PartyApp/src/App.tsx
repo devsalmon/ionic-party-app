@@ -533,16 +533,9 @@ const App: React.FC = () => {
   useEffect(() => {
     console.log("app useeffect")
     firebase.auth().onAuthStateChanged(function(user) {
-      if (user != null) {
-        var user = firebase.auth().currentUser;
-        if (user.emailVerified === true) { // only log user in if they have verified their email
-          //logged in         
-          console.log("app verified")  
-          setSignedIn(true);                
-        }     
-      } else {  
-        setSignedIn(false)     
-      }
+      if (user && user.emailVerified) { // if new user logs in and is email verified 
+        setSignedIn(true);  
+      } 
       setLoading(false)
     })
   }, [])
@@ -563,22 +556,12 @@ const App: React.FC = () => {
         { signedIn ? (
           <SignedInRoutes />
         ) : (     
-          <SignIn />
-          // <SignIn 
-          //   email = {email} setEmail = {setEmail}
-          //   mobileNumber = {mobileNumber} setMobilenumber = {setMobilenumber}
-          //   fullname = {fullname} setFullname = {setFullname}
-          //   username = {username} setUsername = {setUsername}
-          //   password = {password} setPassword = {setPassword}
-          //   emailError = {emailError} setEmailError = {setEmailError}
-          //   fullnameError = {fullnameError} setFullnameError = {setFullnameError}
-          //   usernameError = {usernameError} setUsernameError = {setUsernameError}
-          //   passwordError = {passwordError} setPasswordError = {setPasswordError}
-          //   googleError = {googleError} setGoogleError = {setGoogleError}
-          //   fieldsMissing = {fieldsMissing} setFieldsMissing = {setFieldsMissing}
-          //   hasAccount = {hasAccount} setHasAccount = {setHasAccount}
-          //   linkSent = {linkSent} setLinkSent = {setLinkSent}
-          // />
+          <IonReactRouter>
+            <IonRouterOutlet>
+              <Route path='/signin' component={SignIn} />
+              <Route exact path="/" render={() => <Redirect to="/signin" />} />
+            </IonRouterOutlet>    
+          </IonReactRouter>     
         )}
     </IonApp>
   )

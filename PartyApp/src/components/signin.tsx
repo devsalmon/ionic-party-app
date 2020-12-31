@@ -29,23 +29,59 @@ const SignIn = () => {
   const [linkSent, setLinkSent] = useState(false);
 
   useEffect(() => {
-    console.log("signin useffect");
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (user != null) {
-        var user = firebase.auth().currentUser;
-        if (user.emailVerified === true) { // only log user in if they have verified their email
-          //logged in         
-          console.log("signin verified")
-          firebase.firestore().collection('users').doc(username).set({
-            fullname: fullname,
-            username: username,
-            email: email,
-            mobileNumber: mobileNumber ? mobileNumber : null              
-          })                
-        }     
-      } 
-    })
-  }, [])
+    clearInputs(); // clear all inputs when a user has signed in            
+  }, [hasAccount])
+
+  var actionCodeSettings = {
+    url: 'https://partyuptest.page.link/partyuptestlink',
+    iOS: {
+      bundleId: 'com.partyuptest.ios'
+    },
+    android: {
+      packageName: 'com.partyuptest.android',
+      installApp: true,
+      minimumVersion: '12'
+    },
+    handleCodeInApp: true,
+    // When multiple custom dynamic link domains are defined, specify which
+    // one to use.
+    dynamicLinkDomain: "partyuptest.page.link"
+  };  
+
+  const userVerification = () => {
+    var user = firebase.auth().currentUser;
+    user.sendEmailVerification().then(function() {
+      setLinkSent(true);
+    }).catch(function(error) {
+      console.log(error.message)
+      console.log(error.code)
+    });   
+  }
+
+  const createUser = () => {
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+      .then(function(data) {     
+        let collectionRef = firebase.firestore().collection("users");
+        collectionRef.add({
+          fullname: fullname,
+          username: username,
+          email: email,
+          mobileNumber: mobileNumber ? mobileNumber : null              
+        })    
+        userVerification();      
+      })    
+        .catch(err => {
+          switch(err.code){
+            case "auth/email-already-in-use":
+            case "auth/invalid-email":
+              setEmailError(err.message);
+              break;
+            case "auth/weak-password":
+              setPasswordError(err.message);
+              break;
+          }
+        })  
+  }
 
   const clearInputs = () => {
     setEmail('');
@@ -91,22 +127,6 @@ const SignIn = () => {
       })
   }
 
-  var actionCodeSettings = {
-    url: 'https://partyuptest.page.link/partyuptestlink',
-    iOS: {
-      bundleId: 'com.partyuptest.ios'
-    },
-    android: {
-      packageName: 'com.partyuptest.android',
-      installApp: true,
-      minimumVersion: '12'
-    },
-    handleCodeInApp: true,
-    // When multiple custom dynamic link domains are defined, specify which
-    // one to use.
-    dynamicLinkDomain: "partyuptest.page.link"
-  };  
-
   const handleSignUp = () => {
     // sign up function for new users
     clearErrors();
@@ -123,32 +143,10 @@ const SignIn = () => {
           // username already exists
           setUsernameError("Username already exists, try another one");
         } else {
-          // if username is valid, create user then send verification link before they can access the app
-          usernameError === "" && firebase.auth().createUserWithEmailAndPassword(email, password)
-            .then(function(data) {
-              var user = firebase.auth().currentUser;
-              user.sendEmailVerification(actionCodeSettings).then(function() {
-                // Email sent.
-                setLinkSent(true);
-              }).catch(function(error) {
-                console.log(error.message)
-              });       
-              clearInputs(); // clear all inputs when a user has signed in      
-            })
-            .catch(err => {
-              switch(err.code){
-                case "auth/email-already-exists":
-                case "auth/invalid-email":
-                  setEmailError(err.message);
-                  break;
-                case "auth/weak-password":
-                  setPasswordError(err.message);
-                  break;
-              }
-            })  
-        }
-      })
-  }  
+          // if username is valid, create user and send verification link before they can log in
+          createUser()
+        }})
+    }
 
     // Signs-in Messaging with GOOGLE POP UP
   const SignInGooglepu = async() => {
