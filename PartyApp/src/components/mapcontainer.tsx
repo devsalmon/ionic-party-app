@@ -19,6 +19,9 @@ import {
 } from 'ionicons/icons';
 import '../App.css'
 
+// not in use atm
+
+
 const MapContainer = ({styles}) => {
 
   const [ currentPosition, setCurrentPosition ] = useState({lat:0, lng:0});

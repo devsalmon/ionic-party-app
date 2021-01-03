@@ -20,6 +20,7 @@ import {
 } from '@ionic/react';
 
 import MemoryList from './memories';
+import Friends from './friends';
 
 import {
   Accordion,
@@ -54,6 +55,9 @@ import '../variables.css';
 
 const Profile: React.FC = () => {
 
+    const [showYourParties, setShowYourParties] = useState(true);
+    const [showFriends, setShowFriends] = useState(false);
+
     // Signs out of Party app.
     const signOut = async() => {
       // Sign out of Firebase.
@@ -61,7 +65,17 @@ const Profile: React.FC = () => {
       //alert("YOU JUST SIGNED OUT")
     }
 
-    var user = firebase.auth().currentUser
+    const displayParties = () => {
+      setShowYourParties(true);
+      setShowFriends(false);
+    }
+
+    const displayFriends = () => {
+      setShowFriends(true);
+      setShowYourParties(false);
+    }
+
+    var user = firebase.auth().currentUser;
 
     return(   
       <>                 
@@ -101,9 +115,14 @@ const Profile: React.FC = () => {
               <IonMenuButton class="top-icons">
                 <IonIcon icon={settingsSharp}></IonIcon>
               </IonMenuButton>
-            </IonButtons>          
+            </IonButtons>       
           </IonToolbar>      
         </IonHeader>
+        <IonItem className="ion-padding-bottom">
+          <IonButton class={showYourParties ? "custom-button": "create-button"} onClick={() => displayParties()}>Your parties</IonButton>
+          <IonButton class={showFriends ? "custom-button" : "create-button"} onClick={() => displayFriends()}>Friends</IonButton>
+        </IonItem>
+
 {/*         
         <IonItem class="accordion-item"  button href="/people">
           <IonText>Friends: 99</IonText> <br/>
@@ -123,9 +142,14 @@ const Profile: React.FC = () => {
 
         <IonItem class="accordion-item"  button href="/people">
           <IonText>Status: sesh gremlin</IonText> <br/>
-        </IonItem >
-        <br/><br/><br/><br/><br/>                      */}
-        <MemoryList memoriesPage={false} />
+        </IonItem >    */}
+        {showFriends ? 
+        <Friends /> : 
+        null}
+        {showYourParties ? 
+        <MemoryList memoriesPage={false} />:
+        null}
+        <br/><br/><br/><br/><br/><br/>
       </IonPage>
     </>
     )
