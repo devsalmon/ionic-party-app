@@ -36,13 +36,14 @@ const Friends: React.FC = () => {
 
     const [friends, setFriends] = useState([]);
 
-    var user = firebase.auth().currentUser;    
+    var user = firebase.auth().currentUser.uid;    
     const collectionRef = firebase.firestore().collection('users')
     
 
     collectionRef.doc(user).get().then(doc => {
         var tempFriends = [];
         let data = doc.data() && doc.data()
+        var i
         for (i = 0; i < data.friends.length; i++) {
             tempFriends.push(data.friends[i])
         }
@@ -58,7 +59,7 @@ const Friends: React.FC = () => {
                             <IonText>{friend.name}</IonText>
                         </IonItem>
                     )
-                })
+                })}
             </IonList>
         </IonContent>
     )
