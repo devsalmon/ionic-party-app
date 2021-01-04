@@ -154,11 +154,11 @@ const CreateParty = ({initialValue, clear}) => {
         {hideTab()} 
         <IonToolbar color="warning">
           <IonButtons slot="start">
-            <IonButton onClick={()=>showTab()} href="/home">
+            <IonButton  fill="clear" color="dark" onClick={()=>showTab()} href="/home">
               <IonIcon slot="icon-only" icon={chevronBackSharp}></IonIcon>
             </IonButton>
           </IonButtons>        
-          <IonTitle className="ion-text-left" color="dark">Create a party</IonTitle>  
+          <IonTitle className="ion-text-center" color="dark">Create <br/>a party</IonTitle>  
         </IonToolbar>
           <IonItem class="rounded-top" lines="none">
             <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>
@@ -196,13 +196,13 @@ const CreateParty = ({initialValue, clear}) => {
             <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)}></IonSearchbar>                            
           </IonToolbar>
         </IonHeader>
-        <IonContent class="create-content">
+        <IonContent class="create-content ion-padding">
           {query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map(hit => (
             <IonItem class="create-input" lines="none" key={hit.objectID}>
               <IonLabel>{hit.name}</IonLabel>
               <IonButton slot="end" color="warning" onClick={() => addInvite(hit.objectID, hit.name)}>Invite</IonButton>
             </IonItem>
-          ))}              
+          ))}<br/>          
           <IonItem class="create-card">
             <IonText>People invited: </IonText>
           </IonItem>
@@ -215,7 +215,7 @@ const CreateParty = ({initialValue, clear}) => {
           })}                    
         </IonContent>
         <IonFooter>
-          <IonButton class="custom-button" onClick={e => setShowPeopleSearch(false)}>Done</IonButton>
+          <IonButton class="custom-button" onClick={e => setShowPeopleSearch(false)}>DONE</IonButton>
         </IonFooter>        
       </IonModal>    
       <IonToast

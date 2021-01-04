@@ -32,7 +32,7 @@ const Memory = ({doc, click}) => {
   let data = doc.data();
   
   return(
-    <IonItem button onClick={click} className="accordion-item">
+    <IonItem button onClick={click} class="accordion-item">
     <IonGrid>
       <IonRow>
         <IonCol size="12">

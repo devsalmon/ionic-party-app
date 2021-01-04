@@ -72,7 +72,6 @@ import Profile from './components/profile';
 // once finished, run ionic build then npx cap add ios and npx cap add android
 
 //TODO - 
-// Add friends
 // delete party document in firebase after it's happened
 
 const Party = ({doc, live, classname}) => {
@@ -194,6 +193,7 @@ const PartyList = () => {
     // this means display parties only runs once
   },  []);  
 
+  // todo - make this so it doesn't depend on user manually refreshing 
   //This just handles the requests once they have been made.
   //On refresh check current user's 'request from' array inside friend requests and display their profile. Then see
   // accept friend.
@@ -265,7 +265,7 @@ const PartyList = () => {
 
   return(
     //refreshing bit first. This just handles the requests once they have been made.
-    <IonContent fullscreen={true}>
+    <IonContent fullscreen={true} no-bounce>
       <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
         <IonRefresherContent
           pullingIcon={chevronDownCircleOutline}
@@ -313,46 +313,6 @@ const Create: React.FC = () => {
   )
 }
 
-// const acceptFriend = (objectID) => {
-//   const collectionRef = firebase.firestore().collection("friends_requests");
-//   console.log("TEST122")
-//   var sender_user_id = firebase.auth().currentUser.uid
-//   var receiver_user_id = objectID
-  
-//   var date = moment(new Date()).format('LLL')
-
-//   //create doc with sender's id and adds receiver's id to collection.
-//   collectionRef.doc(sender_user_id).collection(receiver_user_id).add(
-//     {date: date})
-
-//     //if successful
-//     .then(function(docRef) {
-//       //console.log("Document written with ID: ", docRef.id);
-//       //if successful, create doc w receiver's id and add sender's id to collection
-//       collectionRef.doc(receiver_user_id).collection(sender_user_id).add(
-
-//         {date: date})
-        
-//         //if successful
-//         .then(function(docRef) {
-//           //currentState = "request_received"
-//           //setaddBtnDisabled(true); //disables add friend button
-//           //setcancBtnDisabled(false); //enalbes cancel request button
-//         })
-
-//         //if unsuccessful
-//         .catch(function(error) {
-//           console.error("Error adding document: ", error);
-//       }); 
-//     })
-
-//   //if unsuccessful
-//   .catch(function(error) {
-//       console.error("Error adding document: ", error);
-//   });
-
-// }
-
 const Request = ({id}) => {
   // notification item
   const [name, setName] = useState(''); // name of person who requested
@@ -366,17 +326,14 @@ const Request = ({id}) => {
     console.log(error);
   });
 
-  // change this to appear in users.
+  // todo - change this to appear in users.
   //if accept is clicked, inside friends collection, create doc with current user's id and add that friend's id
   //to array. If that works, inside friends collection inside the friend's document, add the current user's id.
   // If this is successful then remove eachother from requests.
   const acceptFriend = (friendsID) => {
     
     const collectionRef = firebase.firestore().collection("friends"); 
-    //const [Friends, setFriends] = useState([]); 
-    
-    //var currentState = "not_friends"
-    //var disabledState = false
+
     var friend_user_id = friendsID
     var current_user_id = firebase.auth().currentUser.uid
     //console.log(receiver_user_id)
@@ -421,17 +378,13 @@ const Request = ({id}) => {
                 // if requests_to item is removed successfully... then remove item from request_from array
                 .then(function(docRef) {
                 firebase.firestore().collection("friend_requests").doc(current_user_id).update({
-                  request_from: firebase.firestore.FieldValue.arrayRemove(friend_user_id)
-                
-                  //removes text display
-                  
-                });
-            
+                  request_from: firebase.firestore.FieldValue.arrayRemove(friend_user_id)                
+                  //removes text display 
+
+                });            
                 }).catch(function(error) {
                 console.error("Error deleting id from requests_from: ", error);
                 }); 
-            //setAddDisabled(true); //disables add friend button
-            //setCancelDisabled(false); //enalbes cancel request button
           })
 
           //if unsuccessful
@@ -448,7 +401,7 @@ const Request = ({id}) => {
   }
 
   return(
-    <IonItem>
+    <IonItem button>
       <IonText>{name} wants to be friends</IonText>
       <IonButton onClick={() => acceptFriend(id)}>Accept</IonButton>
     </IonItem>
@@ -456,6 +409,7 @@ const Request = ({id}) => {
 }
 
 const Memories: React.FC = () => {
+
   return(
     <IonPage>
       <MemoryList memoriesPage={true}/>
@@ -476,7 +430,7 @@ const Home: React.FC = () => {
         </IonButtons>
         <IonTitle>Upcoming <br/> parties</IonTitle>
         <IonButtons slot="end">   
-          <IonButton class="top-icons" href= '/people'>
+          <IonButton class="top-icons" href= '/profile'>
             <IonIcon slot="icon-only" src="assets/icon/People.svg"/> 
           </IonButton>         
         </IonButtons>                        
@@ -496,7 +450,7 @@ const SignedInRoutes: React.FC = () => {
           <Route path='/signin' component={SignIn} />
           <Route path='/create' component={Create} />
           <Route path='/users' component={Users} />
-          <Route path='/people' component={Profile} />
+          <Route path='/profile' component={Profile} />
           <Route path='/gallery' component={Gallery} />
           <Route path='/memories' component={Memories} />
           <Route path='/home' component={Home} exact />      

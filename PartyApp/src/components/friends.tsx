@@ -35,27 +35,47 @@ import '../variables.css';
 const Friends: React.FC = () => {
 
     const [friends, setFriends] = useState([]);
+    const [newFriends, setNewFriends] = useState(false);
+
+    useEffect(() => {
+        findFriends();
+    }, [newFriends]) // only rerun if there are new friends
 
     var user = firebase.auth().currentUser.uid;    
-    const collectionRef = firebase.firestore().collection('users')
-    
+    const friendsCollection = firebase.firestore().collection('friends');
+    const usersCollection = firebase.firestore().collection('users');
+    var tempFriends = []; // list for friend id's
 
-    collectionRef.doc(user).get().then(doc => {
-        var tempFriends = [];
-        let data = doc.data() && doc.data()
-        var i
-        for (i = 0; i < data.friends.length; i++) {
-            tempFriends.push(data.friends[i])
-        }
-        setFriends(tempFriends);
-    })
+    const findFriends = () => {
+        // loop through friends list in the document of current user in friends collection    
+        // and add all the id's into tempFriends
+        friendsCollection.doc(user).get().then(doc => {
+            let data = doc.data().friends;
+            data && data.map(friend => {
+                tempFriends.push(friend)
+            })
+            // loop through tempFriends and get all user documents of those id's, and add to friends array
+            tempFriends && tempFriends.map(friend => {
+                usersCollection.doc(friend).get().then(doc => {
+                    let data = doc.data();
+                    data && setFriends(friends => [
+                        ...friends, 
+                        {
+                            name: data.name,
+                            id: doc.id
+                        }
+                    ]);  
+                });
+            })                
+        })
+    }
 
     return(
         <IonContent>
-            <IonList>
+            <IonList class="list">
                 {friends && friends.map(friend => {
                     return(
-                        <IonItem>
+                        <IonItem class="accordion-item" key={friend.id} button >
                             <IonText>{friend.name}</IonText>
                         </IonItem>
                     )

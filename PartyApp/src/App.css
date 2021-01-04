@@ -187,7 +187,7 @@ ion-button {
 ion-buttons {
     --background: yellow;
     --background-hover-opacity: 0.3;
-}
+} 
 
 ion-card {
     --background: yellow;
@@ -289,5 +289,5 @@ ion-title {
 
 ion-toolbar {
     padding: 20px;
-    --ion-background-color: black;
+    --background: black;
 }
