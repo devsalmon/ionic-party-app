@@ -5,6 +5,9 @@ import MapContainer from './components/mapcontainer';
 import Gallery from './components/gallery';
 import MemoryList from './components/memories';
 import SignIn from './components/signin';
+import Profile from './components/profile';
+import OtherProfile from './components/otherprofile';
+
 import {
     Accordion,
     AccordionItem,
@@ -12,7 +15,7 @@ import {
     AccordionItemButton,
     AccordionItemPanel,
 } from 'react-accessible-accordion';
-import { Route, Redirect } from 'react-router-dom';
+import { Route, Redirect, RouteComponentProps } from 'react-router-dom';
 import { RefresherEventDetail } from '@ionic/core';
 import {
   IonApp,
@@ -68,7 +71,6 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 /* Theme variables */
 import './variables.css';
-import Profile from './components/profile';
 // once finished, run ionic build then npx cap add ios and npx cap add android
 
 //TODO - 
@@ -430,7 +432,7 @@ const Home: React.FC = () => {
         </IonButtons>
         <IonTitle>Upcoming <br/> parties</IonTitle>
         <IonButtons slot="end">   
-          <IonButton class="top-icons" href= '/profile'>
+          <IonButton class="top-icons" href='/profile'>
             <IonIcon slot="icon-only" src="assets/icon/People.svg"/> 
           </IonButton>         
         </IonButtons>                        
@@ -450,7 +452,8 @@ const SignedInRoutes: React.FC = () => {
           <Route path='/signin' component={SignIn} />
           <Route path='/create' component={Create} />
           <Route path='/users' component={Users} />
-          <Route path='/profile' component={Profile} />
+          <Route path='/profile' render={props => <Profile {...props}/>} />   
+          <Route exact path="/profile" render={() => <Redirect to='/profile' />} />                 
           <Route path='/gallery' component={Gallery} />
           <Route path='/memories' component={Memories} />
           <Route path='/home' component={Home} exact />      
@@ -507,7 +510,7 @@ const App: React.FC = () => {
   } else {
     return( 
     <IonApp>
-        { signedIn ? (
+        { signedIn ? (         
           <SignedInRoutes />
         ) : (     
           <IonReactRouter>
