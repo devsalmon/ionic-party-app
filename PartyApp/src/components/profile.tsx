@@ -1,4 +1,5 @@
 import React, { useState, useEffect} from 'react';
+import { Route, RouteComponentProps, Redirect, Link } from 'react-router-dom';
 import {
   IonIcon,
   IonButton,
@@ -14,21 +15,13 @@ import {
   IonMenuButton,
   IonHeader,
   IonList,
-  IonRouterOutlet,
-  IonRefresher,
-  IonRefresherContent
+  IonRouterOutlet
 } from '@ionic/react';
+import { IonReactRouter } from '@ionic/react-router';
 
 import MemoryList from './memories';
-import Friends from './friends';
+import OtherProfile from './otherprofile';
 
-import {
-  Accordion,
-  AccordionItem,
-  AccordionItemHeading,
-  AccordionItemButton,
-  AccordionItemPanel,
-} from 'react-accessible-accordion';
 import { 
   logOutSharp,
   settingsSharp,
@@ -53,10 +46,46 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import '../variables.css';
 
-const Profile: React.FC = () => {
+const Profile: React.FC<RouteComponentProps> = ({match}) => {
 
     const [showYourParties, setShowYourParties] = useState(true);
     const [showFriends, setShowFriends] = useState(false);
+
+    const [friends, setFriends] = useState([]);
+    const [newFriends, setNewFriends] = useState(false);
+
+    useEffect(() => {
+        findFriends();
+    }, [newFriends]) // only rerun if there are new friends
+
+    var user = firebase.auth().currentUser;    
+    const friendsCollection = firebase.firestore().collection('friends');
+    const usersCollection = firebase.firestore().collection('users');
+    var tempFriends = []; // list for friend id's
+
+    const findFriends = () => {
+        // loop through friends list in the document of current user in friends collection    
+        // and add all the id's into tempFriends
+        friendsCollection.doc(user.uid).get().then(doc => {
+            let data = doc.data().friends;
+            data && data.map(friend => {
+                tempFriends.push(friend)
+            })
+            // loop through tempFriends and get all user documents of those id's, and add to friends array
+            tempFriends && tempFriends.map(friend => {
+                usersCollection.doc(friend).get().then(doc => {
+                    let data = doc.data();
+                    data && setFriends(friends => [
+                        ...friends, 
+                        {
+                            name: data.name,
+                            id: doc.id
+                        }
+                    ]);  
+                });
+            })                
+        })
+    }
 
     // Signs out of Party app.
     const signOut = async() => {
@@ -75,10 +104,11 @@ const Profile: React.FC = () => {
       setShowYourParties(false);
     }
 
-    var user = firebase.auth().currentUser;
-
     return(   
-      <>                 
+      <>              
+        <IonRouterOutlet>
+          <Route path={`${match.url}/users/:id`} component={OtherProfile} />
+        </IonRouterOutlet>
         <IonMenu side="end" type="overlay" contentId="profilePage">
           <IonHeader>
             <IonToolbar>
@@ -116,12 +146,13 @@ const Profile: React.FC = () => {
                 <IonIcon icon={settingsSharp}></IonIcon>
               </IonMenuButton>
             </IonButtons>       
-          </IonToolbar>      
+          </IonToolbar> 
+          <IonItem className="ion-padding-bottom">
+            <IonButton class={showYourParties ? "custom-button": "create-button"} onClick={() => displayParties()}>Your parties</IonButton>
+            <IonButton class={showFriends ? "custom-button" : "create-button"} onClick={() => displayFriends()}>Friends</IonButton>
+          </IonItem>               
         </IonHeader>
-        <IonItem className="ion-padding-bottom">
-          <IonButton class={showYourParties ? "custom-button": "create-button"} onClick={() => displayParties()}>Your parties</IonButton>
-          <IonButton class={showFriends ? "custom-button" : "create-button"} onClick={() => displayFriends()}>Friends</IonButton>
-        </IonItem>
+
 
 {/*         
         <IonItem class="accordion-item"  button href="/people">
@@ -144,8 +175,18 @@ const Profile: React.FC = () => {
           <IonText>Status: sesh gremlin</IonText> <br/>
         </IonItem >    */}
         {showFriends ? 
-        <Friends /> : 
-        null}
+          <IonContent>
+            <IonList class="list">
+                {friends && friends.map(friend => {
+                    return(
+                        <IonItem class="accordion-item" key={friend.id} routerLink={"/profile/users/" + `${friend.id}`}>
+                            <IonText>{friend.name}</IonText>
+                        </IonItem>
+                    )
+                })}
+            </IonList>
+          </IonContent> : 
+          null}
         {showYourParties ? 
         <MemoryList memoriesPage={false} />:
         null}

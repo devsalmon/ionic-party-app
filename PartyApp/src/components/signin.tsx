@@ -27,7 +27,7 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import '../variables.css';
 
-const SignIn = () => {
+const SignIn: React.FC = () => {
 
   const [email, setEmail] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');

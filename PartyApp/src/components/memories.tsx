@@ -123,7 +123,7 @@ const MemoryList = ({memoriesPage}) => {
           null
         }
         <IonContent fullscreen={true}>
-        <IonText class="ion-padding-start">Your parties</IonText>
+        {memoriesPage ? <IonText class="ion-padding-start">Your parties</IonText> : null}
         {
           yourparties.length === 0 ?
           <IonText class="ion-padding-start"> <br/> <br/> No hosted parties yet..</IonText> :
