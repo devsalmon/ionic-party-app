@@ -1,4 +1,4 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import Users from './components/users';
 import CreateParty from './components/createparty';
 import MapContainer from './components/mapcontainer';
@@ -239,31 +239,50 @@ const PartyList = () => {
 
   const displayParties = () => {
     // get current user 
-    var current_user = firebase.auth().currentUser.uid;
+    var current_user = firebase.auth().currentUser.uid;   
     // get the document of the current user from firestore users collection
     firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {      
       var i; // define counter for the for loop   
       // loop through all parties in the user's document as long as there are parties there
       // loop through until state (parties) has same number of parties as myParties array
-      if (doc.data().myParties && doc.data().myParties.length !== parties.length) {
+      if (doc.data().myParties && doc.data().myParties.length > 0) {
         for (i = 0; i < doc.data().myParties.length; i++) {     
           // get party of the curr_id from the user's document
           let curr_id = doc.data().myParties && doc.data().myParties[i];
           firebase.firestore().collection("parties").doc(curr_id).get().then(function(doc) {
-            // setState to contian all the party documents from the user's document
-            setParties(parties => [
-              ...parties,
-              {
-                id: curr_id,
-                doc: doc,
-              }
-            ]);
+            // setState to contian all the party documents from the user's document 
+              setParties(parties => [
+                ...parties,
+                {
+                  id: doc.id,
+                  doc: doc
+                }
+              ]);                       
           })
-        }
+        }             
       }
-    })        
+    })           
   }
 
+  const today = new Date();
+  const upcomingParties = [];
+  const liveParties = [];
+
+  parties && parties.map(party => {
+    let data = party.doc.data();
+    // if the party has happened display on memories - if host is current user, diaply in hosted parties 
+    if (moment(data.dateTime).isAfter(today)) {           
+      upcomingParties.push(party.doc)       
+    } else if (moment(today).isBetween(data.dateTime, data.endTime)) {
+      liveParties.push(party.doc);
+      var index = upcomingParties.indexOf(party.doc);
+      if (index) {
+        upcomingParties.splice(index, 1)
+      }
+    }
+  });  
+
+  var numPastParties = 0; // count for number of parties that happened in the past
 
   return(
     //refreshing bit first. This just handles the requests once they have been made.
@@ -277,30 +296,27 @@ const PartyList = () => {
       {reqs && reqs.map(req => 
           (<Request id={req.name} key={req.id}/>)
       )}
+      { upcomingParties.length > 0 ? null :
+        liveParties.length > 0 ? null :
+        <IonText class="ion-padding-start">No upcoming parties...</IonText>
+      }}      
       <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>   
-      {parties && parties.map(party => {
-          const today = new Date();  
-          console.log("parties", parties);
-          let data = party.doc.data()
-          console.log(data)
-          // if the party is now, display in live parties with camera function
-          if (moment(today).isBetween(data.dateTime, data.endTime)) {
-            return(          
-                <>
-                <IonTitle color="danger">LIVE!</IonTitle>              
-                <Party doc={party.doc} key={data.id + "live"} live={true} classname="live-item"/>              
-                <br/>
-                </>
-              );                    
-          } // if party is after today display it on the home page 
-          if (moment(data.dateTime).isAfter(today)) {
-            return( 
-              <>
-              <Party key={data.id} doc={party.doc} live={false} classname="accordion-item"/>
-              </>
-            );                
-          }        
+      {liveParties && liveParties.map(party => { 
+        return(        
+          <>
+          <IonTitle color="danger">LIVE!</IonTitle>              
+          <Party doc={party} key={party.id + "live"} live={true} classname="live-item"/>              
+          <br/>
+          </>
+        );                    
       })}
+       {upcomingParties && upcomingParties.map(party => {
+          return( 
+            <>
+            <Party key={party.id} doc={party} live={false} classname="accordion-item"/>
+            </>
+          );                
+        })}  
       </Accordion> 
     </IonContent>   
     )

@@ -94,6 +94,10 @@
     padding-left: 2px;
 }
 
+.picker-opt {
+    color: white;
+}
+
 .popover{
     --background: black;
     --height: 60%;
@@ -238,10 +242,6 @@ ion-label {
     font-weight: bold;
     text-transform: uppercase;
     color: yellow
-}
-
-ion-picker {
-    size: 10px;
 }
 
 ion-refresher-content {

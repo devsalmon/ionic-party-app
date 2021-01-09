@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonIcon,
   IonItem,
@@ -37,13 +37,10 @@ import algoliasearch from 'algoliasearch/lite';
 
 const Users: React.FC = () => {
 
-  const collectionRef = firebase.firestore().collection("friend_requests");
   const searchClient = algoliasearch('N5BVZA4FRH', '10173d946e2ba5aa9ba4f9ae445cef48');
   const index = searchClient.initIndex('Users');
   const [hits, setHits] = useState([]);
   const [query, setQuery] = useState('');
-  const [addDisabled, setAddDisabled] = useState(false)
-  const [cancelDisabled, setCancelDisabled] = useState(true)
 
   async function search(query) {
     const result = await index.search(query);
@@ -62,66 +59,6 @@ const Users: React.FC = () => {
 // when current user searches for friend, create doc in friend requests with sender's id (current user's id),
 // and add the reciever's id to the current user's request to array. Once this is done successfully, create doc with
 // reciever's id and add current user's id (the sender's id) to the request from array. Next see do refresh.
-  const addFriend = (name, objectID) => {
-    
-    //var currentState = "not_friends"
-    //var disabledState = false
-    var receiver_user_id = objectID
-    var sender_user_id = firebase.auth().currentUser.uid
-    //console.log(receiver_user_id)
-
-    //create doc with sender's id if it doesn't already exist and adds receiver's id to field.
-    collectionRef.doc(sender_user_id).get()
-      .then((docSnapshot) => {
-        if (docSnapshot.exists) {
-          collectionRef.doc(sender_user_id).onSnapshot((doc) => {
-            collectionRef.doc(sender_user_id).update({
-              request_to: firebase.firestore.FieldValue.arrayUnion(receiver_user_id)
-            })      
-          });
-        } else {
-          collectionRef.doc(sender_user_id).set({id: sender_user_id, request_to: [receiver_user_id]}) // create the document
-        }
-    })
-        //console.log("Document written with ID: ", docRef.id);
-        //if successful, create doc w receiver's id and add sender's id to collection      
-      .then(function(docRef) {
-      collectionRef.doc(receiver_user_id).get()
-        .then((docSnapshot) => {
-          if (docSnapshot.exists) {
-            collectionRef.doc(receiver_user_id).onSnapshot((doc) => {
-              collectionRef.doc(receiver_user_id).update({
-                request_from: firebase.firestore.FieldValue.arrayUnion(sender_user_id)
-              })      
-            });
-          } else {
-            collectionRef.doc(receiver_user_id).set({id: receiver_user_id, request_from: [sender_user_id]}) // create the document
-          }
-      })        
-          //if successful
-          .then(function(docRef) {
-            //currentState = "request_received"
-            setAddDisabled(true); //disables add friend button
-            setCancelDisabled(false); //enalbes cancel request button
-          })
-
-          //if unsuccessful
-          .catch(function(error) {
-            console.error("Error adding document: ", error);
-        }); 
-      })
-
-    //if unsuccessful
-    .catch(function(error) {
-        console.error("Error adding document: ", error);
-    });
-
-  }
-
-  const resetButtons = () => {
-    setAddDisabled(false); //disables add friend button
-    setCancelDisabled(true); //enalbes cancel request button
-  }
 
     // return nothing if query is empty, just white spaces, or not letters
     return(
@@ -131,33 +68,133 @@ const Users: React.FC = () => {
         </IonToolbar>
         <IonContent>    
             {hits && query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map(hit => 
-            <>
-            <IonRow>
-            <IonCol size="9">
-            <IonItem button key={hit.objectID}>    
-              <IonCol size="4">
-                <IonAvatar>
-                  <img src={hit.photoUrl} />
-                </IonAvatar>  
-              </IonCol>
-              <IonCol offset="1" size="7">
-                <IonText>{hit.name}</IonText>   
-              </IonCol>
-            </IonItem>
-            </IonCol>
-            <IonCol>
-              <IonButton class="profile-button" disabled={addDisabled} onClick={() => addFriend(hit.name, hit.objectID)}>
-                <IonIcon slot="icon-only" src="assets/icon/Create.svg" />
-              </IonButton>
-              <IonButton class="profile-button" disabled={cancelDisabled} onClick={resetButtons}>
-                <IonIcon icon={closeCircleSharp} />
-              </IonButton> 
-            </IonCol>
-            </IonRow>
-            </>)}
+              <UserItem hit={hit} name={hit.name} id={hit.objectID}/>
+            )}
         </IonContent>
       </IonPage>    
     )
   } 
+
+const UserItem = ({hit, name, id}) => {
+
+  const [addDisabled, setAddDisabled] = useState(Boolean);
+  const [cancelDisabled, setCancelDisabled] = useState(Boolean);
+  const collectionRef = firebase.firestore().collection("friend_requests");
+
+  useEffect(() => {
+    var receiver_user_id = id;
+    var sender_user_id = firebase.auth().currentUser.uid;    
+    collectionRef.doc(sender_user_id).get()
+      .then((docSnapshot) => {
+        if (docSnapshot.exists) {
+          if (docSnapshot.data().request_to && docSnapshot.data().request_to.includes(receiver_user_id)) {
+            // if user has already sent request to the user, disable add button 
+            setAddDisabled(true);
+            setCancelDisabled(false);
+          } else {
+            setAddDisabled(false); 
+            setCancelDisabled(true);
+          }
+        }
+      })
+  })
+
+  const addFriend = (name, objectID) => {
+    var receiver_user_id = objectID
+    var sender_user_id = firebase.auth().currentUser.uid
+    //create doc with sender's id if it doesn't already exist and adds receiver's id to field.
+    collectionRef.doc(sender_user_id).get()
+      .then((docSnapshot) => {
+        if (docSnapshot.exists) {
+          collectionRef.doc(sender_user_id).update({
+            request_to: firebase.firestore.FieldValue.arrayUnion(receiver_user_id)
+          })                       
+        } else {
+          collectionRef.doc(sender_user_id).set({id: sender_user_id, request_to: [receiver_user_id]}) // create the document
+        }
+    })
+        //if successful, create doc w receiver's id and add sender's id to collection      
+      .then(function(docRef) {
+      collectionRef.doc(receiver_user_id).get()
+        .then((docSnapshot) => {
+          if (docSnapshot.exists) {
+            collectionRef.doc(receiver_user_id).update({
+              request_from: firebase.firestore.FieldValue.arrayUnion(sender_user_id)
+            })    
+          } else {
+            collectionRef.doc(receiver_user_id).set({id: receiver_user_id, request_from: [sender_user_id]}) // create the document
+          }
+      })        
+          .then(function(docRef) {
+            //currentState = "request_received"
+            setAddDisabled(true); //disables add friend button
+            setCancelDisabled(false); //enalbes cancel request button
+          })
+          .catch(function(error) {
+            console.error("Error adding document: ", error);
+        }); 
+      })
+    .catch(function(error) {
+        console.error("Error adding document: ", error);
+    });
+  }
+
+  const removeFriend = (name, objectID) => {
+    var receiver_user_id = objectID
+    var sender_user_id = firebase.auth().currentUser.uid
+    //create doc with sender's id if it doesn't already exist and adds receiver's id to field.
+    collectionRef.doc(sender_user_id).get()
+      .then((docSnapshot) => {
+        collectionRef.doc(sender_user_id).update({
+          request_to: firebase.firestore.FieldValue.arrayRemove(receiver_user_id)
+        })       
+    })
+        //if successful, create doc w receiver's id and add sender's id to collection      
+      .then(function(docRef) {
+      collectionRef.doc(receiver_user_id).get()
+        .then((docSnapshot) => {
+          collectionRef.doc(receiver_user_id).update({
+            request_from: firebase.firestore.FieldValue.arrayRemove(sender_user_id)
+          })    
+      })        
+          .then(function(docRef) {
+            //currentState = "request_received"
+            setAddDisabled(false); //disables add friend button
+            setCancelDisabled(true); //enalbes cancel request button
+          })
+          .catch(function(error) {
+            console.error("Error adding document: ", error);
+        }); 
+      })
+    .catch(function(error) {
+        console.error("Error adding document: ", error);
+    });
+  }
+
+  return(
+    <IonRow>
+      <IonCol size="9">
+      <IonItem button key={id}>    
+        <IonCol size="4">
+          <IonAvatar>
+            <img src={hit.photoUrl} />
+          </IonAvatar>  
+        </IonCol>
+        <IonCol offset="1" size="7">
+          <IonText>{name}</IonText>   
+        </IonCol>
+      </IonItem>
+      </IonCol>
+      <IonCol>
+        <IonButton class="profile-button" disabled={addDisabled} onClick={() => addFriend(name, id)}>
+          <IonIcon slot="icon-only" src="assets/icon/Create.svg" />
+        </IonButton>
+        <IonButton class="profile-button" disabled={cancelDisabled} onClick={() => removeFriend(name, id)}>
+          <IonIcon icon={closeCircleSharp} />
+        </IonButton> 
+      </IonCol>
+    </IonRow>
+  )
+}
 
 export default Users;

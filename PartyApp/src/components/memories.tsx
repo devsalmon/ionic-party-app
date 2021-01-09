@@ -126,19 +126,19 @@ const MemoryList = ({memoriesPage}) => {
         {memoriesPage ? <IonText class="ion-padding-start">Your parties</IonText> : null}
         {
           yourparties.length === 0 ?
-          <IonText class="ion-padding-start"> <br/> <br/> No hosted parties yet..</IonText> :
+          <><br/><br/><IonText class=" white-text ion-padding-start"> No hosted parties yet..</IonText><br/><br/></> :
           yourparties.map(doc => {
             return(<Memory doc={doc} key={doc.id} click={() => enter(doc.id)}/>)          
           })
         }
         {
           memoriesPage ?
-          <IonText class="ion-padding-start"><br/>Parties attended</IonText> :
+          <><br/><IonText class="ion-padding-start">Parties attended<br/><br/></IonText></> :
           null
         }
         {
           partiesAttended.length === 0 && memoriesPage ?
-          <IonText class="white-text"><br/>No attended parties yet..</IonText> :          
+          <IonText class="white-text ion-padding-start">No attended parties yet..</IonText> :          
           null
         }  
         {

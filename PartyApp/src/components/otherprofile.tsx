@@ -1,5 +1,5 @@
 import React, { useState, useEffect} from 'react';
-import { RouteComponentProps } from 'react-router';
+import { withRouter, RouteComponentProps } from 'react-router';
 import {
   IonIcon,
   IonButton,
@@ -106,4 +106,4 @@ const OtherProfile: React.FC<OtherProfileProps> = ({match}) => {
     )
   }
 
-export default OtherProfile; 
+export default withRouter(OtherProfile); 
