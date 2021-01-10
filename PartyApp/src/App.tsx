@@ -36,6 +36,9 @@ import {
   IonTitle,
   IonRow,
   IonCol,
+  IonGrid,
+  IonPopover,
+  IonImg,
   IonInput, 
   IonText,
   IonToast,
@@ -52,7 +55,7 @@ import {
   chevronBackSharp,  
 } from 'ionicons/icons';
 import {useCamera} from '@ionic/react-hooks/camera';
-import {CameraResultType, CameraSource} from '@capacitor/core';
+import {CameraResultType, CameraSource, Plugins} from '@capacitor/core';
 import './App.css';
 import firebase from './firestore';
 import moment from 'moment';
@@ -80,14 +83,16 @@ const Party = ({doc, live, classname}) => {
   // party card
 
   const [showToast, setShowToast] = useState(false);
-  const [picture, setPicture] = useState<string>('')
-  const {getPhoto} = useCamera(); 
+  const [showPopover, setShowPopover] = useState(false);
+  const [photo, setPhoto] = useState('');
+  //const {photo, getPhoto} = useCamera(); 
+  const { Camera } = Plugins;
   const [isLive, setIsLive] = useState(live);
  
   const onSave = async() => { 
-    if (picture !== "") {
+    if (photo !== "") {
     await collectionRef.doc(doc.id).collection('pictures').add({
-        picture: picture,
+        picture: photo,
         takenBy: firebase.auth().currentUser.displayName,
         takenAt: moment(new Date()).format('LT'),
         likeCounter: 0,
@@ -99,20 +104,20 @@ const Party = ({doc, live, classname}) => {
       .catch(function(error) {
         console.log(error)
       });
-      setPicture('');
+      setPhoto('');
     }
   }  
 
   // TODO - add IOS AND ANDROID permissions from pwa elements
   const takePhoto = async() => {
-    const cameraPhoto = await getPhoto({
+    const cameraPhoto = await Camera.getPhoto({
       allowEditing: true,      
       resultType: CameraResultType.Base64,
       source: CameraSource.Camera,
       quality: 100
     });
-    const photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`
-    return(setPicture(photo));  
+    var photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`
+    setPhoto(photo);  
   }    
 
   const collectionRef = firebase.firestore().collection("parties");
@@ -126,56 +131,69 @@ const Party = ({doc, live, classname}) => {
   
   let liveParty // not live initially
   if (isLive) {
-    liveParty = <IonRow> 
-                <IonCol>
-                  <IonButton class="custom-button" expand="block" onClick={takePhoto}>
-                    <IonIcon icon={cameraSharp} />
-                  </IonButton>   
-                </IonCol>
-                <IonCol>
-                  <IonButton class="custom-button" expand="block" onClick={onSave}>
-                    <IonIcon icon={cloudUploadSharp} />
-                  </IonButton>   
-                </IonCol> 
-                </IonRow>
+    liveParty =   
+    <IonRow> 
+      <IonButton class="custom-button" expand="block" onClick={photo ? onSave : takePhoto}>
+        <IonIcon icon={photo ? cloudUploadSharp : cameraSharp} />        
+      </IonButton>  
+    </IonRow>
   } else {};
 
   return(
-    <AccordionItem className={classname}>
-      <AccordionItemHeading>
-          <AccordionItemButton className="ion-padding">
-            <IonRow>
-              <IonCol size="2.5" class="date-box">
-                <IonText>{data.month} <br/></IonText>   
-                <IonText class="day-text">{data.day}</IonText> 
-              </IonCol>
-              <IonCol>            
-                <IonText>{data.title} <br/></IonText>  
-                <IonText class="white-text">{data.location}</IonText><br/>
-                <IonText class="white-text">By {data.host}</IonText>
-              </IonCol>                    
-            </IonRow>   
-            {/*if live then display camera buttons */}            
-            {liveParty}                
-          </AccordionItemButton>
-      </AccordionItemHeading>
-      <AccordionItemPanel>        
-        <IonItem>Location: {data.location} (maps plugin)</IonItem>        
-        <IonItem>Starts: {moment(data.dateTime).format('LT')}</IonItem>        
+    <IonItem className={classname}>
+      <IonGrid>
+        <IonRow>
+          <IonCol size="2.5" class="date-box">
+            <IonText>{data.month} <br/></IonText>   
+            <IonText class="day-text">{data.day}</IonText> 
+          </IonCol>
+          <IonCol size="5.5">            
+            <IonText>{data.title} <br/></IonText>  
+            <IonText class="white-text">{data.address}</IonText><br/>
+            <IonText class="white-text">{data.postcode}</IonText><br/>
+            <IonText class="white-text">By {data.host}</IonText>
+          </IonCol>      
+          <IonCol size="4">
+            <IonButton class="custom-button" onClick={()=> setShowPopover(true)}>
+              See <br/> details
+            </IonButton>
+          </IonCol>
+        </IonRow> 
+        <IonRow>
+          {photo ? 
+          <IonButton onClick={() => setPhoto('')}>
+            Cancel
+          </IonButton> :
+          null}
+        </IonRow>  
+        <IonRow> 
+          {photo ? <IonImg src={photo}></IonImg> : null}
+        </IonRow>          
+        {/*if live then display camera buttons */}   
+        {liveParty}        
+      </IonGrid>   
+      <IonPopover
+        cssClass="popover"        
+        isOpen={showPopover}
+        onDidDismiss={() => setShowPopover(false)}
+      >
+        <IonItem>Address: {data.address} </IonItem>  
+        <IonItem>Postcode: {data.postcode} </IonItem>     
+        <IonItem>Starts: {moment(data.dateTime).format('LT')}</IonItem>     
         <IonItem>Ends: {moment(data.endTime).format('LT')}</IonItem>
-        <IonItem>Pending invites: 10291</IonItem> 
-        <IonItem>Accepted Invites: 138430</IonItem>               
+        <IonItem>Pending invites: 10291</IonItem>
+        <IonItem>Accepted Invites: 138430</IonItem>
         <IonLabel className="ion-padding" color="warning">Details:</IonLabel>
-        <IonItem >{data.details}</IonItem>        
-      </AccordionItemPanel>
+        <IonItem>{data.details}</IonItem>              
+      </IonPopover>    
       <IonToast 
       isOpen={showToast}
       onDidDismiss={() => setShowToast(false)}
       duration={2000}
       message="Picture uploaded!"
       position="bottom"
-    />       
-    </AccordionItem>
+      />       
+    </IonItem>
   )
 }
 
