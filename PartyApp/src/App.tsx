@@ -317,7 +317,7 @@ const PartyList = () => {
       { upcomingParties.length > 0 ? null :
         liveParties.length > 0 ? null :
         <IonText class="ion-padding-start">No upcoming parties...</IonText>
-      }}      
+      }     
       <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>   
       {liveParties && liveParties.map(party => { 
         return(        
@@ -524,7 +524,7 @@ const App: React.FC = () => {
   useEffect(() => {
     console.log("app useeffect")
     firebase.auth().onAuthStateChanged(function(user) {
-      if (user && user.emailVerified) { // if new user logs in and is email verified 
+      if (user) { //&& user.emailVerified) { // if new user logs in and is email verified 
         setSignedIn(true);  
       } 
       setLoading(false)

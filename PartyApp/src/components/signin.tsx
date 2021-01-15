@@ -73,17 +73,22 @@ const SignIn: React.FC = () => {
     });   
   }
 
+  const superFunction = () => {
+    console.log("TESt")
+  }
+
   const createUser = () => {
       firebase.auth().createUserWithEmailAndPassword(email, password)
-      .then(function(data) {     
-        let collectionRef = firebase.firestore().collection("users");
-        collectionRef.add({
-          fullname: fullname,
+      .then(function(data) {
+        console.log("mmmtest")     
+        firebase.firestore().collection('users').doc(data.user.uid).set({
+          fullname: 'fullname',
           username: username,
-          email: email,
-          mobileNumber: mobileNumber ? mobileNumber : null              
+          email: email
+          //mobileNumber: mobileNumber ? mobileNumber : null              
         })    
-        userVerification();      
+        console.log("surely not")
+        //userVerification();      
       })    
         .catch(err => {
           switch(err.code){
@@ -150,16 +155,19 @@ const SignIn: React.FC = () => {
       setFieldsMissing(true);
     } else { 
       setFieldsMissing(false);
+      createUser()
     }
     // check username doesn't already exist
-    username && firebase.firestore().collection('users').doc(username).get()
+    // HERE FIND A WAY TO CHECK IF DOC ALREADY EXISTS
+    username && firebase.firestore().collection('users').doc('username').get()
       .then((docSnapshot) => {
+        //console.log("is this even working bruddah")
         if (docSnapshot.exists) {
           // username already exists
           setUsernameError("Username already exists, try another one");
         } else {
           // if username is valid, create user and send verification link before they can log in
-          createUser()
+          //createUser()
         }})
     }
 
