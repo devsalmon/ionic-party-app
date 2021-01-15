@@ -260,26 +260,28 @@ const PartyList = () => {
     var current_user = firebase.auth().currentUser.uid;   
     // get the document of the current user from firestore users collection
     firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {      
-      var i; // define counter for the for loop   
-      // loop through all parties in the user's document as long as there are parties there
-      // loop through until state (parties) has same number of parties as myParties array
-      if (doc.data().myParties && doc.data().myParties.length > 0) {
-        for (i = 0; i < doc.data().myParties.length; i++) {     
-          // get party of the curr_id from the user's document
-          let curr_id = doc.data().myParties && doc.data().myParties[i];
-          firebase.firestore().collection("parties").doc(curr_id).get().then(function(doc) {
-            // setState to contian all the party documents from the user's document 
-              setParties(parties => [
-                ...parties,
-                {
-                  id: doc.id,
-                  doc: doc
-                }
-              ]);                       
-          })
-        }             
+      if (doc.exists) {
+        var i; // define counter for the for loop   
+        // loop through all parties in the user's document as long as there are parties there
+        // loop through until state (parties) has same number of parties as myParties array
+        if (doc.data().myParties && doc.data().myParties.length > 0) {
+          for (i = 0; i < doc.data().myParties.length; i++) {     
+            // get party of the curr_id from the user's document
+            let curr_id = doc.data().myParties && doc.data().myParties[i];
+            firebase.firestore().collection("parties").doc(curr_id).get().then(function(doc) {
+              // setState to contian all the party documents from the user's document 
+                setParties(parties => [
+                  ...parties,
+                  {
+                    id: doc.id,
+                    doc: doc
+                  }
+                ]);                       
+            })
+          }             
+        }
       }
-    })           
+    })          
   }
 
   const today = new Date();
@@ -523,9 +525,9 @@ const App: React.FC = () => {
 
   useEffect(() => {
     console.log("app useeffect")
-    firebase.auth().onAuthStateChanged(function(user) {
+    firebase.auth().onAuthStateChanged(function(user) {      
       if (user) { //&& user.emailVerified) { // if new user logs in and is email verified 
-        setSignedIn(true);  
+        setSignedIn(true)
       } 
       setLoading(false)
     })

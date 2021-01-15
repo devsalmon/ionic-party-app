@@ -73,34 +73,30 @@ const SignIn: React.FC = () => {
     });   
   }
 
-  const superFunction = () => {
-    console.log("TESt")
-  }
-
   const createUser = () => {
-      firebase.auth().createUserWithEmailAndPassword(email, password)
-      .then(function(data) {
-        console.log("mmmtest")     
-        firebase.firestore().collection('users').doc(data.user.uid).set({
-          fullname: 'fullname',
-          username: username,
-          email: email
-          //mobileNumber: mobileNumber ? mobileNumber : null              
-        })    
-        console.log("surely not")
-        //userVerification();      
+    console.log("create user triggered")
+    firebase.auth().createUserWithEmailAndPassword(email, password)
+    .then(result => {
+      firebase.firestore().collection('users').doc(result.user.uid).set({
+        fullname: fullname,
+        username: username,
+        email: email,
+        id: result.user.uid
+        //mobileNumber: mobileNumber ? mobileNumber : null              
       })    
-        .catch(err => {
-          switch(err.code){
-            case "auth/email-already-in-use":
-            case "auth/invalid-email":
-              setEmailError(err.message);
-              break;
-            case "auth/weak-password":
-              setPasswordError(err.message);
-              break;
-          }
-        })  
+    })
+      //userVerification();
+      .catch(err => {
+        switch(err.code){
+          case "auth/email-already-in-use":
+          case "auth/invalid-email":
+            setEmailError(err.message);
+            break;
+          case "auth/weak-password":
+            setPasswordError(err.message);
+            break;
+        }
+      })  
   }
 
   const clearInputs = () => {
@@ -130,7 +126,8 @@ const SignIn: React.FC = () => {
       setFieldsMissing(false);
     }     
     firebase.auth().signInWithEmailAndPassword(email, password)
-      .then(function(user){
+      .then(result => {
+        console.log("signed in with email and password")
         clearInputs(); // clear all inputs when a user has signed in       
       })
       .catch(err => {
@@ -154,21 +151,9 @@ const SignIn: React.FC = () => {
     if (email === "" || fullname === "" || username === "" || password === "") {
       setFieldsMissing(true);
     } else { 
-      setFieldsMissing(false);
-      createUser()
-    }
-    // check username doesn't already exist
-    // HERE FIND A WAY TO CHECK IF DOC ALREADY EXISTS
-    username && firebase.firestore().collection('users').doc('username').get()
-      .then((docSnapshot) => {
-        //console.log("is this even working bruddah")
-        if (docSnapshot.exists) {
-          // username already exists
-          setUsernameError("Username already exists, try another one");
-        } else {
-          // if username is valid, create user and send verification link before they can log in
-          //createUser()
-        }})
+      setFieldsMissing(false);   
+      createUser();   
+    }    
     }
 
     // Signs-in Messaging with GOOGLE POP UP

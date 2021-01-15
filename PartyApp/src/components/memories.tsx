@@ -64,23 +64,27 @@ const MemoryList = ({memoriesPage}) => {
     var current_user = firebase.auth().currentUser.uid;
     // get the document of the current user from firestore users collection
     firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {      
-      var i; // define counter for the for loop   
-      // loop through all parties in the user's document as long as there are parties there
-      if (doc.data().myParties && doc.data().myParties.length > 0) {
-        for (i = 0; i < doc.data().myParties.length; i++) {     
-          // get party of the curr_id from the user's document
-          let current_id = doc.data().myParties && doc.data().myParties[i]
-          firebase.firestore().collection("parties").doc(current_id).get().then(function(doc) {
-            // setState to contian all the party documents from the user's document
-            setParties(parties => [
-              ...parties,
-              {
-                id: current_id,
-                doc: doc,
-              }
-            ]);
-          })
+      if (doc.exists) {
+        var i; // define counter for the for loop   
+        // loop through all parties in the user's document as long as there are parties there
+        if (doc.data().myParties && doc.data().myParties.length > 0) {
+          for (i = 0; i < doc.data().myParties.length; i++) {     
+            // get party of the curr_id from the user's document
+            let current_id = doc.data().myParties && doc.data().myParties[i]
+            firebase.firestore().collection("parties").doc(current_id).get().then(function(doc) {
+              // setState to contian all the party documents from the user's document
+              setParties(parties => [
+                ...parties,
+                {
+                  id: current_id,
+                  doc: doc,
+                }
+              ]);
+            })
+          }
         }
+      } else {
+        console.log("user does not exist in users")
       }
     })        
   }

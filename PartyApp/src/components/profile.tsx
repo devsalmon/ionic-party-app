@@ -67,7 +67,8 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
         // loop through friends list in the document of current user in friends collection    
         // and add all the id's into tempFriends
         friendsCollection.doc(user.uid).get().then(doc => {
-            let data = doc.data().friends;
+          if (doc.exists) {
+            let data = doc.data().friends && doc.data().friends;
             data && data.map(friend => {
                 tempFriends.push(friend)
             })
@@ -83,7 +84,8 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
                         }
                     ]);  
                 });
-            })                
+            })  
+          }              
         })
     }
 
