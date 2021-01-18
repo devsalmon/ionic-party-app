@@ -9,7 +9,7 @@ const ALGOLIA_INDEX_NAME = "Users";
 
 admin.initializeApp(functions.config().firebase)
 
-exports.createUser = functions.firestore 
+exports.addUser = functions.firestore
 .document("users/{userId}")
 .onCreate(async (snap, context) => {
   const newValue = snap.data();
@@ -19,14 +19,16 @@ exports.createUser = functions.firestore
 
   var index = client.initIndex(ALGOLIA_INDEX_NAME);
   index.saveObject({
-    name: newValue.name,
-    objectId: newValue.objectId,
-    photo: newValue.photoUrl
+    objectID: newValue.objectID,
+    email: newValue.email,
+    fullname: newValue.fullname,    
+    id: newValue.id,    
+    username: newValue.username,    
   });
 });
 
 exports.updateUser = functions.firestore
-.document("users/{userID}")
+.document("users/{userId}")
 .onUpdate(async (snap, context) => {
   const afterUpdate = snap.after.data();
   afterUpdate.objectID = snap.after.id;
@@ -38,13 +40,12 @@ exports.updateUser = functions.firestore
 });
 
 exports.deleteUser = functions.firestore
-.document("users/{userID}")
+.document("users/{userId}")
 .onDelete(async (snap, context) => {
   const oldID = snap.id;
-
+  
   var client = algoliasearch(ALGOLIA_APP_ID, ALGOLIA_ADMIN_KEY);
 
   var index = client.initIndex(ALGOLIA_INDEX_NAME);
   index.deleteObject(oldID);
 });
-

@@ -49,11 +49,6 @@ import algoliasearch from 'algoliasearch/lite';
 
 const CreateParty = ({initialValue, clear}) => {
 
-    useEffect(() => {  
-    },
-    []);
-    
-
     // function to hide tabs when in the create page
     function hideTab() {
       const tabBar = document.getElementById('appTabBar');
@@ -137,12 +132,12 @@ const CreateParty = ({initialValue, clear}) => {
     
     } 
 
-    const addInvite = (id, name) => {
+    const addInvite = (id, username) => {
       setQuery(''); // reset searchbar when invite button pressed so invite item with the button stops showing
       setInvitedPeople(invitedPeople => [
         ...invitedPeople, 
         {              
-          name: name,
+          username: username,
           id: id
         }
       ]);
@@ -199,8 +194,8 @@ const CreateParty = ({initialValue, clear}) => {
         <IonContent class="create-content ion-padding">
           {query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map(hit => (
             <IonItem class="create-input" lines="none" key={hit.objectID}>
-              <IonLabel>{hit.name}</IonLabel>
-              <IonButton slot="end" color="warning" onClick={() => addInvite(hit.objectID, hit.name)}>Invite</IonButton>
+              <IonLabel>{hit.username}</IonLabel>
+              <IonButton slot="end" color="warning" onClick={() => addInvite(hit.objectID, hit.username)}>Invite</IonButton>
             </IonItem>
           ))}<br/>          
           <IonItem class="create-card">
@@ -209,7 +204,7 @@ const CreateParty = ({initialValue, clear}) => {
           {invitedPeople && invitedPeople.map(person => {
             return(
               <IonItem class="create-card">
-                <IonText>{person.name}</IonText>
+                <IonText>{person.username}</IonText>
               </IonItem>
             )
           })}                    

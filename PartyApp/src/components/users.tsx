@@ -48,14 +48,6 @@ const Users: React.FC = () => {
     console.log(hits)
     setQuery(query)    
   }
-//  basically if in friend_requests, if under ur id, u have another persons id 
-//  (in a collection) w a doc with request_status equal to 'received' then that
-//  person's id (the collection) should be used to get the persons profile and
-//  display it in inbox w "accept request". To check that u have a new friend
-//  request, I think we need to use an onSnapshot function which would be always
-//  listening for a new entry in friend requests under ur id i think. If you get
-//  that working u can attach the accept request function to the accept button.
-
 // when current user searches for friend, create doc in friend requests with sender's id (current user's id),
 // and add the reciever's id to the current user's request to array. Once this is done successfully, create doc with
 // reciever's id and add current user's id (the sender's id) to the request from array. Next see do refresh.
@@ -68,14 +60,14 @@ const Users: React.FC = () => {
         </IonToolbar>
         <IonContent>    
             {hits && query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map(hit => 
-              <UserItem hit={hit} name={hit.name} id={hit.objectID}/>
+              <UserItem hit={hit} username={hit.username} id={hit.objectID}/>
             )}
         </IonContent>
       </IonPage>    
     )
   } 
 
-const UserItem = ({hit, name, id}) => {
+const UserItem = ({hit, username, id}) => {
 
   const [addDisabled, setAddDisabled] = useState(Boolean);
   const [cancelDisabled, setCancelDisabled] = useState(Boolean);
@@ -99,7 +91,7 @@ const UserItem = ({hit, name, id}) => {
       })
   })
 
-  const addFriend = (name, objectID) => {
+  const addFriend = (username, objectID) => {
     var receiver_user_id = objectID
     var sender_user_id = firebase.auth().currentUser.uid
     //create doc with sender's id if it doesn't already exist and adds receiver's id to field.
@@ -139,7 +131,7 @@ const UserItem = ({hit, name, id}) => {
     });
   }
 
-  const removeFriend = (name, objectID) => {
+  const removeFriend = (username, objectID) => {
     var receiver_user_id = objectID
     var sender_user_id = firebase.auth().currentUser.uid
     //create doc with sender's id if it doesn't already exist and adds receiver's id to field.
@@ -181,15 +173,15 @@ const UserItem = ({hit, name, id}) => {
           </IonAvatar>  
         </IonCol>
         <IonCol offset="1" size="7">
-          <IonText>{name}</IonText>   
+          <IonText>{username}</IonText>   
         </IonCol>
       </IonItem>
       </IonCol>
       <IonCol>
-        <IonButton class="profile-button" disabled={addDisabled} onClick={() => addFriend(name, id)}>
+        <IonButton class="profile-button" disabled={addDisabled} onClick={() => addFriend(username, id)}>
           <IonIcon slot="icon-only" src="assets/icon/Create.svg" />
         </IonButton>
-        <IonButton class="profile-button" disabled={cancelDisabled} onClick={() => removeFriend(name, id)}>
+        <IonButton class="profile-button" disabled={cancelDisabled} onClick={() => removeFriend(username, id)}>
           <IonIcon icon={closeCircleSharp} />
         </IonButton> 
       </IonCol>

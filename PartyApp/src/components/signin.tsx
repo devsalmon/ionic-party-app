@@ -73,15 +73,15 @@ const SignIn: React.FC = () => {
     });   
   }
 
-  const createUser = () => {
+  const createNewUser = () => {
     console.log("create user triggered")
     firebase.auth().createUserWithEmailAndPassword(email, password)
     .then(result => {
       firebase.firestore().collection('users').doc(result.user.uid).set({
         fullname: fullname,
         username: username,
-        email: email,
-        id: result.user.uid
+        email: email,      
+        id: result.user.uid       
         //mobileNumber: mobileNumber ? mobileNumber : null              
       })    
     })
@@ -152,7 +152,7 @@ const SignIn: React.FC = () => {
       setFieldsMissing(true);
     } else { 
       setFieldsMissing(false);   
-      createUser();   
+      createNewUser();   
     }    
     }
 

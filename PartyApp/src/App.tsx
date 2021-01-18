@@ -492,7 +492,7 @@ const SignedInRoutes: React.FC = () => {
           <Route exact path="/profile" render={() => <Redirect to='/profile' />} />                 
           <Route path='/gallery' component={Gallery} />
           <Route path='/memories' component={Memories} />
-          <Route path='/home' component={Home} exact />      
+          <Route exact path='/home' component={Home} />      
           <Route exact path={["/signin", "/"]} render={() => <Redirect to="/home" />} />
         </IonRouterOutlet> 
         
