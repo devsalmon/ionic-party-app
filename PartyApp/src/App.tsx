@@ -209,9 +209,8 @@ const PartyList = () => {
   const [parties, setParties] = useState([]);
 
   useEffect(() => {  
-    // useeffect hook only runs after first render so it only runs once
+    // useeffect hook only runs after first render so it only runs once    
     displayParties();
-    console.log("hmmm")
     // this means display parties only runs once
   },  []);  
 
@@ -253,68 +252,53 @@ const PartyList = () => {
         console.log("Error getting document:", error);
     });
 
-        //Inside users, inside current user's doc. HERE
-        firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {          
-          //console.log("req - Document data:", doc.data().request_from);
-          
-          var j; // define counter for the for loop     
-          for (j = 0; j < doc.data().myInvites.length; j++) {
-            var party_id = doc.data().myInvites && doc.data().myInvites[j]
-            // set curr_id to the current id in the request_from list
-            //console.log(j, party_id)
-            // if the current id (i.e. request from) is already in the state, don't do anything        
-              // otherwise, add it to the state   
-              setPartyReqs(reqs => [
-                ...reqs, 
-                {
-                  id: party_id, 
-                  name: party_id
-                }
-              ]);              
-              //console.log(reqs)
-            // Remove ID from the document
-            // var removeID = collectionRef.doc(current_user).update({
-            //     request_from: firebase.firestore.FieldValue.arrayRemove(curr_id)
-            // });        
-          };
+    //Inside users, inside current user's doc. HERE
+    firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {          
+      //console.log("req - Document data:", doc.data().request_from);
+      
+      var j; // define counter for the for loop     
+      for (j = 0; j < doc.data().myInvites.length; j++) {
+        var party_id = doc.data().myInvites && doc.data().myInvites[j]
+        // set curr_id to the current id in the request_from list
+        //console.log(j, party_id)
+        // if the current id (i.e. request from) is already in the state, don't do anything        
+          // otherwise, add it to the state   
+          setPartyReqs(reqs => [
+            ...reqs, 
+            {
+              id: party_id, 
+              name: party_id
+            }
+          ]);              
           //console.log(reqs)
-        }).catch(function(error) {
-            console.log("Error getting document:", error);
-        });
+        // Remove ID from the document
+        // var removeID = collectionRef.doc(current_user).update({
+        //     request_from: firebase.firestore.FieldValue.arrayRemove(curr_id)
+        // });        
+      };
+      //console.log(reqs)
+    }).catch(function(error) {
+        console.log("Error getting document:", error);
+    });
 
     setTimeout(() => {
       event.detail.complete();
     }, 2000);
   }   
 
-  const displayParties = () => {
-    // get current user 
-    console.log("infine loop tests")
-    var current_user = firebase.auth().currentUser.uid;   
-    // get the document of the current user from firestore users collection
-    firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {      
-      if (doc.exists) {
-        var i; // define counter for the for loop   
-        // loop through all parties in the user's document as long as there are parties there
-        // loop through until state (parties) has same number of parties as myParties array
-        if (doc.data().myParties && doc.data().myParties.length > 0) {
-          for (i = 0; i < doc.data().myParties.length; i++) {     
-            // get party of the curr_id from the user's document
-            let curr_id = doc.data().myParties && doc.data().myParties[0];
-            firebase.firestore().collection("parties").doc(curr_id).get().then(function(doc) {
-              // setState to contian all the party documents from the user's document 
-                setParties(parties => [
-                  ...parties,
-                  {
-                    id: doc.id,
-                    doc: doc
-                  }
-                ]);                       
-            })
-          }             
-        }
-      }
-    })          
+  const displayParties = () => {            
+    var currentuser = firebase.auth().currentUser.uid
+    firebase.firestore().collection("parties").get().then(querySnapshot => {
+    var myparties = querySnapshot && querySnapshot.docs.reduce(function(filtered, party) {            
+      if (party.data().invited_people.find(item => item.id === currentuser)) { 
+        // if the party's invited_people array includes the current user 
+        // push party into the filtered list
+        filtered.push({id: party.id, doc: party})                
+      }      
+      return filtered
+    }, []);   
+    myparties && setParties(myparties);
+    });      
   }
 
   const today = new Date();
@@ -324,7 +308,7 @@ const PartyList = () => {
   parties && parties.map(party => {
     let data = party.doc.data();
     // if the party has happened display on memories - if host is current user, diaply in hosted parties 
-    if (moment(data.dateTime).isAfter(today)) {           
+    if (moment(data.endTime).isAfter(today)) {           
       upcomingParties.push(party.doc)       
     } else if (moment(today).isBetween(data.dateTime, data.endTime)) {
       liveParties.push(party.doc);
@@ -346,6 +330,7 @@ const PartyList = () => {
           refreshingSpinner="circles">
         </IonRefresherContent>
       </IonRefresher> 
+      {console.log(parties)}
       {reqs && reqs.map(req => 
           (<FriendRequest id={req.name} key={req.id}/>)
       )}
@@ -366,10 +351,10 @@ const PartyList = () => {
           </>
         );                    
       })}
-       {upcomingParties && upcomingParties.map(party => {
+       {parties && parties.map(party => {
           return( 
             <>
-            <Party key={party.id} doc={party} live={false} classname="accordion-item"/>
+            <Party key={party.id} doc={party.doc} live={false} classname="accordion-item"/>
             </>
           );                
         })}  

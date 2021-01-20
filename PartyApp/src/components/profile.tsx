@@ -142,7 +142,7 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
       <IonPage id="profilePage">
         <IonHeader>
           <IonToolbar>
-            <IonTitle>{user.displayName}</IonTitle>          
+            <IonTitle>{user.uid}</IonTitle>          
             <IonButtons slot="end">
               <IonMenuButton class="top-icons">
                 <IonIcon icon={settingsSharp}></IonIcon>
@@ -182,7 +182,7 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
                 {friends && friends.map(friend => {
                     return(
                         <IonItem class="accordion-item" key={friend.id} routerLink={"/profile/users/" + `${friend.id}`}>
-                            <IonText>{friend.name}</IonText>
+                            <IonText>{friend.username}</IonText>
                         </IonItem>
                     )
                 })}

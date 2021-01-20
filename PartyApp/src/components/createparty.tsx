@@ -221,7 +221,7 @@ const CreateParty = ({initialValue, clear}) => {
           </IonItem>
           {invitedPeople && invitedPeople.map(person => {
             return(
-              <IonItem class="create-card">
+              <IonItem class="create-card" key={person.id}>
                 <IonText>{person.username}</IonText>
               </IonItem>
             )
