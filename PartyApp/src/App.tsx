@@ -347,10 +347,10 @@ const PartyList = () => {
         </IonRefresherContent>
       </IonRefresher> 
       {reqs && reqs.map(req => 
-          (<friendRequest id={req.name} key={req.id}/>)
+          (<FriendRequest id={req.name} key={req.id}/>)
       )}
       {partyreqs && partyreqs.map(req => 
-          (<partyRequest id={req.name} key={req.id}/>)
+          (<PartyRequest id={req.name} key={req.id}/>)
       )}
       { upcomingParties.length > 0 ? null :
         liveParties.length > 0 ? null :
@@ -387,7 +387,7 @@ const Create: React.FC = () => {
   )
 }
 
-const friendRequest = ({id}) => {
+const FriendRequest = ({id}) => {
   // notification item
   const [name, setName] = useState(''); // name of person who requested
 
@@ -482,7 +482,7 @@ const friendRequest = ({id}) => {
   )
 }
 
-const partyRequest = ({id}) => {
+const PartyRequest = ({id}) => {
   // notification item
   const [name, setName] = useState(''); // name of person who requested
 
@@ -499,8 +499,14 @@ const partyRequest = ({id}) => {
   //if accept is clicked, inside friends collection, create doc with current user's id and add that friend's id
   //to array. If that works, inside friends collection inside the friend's document, add the current user's id.
   // If this is successful then remove eachother from requests.
-  const acceptInvite = (friendsID) => {
-    //ADD PARTY TO my_Parties array. It should then display automatically.    
+  const acceptInvite = (partyID) => {
+
+    var current_user_id = firebase.auth().currentUser.uid
+    //ADD PARTY TO my_Parties array. It should then display automatically.  
+    firebase.firestore().collection("users").doc(current_user_id).update({
+      // add party id to user documents
+      myParties: firebase.firestore.FieldValue.arrayUnion(partyID)
+    })  
 
   }
 
