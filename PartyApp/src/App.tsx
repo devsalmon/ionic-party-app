@@ -205,11 +205,13 @@ const PartyList = () => {
   // for friend request bit.
   const collectionRef = firebase.firestore().collection("friend_requests"); 
   const [reqs, setReqs] = useState([]); 
+  const [partyreqs, setPartyReqs] = useState([]);
   const [parties, setParties] = useState([]);
 
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once
     displayParties();
+    console.log("hmmm")
     // this means display parties only runs once
   },  []);  
 
@@ -221,6 +223,7 @@ const PartyList = () => {
     //get current user
     var current_user = firebase.auth().currentUser.uid;    
     setReqs([]);
+    setPartyReqs([]);
     //Inside friend_requests, inside current user's doc. HERE
     collectionRef.doc(current_user).get().then(function(doc) {          
       console.log("req - Document data:", doc.data().request_from);
@@ -250,6 +253,35 @@ const PartyList = () => {
         console.log("Error getting document:", error);
     });
 
+        //Inside users, inside current user's doc. HERE
+        firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {          
+          //console.log("req - Document data:", doc.data().request_from);
+          
+          var j; // define counter for the for loop     
+          for (j = 0; j < doc.data().myInvites.length; j++) {
+            var party_id = doc.data().myInvites && doc.data().myInvites[j]
+            // set curr_id to the current id in the request_from list
+            //console.log(j, party_id)
+            // if the current id (i.e. request from) is already in the state, don't do anything        
+              // otherwise, add it to the state   
+              setPartyReqs(reqs => [
+                ...reqs, 
+                {
+                  id: party_id, 
+                  name: party_id
+                }
+              ]);              
+              //console.log(reqs)
+            // Remove ID from the document
+            // var removeID = collectionRef.doc(current_user).update({
+            //     request_from: firebase.firestore.FieldValue.arrayRemove(curr_id)
+            // });        
+          };
+          //console.log(reqs)
+        }).catch(function(error) {
+            console.log("Error getting document:", error);
+        });
+
     setTimeout(() => {
       event.detail.complete();
     }, 2000);
@@ -257,6 +289,7 @@ const PartyList = () => {
 
   const displayParties = () => {
     // get current user 
+    console.log("infine loop tests")
     var current_user = firebase.auth().currentUser.uid;   
     // get the document of the current user from firestore users collection
     firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {      
@@ -267,7 +300,7 @@ const PartyList = () => {
         if (doc.data().myParties && doc.data().myParties.length > 0) {
           for (i = 0; i < doc.data().myParties.length; i++) {     
             // get party of the curr_id from the user's document
-            let curr_id = doc.data().myParties && doc.data().myParties[i];
+            let curr_id = doc.data().myParties && doc.data().myParties[0];
             firebase.firestore().collection("parties").doc(curr_id).get().then(function(doc) {
               // setState to contian all the party documents from the user's document 
                 setParties(parties => [
@@ -314,7 +347,10 @@ const PartyList = () => {
         </IonRefresherContent>
       </IonRefresher> 
       {reqs && reqs.map(req => 
-          (<Request id={req.name} key={req.id}/>)
+          (<friendRequest id={req.name} key={req.id}/>)
+      )}
+      {partyreqs && partyreqs.map(req => 
+          (<partyRequest id={req.name} key={req.id}/>)
       )}
       { upcomingParties.length > 0 ? null :
         liveParties.length > 0 ? null :
@@ -351,7 +387,7 @@ const Create: React.FC = () => {
   )
 }
 
-const Request = ({id}) => {
+const friendRequest = ({id}) => {
   // notification item
   const [name, setName] = useState(''); // name of person who requested
 
@@ -442,6 +478,36 @@ const Request = ({id}) => {
     <IonItem button>
       <IonText>{name} wants to be friends</IonText>
       <IonButton onClick={() => acceptFriend(id)}>Accept</IonButton>
+    </IonItem>
+  )
+}
+
+const partyRequest = ({id}) => {
+  // notification item
+  const [name, setName] = useState(''); // name of person who requested
+
+  const userRef = firebase.firestore().collection("users").doc(id); // get document of person who requested
+  userRef.get().then(function(doc) {
+    if (doc.exists) { 
+      setName(doc.data().name) // set name to the name in that document
+    } 
+  }).catch(function(error) {
+    console.log(error);
+  });
+
+  // todo - change this to appear in users.
+  //if accept is clicked, inside friends collection, create doc with current user's id and add that friend's id
+  //to array. If that works, inside friends collection inside the friend's document, add the current user's id.
+  // If this is successful then remove eachother from requests.
+  const acceptInvite = (friendsID) => {
+    //ADD PARTY TO my_Parties array. It should then display automatically.    
+
+  }
+
+  return(
+    <IonItem button>
+      <IonText>{name} has invited you</IonText>
+      <IonButton onClick={() => acceptInvite(id)}>Accept</IonButton>
     </IonItem>
   )
 }
