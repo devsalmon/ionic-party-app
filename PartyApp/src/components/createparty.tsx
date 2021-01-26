@@ -93,8 +93,8 @@ const CreateParty = ({initialValue, clear}) => {
       } else if (valid === true) {        
         let collectionRef = firebase.firestore().collection("parties");
         // only add documents to collection if forms are validated
-          collectionRef.add(
-            {title: title, 
+          collectionRef.add({
+            title: title, 
             address: address,
             postcode: postcode,
             date: moment(dateTime).format('LL'), 
@@ -103,14 +103,13 @@ const CreateParty = ({initialValue, clear}) => {
             details: details,
             endTime: moment(endTime).format('LLL'),
             dateTime: moment(dateTime).format('LLL'),
-            host: firebase.auth().currentUser.uid,
+            host: firebase.auth().currentUser.displayName,
             invited_people: invitedPeople,             
-            // use state for invited people - when checkbox clicked in invite people add that id to the state array
             createdOn: moment(new Date()).format('LL'), 
             }).then(function(docRef) {
               console.log(docRef.id)
               setShowToast(valid);
-              //if people get invited then add them to list below.
+              // if people get invited then add them to list below.
               // A party gets created. A person gets invited, they accept invite.
               // Then they get access to the document that was originally created.
               var host_user_id = firebase.auth().currentUser.uid
@@ -119,33 +118,21 @@ const CreateParty = ({initialValue, clear}) => {
                   // add party id to user documents
                   myInvites: firebase.firestore.FieldValue.arrayUnion(docRef.id),
                   invite_from: firebase.firestore.FieldValue.arrayUnion(host_user_id)
-                })
-                //if successful, create doc w receiver's id and add sender's id to collection      
-              //.then(function(docRef) {
-                //        firebase.firestore().collection("users").doc(person.id).update({
-                  //        invite_to: firebase.firestore.FieldValue.arrayUnion(host_user_id)
-                    //    }).then(function(docRef) {
-                          //currentState = "request_received"
-                          //setAddDisabled(true); //disables add friend button
-                          //setCancelDisabled(false); //enalbes cancel request button
-                  //      })
-                    //    .catch(function(error) {
-                      //    console.error("Error adding document: ", error);
-                      //}); 
-                   // })                
+                })                
                 .catch(function(error) {
                   console.error("error adding party id to user document", error);
                 })           
               })              
-            })
-            //clear fields
-            setTitle("");
-            setAddress("");
-            setPostcode("");
-            setDetails("");
-            setEndTime("");
-            setDateTime("");
-            clear();        
+            })          
+          //clear fields
+          setTitle("");
+          setAddress("");
+          setPostcode("");
+          setDetails("");
+          setEndTime("");
+          setDateTime("");
+          setInvitedPeople([]);
+          clear();        
       } 
     
     } 

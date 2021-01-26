@@ -53,7 +53,7 @@ const OtherProfile: React.FC<OtherProfileProps> = ({match}) => {
     useEffect(() => {
         firebase.firestore().collection('users').doc(match.params.id).get().then(doc => {
             let data = doc.data();
-            setUserName(data && data.name);
+            setUserName(data && data.username);
         });
     }, [showFriends])
 

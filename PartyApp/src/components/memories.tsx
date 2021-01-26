@@ -43,7 +43,7 @@ const MemoryList = ({memoriesPage}) => {
 
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once
-    findParties();
+    displayParties();
     // this means find parties only runs once
   },
   []);  
@@ -54,48 +54,30 @@ const MemoryList = ({memoriesPage}) => {
     setID(id)
   }  
 
+  const displayParties = () => {            
+    var currentuser = firebase.auth().currentUser.uid
+    firebase.firestore().collection("users")
+      .doc(currentuser).collection("myParties").get().then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          setParties(parties => [
+            ...parties, doc
+          ])
+        })
+    });      
+  }
+
+
   const today = new Date();
   const yourparties = [];
   const partiesAttended = [];
 
-
-  const findParties = () => {
-    // get current user 
-    var current_user = firebase.auth().currentUser.uid;
-    // get the document of the current user from firestore users collection
-    firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {      
-      if (doc.exists) {
-        var i; // define counter for the for loop   
-        // loop through all parties in the user's document as long as there are parties there
-        if (doc.data().myParties && doc.data().myParties.length > 0) {
-          for (i = 0; i < doc.data().myParties.length; i++) {     
-            // get party of the curr_id from the user's document
-            let current_id = doc.data().myParties && doc.data().myParties[i]
-            firebase.firestore().collection("parties").doc(current_id).get().then(function(doc) {
-              // setState to contian all the party documents from the user's document
-              setParties(parties => [
-                ...parties,
-                {
-                  id: current_id,
-                  doc: doc,
-                }
-              ]);
-            })
-          }
-        }
-      } else {
-        console.log("user does not exist in users")
-      }
-    })        
-  }
-
   parties && parties.map(party_id => {
-    let data = party_id.doc.data();
+    let data = party_id.data();
     // if the party has happened display on memories - if host is current user, diaply in hosted parties 
     if (moment(data.endTime).isBefore(today) && data.host === firebase.auth().currentUser.displayName) {           
-      yourparties.push(party_id.doc)       
+      yourparties.push(party_id)       
     } else if (moment(data.endTime).isBefore(today)) {
-      partiesAttended.push(party_id.doc)
+      partiesAttended.push(party_id)
     }    
   });
 

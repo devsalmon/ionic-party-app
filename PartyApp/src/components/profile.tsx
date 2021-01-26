@@ -12,6 +12,8 @@ import {
   IonText,
   IonImg,
   IonMenu,
+  IonPopover,
+  IonInput,
   IonMenuButton,
   IonHeader,
   IonList,
@@ -50,6 +52,13 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
 
     const [showYourParties, setShowYourParties] = useState(true);
     const [showFriends, setShowFriends] = useState(false);
+    const [usernamePopover, setUsernamePopover] = useState(false); //popover to change username
+    const [newUsername, setNewUsername] = useState('');
+    const [passwordPopover, setPasswordPopover] = useState(false); //popover to change password
+    const [oldPassword, setOldPassword] = useState(''); //popover to change username
+    const [newPassword, setNewPassword] = useState(''); //popover to change username
+    const [verifyNewPassword, setVerifyNewPassword] = useState(''); //popover to change username
+    const [passwordError, setPasswordError] = useState('');
 
     const [friends, setFriends] = useState([]);
     const [newFriends, setNewFriends] = useState(false);
@@ -79,7 +88,7 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
                     data && setFriends(friends => [
                         ...friends, 
                         {
-                            name: data.name,
+                            name: data.username,
                             id: doc.id
                         }
                     ]);  
@@ -106,6 +115,45 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
       setShowYourParties(false);
     }
 
+    const updateUsername = () => {
+      user = firebase.auth().currentUser
+      user.updateProfile({
+        displayName: newUsername
+      });
+      firebase.firestore().collection('users').doc(user.uid).update({
+        username: newUsername,  
+      }).then(() => {
+        setUsernamePopover(false);
+        setNewUsername('');
+      })    
+    }
+
+    const updatePassword = () => {
+      user = firebase.auth().currentUser
+      const credential = firebase.auth.EmailAuthProvider.credential(
+        user.email, 
+        oldPassword
+      );      
+      setPasswordError('');
+      if (newPassword !== verifyNewPassword) {
+        setPasswordError("passwords don't match");
+      } else {        
+        // Now you can use that to reauthenticate
+        user.reauthenticateWithCredential(credential).then(function() {
+          user.updatePassword(newPassword).then(function() {
+            setPasswordPopover(false);
+            setOldPassword('');
+            setNewPassword('');
+            setVerifyNewPassword('');
+          }).catch(function(error) {
+            setPasswordError(error.message);
+          });        
+        }).catch(function(error) {
+          setPasswordError(error.message);
+        });    
+      } 
+    } 
+
     return(   
       <>              
         <IonRouterOutlet>
@@ -122,10 +170,10 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
               <IonButton href="/signin" onClick={() => signOut()}>
                 Sign out              
               </IonButton> <br/>
-              <IonButton>
+              <IonButton onClick={() => setUsernamePopover(true)}>
                 Change username              
               </IonButton> <br/>
-              <IonButton>
+              <IonButton onClick={() => setPasswordPopover(true)}>
                 Change password              
               </IonButton><br/>  
               <IonButton>
@@ -142,7 +190,7 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
       <IonPage id="profilePage">
         <IonHeader>
           <IonToolbar>
-            <IonTitle>{user.uid}</IonTitle>          
+            <IonTitle>{user.displayName}</IonTitle>          
             <IonButtons slot="end">
               <IonMenuButton class="top-icons">
                 <IonIcon icon={settingsSharp}></IonIcon>
@@ -154,25 +202,7 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
             <IonButton class={showFriends ? "custom-button" : "create-button"} onClick={() => displayFriends()}>Friends</IonButton>
           </IonItem>               
         </IonHeader>
-
-
-{/*         
-        <IonItem class="accordion-item"  button href="/people">
-          <IonText>Friends: 99</IonText> <br/>
-        </IonItem >
-
-        <IonItem class="accordion-item"  button href="/people">
-          <IonText>Parties attended: 9120</IonText> <br/>
-        </IonItem >
-
-        <IonItem class="accordion-item"  button href="/people">
-          <IonText>Parties hosted: -3</IonText> <br/>
-        </IonItem >  
-
-        <IonItem class="accordion-item"  button href="/people">
-          <IonText>Upcoming parties: 2</IonText> <br/>
-        </IonItem >
-
+{/*     
         <IonItem class="accordion-item"  button href="/people">
           <IonText>Status: sesh gremlin</IonText> <br/>
         </IonItem >    */}
@@ -181,9 +211,9 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
             <IonList class="list">
                 {friends && friends.map(friend => {
                     return(
-                        <IonItem class="accordion-item" key={friend.id} routerLink={"/profile/users/" + `${friend.id}`}>
-                            <IonText>{friend.username}</IonText>
-                        </IonItem>
+                      <IonItem class="accordion-item" key={friend.id} routerLink={"/profile/users/" + `${friend.id}`}>
+                          <IonText>{friend.name}</IonText>
+                      </IonItem>
                     )
                 })}
             </IonList>
@@ -192,6 +222,45 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
         {showYourParties ? 
         <MemoryList memoriesPage={false} />:
         null}
+        <IonPopover
+          cssClass="popover"        
+          isOpen={usernamePopover}
+          onDidDismiss={() => setUsernamePopover(false)}
+        >
+          <IonInput 
+          class="create-input" 
+          value={newUsername} 
+          onIonChange={e => setNewUsername(e.detail.value!)} 
+          placeholder="New Username" clearInput>            
+          </IonInput>
+          <IonButton onClick={() => updateUsername()}>Done</IonButton>             
+        </IonPopover>
+        <IonPopover
+          cssClass="popover"        
+          isOpen={passwordPopover}
+          onDidDismiss={() => setPasswordPopover(false)}
+        >
+          <IonInput 
+          class="create-input" 
+          value={oldPassword} 
+          onIonChange={e => setOldPassword(e.detail.value!)} 
+          placeholder="Old Password" clearInput>            
+          </IonInput>
+          <IonInput 
+          class="create-input" 
+          value={newPassword} 
+          onIonChange={e => setNewPassword(e.detail.value!)} 
+          placeholder="New Password" clearInput>            
+          </IonInput>
+          <IonInput 
+          class="create-input" 
+          value={verifyNewPassword} 
+          onIonChange={e => setVerifyNewPassword(e.detail.value!)} 
+          placeholder="Re-enter New Password" clearInput>            
+          </IonInput>    
+          <IonText>{passwordError}</IonText>                
+          <IonButton onClick={() => updatePassword()}>Done</IonButton>             
+        </IonPopover>        
         <br/><br/><br/><br/><br/><br/>
       </IonPage>
     </>

@@ -9,9 +9,18 @@ const ALGOLIA_INDEX_NAME = "Users";
 
 admin.initializeApp(functions.config().firebase)
 
+// tbd - remember to redeploy at the end
 exports.addUser = functions.firestore
 .document("users/{userId}")
 .onCreate(async (snap, context) => {
+  admin.auth()
+    .updateUser(snap.id, {
+      displayName: snap.data().username,
+      email: snap.data().email,
+      phoneNumber: snap.data().phone_number,      
+    })
+
+  // adding index to algolia 
   const newValue = snap.data();
   newValue.objectID = snap.id;
 
@@ -49,3 +58,10 @@ exports.deleteUser = functions.firestore
   var index = client.initIndex(ALGOLIA_INDEX_NAME);
   index.deleteObject(oldID);
 });
+
+// exports.partyCreated = functions.firestore
+// .document("parties/{partyId}")
+// .onCreate(async (snap, context) => {
+//   const data = doc.data()
+//   const 
+// });
