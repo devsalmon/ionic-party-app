@@ -1,5 +1,4 @@
 import React, { useState, useEffect} from 'react';
-import {useDocument} from 'react-firebase-hooks/firestore';
 import MapContainer from './mapcontainer';
 import App from '../App';
 import {
@@ -49,31 +48,29 @@ import algoliasearch from 'algoliasearch/lite';
 
 const CreateParty = ({initialValue, clear}) => {
 
-    // function to hide tabs when in the create page
-    function hideTab() {
-      const tabBar = document.getElementById('appTabBar');
-      tabBar.style.display = 'none';
-    }
-    // show tabs again when create page is exited
-    function showTab() {        
-      const tabBar = document.getElementById('appTabBar');
-      tabBar.style.display = 'flex';
-    }    
-  
-    const [invitedPeople, setInvitedPeople] = useState([]); // array of invited people
-    const [title, setTitle] = useState<string>('');
-    const [address, setAddress] = useState<string>('');
-    const [postcode, setPostcode] = useState<string>('');
-    const [details, setDetails] = useState<string>('');
-    const [endTime, setEndTime] = useState<string>('');
-    const [dateTime, setDateTime] = useState<string>('');  
-    const [showPeopleSearch, setShowPeopleSearch] = useState(false);
-    const [showToast, setShowToast] = useState(false);
-    const [showAlert, setShowAlert] = useState(false);
-    const [value, loading, error] = useDocument(
-      firebase.firestore().doc("parties/" + initialValue)
-    );
-  
+  // function to hide tabs when in the create page
+  function hideTab() {
+    const tabBar = document.getElementById('appTabBar');
+    tabBar.style.display = 'none';
+  }
+  // show tabs again when create page is exited
+  function showTab() {        
+    const tabBar = document.getElementById('appTabBar');
+    tabBar.style.display = 'flex';
+  }    
+
+  const [invitedPeople, setInvitedPeople] = useState([]); // array of invited people
+  const [title, setTitle] = useState<string>('');
+  const [address, setAddress] = useState<string>('');
+  const [postcode, setPostcode] = useState<string>('');
+  const [details, setDetails] = useState<string>('');
+  const [endTime, setEndTime] = useState<string>('');
+  const [dateTime, setDateTime] = useState<string>('');  
+  const [showPeopleSearch, setShowPeopleSearch] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [refresh, setRefresh] = useState(false);
+
   const searchClient = algoliasearch('N5BVZA4FRH', '10173d946e2ba5aa9ba4f9ae445cef48');
   const index = searchClient.initIndex('Users');
   const [hits, setHits] = useState([]);
@@ -122,7 +119,14 @@ const CreateParty = ({initialValue, clear}) => {
                 .catch(function(error) {
                   console.error("error adding party id to user document", error);
                 })           
-              })              
+              })  
+              // add party to the host's document collection
+              docRef.get().then(docSnap => {
+                firebase.firestore().collection("users")
+                  .doc(firebase.auth().currentUser.uid).collection("myParties").doc(docSnap.id).set({
+                    ...docSnap.data()
+                  })
+              })            
             })          
           //clear fields
           setTitle("");
@@ -149,6 +153,17 @@ const CreateParty = ({initialValue, clear}) => {
       console.log(invitedPeople)
     }
 
+    const removeInvite = (id) => {
+      setRefresh(false);
+      setQuery(''); // reset searchbar when invite button pressed so invite item with the button stops showing
+      for (var i=0; i < invitedPeople.length; i++) {
+        if (invitedPeople[i].id === id) {
+            invitedPeople.splice(i,1);
+            setRefresh(true);
+            break;
+        }   
+      }      
+    }
     return(
       <IonContent class="create-content" fullscreen={true}>
         {hideTab()} 
@@ -210,6 +225,7 @@ const CreateParty = ({initialValue, clear}) => {
             return(
               <IonItem class="create-card" key={person.id}>
                 <IonText>{person.username}</IonText>
+                <IonButton slot="end" color="warning" onClick={() => removeInvite(person.id)}>Remove</IonButton>
               </IonItem>
             )
           })}                    
