@@ -26,10 +26,8 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import '../variables.css';
 
-const Memory = ({doc, click}) => {
+const Memory = ({id, data, click}) => {
   // party card  
-
-  let data = doc.data();
   
   return(
     <IonItem button onClick={click} class="accordion-item">

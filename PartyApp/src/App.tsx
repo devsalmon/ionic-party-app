@@ -79,7 +79,7 @@ import './variables.css';
 //TODO - 
 // delete party document in firebase after it's happened
 
-const Party = ({doc, live, classname}) => {
+const Party = ({id, data, live, classname}) => {
   // party card
 
   const [showToast, setShowToast] = useState(false);
@@ -91,7 +91,7 @@ const Party = ({doc, live, classname}) => {
  
   const onSave = async() => { 
     if (photo !== "") {
-    await collectionRef.doc(doc.id).collection('pictures').add({
+    await collectionRef.doc(id).collection('pictures').add({
         picture: photo,
         takenBy: firebase.auth().currentUser.displayName,
         takenAt: moment(new Date()).format('LT'),
@@ -121,13 +121,6 @@ const Party = ({doc, live, classname}) => {
   }    
 
   const collectionRef = firebase.firestore().collection("parties");
-  let data = doc.data();
-
-  const today = new Date();  
-  // if the party is now, display in live parties with camera function
-  if (moment(today).isBefore(data.dateTime, data.endTime)) {
-    setIsLive(false);
-  }
   
   let liveParty // not live initially
   if (isLive) {
@@ -206,19 +199,23 @@ const PartyList = () => {
   const collectionRef = firebase.firestore().collection("friend_requests"); 
   const [reqs, setReqs] = useState([]); 
   const [partyreqs, setPartyReqs] = useState([]);
-  const [parties, setParties] = useState([]);
+  const [upcomingParties, setUpcomingParties] = useState([]);
+  const [liveParties, setLiveParties] = useState([]);
+  const [newParties, setNewParties] = useState(false);
 
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once    
     displayParties();
     // this means display parties only runs once
-  },  []);  
+  },  [newParties]);  
 
   // todo - make this so it doesn't depend on user manually refreshing 
   //This just handles the requests once they have been made.
   //On refresh check current user's 'request from' array inside friend requests and display their profile. Then see
   // accept friend.
   function doRefresh(event: CustomEvent<RefresherEventDetail>) {
+    // toggle new parties so displayParties runs and it checks for new parties
+    setNewParties(!newParties);
     //get current user
     var current_user = firebase.auth().currentUser.uid;    
     setReqs([]);
@@ -284,34 +281,47 @@ const PartyList = () => {
     firebase.firestore().collection("users")
       .doc(currentuser).collection("myParties").get().then(querySnapshot => {
         querySnapshot.forEach(doc => {
-          setParties(parties => [
-            ...parties, doc
-          ])
+          let today = new Date();
+          let data = doc.data();
+          // if party is in the future and party isn't already in the state 
+          var alreadyInUP = upcomingParties.some(item => doc.id === item.id);
+          var alreadyInLP = liveParties.some(item => doc.id === item.id);
+          if (moment(today).isBefore(data.dateTime) && !alreadyInUP) { 
+            setUpcomingParties(parties => [
+              ...parties, 
+              {
+                id: doc.id,
+                data: data
+              }              
+            ]);
+          } else if (moment(today).isBetween(data.dateTime, data.endTime) && !alreadyInLP) {
+            // if party is live
+            setLiveParties(parties => [
+              ...parties,
+              {
+                id: doc.id,
+                data: data
+              }
+            ])
+            // remove the party from upcomingParties array 
+            for (var i=0; i < upcomingParties.length; i++) {
+              if (upcomingParties[i].id === doc.id) {
+                  upcomingParties.splice(i,1);
+                  break;
+              }   
+            }             
+           } else {
+            // remove the party from liveParties array 
+            for (var i=0; i < liveParties.length; i++) {
+              if (liveParties[i].id === doc.id) {
+                  liveParties.splice(i,1);
+                  break;
+              }   
+            }               
+           }
         })
     });      
   }
-
-  var today = new Date();
-  var yesterday = new Date(Date.now() - 864e5)
-  const upcomingParties = [];
-  const liveParties = [];
-
-  parties && parties.map(party => {
-    let data = party.data();
-    // if the party has happened display on memories - if host is current user, diaply in hosted parties 
-           
-    if (moment(today).isBetween(yesterday, data.endTime)) { 
-      upcomingParties.push(party)       
-    } else if (moment(today).isBetween(data.dateTime, data.endTime)) {
-      liveParties.push(party);
-      var index = upcomingParties.indexOf(party);
-      if (index) {
-        upcomingParties.splice(index, 1)
-      }
-    }
-  });  
-
-  var numPastParties = 0; // count for number of parties that happened in the past
 
   return(
     //refreshing bit first. This just handles the requests once they have been made.
@@ -322,7 +332,7 @@ const PartyList = () => {
           refreshingSpinner="circles">
         </IonRefresherContent>
       </IonRefresher> 
-      {console.log(parties)}
+      {console.log(upcomingParties)}
       {reqs && reqs.map(req => 
           (<FriendRequest id={req.name} key={req.id}/>)
       )}
@@ -338,18 +348,18 @@ const PartyList = () => {
         return(        
           <>
           <IonTitle color="danger">LIVE!</IonTitle>              
-          <Party doc={party} key={party.id + "live"} live={true} classname="live-item"/>              
+          <Party key={party.id + "live"} id={party.id} data={party.data} live={true} classname="live-item"/>              
           <br/>
           </>
         );                    
       })}
-       {upcomingParties && upcomingParties.map(party => {
-          return( 
-            <>
-            <Party key={party.id} doc={party} live={false} classname="accordion-item"/>
-            </>
-          );                
-        })}  
+      {upcomingParties && upcomingParties.map(party => {
+        return( 
+          <>
+          <Party key={party.id} id={party.id} data={party.data} live={false} classname="accordion-item"/>
+          </>
+        );                
+      })}  
       </Accordion> 
     </IonContent>   
     )
@@ -512,7 +522,7 @@ const Memories: React.FC = () => {
   )
 }
 const Home: React.FC = () => {
-  
+
   return(
     <IonPage>
       <IonToolbar>

@@ -37,7 +37,8 @@ import '../variables.css';
 
 const MemoryList = ({memoriesPage}) => {
 
-  const [parties, setParties] = useState([]);  
+  const [yourParties, setYourParties] = useState([]);  
+  const [attendedParties, setAttendedParties] = useState([]);  
   const [id, setID] = useState<string>('');
   const [inGallery, setInGallery] = useState(false);
 
@@ -59,27 +60,33 @@ const MemoryList = ({memoriesPage}) => {
     firebase.firestore().collection("users")
       .doc(currentuser).collection("myParties").get().then(querySnapshot => {
         querySnapshot.forEach(doc => {
-          setParties(parties => [
-            ...parties, doc
-          ])
+          let today = new Date();
+          let data = doc.data();
+          // if party is in the past and party isn't already in the state
+          var alreadyInYP = yourParties.some(item => doc.id === item.id);
+          var alreadyInAP = attendedParties.some(item => doc.id === item.id);
+          var currentUser = firebase.auth().currentUser.displayName
+          if (moment(today).isAfter(data.endTime) && data.host === currentUser && !alreadyInYP) { 
+            setYourParties(parties => [
+              ...parties, 
+              {
+                id: doc.id,
+                data: data
+              }              
+            ]);
+          } else if (moment(today).isAfter(data.endTime) && !alreadyInAP) {
+            // if party is live
+            setAttendedParties(parties => [
+              ...parties,
+              {
+                id: doc.id,
+                data: data
+              }
+            ])             
+           }
         })
     });      
   }
-
-
-  const today = new Date();
-  const yourparties = [];
-  const partiesAttended = [];
-
-  parties && parties.map(party_id => {
-    let data = party_id.data();
-    // if the party has happened display on memories - if host is current user, diaply in hosted parties 
-    if (moment(data.endTime).isBefore(today) && data.host === firebase.auth().currentUser.displayName) {           
-      yourparties.push(party_id)       
-    } else if (moment(data.endTime).isBefore(today)) {
-      partiesAttended.push(party_id)
-    }    
-  });
 
   if (inGallery) {
     return(
@@ -111,10 +118,10 @@ const MemoryList = ({memoriesPage}) => {
         <IonContent fullscreen={true}>
         {memoriesPage ? <IonText class="ion-padding-start">Your parties</IonText> : null}
         {
-          yourparties.length === 0 ?
+          yourParties.length === 0 ?
           <><br/><br/><IonText class=" white-text ion-padding-start"> No hosted parties yet..</IonText><br/><br/></> :
-          yourparties.map(doc => {
-            return(<Memory doc={doc} key={doc.id} click={() => enter(doc.id)}/>)          
+          yourParties.map(doc => {
+            return(<Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id)}/>)          
           })
         }
         {
@@ -123,14 +130,14 @@ const MemoryList = ({memoriesPage}) => {
           null
         }
         {
-          partiesAttended.length === 0 && memoriesPage ?
+          attendedParties.length === 0 && memoriesPage ?
           <IonText class="white-text ion-padding-start">No attended parties yet..</IonText> :          
           null
         }  
         {
-          partiesAttended.length > 0 && memoriesPage ? 
-          partiesAttended.map(doc => {
-            return(<Memory doc={doc} key={doc.id} click={() => enter(doc.id)}/>)          
+          attendedParties.length > 0 && memoriesPage ? 
+          attendedParties.map(doc => {
+            return(<Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id)}/>)          
           }) :
           null
         }              
