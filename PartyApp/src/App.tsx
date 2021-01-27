@@ -205,7 +205,13 @@ const PartyList = () => {
 
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once    
-    displayParties();
+    var current_user_id = firebase.auth().currentUser.uid
+    firebase.firestore().collection("users").doc(current_user_id)
+      .onSnapshot(function(doc) {
+          console.log("Current data: ", doc.data());
+          displayParties()
+      });
+    //displayParties();
     // this means display parties only runs once
   },  [newParties]);  
 
@@ -255,6 +261,7 @@ const PartyList = () => {
         //console.log(j, party_id)
         // if the current id (i.e. request from) is already in the state, don't do anything        
           // otherwise, add it to the state   
+          // add invites to partyreqs
           setPartyReqs(reqs => [
             ...reqs, 
             {
@@ -276,7 +283,8 @@ const PartyList = () => {
     }, 2000);
   }   
 
-  const displayParties = () => {            
+  const displayParties = () => {          
+
     var currentuser = firebase.auth().currentUser.uid
     firebase.firestore().collection("users")
       .doc(currentuser).collection("myParties").get().then(querySnapshot => {
