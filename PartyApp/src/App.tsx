@@ -205,12 +205,12 @@ const PartyList = () => {
 
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once    
-    var current_user_id = firebase.auth().currentUser.uid
-    firebase.firestore().collection("users").doc(current_user_id)
-      .onSnapshot(function(doc) {
-          console.log("Current data: ", doc.data());
+    //var current_user_id = firebase.auth().currentUser.uid
+    //firebase.firestore().collection("users").doc(current_user_id)
+      //.onSnapshot(function(doc) {
+        //  console.log("Current data: ", doc.data());
           displayParties()
-      });
+     // });
     //displayParties();
     // this means display parties only runs once
   },  [newParties]);  
