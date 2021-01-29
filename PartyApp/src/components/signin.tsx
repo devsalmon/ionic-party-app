@@ -237,6 +237,7 @@ const SignIn: React.FC = () => {
             <>
               <IonButton class="create-button" onClick={() => handleLogin()}>Sign in</IonButton>
               <p className="errormsg">Don't have an account? <span onClick={() => setHasAccount(!hasAccount)}>Sign up</span></p>
+              <p className="errormsg"><span>Forgot Password?</span></p>
             </>
           ) : (
             <>

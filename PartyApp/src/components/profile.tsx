@@ -16,6 +16,7 @@ import {
   IonInput,
   IonMenuButton,
   IonHeader,
+  IonAlert,
   IonList,
   IonRouterOutlet
 } from '@ionic/react';
@@ -55,6 +56,7 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
     const [usernamePopover, setUsernamePopover] = useState(false); //popover to change username
     const [newUsername, setNewUsername] = useState('');
     const [passwordPopover, setPasswordPopover] = useState(false); //popover to change password
+    const [deleteAccPopover, setDeleteAccPopover] = useState(false); //popover to change password
     const [oldPassword, setOldPassword] = useState(''); //popover to change username
     const [newPassword, setNewPassword] = useState(''); //popover to change username
     const [verifyNewPassword, setVerifyNewPassword] = useState(''); //popover to change username
@@ -116,6 +118,7 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
     }
 
     const updateUsername = () => {
+      setPasswordError('');
       user = firebase.auth().currentUser
       user.updateProfile({
         displayName: newUsername
@@ -129,12 +132,12 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
     }
 
     const updatePassword = () => {
+      setPasswordError('');
       user = firebase.auth().currentUser
       const credential = firebase.auth.EmailAuthProvider.credential(
         user.email, 
         oldPassword
-      );      
-      setPasswordError('');
+      );            
       if (newPassword !== verifyNewPassword) {
         setPasswordError("passwords don't match");
       } else {        
@@ -153,6 +156,13 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
         });    
       } 
     } 
+
+    const deleteAccount = () => {
+      var user = firebase.auth().currentUser;
+      user.delete().then(function() {
+      }).catch(function(error) {
+      });      
+    }
 
     return(   
       <>              
@@ -175,7 +185,10 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
               </IonButton> <br/>
               <IonButton onClick={() => setPasswordPopover(true)}>
                 Change password              
-              </IonButton><br/>  
+              </IonButton><br/>
+              <IonButton onClick={() => setDeleteAccPopover(true)}>
+                Delete Account             
+              </IonButton><br/>                
               <IonButton>
                 Notifications
               </IonButton><br/>          
@@ -257,10 +270,24 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
           value={verifyNewPassword} 
           onIonChange={e => setVerifyNewPassword(e.detail.value!)} 
           placeholder="Re-enter New Password" clearInput>            
-          </IonInput>    
+          </IonInput>              
           <IonText>{passwordError}</IonText>                
           <IonButton onClick={() => updatePassword()}>Done</IonButton>             
-        </IonPopover>        
+        </IonPopover>    
+        <IonPopover
+          cssClass="popover"        
+          isOpen={deleteAccPopover}
+          onDidDismiss={() => setDeleteAccPopover(false)}
+        >
+          <IonText>Delete Account?</IonText><br/>
+          <IonText class="white-text">You won't be able to recover this account</IonText><br/>
+          <IonButton onClick={()=>setDeleteAccPopover(false)}>
+            Cancel
+          </IonButton>            
+          <IonButton onClick={()=>deleteAccount()}>
+            Delete
+          </IonButton>   
+        </IonPopover>         
         <br/><br/><br/><br/><br/><br/>
       </IonPage>
     </>
