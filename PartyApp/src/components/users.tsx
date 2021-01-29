@@ -60,6 +60,7 @@ const Users: React.FC = () => {
         </IonToolbar>
         <IonContent>    
             {hits && query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map(hit => 
+              hit.objectID === firebase.auth().currentUser.uid ? null :
               <UserItem hit={hit} username={hit.username} id={hit.objectID}/>
             )}
         </IonContent>
@@ -169,7 +170,7 @@ const UserItem = ({hit, username, id}) => {
       <IonItem button key={id}>    
         <IonCol size="4">
           <IonAvatar>
-            <img src={hit.photoUrl} />
+            <img src={hit.photoURL ? hit.photoURL : "https://img.favpng.com/18/24/16/user-silhouette-png-favpng-4mEnHSRfJZD8p9eEBiRpA9GeS.jpg"} />
           </IonAvatar>  
         </IonCol>
         <IonCol offset="1" size="7">

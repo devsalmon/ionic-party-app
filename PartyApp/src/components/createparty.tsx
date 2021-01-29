@@ -8,10 +8,13 @@ import {
   IonButton,
   IonButtons,
   IonBackButton,
+  IonCol,
+  IonRow,
   IonHeader, 
   IonContent, 
   IonToolbar, 
   IonTitle,
+  IonAvatar,
   IonSearchbar,
   IonInput,
   IonModal, 
@@ -69,6 +72,7 @@ const CreateParty = ({initialValue, clear}) => {
   const [showPeopleSearch, setShowPeopleSearch] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
+  const [timeError, setTimeError] = useState(false);
   const [refresh, setRefresh] = useState(false);
 
   const searchClient = algoliasearch('N5BVZA4FRH', '10173d946e2ba5aa9ba4f9ae445cef48');
@@ -83,11 +87,16 @@ const CreateParty = ({initialValue, clear}) => {
   }
     const onSave = () => {  
       // validate inputs  
-      const valid = Boolean((title !== "") && (address !== "") && (postcode !== "") && (dateTime !== "") && (endTime !== "") && (details !== ""));
+      const inputsFilled = Boolean((title !== "") && (address !== "") && (postcode !== "") && (dateTime !== "") && (endTime !== "") && (invitedPeople.length > 0));
+      const timesValid = Boolean(moment(endTime).isAfter(dateTime));
       
-      if (valid === false) {
-        setShowAlert(true)    
-      } else if (valid === true) {        
+      if (inputsFilled === false) {
+        setShowAlert(true)  
+        setTimeError(false);
+      } else if (timesValid === false) {
+        setTimeError(true);
+      } else if (inputsFilled === true && timesValid === true) {
+        setTimeError(false);        
         let collectionRef = firebase.firestore().collection("parties");
         // only add documents to collection if forms are validated
           collectionRef.add({
@@ -97,7 +106,7 @@ const CreateParty = ({initialValue, clear}) => {
             date: moment(dateTime).format('LL'), 
             day: moment(dateTime).format('D'), 
             month: moment(dateTime).format('MMM'),
-            details: details,
+            details: details ? details : "",
             endTime: moment(endTime).format('LLL'),
             dateTime: moment(dateTime).format('LLL'),
             host: firebase.auth().currentUser.displayName,
@@ -105,7 +114,7 @@ const CreateParty = ({initialValue, clear}) => {
             createdOn: moment(new Date()).format('LL'), 
             }).then(function(docRef) {
               console.log(docRef.id)
-              setShowToast(valid);
+              setShowToast(true);
               // if people get invited then add them to list below.
               // A party gets created. A person gets invited, they accept invite.
               // Then they get access to the document that was originally created.
@@ -119,14 +128,7 @@ const CreateParty = ({initialValue, clear}) => {
                 .catch(function(error) {
                   console.error("error adding party id to user document", error);
                 })           
-              })  
-              // add party to the host's document collection
-              docRef.get().then(docSnap => {
-                firebase.firestore().collection("users")
-                  .doc(firebase.auth().currentUser.uid).collection("myParties").doc(docSnap.id).set({
-                    ...docSnap.data()
-                  })
-              })            
+              })              
             })          
           //clear fields
           setTitle("");
@@ -164,6 +166,9 @@ const CreateParty = ({initialValue, clear}) => {
         }   
       }      
     }
+
+    var user = firebase.auth().currentUser;
+
     return(
       <IonContent class="create-content" fullscreen={true}>
         {hideTab()} 
@@ -182,7 +187,7 @@ const CreateParty = ({initialValue, clear}) => {
             <IonInput class="create-input" value={address}  onIonChange={e => setAddress(e.detail.value!)} placeholder="Address" clearInput></IonInput>                               
           </IonItem>
           <IonItem class="create-card" lines="none">   
-            <IonInput class="create-input" value={postcode}  onIonChange={e => setPostcode(e.detail.value!)} placeholder="Postcode" clearInput></IonInput>                               
+            <IonInput class="create-input" value={postcode}  onIonChange={e => setPostcode(e.detail.value!)} placeholder="Postcode/Zipcode" clearInput></IonInput>                               
           </IonItem>
           {/* <IonItem class="create-card" lines="none">
             <IonButton class="create-button" expand="block"  href='/googlemap'> See Map </IonButton>  
@@ -213,17 +218,31 @@ const CreateParty = ({initialValue, clear}) => {
         </IonHeader>
         <IonContent class="create-content ion-padding">
           {query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map(hit => (
-            <IonItem class="create-input" lines="none" key={hit.objectID}>
-              <IonLabel>{hit.username}</IonLabel>
-              <IonButton slot="end" color="warning" onClick={() => addInvite(hit.objectID, hit.username)}>Invite</IonButton>
-            </IonItem>
+            hit.objectID === user.uid ? null :
+              <IonRow key={hit.objectID}>
+                <IonCol size="9">
+                  <IonItem button class="create-input" lines="none">    
+                    <IonCol size="4">
+                      <IonAvatar>
+                        <img src={hit.photoURL ? hit.photoURL : "https://img.favpng.com/18/24/16/user-silhouette-png-favpng-4mEnHSRfJZD8p9eEBiRpA9GeS.jpg"} />
+                      </IonAvatar>  
+                    </IonCol>
+                    <IonCol offset="1" size="7">
+                      <IonText>{hit.username}</IonText>   
+                    </IonCol>
+                  </IonItem>
+                </IonCol>                            
+                <IonCol size="3">
+                  <IonButton color="dark" onClick={() => addInvite(hit.objectID, hit.username)}>Invite</IonButton>
+                </IonCol>
+              </IonRow>
           ))}<br/>          
           <IonItem class="create-card">
             <IonText>People invited: </IonText>
           </IonItem>
           {invitedPeople && invitedPeople.map(person => {
             return(
-              <IonItem class="create-card" key={person.id}>
+              <IonItem class="create-card" key={person.id}>                
                 <IonText>{person.username}</IonText>
                 <IonButton slot="end" color="warning" onClick={() => removeInvite(person.id)}>Remove</IonButton>
               </IonItem>
@@ -245,7 +264,10 @@ const CreateParty = ({initialValue, clear}) => {
         isOpen={showAlert}
         onDidDismiss={() => setShowAlert(false)}
         header={'Alert'}
-        message={'One or more input fields missing'}
+        message={invitedPeople.length == 0 ? "Invite some friends!" : /*if there aren't any invited people*/
+          timeError ? "Start time should be before end time" : /*if the end time is before the start time*/
+          "One or more input fields missing" /*otherwise, input fields must be missing*/
+        }
         buttons={['OK']}
       />    
       </IonContent>

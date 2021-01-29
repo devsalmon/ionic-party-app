@@ -88,7 +88,7 @@ const Party = ({id, data, live, classname}) => {
   //const {photo, getPhoto} = useCamera(); 
   const { Camera } = Plugins;
   const [isLive, setIsLive] = useState(live);
- 
+
   const onSave = async() => { 
     if (photo !== "") {
     await collectionRef.doc(id).collection('pictures').add({
@@ -111,7 +111,6 @@ const Party = ({id, data, live, classname}) => {
   // TODO - add IOS AND ANDROID permissions from pwa elements
   const takePhoto = async() => {
     const cameraPhoto = await Camera.getPhoto({
-      allowEditing: true,      
       resultType: CameraResultType.Base64,
       source: CameraSource.Camera,
       quality: 100
@@ -135,6 +134,15 @@ const Party = ({id, data, live, classname}) => {
   return(
     <IonItem className={classname}>
       <IonGrid>
+        {firebase.auth().currentUser.displayName === data.host ? 
+          <IonRow>
+            <IonButton 
+            class="custom-button" 
+            color="warning" 
+            href="/create"
+            /*onClick={() => <Redirect to={{pathname: "/create", state: { title: "testt"}}} />}*/>Edit party</IonButton>
+          </IonRow> : null
+        }
         <IonRow>
           <IonCol size="2.5" class="date-box">
             <IonText>{data.month} <br/></IonText>   
@@ -356,7 +364,7 @@ const PartyList = () => {
         return(        
           <>
           <IonTitle color="danger">LIVE!</IonTitle>              
-          <Party key={party.id + "live"} id={party.id} data={party.data} live={true} classname="live-item"/>              
+          <Party key={party.id} id={party.id} data={party.data} live={true} classname="live-item"/>              
           <br/>
           </>
         );                    
@@ -479,6 +487,7 @@ const FriendRequest = ({id}) => {
 const PartyRequest = ({id}) => {
   // notification item
   const [userName, setUserName] = useState(''); // name of person who requested
+  const [accepted, setAccepted] = useState(false); // name of person who requested
 
   const userRef = firebase.firestore().collection("users").doc(id); // get document of person who requested
   userRef.get().then(function(doc) {
@@ -494,6 +503,7 @@ const PartyRequest = ({id}) => {
   //to array. If that works, inside friends collection inside the friend's document, add the current user's id.
   // If this is successful then remove eachother from requests.
   const acceptInvite = async() => {
+    setAccepted(true);
     var current_user_id = firebase.auth().currentUser.uid
     //ADD PARTY TO myParties collection. It should then display automatically.  
     const docRef = firebase.firestore().collection("parties").doc(id);

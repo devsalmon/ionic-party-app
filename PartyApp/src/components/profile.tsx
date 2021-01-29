@@ -16,6 +16,7 @@ import {
   IonInput,
   IonMenuButton,
   IonHeader,
+  IonAvatar,
   IonAlert,
   IonList,
   IonRouterOutlet
@@ -183,6 +184,9 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
               <IonButton onClick={() => setUsernamePopover(true)}>
                 Change username              
               </IonButton> <br/>
+              <IonButton onClick={() => setUsernamePopover(true)}>
+                Change photo             
+              </IonButton> <br/>              
               <IonButton onClick={() => setPasswordPopover(true)}>
                 Change password              
               </IonButton><br/>
@@ -203,6 +207,11 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
       <IonPage id="profilePage">
         <IonHeader>
           <IonToolbar>
+            <IonButtons slot="start">
+              <IonAvatar>
+                <img src={user.photoURL ? user.photoURL : "https://img.favpng.com/18/24/16/user-silhouette-png-favpng-4mEnHSRfJZD8p9eEBiRpA9GeS.jpg"} />
+              </IonAvatar>             
+            </IonButtons>
             <IonTitle>{user.displayName}</IonTitle>          
             <IonButtons slot="end">
               <IonMenuButton class="top-icons">
