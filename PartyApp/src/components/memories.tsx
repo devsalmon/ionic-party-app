@@ -57,36 +57,53 @@ const MemoryList = ({memoriesPage}) => {
     setInGallery(true)
   }  
 
-  const displayParties = () => {            
+ const displayParties = () => {          
+  
     var currentuser = firebase.auth().currentUser.uid
+    // get your parties
     firebase.firestore().collection("users")
       .doc(currentuser).collection("myParties").get().then(querySnapshot => {
         querySnapshot.forEach(doc => {
           let today = new Date();
-          let data = doc.data();
-          // if party is in the past and party isn't already in the state
+          let data = doc.data();          
+          // if party is in the future and party isn't already in the state 
           var alreadyInYP = yourParties.some(item => doc.id === item.id);
-          var alreadyInAP = attendedParties.some(item => doc.id === item.id);
-          var currentUser = firebase.auth().currentUser.displayName
-          if (moment(today).isAfter(data.endTime) && data.host === currentUser && !alreadyInYP) { 
+          if (moment(today).isAfter(data.dateTime) && !alreadyInYP) { 
             setYourParties(parties => [
               ...parties, 
               {
                 id: doc.id,
-                data: data
+                data: doc.data()
               }              
             ]);
-          } else if (moment(today).isAfter(data.endTime) && !alreadyInAP) {
-            // if party is live
-            setAttendedParties(parties => [
-              ...parties,
-              {
-                id: doc.id,
-                data: data
-              }
-            ])             
-           }
+          } 
         })
+      })
+
+    // get attended parties
+    firebase.firestore().collection("users")
+      .doc(currentuser).get().then(doc => {
+          let today = new Date();
+          let data = doc.data();
+          if (data.acceptedInvites) {
+            for (var i=0; i < data.acceptedInvites.length; i++) {
+              firebase.firestore().collection("users")
+                .doc(data.acceptedInvitesFrom[i]).collection("myParties").doc(data.acceptedInvites[i]).get().then(partydoc => {
+                  // if party is in the future and party isn't already in the state 
+                  var alreadyInAP = attendedParties.some(item => partydoc.id === item.id);
+                  if (moment(today).isAfter(partydoc.data().endTime) && !alreadyInAP) {
+                    // if party is live
+                    setAttendedParties(parties => [
+                      ...parties,
+                      {
+                        id: partydoc.id,
+                        data: partydoc.data()
+                      }
+                    ])            
+                  }
+              })
+            }                   
+          }
     });      
   }
 

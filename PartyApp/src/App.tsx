@@ -88,6 +88,7 @@ const Party = ({id, data, live, classname}) => {
   //const {photo, getPhoto} = useCamera(); 
   const { Camera } = Plugins;
   const [isLive, setIsLive] = useState(live);
+  const collectionRef = firebase.firestore().collection("users").doc(data.hostid).collection("myParties");  
 
   const onSave = async() => { 
     if (photo !== "") {
@@ -118,8 +119,6 @@ const Party = ({id, data, live, classname}) => {
     var photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`
     setPhoto(photo);  
   }    
-
-  const collectionRef = firebase.firestore().collection("parties");
   
   let liveParty // not live initially
   if (isLive) {
@@ -213,13 +212,8 @@ const PartyList = () => {
 
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once    
-    //var current_user_id = firebase.auth().currentUser.uid
-    //firebase.firestore().collection("users").doc(current_user_id)
-      //.onSnapshot(function(doc) {
-        //  console.log("Current data: ", doc.data());
-          displayParties()
-     // });
-    //displayParties();
+    displayParties()
+    
     // this means display parties only runs once
   },  [newParties]);  
 
@@ -263,8 +257,8 @@ const PartyList = () => {
     //Inside users, inside current user's doc. HERE
     firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {          
       //console.log("req - Document data:", doc.data().request_from);          
-      for (var j = 0; j < doc.data().invite_from.length; j++) {
-        var hostid = doc.data().invite_from && doc.data().invite_from[j]
+      for (var j = 0; j < doc.data().inviteFrom.length; j++) {
+        var hostid = doc.data().inviteFrom && doc.data().inviteFrom[j]
         var partyid = doc.data().myInvites && doc.data().myInvites[j]
           setPartyReqs(reqs => [
             ...reqs, 
@@ -338,47 +332,49 @@ const PartyList = () => {
       .doc(currentuser).get().then(doc => {
           let today = new Date();
           let data = doc.data();
-          for (var i=0; i < data.myInvites && data.myInvites.length; i++) {
-            firebase.firestore().collection("users")
-              .doc(data.invite_from[i]).collection("myParties").doc(data.myInvites[i]).get().then(partydoc => {
-                // if party is in the future and party isn't already in the state 
-                var alreadyInUP = upcomingParties.some(item => doc.id === item.id);
-                var alreadyInLP = liveParties.some(item => doc.id === item.id);
-                if (moment(today).isBefore(data.dateTime) && !alreadyInUP) { 
-                  setUpcomingParties(parties => [
-                    ...parties, 
-                    {
-                      id: doc.id,
-                      data: data
-                    }              
-                  ]);
-                } else if (moment(today).isBetween(data.dateTime, data.endTime) && !alreadyInLP) {
-                  // if party is live
-                  setLiveParties(parties => [
-                    ...parties,
-                    {
-                      id: doc.id,
-                      data: data
-                    }
-                  ])
-                  // remove the party from upcomingParties array 
-                  for (var i=0; i < upcomingParties.length; i++) {
-                    if (upcomingParties[i].id === doc.id) {
-                        upcomingParties.splice(i,1);
-                        break;
-                    }   
-                  }             
-                } else {
-                  // remove the party from liveParties array 
-                  for (var i=0; i < liveParties.length; i++) {
-                    if (liveParties[i].id === doc.id) {
-                        liveParties.splice(i,1);
-                        break;
-                    }   
-                  }               
-                }
-            })
-          }                   
+          if (data.acceptedInvites) { 
+            for (var i=0; i < data.acceptedInvites.length; i++) {
+              firebase.firestore().collection("users")
+                .doc(data.acceptedInvitesFrom[i]).collection("myParties").doc(data.acceptedInvites[i]).get().then(partydoc => {
+                  // if party is in the future and party isn't already in the state                   
+                  var alreadyInUP = upcomingParties.some(item => partydoc.id === item.id);
+                  var alreadyInLP = liveParties.some(item => partydoc.id === item.id);
+                  if (moment(today).isBefore(partydoc.data().dateTime) && !alreadyInUP) { 
+                    setUpcomingParties(parties => [
+                      ...parties, 
+                      {
+                        id: partydoc.id,
+                        data: partydoc.data()
+                      }              
+                    ]);
+                  } else if (moment(today).isBetween(partydoc.data().dateTime, partydoc.data().endTime) && !alreadyInLP) {
+                    // if party is live
+                    setLiveParties(parties => [
+                      ...parties,
+                      {
+                        id: partydoc.id,
+                        data: partydoc.data()
+                      }
+                    ])
+                    // remove the party from upcomingParties array 
+                    for (var i=0; i < upcomingParties.length; i++) {
+                      if (upcomingParties[i].id === partydoc.id) {
+                          upcomingParties.splice(i,1);
+                          break;
+                      }   
+                    }             
+                  } else {
+                    // remove the party from liveParties array 
+                    for (var i=0; i < liveParties.length; i++) {
+                      if (liveParties[i].id === partydoc.id) {
+                          liveParties.splice(i,1);
+                          break;
+                      }   
+                    }               
+                  }
+              })
+            } 
+          }                 
     });      
   }
 
@@ -436,6 +432,7 @@ const Create: React.FC = () => {
 const FriendRequest = ({id}) => {
   // notification item
   const [userName, setUserName] = useState(''); // name of person who requested
+  const [accepted, setAccepted] = useState(false); //see if friend request was accepted
 
   const userRef = firebase.firestore().collection("users").doc(id); // get document of person who requested
   userRef.get().then(function(doc) {
@@ -451,7 +448,7 @@ const FriendRequest = ({id}) => {
   //to array. If that works, inside friends collection inside the friend's document, add the current user's id.
   // If this is successful then remove eachother from requests.
   const acceptFriend = (friendsID) => {
-    
+    setAccepted(!accepted)
     const collectionRef = firebase.firestore().collection("friends"); 
 
     var friend_user_id = friendsID
@@ -546,22 +543,15 @@ const PartyRequest = ({hostid, partyid}) => {
   //to array. If that works, inside friends collection inside the friend's document, add the current user's id.
   // If this is successful then remove eachother from requests.
   const acceptInvite = async() => {
-    setAccepted(true);
+    setAccepted(!accepted)
     var current_user_id = firebase.auth().currentUser.uid
-    //ADD PARTY TO myParties collection. It should then display automatically.  
-    const docRef = firebase.firestore().collection("users").doc(hostid).collection("myParties").doc(partyid);
-    // copy the document from parties collection
-    const docData = await docRef.get().then((doc) => doc.exists && doc.data()) 
-    if (docData) {
-      // if document exists, copy it to the myParties collection in user document
-      firebase.firestore().collection("users").doc(current_user_id).collection("myParties").doc(partyid)
-        .set({...docData}).then(() => {
-          // remove party from myinvites so the notification disappears
-          firebase.firestore().collection("users").doc(current_user_id).update({
-              myInvites: firebase.firestore.FieldValue.arrayRemove(partyid)
-            })
-        })
-    }
+    // remove party from myinvites so the notification disappears
+    firebase.firestore().collection("users").doc(current_user_id).update({
+        myInvites: firebase.firestore.FieldValue.arrayRemove(partyid),
+        inviteFrom: firebase.firestore.FieldValue.arrayRemove(hostid),
+        acceptedInvites: firebase.firestore.FieldValue.arrayUnion(partyid),
+        acceptedInvitesFrom: firebase.firestore.FieldValue.arrayUnion(hostid)
+      })
   }
 
   return(

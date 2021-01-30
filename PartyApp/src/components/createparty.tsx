@@ -124,7 +124,7 @@ const CreateParty = ({initialValue, clear}) => {
                 firebase.firestore().collection("users").doc(person.id).update({
                   // add party id to user documents
                   myInvites: firebase.firestore.FieldValue.arrayUnion(docRef.id),
-                  invite_from: firebase.firestore.FieldValue.arrayUnion(host_user_id)
+                  inviteFrom: firebase.firestore.FieldValue.arrayUnion(host_user_id)
                 })                
                 .catch(function(error) {
                   console.error("error adding party id to user document", error);
