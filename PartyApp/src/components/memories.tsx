@@ -39,7 +39,8 @@ const MemoryList = ({memoriesPage}) => {
 
   const [yourParties, setYourParties] = useState([]);  
   const [attendedParties, setAttendedParties] = useState([]);  
-  const [id, setID] = useState<string>('');
+  const [partyID, setPartyID] = useState<string>('');
+  const [hostID, setHostID] = useState<string>('');
   const [inGallery, setInGallery] = useState(false);
 
   useEffect(() => {  
@@ -50,9 +51,10 @@ const MemoryList = ({memoriesPage}) => {
   []);  
 
   // if memory card clicked, go to gallery
-  const enter = (id) => {
+  const enter = (partyid, hostid) => {
+    setPartyID(partyid)
+    setHostID(hostid)    
     setInGallery(true)
-    setID(id)
   }  
 
   const displayParties = () => {            
@@ -102,7 +104,7 @@ const MemoryList = ({memoriesPage}) => {
             <IonButton disabled></IonButton>
           </IonButtons>
         </IonToolbar>
-        <Gallery id={id} key={id}/>
+        <Gallery hostid={hostID} partyid={partyID} key={partyID}/>
         </>
       )
   } else {
@@ -121,7 +123,7 @@ const MemoryList = ({memoriesPage}) => {
           yourParties.length === 0 ?
           <><br/><br/><IonText class=" white-text ion-padding-start"> No hosted parties yet..</IonText><br/><br/></> :
           yourParties.map(doc => {
-            return(<Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id)}/>)          
+            return(<Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>)          
           })
         }
         {
@@ -137,7 +139,7 @@ const MemoryList = ({memoriesPage}) => {
         {
           attendedParties.length > 0 && memoriesPage ? 
           attendedParties.map(doc => {
-            return(<Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id)}/>)          
+            return(<Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>)          
           }) :
           null
         }              

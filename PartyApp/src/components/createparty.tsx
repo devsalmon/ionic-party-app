@@ -97,7 +97,7 @@ const CreateParty = ({initialValue, clear}) => {
         setTimeError(true);
       } else if (inputsFilled === true && timesValid === true) {
         setTimeError(false);        
-        let collectionRef = firebase.firestore().collection("parties");
+        let collectionRef = firebase.firestore().collection("users").doc(currentuser.uid).collection("myParties");
         // only add documents to collection if forms are validated
           collectionRef.add({
             title: title, 
@@ -110,6 +110,7 @@ const CreateParty = ({initialValue, clear}) => {
             endTime: moment(endTime).format('LLL'),
             dateTime: moment(dateTime).format('LLL'),
             host: firebase.auth().currentUser.displayName,
+            hostid: firebase.auth().currentUser.uid,
             invited_people: invitedPeople,             
             createdOn: moment(new Date()).format('LL'), 
             }).then(function(docRef) {
@@ -167,7 +168,7 @@ const CreateParty = ({initialValue, clear}) => {
       }      
     }
 
-    var user = firebase.auth().currentUser;
+    var currentuser = firebase.auth().currentUser;
 
     return(
       <IonContent class="create-content" fullscreen={true}>
@@ -218,7 +219,7 @@ const CreateParty = ({initialValue, clear}) => {
         </IonHeader>
         <IonContent class="create-content ion-padding">
           {query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map(hit => (
-            hit.objectID === user.uid ? null :
+            hit.objectID === currentuser.uid ? null :
               <IonRow key={hit.objectID}>
                 <IonCol size="9">
                   <IonItem button class="create-input" lines="none">    

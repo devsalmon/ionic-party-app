@@ -35,16 +35,16 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import '../variables.css';
 
-const Gallery = ({id}) => {
+const Gallery = ({hostid, partyid}) => {
     // party card
     const [host, setHost] = useState('');
     const [date, setDate] = useState('');
     const [title, setTitle] = useState('');
     const [location, setLocation] = useState('');
     const [value, loading, error] = useCollection(
-      firebase.firestore().collection('parties').doc(id).collection('pictures'),
+      firebase.firestore().collection('users').doc(hostid).collection('myParties').doc(partyid).collection('pictures'),
     );  
-    const doc = firebase.firestore().collection('parties').doc(id)
+    const doc = firebase.firestore().collection('users').doc(hostid).collection("myParties").doc(partyid)
     doc.get().then(function(doc) {
       if (doc.exists) {
           setTitle(doc.data().title);
@@ -73,21 +73,21 @@ const Gallery = ({id}) => {
           </IonCard>
           {value && value.docs.map(doc => {
             return( !loading &&
-              <Picture doc={doc} id={id} key={id}/> 
+              <Picture doc={doc} hostid={hostid} partyid={partyid} key={partyid}/> 
             )
           })}         
       </IonContent>
     )
   } 
 
-const Picture = ({doc, id}) => {
+const Picture = ({doc, hostid, partyid}) => {
 
   // get pictures collection for the current party 
-  const collectionRef = firebase.firestore().collection('parties').doc(id).collection('pictures'); 
+  const collectionRef = firebase.firestore().collection('users').doc(hostid).collection('myParties').doc(partyid).collection("pictures"); 
 
   const [liked, setLiked] = useState(Boolean);
   const [numLikes, setNumLikes] = useState(Number); 
-  const [ownPicture, setOwnPicture] = useState(Boolean)
+  const [ownPicture, setOwnPicture] = useState(Boolean);
 
   useEffect(() => {  
     likedPicture();

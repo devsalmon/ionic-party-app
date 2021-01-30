@@ -237,7 +237,7 @@ const PartyList = () => {
     //Inside friend_requests, inside current user's doc. HERE
     collectionRef.doc(current_user).get().then(function(doc) {          
       console.log("req - Document data:", doc.data().request_from);          
-      for (var i = 0; i < doc.data().request_from.length; i++) {
+      for (var i = 0; i < doc.data().request_from && doc.data().request_from.length; i++) {
         var curr_id = doc.data().request_from && doc.data().request_from[i]
         // set curr_id to the current id in the request_from list
         console.log(i, curr_id)
@@ -263,18 +263,14 @@ const PartyList = () => {
     //Inside users, inside current user's doc. HERE
     firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {          
       //console.log("req - Document data:", doc.data().request_from);          
-      for (var j = 0; j < doc.data().myInvites.length; j++) {
-        var party_id = doc.data().myInvites && doc.data().myInvites[j]
-        // set curr_id to the current id in the request_from list
-        //console.log(j, party_id)
-        // if the current id (i.e. request from) is already in the state, don't do anything        
-          // otherwise, add it to the state   
-          // add invites to partyreqs
+      for (var j = 0; j < doc.data().invite_from && doc.data().invite_from.length; j++) {
+        var hostid = doc.data().invite_from && doc.data().invite_from[j]
+        var partyid = doc.data().myInvites && doc.data().myInvites[j]
           setPartyReqs(reqs => [
             ...reqs, 
             {
-              id: party_id, 
-              name: party_id
+              hostid: hostid, 
+              partyid: partyid
             }
           ]);              
         // Remove ID from the document
@@ -295,47 +291,50 @@ const PartyList = () => {
 
     var currentuser = firebase.auth().currentUser.uid
     firebase.firestore().collection("users")
-      .doc(currentuser).collection("myParties").get().then(querySnapshot => {
-        querySnapshot.forEach(doc => {
+      .doc(currentuser).get().then(doc => {
           let today = new Date();
           let data = doc.data();
-          // if party is in the future and party isn't already in the state 
-          var alreadyInUP = upcomingParties.some(item => doc.id === item.id);
-          var alreadyInLP = liveParties.some(item => doc.id === item.id);
-          if (moment(today).isBefore(data.dateTime) && !alreadyInUP) { 
-            setUpcomingParties(parties => [
-              ...parties, 
-              {
-                id: doc.id,
-                data: data
-              }              
-            ]);
-          } else if (moment(today).isBetween(data.dateTime, data.endTime) && !alreadyInLP) {
-            // if party is live
-            setLiveParties(parties => [
-              ...parties,
-              {
-                id: doc.id,
-                data: data
-              }
-            ])
-            // remove the party from upcomingParties array 
-            for (var i=0; i < upcomingParties.length; i++) {
-              if (upcomingParties[i].id === doc.id) {
-                  upcomingParties.splice(i,1);
-                  break;
-              }   
-            }             
-           } else {
-            // remove the party from liveParties array 
-            for (var i=0; i < liveParties.length; i++) {
-              if (liveParties[i].id === doc.id) {
-                  liveParties.splice(i,1);
-                  break;
-              }   
-            }               
-           }
-        })
+          for (var i=0; i < data.myInvites && data.myInvites.length; i++) {
+            firebase.firestore().collection("users")
+              .doc(data.invite_from[i]).collection("myParties").doc(data.myInvites[i]).get().then(partydoc => {
+                // if party is in the future and party isn't already in the state 
+                var alreadyInUP = upcomingParties.some(item => doc.id === item.id);
+                var alreadyInLP = liveParties.some(item => doc.id === item.id);
+                if (moment(today).isBefore(data.dateTime) && !alreadyInUP) { 
+                  setUpcomingParties(parties => [
+                    ...parties, 
+                    {
+                      id: doc.id,
+                      data: data
+                    }              
+                  ]);
+                } else if (moment(today).isBetween(data.dateTime, data.endTime) && !alreadyInLP) {
+                  // if party is live
+                  setLiveParties(parties => [
+                    ...parties,
+                    {
+                      id: doc.id,
+                      data: data
+                    }
+                  ])
+                  // remove the party from upcomingParties array 
+                  for (var i=0; i < upcomingParties.length; i++) {
+                    if (upcomingParties[i].id === doc.id) {
+                        upcomingParties.splice(i,1);
+                        break;
+                    }   
+                  }             
+                } else {
+                  // remove the party from liveParties array 
+                  for (var i=0; i < liveParties.length; i++) {
+                    if (liveParties[i].id === doc.id) {
+                        liveParties.splice(i,1);
+                        break;
+                    }   
+                  }               
+                }
+            })
+          }                   
     });      
   }
 
@@ -353,7 +352,7 @@ const PartyList = () => {
           (<FriendRequest id={req.name} key={req.id}/>)
       )}
       {partyreqs && partyreqs.map(req => 
-          (<PartyRequest id={req.name} key={req.id}/>)
+          (<PartyRequest hostid={req.hostid} partyid={req.partyid} key={req.partyid}/>)
       )}
       { upcomingParties.length > 0 ? null :
         liveParties.length > 0 ? null :
@@ -484,12 +483,12 @@ const FriendRequest = ({id}) => {
   )
 }
 
-const PartyRequest = ({id}) => {
+const PartyRequest = ({hostid, partyid}) => {
   // notification item
   const [userName, setUserName] = useState(''); // name of person who requested
   const [accepted, setAccepted] = useState(false); // name of person who requested
 
-  const userRef = firebase.firestore().collection("users").doc(id); // get document of person who requested
+  const userRef = firebase.firestore().collection("users").doc(hostid); // get document of person who requested
   userRef.get().then(function(doc) {
     if (doc.exists) { 
       setUserName(doc.data().username) // set name to the name in that document
@@ -506,16 +505,16 @@ const PartyRequest = ({id}) => {
     setAccepted(true);
     var current_user_id = firebase.auth().currentUser.uid
     //ADD PARTY TO myParties collection. It should then display automatically.  
-    const docRef = firebase.firestore().collection("parties").doc(id);
+    const docRef = firebase.firestore().collection("users").doc(hostid).collection("myParties").doc(partyid);
     // copy the document from parties collection
     const docData = await docRef.get().then((doc) => doc.exists && doc.data()) 
     if (docData) {
       // if document exists, copy it to the myParties collection in user document
-      firebase.firestore().collection("users").doc(current_user_id).collection("myParties").doc(id)
+      firebase.firestore().collection("users").doc(current_user_id).collection("myParties").doc(partyid)
         .set({...docData}).then(() => {
           // remove party from myinvites so the notification disappears
           firebase.firestore().collection("users").doc(current_user_id).update({
-              myInvites: firebase.firestore.FieldValue.arrayRemove(id)
+              myInvites: firebase.firestore.FieldValue.arrayRemove(partyid)
             })
         })
     }
