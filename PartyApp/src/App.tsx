@@ -237,8 +237,8 @@ const PartyList = () => {
     //Inside friend_requests, inside current user's doc. HERE
     collectionRef.doc(current_user).get().then(function(doc) {          
       console.log("req - Document data:", doc.data().request_from);          
-      for (var i = 0; i < doc.data().request_from && doc.data().request_from.length; i++) {
-        var curr_id = doc.data().request_from && doc.data().request_from[i]
+      for (var i = 0; i < doc.data().request_from.length; i++) {
+        var curr_id = doc.data().request_from[i]
         // set curr_id to the current id in the request_from list
         console.log(i, curr_id)
         // if the current id (i.e. request from) is already in the state, don't do anything        
@@ -263,7 +263,7 @@ const PartyList = () => {
     //Inside users, inside current user's doc. HERE
     firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {          
       //console.log("req - Document data:", doc.data().request_from);          
-      for (var j = 0; j < doc.data().invite_from && doc.data().invite_from.length; j++) {
+      for (var j = 0; j < doc.data().invite_from.length; j++) {
         var hostid = doc.data().invite_from && doc.data().invite_from[j]
         var partyid = doc.data().myInvites && doc.data().myInvites[j]
           setPartyReqs(reqs => [
@@ -290,6 +290,50 @@ const PartyList = () => {
   const displayParties = () => {          
 
     var currentuser = firebase.auth().currentUser.uid
+    firebase.firestore().collection("users")
+      .doc(currentuser).collection("myParties").get().then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+          let today = new Date();
+          let data = doc.data();          
+          // if party is in the future and party isn't already in the state 
+          var alreadyInUP = upcomingParties.some(item => doc.id === item.id);
+          var alreadyInLP = liveParties.some(item => doc.id === item.id);
+          if (moment(today).isBefore(data.dateTime) && !alreadyInUP) { 
+            setUpcomingParties(parties => [
+              ...parties, 
+              {
+                id: doc.id,
+                data: data
+              }              
+            ]);
+          } else if (moment(today).isBetween(data.dateTime, data.endTime) && !alreadyInLP) {
+            // if party is live
+            setLiveParties(parties => [
+              ...parties,
+              {
+                id: doc.id,
+                data: data
+              }
+            ])
+            // remove the party from upcomingParties array 
+            for (var i=0; i < upcomingParties.length; i++) {
+              if (upcomingParties[i].id === doc.id) {
+                  upcomingParties.splice(i,1);
+                  break;
+              }   
+            }             
+          } else {
+            // remove the party from liveParties array 
+            for (var i=0; i < liveParties.length; i++) {
+              if (liveParties[i].id === doc.id) {
+                  liveParties.splice(i,1);
+                  break;
+              }   
+            }          
+          }
+        })
+      })
+
     firebase.firestore().collection("users")
       .doc(currentuser).get().then(doc => {
           let today = new Date();
