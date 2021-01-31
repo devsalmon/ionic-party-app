@@ -79,7 +79,7 @@ import './variables.css';
 //TODO - 
 // delete party document in firebase after it's happened
 
-const Party = ({id, data, live, classname}) => {
+const Party = ({id, data, live, edit, classname}) => {
   // party card
 
   const [showToast, setShowToast] = useState(false);
@@ -135,11 +135,7 @@ const Party = ({id, data, live, classname}) => {
       <IonGrid>
         {firebase.auth().currentUser.displayName === data.host ? 
           <IonRow>
-            <IonButton 
-            class="custom-button" 
-            color="warning" 
-            href="/create"
-            /*onClick={() => <Redirect to={{pathname: "/create", state: { title: "testt"}}} />}*/>Edit party</IonButton>
+            <IonButton class="custom-button" color="warning" onClick={edit}>Edit party</IonButton>
           </IonRow> : null
         }
         <IonRow>
@@ -209,6 +205,7 @@ const PartyList = () => {
   const [upcomingParties, setUpcomingParties] = useState([]);
   const [liveParties, setLiveParties] = useState([]);
   const [newParties, setNewParties] = useState(false);
+  const [editingParty, setEditingParty] = useState(""); // holds data of the party being edited
 
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once    
@@ -378,6 +375,11 @@ const PartyList = () => {
     });      
   }
 
+  if (editingParty ) {
+    return(
+      <CreateParty editingParty={editingParty} backButton={() => setEditingParty("")}/>
+    )
+  } else {
   return(
     //refreshing bit first. This just handles the requests once they have been made.
     <IonContent fullscreen={true} no-bounce>
@@ -387,7 +389,6 @@ const PartyList = () => {
           refreshingSpinner="circles">
         </IonRefresherContent>
       </IonRefresher> 
-      {console.log(upcomingParties)}
       {reqs && reqs.map(req => 
           (<FriendRequest id={req.name} key={req.id}/>)
       )}
@@ -398,12 +399,11 @@ const PartyList = () => {
         liveParties.length > 0 ? null :
         <IonText class="ion-padding-start">No upcoming parties...</IonText>
       }     
-      <Accordion allowZeroExpanded={true} allowMultipleExpanded={true}>   
       {liveParties && liveParties.map(party => { 
         return(        
           <>
-          <IonTitle color="danger">LIVE!</IonTitle>              
-          <Party key={party.id} id={party.id} data={party.data} live={true} classname="live-item"/>              
+          <IonTitle color="danger">LIVE!</IonTitle>             
+          <Party key={party.id} id={party.id} data={party.data} live={true} edit={null} classname="live-item"/>              
           <br/>
           </>
         );                    
@@ -411,20 +411,19 @@ const PartyList = () => {
       {upcomingParties && upcomingParties.map(party => {
         return( 
           <>
-          <Party key={party.id} id={party.id} data={party.data} live={false} classname="accordion-item"/>
+          <Party key={party.id} id={party.id} data={party.data} live={false} edit={() => setEditingParty(party.data)} classname="accordion-item"/>
           </>
         );                
       })}  
-      </Accordion> 
     </IonContent>   
     )
+  }
 }
 const Create: React.FC = () => {
   
-  const [current, setCurrent] = useState(null); // used to reset input form values
   return(
     <IonPage>
-      <CreateParty initialValue={current} clear={() => setCurrent(null)}/>
+      <CreateParty editingParty={null} backButton={null} />
     </IonPage>
   )
 }

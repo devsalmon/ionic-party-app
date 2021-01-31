@@ -49,100 +49,152 @@ import '@ionic/react/css/display.css';
 import '../variables.css';
 import algoliasearch from 'algoliasearch/lite';
 
-const CreateParty = ({initialValue, clear}) => {
+const CreateParty = ({editingParty, backButton}) => {
 
-  // function to hide tabs when in the create page
-  function hideTab() {
-    const tabBar = document.getElementById('appTabBar');
-    tabBar.style.display = 'none';
-  }
-  // show tabs again when create page is exited
-  function showTab() {        
-    const tabBar = document.getElementById('appTabBar');
-    tabBar.style.display = 'flex';
-  }    
+    // function to hide tabs when in the create page
+    function hideTab() {
+      const tabBar = document.getElementById('appTabBar');
+      tabBar.style.display = 'none';
+    }
+    // show tabs again when create page is exited
+    function showTab() {       
+      backButton() 
+      const tabBar = document.getElementById('appTabBar');
+      tabBar.style.display = 'flex';
+    }    
+    
+    var currentuser = firebase.auth().currentUser;
+    
+    const [invitedPeople, setInvitedPeople] = useState(editingParty ? editingParty.invited_people : []); // array of invited people
+    const [title, setTitle] = useState<string>(editingParty ? editingParty.title : "");
+    const [address, setAddress] = useState<string>(editingParty ? editingParty.address : "");
+    const [postcode, setPostcode] = useState<string>(editingParty ? editingParty.postcode : "");
+    const [details, setDetails] = useState<string>(editingParty ? editingParty.details : "");
+    const [endTime, setEndTime] = useState<string>(editingParty ? editingParty.endTime : "");
+    const [dateTime, setDateTime] = useState<string>(editingParty ? editingParty.dateTime : ""); 
+    const [showPeopleSearch, setShowPeopleSearch] = useState(false);
+    const [showToast, setShowToast] = useState(false);
+    const [fieldsMissing, setFieldsMissing] = useState(false);
+    const [timeError, setTimeError] = useState(false);
+    const [refresh, setRefresh] = useState(false);
 
-  const [invitedPeople, setInvitedPeople] = useState([]); // array of invited people
-  const [title, setTitle] = useState<string>('');
-  const [address, setAddress] = useState<string>('');
-  const [postcode, setPostcode] = useState<string>('');
-  const [details, setDetails] = useState<string>('');
-  const [endTime, setEndTime] = useState<string>('');
-  const [dateTime, setDateTime] = useState<string>('');  
-  const [showPeopleSearch, setShowPeopleSearch] = useState(false);
-  const [showToast, setShowToast] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [timeError, setTimeError] = useState(false);
-  const [refresh, setRefresh] = useState(false);
+    const searchClient = algoliasearch('N5BVZA4FRH', '10173d946e2ba5aa9ba4f9ae445cef48');
+    const index = searchClient.initIndex('Users');
+    const [hits, setHits] = useState([]);
+    const [query, setQuery] = useState('');
+    
+    async function search(query) {
+      const result = await index.search(query); 
+      setHits(result.hits);
+      setQuery(query)    
+    }
 
-  const searchClient = algoliasearch('N5BVZA4FRH', '10173d946e2ba5aa9ba4f9ae445cef48');
-  const index = searchClient.initIndex('Users');
-  const [hits, setHits] = useState([]);
-  const [query, setQuery] = useState('');
-  
-  async function search(query) {
-    const result = await index.search(query); 
-    setHits(result.hits);
-    setQuery(query)    
-  }
     const onSave = () => {  
       // validate inputs  
-      const inputsFilled = Boolean((title !== "") && (address !== "") && (postcode !== "") && (dateTime !== "") && (endTime !== "") && (invitedPeople.length > 0));
+      const inputsFilled = Boolean((title !== "") && (address !== "") && (postcode !== "") && (dateTime !== "") && (endTime !== ""));
       const timesValid = Boolean(moment(endTime).isAfter(dateTime));
+      const collectionRef = firebase.firestore().collection("users").doc(currentuser.uid).collection("myParties");
       
       if (inputsFilled === false) {
-        setShowAlert(true)  
-        setTimeError(false);
+        setFieldsMissing(true)  
       } else if (timesValid === false) {
-        setTimeError(true);
+        setTimeError(true)
       } else if (inputsFilled === true && timesValid === true) {
-        setTimeError(false);        
-        let collectionRef = firebase.firestore().collection("users").doc(currentuser.uid).collection("myParties");
-        // only add documents to collection if forms are validated
-          collectionRef.add({
-            title: title, 
-            address: address,
-            postcode: postcode,
-            date: moment(dateTime).format('LL'), 
-            day: moment(dateTime).format('D'), 
-            month: moment(dateTime).format('MMM'),
-            details: details ? details : "",
-            endTime: moment(endTime).format('LLL'),
-            dateTime: moment(dateTime).format('LLL'),
-            host: firebase.auth().currentUser.displayName,
-            hostid: firebase.auth().currentUser.uid,
-            invited_people: invitedPeople,             
-            createdOn: moment(new Date()).format('LL'), 
-            }).then(function(docRef) {
-              console.log(docRef.id)
-              setShowToast(true);
-              // if people get invited then add them to list below.
-              // A party gets created. A person gets invited, they accept invite.
-              // Then they get access to the document that was originally created.
-              var host_user_id = firebase.auth().currentUser.uid
-              invitedPeople && invitedPeople.map(person => {
-                firebase.firestore().collection("users").doc(person.id).update({
-                  // add party id to user documents
-                  myInvites: firebase.firestore.FieldValue.arrayUnion(docRef.id),
-                  inviteFrom: firebase.firestore.FieldValue.arrayUnion(host_user_id)
-                })                
-                .catch(function(error) {
-                  console.error("error adding party id to user document", error);
-                })           
-              })              
-            })          
-          //clear fields
-          setTitle("");
-          setAddress("");
-          setPostcode("");
-          setDetails("");
-          setEndTime("");
-          setDateTime("");
-          setInvitedPeople([]);
-          clear();        
-      } 
-    
-    } 
+          // if editing party, update the document, otheriwse add a new document 
+          if (editingParty) {
+            console.log("editing")
+            collectionRef.doc(editingParty.id).update({
+              title: title, 
+              address: address,
+              postcode: postcode,
+              date: moment(dateTime).format('LL'), 
+              day: moment(dateTime).format('D'), 
+              month: moment(dateTime).format('MMM'),
+              details: details ? details : "",
+              endTime: moment(endTime).format('LLL'),
+              dateTime: moment(dateTime).format('LLL'),
+              invited_people: invitedPeople,             
+              }).then(function() {
+                setShowToast(true);
+                // if people get invited then add them to list below.
+                // A party gets created. A person gets invited, they accept invite.
+                // Then they get access to the document that was originally created.
+                var host_user_id = firebase.auth().currentUser.uid
+                invitedPeople && invitedPeople.map(person => {
+                  var userDocument = firebase.firestore().collection("users").doc(person.id)
+                  userDocument.get().then(doc => {
+                    if (doc.data().myInvites) {
+                      var alreadyInMI = doc.data().myInvites.some(item => editingParty.id === item);
+                      var alreadyInIF = doc.data().inviteFrom.some(item => host_user_id === item);                    
+                    }
+                    if ((!alreadyInMI && !alreadyInIF) || !doc.data().myInvites) {
+                      userDocument.update({
+                        // add party id to user documents
+                        myInvites: firebase.firestore.FieldValue.arrayUnion(editingParty.id),
+                        inviteFrom: firebase.firestore.FieldValue.arrayUnion(host_user_id)
+                      }) 
+                    }   
+                  })
+                })
+              //clear fields
+              setTitle("");
+              setAddress("");
+              setPostcode("");
+              setDetails("");
+              setEndTime("");
+              setDateTime("");
+              setInvitedPeople([]);                               
+              })  
+            } else {
+              console.log("creating")
+            // only add documents to collection if forms are validated
+              collectionRef.add({
+                title: title, 
+                address: address,
+                postcode: postcode,
+                date: moment(dateTime).format('LL'), 
+                day: moment(dateTime).format('D'), 
+                month: moment(dateTime).format('MMM'),
+                details: details ? details : "",
+                endTime: moment(endTime).format('LLL'),
+                dateTime: moment(dateTime).format('LLL'),
+                host: firebase.auth().currentUser.displayName,
+                hostid: firebase.auth().currentUser.uid,
+                invited_people: invitedPeople,             
+                createdOn: moment(new Date()).format('LL'), 
+                }).then(function(docRef) {
+                  console.log(docRef.id)
+                  setShowToast(true);
+                  collectionRef.doc(docRef.id).update({
+                    id: docRef.id
+                  })
+                  // if people get invited then add them to list below.
+                  // A party gets created. A person gets invited, they accept invite.
+                  // Then they get access to the document that was originally created.
+                  var host_user_id = firebase.auth().currentUser.uid
+                  invitedPeople && invitedPeople.map(person => {
+                    firebase.firestore().collection("users").doc(person.id).update({
+                      // add party id to user documents
+                      myInvites: firebase.firestore.FieldValue.arrayUnion(docRef.id),
+                      inviteFrom: firebase.firestore.FieldValue.arrayUnion(host_user_id)
+                    })                
+                    .catch(function(error) {
+                      console.error("error adding party id to user document", error);
+                    })           
+                  })   
+                  //clear fields
+                  setTitle("");
+                  setAddress("");
+                  setPostcode("");
+                  setDetails("");
+                  setEndTime("");
+                  setDateTime("");
+                  setInvitedPeople([]);                            
+              })  
+            }     
+          }    
+        }          
+      
 
     const addInvite = (id, username) => {
       setQuery(''); // reset searchbar when invite button pressed so invite item with the button stops showing
@@ -168,8 +220,6 @@ const CreateParty = ({initialValue, clear}) => {
       }      
     }
 
-    var currentuser = firebase.auth().currentUser;
-
     return(
       <IonContent class="create-content" fullscreen={true}>
         {hideTab()} 
@@ -179,7 +229,9 @@ const CreateParty = ({initialValue, clear}) => {
               <IonIcon slot="icon-only" icon={chevronBackSharp}></IonIcon>
             </IonButton>
           </IonButtons>        
-          <IonTitle className="ion-text-center" color="dark">Create <br/>a party</IonTitle>  
+          {editingParty ? <IonTitle color="dark">Editing</IonTitle> : 
+          <IonTitle color="dark">Create<br/>a party</IonTitle>  
+          }          
         </IonToolbar>
           <IonItem class="rounded-top" lines="none">
             <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>
@@ -208,7 +260,10 @@ const CreateParty = ({initialValue, clear}) => {
             <IonButton class="create-button" expand="block" onClick={e => setShowPeopleSearch(true)}>Invite People</IonButton>
           </IonItem>       
           <IonItem class="rounded-bottom" lines="none"> 
-            <IonButton class="create-button" expand="block" onClick={() => onSave()}>Create!</IonButton>        
+            <IonButton 
+            class="create-button" 
+            expand="block" 
+            onClick={() => onSave()}>{editingParty ? "Update!" : "Create!"}</IonButton>        
           </IonItem>
       <br/><br/><br/><br/><br/><br/><br/>
       <IonModal isOpen={showPeopleSearch}>
@@ -262,15 +317,19 @@ const CreateParty = ({initialValue, clear}) => {
         position="bottom"
       />
       <IonAlert
-        isOpen={showAlert}
-        onDidDismiss={() => setShowAlert(false)}
+        isOpen={fieldsMissing}
+        onDidDismiss={() => setFieldsMissing(false)}
         header={'Alert'}
-        message={invitedPeople.length == 0 ? "Invite some friends!" : /*if there aren't any invited people*/
-          timeError ? "Start time should be before end time" : /*if the end time is before the start time*/
-          "One or more input fields missing" /*otherwise, input fields must be missing*/
-        }
+        message={"One or more input fields missing"}
         buttons={['OK']}
-      />    
+      /> 
+      <IonAlert
+        isOpen={timeError}
+        onDidDismiss={() => setTimeError(false)}
+        header={'Alert'}
+        message={"Start time must be before end time"}
+        buttons={['OK']}
+      />                
       </IonContent>
     )
   };
