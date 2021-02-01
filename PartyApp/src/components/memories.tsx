@@ -7,7 +7,12 @@ import {
   IonContent,
   IonIcon,
   IonButtons,
-  IonButton
+  IonButton,
+  IonHeader,
+  IonAvatar,
+  IonMenuButton,
+  IonItemDivider,
+  IonLabel
 } from '@ionic/react';
 import firebase from '../firestore';
 import moment from 'moment';
@@ -16,7 +21,8 @@ import Gallery from './gallery';
 import Memory from './memory';
 
 import { 
-  chevronBackSharp
+  chevronBackSharp,
+  settingsSharp
 } from 'ionicons/icons';
 import '../App.css'
 /* Core CSS required for Ionic components to work properly */
@@ -42,6 +48,17 @@ const MemoryList = ({memoriesPage}) => {
   const [partyID, setPartyID] = useState<string>('');
   const [hostID, setHostID] = useState<string>('');
   const [inGallery, setInGallery] = useState(false);
+  const[friend_no, setFriend_no] = useState<number>();
+  var user = firebase.auth().currentUser;
+  var currentuser = firebase.auth().currentUser.uid
+  
+  //finds the number of friends you have.
+  firebase.firestore().collection("friends")
+  .doc(currentuser).get().then(function(doc) {
+      if (doc.exists) {
+            setFriend_no(doc.data().friends.length)
+                      }
+                          })
 
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once
@@ -59,7 +76,14 @@ const MemoryList = ({memoriesPage}) => {
 
  const displayParties = () => {          
   
-    var currentuser = firebase.auth().currentUser.uid
+    //var currentuser = firebase.auth().currentUser.uid
+    firebase.firestore().collection("friends")
+    .doc(currentuser).get().then(function(doc) {
+        if (doc.exists) {
+              var number_of_friends = doc.data().friends.length
+                                  console.log("number_of_friends:", number_of_friends);
+                              }
+                            })
     // get your parties
     firebase.firestore().collection("users")
       .doc(currentuser).collection("myParties").get().then(querySnapshot => {
@@ -129,9 +153,28 @@ const MemoryList = ({memoriesPage}) => {
       <>
         { // if in memory page, show the toolbar with memories, otherwise don't
           memoriesPage ?
+          <IonHeader>
+            <IonToolbar>
+            <IonTitle>ME</IonTitle>
+            </IonToolbar>
+          <IonItem class="accordion-item">
           <IonToolbar>
-            <IonTitle>Memories</IonTitle>
-          </IonToolbar> :
+            <IonButtons slot="start">
+              <IonAvatar>
+                <img src={user.photoURL ? user.photoURL : "https://img.favpng.com/18/24/16/user-silhouette-png-favpng-4mEnHSRfJZD8p9eEBiRpA9GeS.jpg"} />
+              </IonAvatar>             
+            </IonButtons>
+            <IonTitle>{user.displayName}</IonTitle>   
+            <IonText >{friend_no} FRIENDS</IonText>       
+            <IonButtons slot="end">
+              <IonMenuButton class="top-icons">
+                <IonIcon icon={settingsSharp}></IonIcon>
+              </IonMenuButton>
+            </IonButtons>       
+          </IonToolbar>
+          </IonItem>
+          </IonHeader>
+          :
           null
         }
         <IonContent fullscreen={true}>
