@@ -9,6 +9,11 @@ import {
   IonButtons,
   IonButton,
   IonHeader,
+  IonRow,
+  IonGrid,
+  IonSlides,
+  IonSlide,
+  IonCol,
   IonAvatar,
   IonMenuButton,
   IonItemDivider,
@@ -45,24 +50,26 @@ const MemoryList = ({memoriesPage}) => {
 
   const [yourParties, setYourParties] = useState([]);  
   const [attendedParties, setAttendedParties] = useState([]);  
+  const [showAttendedParties, setShowAttendedParties] = useState(true);
+  const [showYourParties, setShowYourParties] = useState(false);
   const [partyID, setPartyID] = useState<string>('');
   const [hostID, setHostID] = useState<string>('');
   const [inGallery, setInGallery] = useState(false);
-  const[friend_no, setFriend_no] = useState<number>();
+  const [friend_no, setFriend_no] = useState<number>();
   var user = firebase.auth().currentUser;
   var currentuser = firebase.auth().currentUser.uid
-  
-  //finds the number of friends you have.
-  firebase.firestore().collection("friends")
-  .doc(currentuser).get().then(function(doc) {
-      if (doc.exists) {
-            setFriend_no(doc.data().friends.length)
-                      }
-                          })
+
 
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once
     displayParties();
+    //finds the number of friends you have.
+    firebase.firestore().collection("friends")
+    .doc(currentuser).get().then(function(doc) {
+        if (doc.exists) {
+          setFriend_no(doc.data().friends.length)
+        }
+      })    
     // this means find parties only runs once
   },
   []);  
@@ -75,15 +82,7 @@ const MemoryList = ({memoriesPage}) => {
   }  
 
  const displayParties = () => {          
-  
-    //var currentuser = firebase.auth().currentUser.uid
-    firebase.firestore().collection("friends")
-    .doc(currentuser).get().then(function(doc) {
-        if (doc.exists) {
-              var number_of_friends = doc.data().friends.length
-                                  console.log("number_of_friends:", number_of_friends);
-                              }
-                            })
+
     // get your parties
     firebase.firestore().collection("users")
       .doc(currentuser).collection("myParties").get().then(querySnapshot => {
@@ -131,6 +130,17 @@ const MemoryList = ({memoriesPage}) => {
     });      
   }
 
+
+  const displayYourParties = () => {
+    setShowYourParties(true);
+    setShowAttendedParties(false);
+  }
+
+  const displayAttendedParties = () => {
+    setShowAttendedParties(true);
+    setShowYourParties(false);
+  }
+
   if (inGallery) {
     return(
         <>
@@ -155,52 +165,45 @@ const MemoryList = ({memoriesPage}) => {
           memoriesPage ?
           <IonHeader>
             <IonToolbar>
-            <IonTitle>ME</IonTitle>
+              <IonTitle size="large">My Parties</IonTitle>
             </IonToolbar>
-          <IonItem class="accordion-item">
-          <IonToolbar>
-            <IonButtons slot="start">
-              <IonAvatar>
-                <img src={user.photoURL ? user.photoURL : "https://img.favpng.com/18/24/16/user-silhouette-png-favpng-4mEnHSRfJZD8p9eEBiRpA9GeS.jpg"} />
-              </IonAvatar>             
-            </IonButtons>
-            <IonTitle>{user.displayName}</IonTitle>   
-            <IonText >{friend_no} FRIENDS</IonText>       
-            <IonButtons slot="end">
-              <IonMenuButton class="top-icons">
-                <IonIcon icon={settingsSharp}></IonIcon>
-              </IonMenuButton>
-            </IonButtons>       
-          </IonToolbar>
-          </IonItem>
+            <IonItem class="accordion-item">
+              <IonGrid>
+                <IonRow>
+                  <IonCol size="3">
+                    <IonAvatar>
+                      <img src={user.photoURL ? user.photoURL : "https://img.favpng.com/18/24/16/user-silhouette-png-favpng-4mEnHSRfJZD8p9eEBiRpA9GeS.jpg"} />
+                    </IonAvatar>                   
+                  </IonCol>
+                  <IonCol size="9"> 
+                    <IonText>{user.displayName}</IonText><br/>
+                    <IonText class="white-text">{friend_no} FRIENDS</IonText>       
+                  </IonCol>      
+                </IonRow>      
+              </IonGrid> 
+            </IonItem><br/>                      
           </IonHeader>
           :
           null
         }
         <IonContent fullscreen={true}>
-        {memoriesPage ? <IonText class="ion-padding-start">Your parties</IonText> : null}
-        {
-          yourParties.length === 0 ?
-          <><br/><br/><IonText class=" white-text ion-padding-start"> No hosted parties yet..</IonText><br/><br/></> :
+        <IonItem className="ion-padding-bottom">
+          <IonButton class={showAttendedParties ? "custom-button" : "create-button"} onClick={() => displayAttendedParties()}>Attended</IonButton>
+          <IonButton class={showYourParties ? "custom-button": "create-button"} onClick={() => displayYourParties()}>Hosted</IonButton>
+        </IonItem> 
+        {showYourParties ?           
+          (yourParties.length === 0 ?
+          <><br/><br/><IonText class=" white-text ion-padding-start"> No hosted parties yet..</IonText></> : 
           yourParties.map(doc => {
             return(<Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>)          
-          })
+          })) : null
         }
-        {
-          memoriesPage ?
-          <><br/><IonText class="ion-padding-start">Parties attended<br/><br/></IonText></> :
-          null
-        }
-        {
-          attendedParties.length === 0 && memoriesPage ?
-          <IonText class="white-text ion-padding-start">No attended parties yet..</IonText> :          
-          null
-        }  
-        {
-          attendedParties.length > 0 && memoriesPage ? 
+        {showAttendedParties ?
+          (attendedParties.length === 0 ?
+          <><br/><br/><IonText class="white-text ion-padding-start">No attended parties yet..</IonText></> :          
           attendedParties.map(doc => {
             return(<Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>)          
-          }) :
+          })) :
           null
         }              
         </IonContent>

@@ -15,6 +15,11 @@
     text-align: center;    
 }
 
+.create-back-button {
+    position: absolute
+}
+
+
 .create-button {
     --background: black; 
     color: yellow;
@@ -165,7 +170,7 @@
 .white-text {
     font-weight: bold;
     color: white;
-    font-size: 12px;
+    font-size: 15px;
 }
 
 ion-button {
@@ -246,7 +251,7 @@ ion-tab-button {
 
 ion-text {
     color: yellow;    
-    font-size: 15px;
+    font-size: 18px;
     font-weight: bold;
     text-transform: uppercase;
 }
@@ -268,7 +273,8 @@ ion-tab-bar {
 ion-title {
     text-align: center;
     font-weight: bold;
-    font-size: 18px;
+    padding-top: 15px;
+    font-size: 25px;
     --color: yellow;
     text-transform: uppercase;
 }

@@ -224,14 +224,14 @@ const CreateParty = ({editingParty, backButton}) => {
       <IonContent class="create-content" fullscreen={true}>
         {hideTab()} 
         <IonToolbar color="warning">
-          <IonButtons slot="start">
+          <IonButtons slot="start" class="create-back-button">
             <IonButton  fill="clear" color="dark" onClick={()=>showTab()} href="/home">
               <IonIcon slot="icon-only" icon={chevronBackSharp}></IonIcon>
             </IonButton>
           </IonButtons>        
           {editingParty ? <IonTitle color="dark">Editing</IonTitle> : 
-          <IonTitle color="dark">Create<br/>a party</IonTitle>  
-          }          
+          <IonTitle color="dark">Create<br/>a party</IonTitle> 
+          }  
         </IonToolbar>
           <IonItem class="rounded-top" lines="none">
             <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>
