@@ -288,7 +288,7 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
           isOpen={deleteAccPopover}
           onDidDismiss={() => setDeleteAccPopover(false)}
         >
-          <IonText>Delete Account?</IonText><br/>
+          <IonText className="ion-padding">Delete Account?</IonText><br/>
           <IonText class="white-text">You won't be able to recover this account</IonText><br/>
           <IonButton onClick={()=>setDeleteAccPopover(false)}>
             Cancel

@@ -105,7 +105,8 @@
 
 .popover {
     --background: black;
-    color: black
+    color: black;
+    --backdrop-opacity: 0.9;
 }
 
 .profile-button {

@@ -205,6 +205,7 @@ const PartyList = () => {
   const [upcomingParties, setUpcomingParties] = useState([]);
   const [liveParties, setLiveParties] = useState([]);
   const [newParties, setNewParties] = useState(false);
+  const [refresh, setRefresh] = useState(false);
   const [editingParty, setEditingParty] = useState(""); // holds data of the party being edited
 
   useEffect(() => {  
@@ -390,10 +391,10 @@ const PartyList = () => {
         </IonRefresherContent>
       </IonRefresher> 
       {reqs && reqs.map(req => 
-          (<FriendRequest id={req.name} key={req.id}/>)
+          (<FriendRequest id={req.name} click={()=>setRefresh(!refresh)} key={req.id}/>)
       )}
       {partyreqs && partyreqs.map(req => 
-          (<PartyRequest hostid={req.hostid} partyid={req.partyid} key={req.partyid}/>)
+          (<PartyRequest hostid={req.hostid} partyid={req.partyid} click={()=>setRefresh(!refresh)} key={req.partyid}/>)
       )}
       { upcomingParties.length > 0 ? null :
         liveParties.length > 0 ? null :
@@ -428,10 +429,9 @@ const Create: React.FC = () => {
   )
 }
 
-const FriendRequest = ({id}) => {
+const FriendRequest = ({id, click}) => {
   // notification item
   const [userName, setUserName] = useState(''); // name of person who requested
-  const [accepted, setAccepted] = useState(false); //see if friend request was accepted
 
   const userRef = firebase.firestore().collection("users").doc(id); // get document of person who requested
   userRef.get().then(function(doc) {
@@ -447,7 +447,7 @@ const FriendRequest = ({id}) => {
   //to array. If that works, inside friends collection inside the friend's document, add the current user's id.
   // If this is successful then remove eachother from requests.
   const acceptFriend = (friendsID) => {
-    setAccepted(!accepted)
+    click()
     const collectionRef = firebase.firestore().collection("friends"); 
 
     var friend_user_id = friendsID
@@ -523,10 +523,9 @@ const FriendRequest = ({id}) => {
   )
 }
 
-const PartyRequest = ({hostid, partyid}) => {
+const PartyRequest = ({hostid, partyid, click}) => {
   // notification item
   const [userName, setUserName] = useState(''); // name of person who requested
-  const [accepted, setAccepted] = useState(false); // name of person who requested
 
   const userRef = firebase.firestore().collection("users").doc(hostid); // get document of person who requested
   userRef.get().then(function(doc) {
@@ -542,7 +541,7 @@ const PartyRequest = ({hostid, partyid}) => {
   //to array. If that works, inside friends collection inside the friend's document, add the current user's id.
   // If this is successful then remove eachother from requests.
   const acceptInvite = async() => {
-    setAccepted(!accepted)
+    click()
     var current_user_id = firebase.auth().currentUser.uid
     // remove party from myinvites so the notification disappears
     firebase.firestore().collection("users").doc(current_user_id).update({

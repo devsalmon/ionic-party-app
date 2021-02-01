@@ -1,4 +1,5 @@
 import React, { useState, useEffect} from 'react';
+import { Redirect } from 'react-router-dom';
 import MapContainer from './mapcontainer';
 import App from '../App';
 import {
@@ -16,6 +17,7 @@ import {
   IonTitle,
   IonAvatar,
   IonSearchbar,
+  IonPopover,
   IonInput,
   IonModal, 
   IonDatetime,
@@ -51,6 +53,16 @@ import algoliasearch from 'algoliasearch/lite';
 
 const CreateParty = ({editingParty, backButton}) => {
 
+    var currentuser = firebase.auth().currentUser;  
+
+    useEffect(() => {
+      firebase.firestore().collection("friends").doc(currentuser.uid).get().then(doc => {     
+        if (doc.exists && doc.data().friends) {
+          setFriends(doc.data().friends); // set state to have all current user's friends
+        }
+      })
+    }, [])
+
     // function to hide tabs when in the create page
     function hideTab() {
       const tabBar = document.getElementById('appTabBar');
@@ -61,10 +73,9 @@ const CreateParty = ({editingParty, backButton}) => {
       backButton() 
       const tabBar = document.getElementById('appTabBar');
       tabBar.style.display = 'flex';
-    }    
-    
-    var currentuser = firebase.auth().currentUser;
-    
+    }        
+
+    const [friends, setFriends] = useState([]); // list of people who can be searched for when inviting people
     const [invitedPeople, setInvitedPeople] = useState(editingParty ? editingParty.invited_people : []); // array of invited people
     const [title, setTitle] = useState<string>(editingParty ? editingParty.title : "");
     const [address, setAddress] = useState<string>(editingParty ? editingParty.address : "");
@@ -77,6 +88,8 @@ const CreateParty = ({editingParty, backButton}) => {
     const [fieldsMissing, setFieldsMissing] = useState(false);
     const [timeError, setTimeError] = useState(false);
     const [refresh, setRefresh] = useState(false);
+    const [showPopover, setShowPopover] = useState(false);
+    const [partyDeletedToast, setPartyDeletedToast] = useState(false);    
 
     const searchClient = algoliasearch('N5BVZA4FRH', '10173d946e2ba5aa9ba4f9ae445cef48');
     const index = searchClient.initIndex('Users');
@@ -220,6 +233,30 @@ const CreateParty = ({editingParty, backButton}) => {
       }      
     }
 
+    const deleteParty = async() => {
+      // remove invites for all invited people
+      await invitedPeople && invitedPeople.map(person => {
+        firebase.firestore().collection("users").doc(person.id).update({         
+          myInvites: firebase.firestore.FieldValue.arrayRemove(editingParty.id),
+          inviteFrom: firebase.firestore.FieldValue.arrayRemove(currentuser.uid),
+          acceptedInvitesFrom: firebase.firestore.FieldValue.arrayRemove(currentuser.uid),
+          acceptedInvites: firebase.firestore.FieldValue.arrayRemove(editingParty.id)
+        })
+      })
+      // delete party document from firebase
+      firebase.firestore().collection("users")
+        .doc(currentuser.uid).collection("myParties").doc(editingParty.id).delete().then(() => {
+          setTitle("");
+          setAddress("");
+          setPostcode("");
+          setDetails("");
+          setEndTime("");
+          setDateTime("");
+          setInvitedPeople([]);  
+          setShowPopover(false);
+          setPartyDeletedToast(true);
+        })    
+    }
     return(
       <IonContent class="create-content" fullscreen={true}>
         {hideTab()} 
@@ -233,51 +270,56 @@ const CreateParty = ({editingParty, backButton}) => {
           <IonTitle color="dark">Create<br/>a party</IonTitle> 
           }  
         </IonToolbar>
-          <IonItem class="rounded-top" lines="none">
+          <IonItem class="rounded-top">
             <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>
           </IonItem>
-          <IonItem class="create-card" lines="none">   
+          <IonItem class="create-card">   
             <IonInput class="create-input" value={address}  onIonChange={e => setAddress(e.detail.value!)} placeholder="Address" clearInput></IonInput>                               
           </IonItem>
-          <IonItem class="create-card" lines="none">   
+          <IonItem class="create-card">   
             <IonInput class="create-input" value={postcode}  onIonChange={e => setPostcode(e.detail.value!)} placeholder="Postcode/Zipcode" clearInput></IonInput>                               
           </IonItem>
-          {/* <IonItem class="create-card" lines="none">
+          {/* <IonItem class="create-card">
             <IonButton class="create-button" expand="block"  href='/googlemap'> See Map </IonButton>  
           </IonItem> */}
-          <IonItem class="create-card" lines="none">
+          <IonItem class="create-card">
             <IonLabel color="warning">Starts</IonLabel>
             <IonDatetime class="create-datetime" value={dateTime} onIonChange={e => setDateTime(e.detail.value!)} displayFormat="DD-MMM-YY HH:mm" placeholder="select"></IonDatetime>
           </IonItem>
-          <IonItem class="create-card" lines="none">
+          <IonItem class="create-card">
             <IonLabel color="warning">Ends</IonLabel>
             <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} displayFormat="DD-MMM-YY HH:mm" placeholder="select"></IonDatetime>
           </IonItem>
-          <IonItem class="create-card" lines="none">
+          <IonItem class="create-card">
             <IonTextarea maxlength={150} class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
           </IonItem>
-          <IonItem class="create-card" lines="none">
+          <IonItem class="create-card">
             <IonButton class="create-button" expand="block" onClick={e => setShowPeopleSearch(true)}>Invite People</IonButton>
           </IonItem>       
-          <IonItem class="rounded-bottom" lines="none"> 
+          <IonItem class="rounded-bottom"> 
             <IonButton 
             class="create-button" 
             expand="block" 
             onClick={() => onSave()}>{editingParty ? "Update!" : "Create!"}</IonButton>        
-          </IonItem>
+          </IonItem><br/><br/>
+          {editingParty ? 
+            <IonButton color="danger" class="create-button" onClick={() => setShowPopover(true)}>Delete party</IonButton> :
+          null}
+
+          
       <br/><br/><br/><br/><br/><br/><br/>
       <IonModal isOpen={showPeopleSearch}>
         <IonHeader>
           <IonToolbar>  
-            <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)}></IonSearchbar>                            
+            <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)} placeholder="Search Friends"></IonSearchbar>                            
           </IonToolbar>
         </IonHeader>
         <IonContent class="create-content ion-padding">
           {query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map(hit => (
-            hit.objectID === currentuser.uid ? null :
+            hit.objectID === currentuser.uid || !friends.includes(hit.objectID) ? null :
               <IonRow key={hit.objectID}>
                 <IonCol size="9">
-                  <IonItem button class="create-input" lines="none">    
+                  <IonItem button class="create-input">    
                     <IonCol size="4">
                       <IonAvatar>
                         <img src={hit.photoURL ? hit.photoURL : "https://img.favpng.com/18/24/16/user-silhouette-png-favpng-4mEnHSRfJZD8p9eEBiRpA9GeS.jpg"} />
@@ -316,6 +358,13 @@ const CreateParty = ({editingParty, backButton}) => {
         message="Party Created!"
         position="bottom"
       />
+      <IonToast
+        isOpen={partyDeletedToast}
+        onDidDismiss={() => setPartyDeletedToast(false)}
+        duration={2000}
+        message="Party Deleted!"
+        position="bottom"
+      />      
       <IonAlert
         isOpen={fieldsMissing}
         onDidDismiss={() => setFieldsMissing(false)}
@@ -329,7 +378,21 @@ const CreateParty = ({editingParty, backButton}) => {
         header={'Alert'}
         message={"Start time must be before end time"}
         buttons={['OK']}
-      />                
+      />          
+      <IonPopover
+        cssClass="popover"        
+        isOpen={showPopover}
+        onDidDismiss={() => setShowPopover(false)}
+      >
+        <IonText>Delete Party?</IonText><br/>
+        <IonText class="white-text">You won't be able to recover this party</IonText><br/>
+        <IonButton onClick={()=>setShowPopover(false)}>
+          Cancel
+        </IonButton>            
+        <IonButton onClick={()=>deleteParty()}>
+          Delete
+        </IonButton>   
+      </IonPopover>             
       </IonContent>
     )
   };
