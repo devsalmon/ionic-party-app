@@ -40,7 +40,7 @@ const SignIn: React.FC = () => {
   const [passwordError, setPasswordError] = useState('');
   const [googleError, setGoogleError] = useState('');
   const [fieldsMissing, setFieldsMissing] = useState(false);
-  const [hasAccount, setHasAccount] = useState(false);
+  const [hasAccount, setHasAccount] = useState(true);
   const [linkSent, setLinkSent] = useState(false);
 
   useEffect(() => {

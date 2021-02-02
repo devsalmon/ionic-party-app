@@ -169,7 +169,7 @@ const Party = ({id, data, live, edit, classname}) => {
         {liveParty}        
       </IonGrid>   
       <IonPopover
-        cssClass="popover"        
+        cssClass="party-details-popover"        
         isOpen={showPopover}
         onDidDismiss={() => setShowPopover(false)}
       >
@@ -177,10 +177,13 @@ const Party = ({id, data, live, edit, classname}) => {
         <IonItem>Postcode: {data.postcode} </IonItem>     
         <IonItem>Starts: {moment(data.dateTime).format('LT')}</IonItem>     
         <IonItem>Ends: {moment(data.endTime).format('LT')}</IonItem>
-        <IonItem>Pending invites: 10291</IonItem>
-        <IonItem>Accepted Invites: 138430</IonItem>
+        {data.invited_people ? <IonItem>Number of Invites: {data.invited_people.length}</IonItem>  : null}
+        {data.details ? 
+        <>
         <IonLabel className="ion-padding" color="warning">Details:</IonLabel>
-        <IonItem>{data.details}</IonItem>              
+        <IonItem>{data.details}</IonItem> 
+        </>: null              
+        } 
       </IonPopover>    
       <IonToast 
       isOpen={showToast}
@@ -205,15 +208,29 @@ const PartyList = () => {
   const [upcomingParties, setUpcomingParties] = useState([]);
   const [liveParties, setLiveParties] = useState([]);
   const [newParties, setNewParties] = useState(false);
-  const [refresh, setRefresh] = useState(false);
   const [editingParty, setEditingParty] = useState(""); // holds data of the party being edited
 
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once    
     displayParties()
-    
     // this means display parties only runs once
   },  [newParties]);  
+
+  var current_user = firebase.auth().currentUser; 
+
+  firebase.firestore().collection("users").where("id", "==", current_user.uid).onSnapshot(snapshot => {
+    snapshot.docChanges().forEach(function(change) {
+        if (change.type === "added") {
+          //setNewParties(!newParties);
+        }
+        if (change.type === "modified") {
+          setNewParties(!newParties);
+        }
+        if (change.type === "removed") {
+          setNewParties(!newParties);
+        }
+    });    
+  })
 
   // todo - make this so it doesn't depend on user manually refreshing 
   //This just handles the requests once they have been made.
@@ -221,69 +238,69 @@ const PartyList = () => {
   // accept friend.
   function doRefresh(event: CustomEvent<RefresherEventDetail>) {
     // toggle new parties so displayParties runs and it checks for new parties
-    setNewParties(!newParties);
-    //get current user
-    var current_user = firebase.auth().currentUser.uid;    
-    setReqs([]);
-    setPartyReqs([]);
-    //Inside friend_requests, inside current user's doc. HERE
-    collectionRef.doc(current_user).get().then(function(doc) {          
-      console.log("req - Document data:", doc.data().request_from);          
-      for (var i = 0; i < doc.data().request_from.length; i++) {
-        var curr_id = doc.data().request_from[i]
-        // set curr_id to the current id in the request_from list
-        console.log(i, curr_id)
-        // if the current id (i.e. request from) is already in the state, don't do anything        
-          // otherwise, add it to the state   
-          setReqs(reqs => [
-            ...reqs, 
-            {
-              id: curr_id, 
-              name: curr_id
-            }
-          ]);              
-        // Remove ID from the document
-        // var removeID = collectionRef.doc(current_user).update({
-        //     request_from: firebase.firestore.FieldValue.arrayRemove(curr_id)
-        // });        
-      };
-      console.log(reqs)
-    }).catch(function(error) {
-        console.log("Error getting document:", error);
-    });
-
-    //Inside users, inside current user's doc. HERE
-    firebase.firestore().collection("users").doc(current_user).get().then(function(doc) {          
-      //console.log("req - Document data:", doc.data().request_from);          
-      for (var j = 0; j < doc.data().inviteFrom.length; j++) {
-        var hostid = doc.data().inviteFrom && doc.data().inviteFrom[j]
-        var partyid = doc.data().myInvites && doc.data().myInvites[j]
-          setPartyReqs(reqs => [
-            ...reqs, 
-            {
-              hostid: hostid, 
-              partyid: partyid
-            }
-          ]);              
-        // Remove ID from the document
-        // var removeID = collectionRef.doc(current_user).update({
-        //     request_from: firebase.firestore.FieldValue.arrayRemove(curr_id)
-        // });        
-      };
-      //console.log(reqs)
-    }).catch(function(error) {
-        console.log("Error getting document:", error);
-    });
+    setNewParties(!newParties);        
+    checkForRequests();   
     setTimeout(() => {
       event.detail.complete();
     }, 2000);
   }   
 
-  const displayParties = () => {          
+  const checkForRequests = () => {           
+      setReqs([]);
+      setPartyReqs([]);
+      //Inside friend_requests, inside current user's doc. HERE
+      collectionRef.doc(current_user.uid).get().then(function(doc) {          
+        console.log("req - Document data:", doc.data().request_from);          
+        for (var i = 0; i < doc.data().request_from.length; i++) {
+          var curr_id = doc.data().request_from[i]
+          // set curr_id to the current id in the request_from list
+          console.log(i, curr_id)
+          // if the current id (i.e. request from) is already in the state, don't do anything        
+            // otherwise, add it to the state   
+            setReqs(reqs => [
+              ...reqs, 
+              {
+                id: curr_id, 
+                name: curr_id
+              }
+            ]);              
+          // Remove ID from the document
+          // var removeID = collectionRef.doc(current_user).update({
+          //     request_from: firebase.firestore.FieldValue.arrayRemove(curr_id)
+          // });        
+        };
+        console.log(reqs)
+      }).catch(function(error) {
+          console.log("Error getting document:", error);
+      });
 
-    var currentuser = firebase.auth().currentUser.uid
+      //Inside users, inside current user's doc. HERE
+      firebase.firestore().collection("users").doc(current_user.uid).get().then(function(doc) {          
+        //console.log("req - Document data:", doc.data().request_from);          
+        for (var j = 0; j < doc.data().inviteFrom.length; j++) {
+          var hostid = doc.data().inviteFrom && doc.data().inviteFrom[j]
+          var partyid = doc.data().myInvites && doc.data().myInvites[j]
+            setPartyReqs(reqs => [
+              ...reqs, 
+              {
+                hostid: hostid, 
+                partyid: partyid
+              }
+            ]);              
+          // Remove ID from the document
+          // var removeID = collectionRef.doc(current_user).update({
+          //     request_from: firebase.firestore.FieldValue.arrayRemove(curr_id)
+          // });        
+        };
+        //console.log(reqs)
+      }).catch(function(error) {
+          console.log("Error getting document:", error);
+      });
+  }
+
+  const displayParties = () => {          
     firebase.firestore().collection("users")
-      .doc(currentuser).collection("myParties").get().then(querySnapshot => {
+      .doc(current_user.uid).collection("myParties").get().then(querySnapshot => {
         querySnapshot.forEach(doc => {
           let today = new Date();
           let data = doc.data();          
@@ -327,7 +344,7 @@ const PartyList = () => {
       })
 
     firebase.firestore().collection("users")
-      .doc(currentuser).get().then(doc => {
+      .doc(current_user.uid).get().then(doc => {
           let today = new Date();
           let data = doc.data();
           if (data.acceptedInvites) { 
@@ -381,8 +398,7 @@ const PartyList = () => {
       <CreateParty editingParty={editingParty} backButton={() => setEditingParty("")}/>
     )
   } else {
-  return(
-    //refreshing bit first. This just handles the requests once they have been made.
+  return(    
     <IonContent fullscreen={true} no-bounce>
       <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
         <IonRefresherContent
@@ -391,10 +407,10 @@ const PartyList = () => {
         </IonRefresherContent>
       </IonRefresher> 
       {reqs && reqs.map(req => 
-          (<FriendRequest id={req.name} click={()=>setRefresh(!refresh)} key={req.id}/>)
+          (<FriendRequest id={req.name} click={()=>checkForRequests()} key={req.id}/>)
       )}
       {partyreqs && partyreqs.map(req => 
-          (<PartyRequest hostid={req.hostid} partyid={req.partyid} click={()=>setRefresh(!refresh)} key={req.partyid}/>)
+          (<PartyRequest hostid={req.hostid} partyid={req.partyid} click={()=>checkForRequests()} key={req.partyid}/>)
       )}
       { upcomingParties.length > 0 ? null :
         liveParties.length > 0 ? null :
@@ -446,10 +462,8 @@ const FriendRequest = ({id, click}) => {
   //if accept is clicked, inside friends collection, create doc with current user's id and add that friend's id
   //to array. If that works, inside friends collection inside the friend's document, add the current user's id.
   // If this is successful then remove eachother from requests.
-  const acceptFriend = (friendsID) => {
-    click()
+  const acceptFriend = (friendsID) => {    
     const collectionRef = firebase.firestore().collection("friends"); 
-
     var friend_user_id = friendsID
     var current_user_id = firebase.auth().currentUser.uid
     //console.log(receiver_user_id)
@@ -495,24 +509,20 @@ const FriendRequest = ({id, click}) => {
                 firebase.firestore().collection("friend_requests").doc(current_user_id).update({
                   request_from: firebase.firestore.FieldValue.arrayRemove(friend_user_id)                
                   //removes text display 
-
-                });            
+                }).then(() => click());                          
                 }).catch(function(error) {
                 console.error("Error deleting id from requests_from: ", error);
                 }); 
           })
-
           //if unsuccessful
           .catch(function(error) {
             console.error("Error adding document: ", error);
         }); 
       })
-
     //if unsuccessful
     .catch(function(error) {
         console.error("Error adding document: ", error);
     });
-
   }
 
   return(
@@ -541,7 +551,6 @@ const PartyRequest = ({hostid, partyid, click}) => {
   //to array. If that works, inside friends collection inside the friend's document, add the current user's id.
   // If this is successful then remove eachother from requests.
   const acceptInvite = async() => {
-    click()
     var current_user_id = firebase.auth().currentUser.uid
     // remove party from myinvites so the notification disappears
     firebase.firestore().collection("users").doc(current_user_id).update({
@@ -549,13 +558,19 @@ const PartyRequest = ({hostid, partyid, click}) => {
         inviteFrom: firebase.firestore.FieldValue.arrayRemove(hostid),
         acceptedInvites: firebase.firestore.FieldValue.arrayUnion(partyid),
         acceptedInvitesFrom: firebase.firestore.FieldValue.arrayUnion(hostid)
-      })
+      }).then(() => click());
   }
 
   return(
-    <IonItem button>
-      <IonText>{userName} has invited you</IonText>
-      <IonButton onClick={() => acceptInvite()}>Accept</IonButton>
+    <IonItem>
+      <IonRow>
+        <IonCol size="9">
+          <IonText>{userName} has invited you</IonText>
+        </IonCol>
+        <IonCol size="3">
+          <IonButton color="danger" onClick={() => acceptInvite()}>Accept</IonButton>
+        </IonCol>
+      </IonRow>
     </IonItem>
   )
 }
