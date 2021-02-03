@@ -217,7 +217,6 @@ const PartyList = () => {
   // Checks for friend requests
   collectionRef.doc(current_user.uid)
   .onSnapshot(function(doc) {
-    //collectionRef.doc(current_user.uid).get().then(doc => {
     if (doc.exists && doc.data().request_from) {
       for (var i = 0; i < doc.data().request_from.length; i++) {
         var curr_id = doc.data().request_from[i]
@@ -229,7 +228,6 @@ const PartyList = () => {
           }
       }; 
     }
-   // })
   });
 
   // Checks for party invites
@@ -237,20 +235,44 @@ const PartyList = () => {
   .onSnapshot(function(doc) {
 
   })
-  // firebase.firestore().collection("users").doc(current_user.uid)
-  // .onSnapshot(function(doc) {
-  //   firebase.firestore().collection("users").doc(current_user.uid).get().then(doc => {
-  //   for (var i = 0; i < doc.data().myInvites.length; i++) {
-  //     var curr_id = doc.data().myInvites[i]
-  //       var alreadyInReq = partyreqs.some(item => curr_id === item.id);
-  //       if (!alreadyInReq) { 
-  //         setNewNotifications(true);
-  //       } else {
-  //         setNewNotifications(false);
-  //       }
-  //   }; 
-  //   });
-  // });  
+
+  // Checks for friend requests
+  collectionRef.doc(current_user.uid)
+  .onSnapshot(function(doc) {
+    //collectionRef.doc(current_user.uid).get().then(doc => {
+    if (doc.data().request_from) {
+      for (var i = 0; i < doc.data().request_from.length; i++) {
+        var curr_id = doc.data().request_from[i]
+          var alreadyInReq = reqs.some(item => curr_id === item.id);
+          if (alreadyInReq) { 
+            setNewNotifications(false);
+          console.log("something")
+          } else {
+            setNewNotifications(true);
+            console.log("something")
+          }
+      }; 
+    }
+  });
+ 
+  // Checks for party invites
+ firebase.firestore().collection("users").doc(current_user.uid).onSnapshot(function(doc) {
+    if (doc.data().myInvites) {
+      for (var j = 0; j < doc.data().myInvites.length; j++) {
+        var curr_id = doc.data().myInvites[j]
+          var alreadyInInv = partyreqs.some(item => curr_id === item.partyid);
+          console.log("AlreadyInInv: ", alreadyInInv)
+          console.log("partyreqs: ", partyreqs)
+          if (alreadyInInv) { 
+            setNewNotifications(false);
+            console.log("false")
+          } else {
+            setNewNotifications(true);
+            console.log("true")
+          }
+      };
+    }
+  });  
 
   //This just handles the requests once they have been made.
   //On refresh check current user's 'request from' array inside friend requests and display their profile. Then see
@@ -266,36 +288,41 @@ const PartyList = () => {
   }   
 
   const checkForRequests = () => {  
+
       setReqs([])
       setPartyReqs([])
-      collectionRef.doc(current_user.uid).get().then(function(doc) {    
-        for (var i = 0; i < doc.data().request_from.length; i++) {
-          var curr_id = doc.data().request_from[i]
-          // if the current id (i.e. request from) is already in the state, don't do anything 
-          // otherwise, add it to the state   
-          setReqs(reqs => [
-            ...reqs, 
-            {
-              id: curr_id, 
-              name: curr_id
-            }
-          ]);                      
-        };
+      collectionRef.doc(current_user.uid).get().then(function(doc) {  
+        if (doc.exists && doc.data().request_from) {          
+          for (var i = 0; i < doc.data().request_from.length; i++) {
+            var curr_id = doc.data().request_from[i]
+            // if the current id (i.e. request from) is already in the state, don't do anything 
+            // otherwise, add it to the state   
+            setReqs(reqs => [
+              ...reqs, 
+              {
+                id: curr_id, 
+                name: curr_id
+              }
+            ]);                      
+          };
+        }
       }).catch(function(error) {
           console.log("Error getting document:", error);
       });
-      firebase.firestore().collection("users").doc(current_user.uid).get().then(function(doc) {                  
-        for (var j = 0; j < doc.data().inviteFrom.length; j++) {
-          var hostid = doc.data().inviteFrom && doc.data().inviteFrom[j]
-          var partyid = doc.data().myInvites && doc.data().myInvites[j]
-          setPartyReqs(reqs => [
-            ...reqs, 
-            {
-              hostid: hostid, 
-              partyid: partyid
-            }
-          ]);                                          
-        };
+      firebase.firestore().collection("users").doc(current_user.uid).get().then(function(doc) {  
+        if (doc.exists && doc.data().inviteFrom) {                  
+          for (var j = 0; j < doc.data().inviteFrom.length; j++) {
+            var hostid = doc.data().inviteFrom[j]
+            var partyid = doc.data().myInvites[j]
+            setPartyReqs(reqs => [
+              ...reqs, 
+              {
+                hostid: hostid, 
+                partyid: partyid
+              }
+            ]);                                          
+          };
+        }
       }).catch(function(error) {
           console.log("Error getting document:", error);
       });
@@ -333,7 +360,14 @@ const PartyList = () => {
                   break;
               }   
             }             
-          } 
+          } else if (moment(today).isAfter(data.endTime)) {
+            for (var i=0; i < liveParties.length; i++) {
+              if (liveParties[i].id === doc.id) {
+                  liveParties.splice(i,1);
+                  break;
+              }   
+            }             
+          }
         })
       })
 
@@ -379,6 +413,11 @@ const PartyList = () => {
     });      
   }
 
+  const acceptInvite = () => {
+    checkForRequests(); 
+    displayParties();    
+  }
+
   if (editingParty ) {
     return(
       <CreateParty editingParty={editingParty} backButton={() => setEditingParty("")}/>
@@ -413,7 +452,7 @@ const PartyList = () => {
         <FriendRequest id={req.name} click={()=>checkForRequests()} key={req.id}/>
       )}
       {partyreqs && partyreqs.map(req => 
-          (<PartyRequest hostid={req.hostid} partyid={req.partyid} click={()=>checkForRequests()} key={req.partyid}/>)
+          (<PartyRequest hostid={req.hostid} partyid={req.partyid} click={()=>acceptInvite()} key={req.partyid}/>)
       )}
       { upcomingParties.length > 0 ? null :
         liveParties.length > 0 ? null :

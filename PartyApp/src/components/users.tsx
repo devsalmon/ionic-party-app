@@ -70,8 +70,8 @@ const Users: React.FC = () => {
 
 const UserItem = ({hit, username, id}) => {
 
-  const [addDisabled, setAddDisabled] = useState(true);
-  const [cancelDisabled, setCancelDisabled] = useState(false);
+  const [addDisabled, setAddDisabled] = useState(false);
+  const [cancelDisabled, setCancelDisabled] = useState(true);
   const [alreadyFriends, setAlreadyFriends] = useState(false);
   const [requestAlreadySent, setRequestAlreadySent] = useState(false);
   const friendRequestsRef = firebase.firestore().collection("friend_requests");

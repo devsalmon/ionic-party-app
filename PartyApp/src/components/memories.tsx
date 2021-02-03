@@ -50,10 +50,9 @@ import '../variables.css';
 
 const MemoryList = ({memoriesPage}) => {
 
+  const slides = useRef(null);
   const [yourParties, setYourParties] = useState([]);  
   const [attendedParties, setAttendedParties] = useState([]);  
-  const [showAttendedParties, setShowAttendedParties] = useState(true);
-  const [showYourParties, setShowYourParties] = useState(false);
   const [selected, setSelected] = useState('attended');
   const [partyID, setPartyID] = useState<string>('');
   const [hostID, setHostID] = useState<string>('');
@@ -131,9 +130,7 @@ const MemoryList = ({memoriesPage}) => {
             }                   
           }
     });      
-  }
-
-  const slides = useRef(null);
+  }  
 
   const handleSlideChange = async() => {
     const swiper = await slides.current.getSwiper();
@@ -153,12 +150,17 @@ const MemoryList = ({memoriesPage}) => {
     }
   }
 
+  const exitGallery = () => {
+    setInGallery(false)    
+    setSelected("attended")
+  }
+
   if (inGallery) {
     return(
         <>
         <IonToolbar>
           <IonButtons slot="start">
-            <IonButton color="warning" fill="clear" onClick={() => setInGallery(false)}>
+            <IonButton color="warning" fill="clear" onClick={() => exitGallery()}>
               <IonIcon icon={chevronBackSharp} />
             </IonButton>
           </IonButtons>
@@ -198,7 +200,7 @@ const MemoryList = ({memoriesPage}) => {
           :
           null
         }
-        <IonContent fullscreen={true}>
+        <IonContent fullscreen={true} scroll-y="false">
         <IonRadioGroup value={selected} onIonChange={e => setSelected(e.detail.value)}>
         <IonRow>
           <IonCol>
@@ -220,7 +222,9 @@ const MemoryList = ({memoriesPage}) => {
           {attendedParties.length === 0 ?
           <IonText class="white-text">No attended parties yet..</IonText> :          
           attendedParties.map(doc => {
-            return(<Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>)          
+            return(
+              <Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>
+            )          
           })}
           </IonSlide>
         :        
@@ -228,7 +232,9 @@ const MemoryList = ({memoriesPage}) => {
           {yourParties.length === 0 ?
           <IonText class="white-text"> No hosted parties yet..</IonText> : 
           yourParties.map(doc => {
-            return(<Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>)          
+            return(
+            <Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>
+            )          
           })}                    
           </IonSlide>
         </IonSlides>   

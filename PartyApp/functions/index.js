@@ -58,10 +58,3 @@ exports.deleteUser = functions.firestore
   var index = client.initIndex(ALGOLIA_INDEX_NAME);
   index.deleteObject(oldID);
 });
-
-// exports.partyCreated = functions.firestore
-// .document("parties/{partyId}")
-// .onCreate(async (snap, context) => {
-//   const data = doc.data()
-//   const 
-// });

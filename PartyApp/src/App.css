@@ -39,6 +39,9 @@
 .create-card {
     --color: black;
     --background: black;
+    --border-color: red;
+    --border-color: red;
+    --border-width: 1px;    
 }
 
 .create-content {
@@ -154,12 +157,16 @@
     --border-radius: 10px 10px 0 0;
     --highlight-height: 0;
     --background: black;
+    --border-color: red;
+    --border-width: 2px;
 }
 
 .rounded-bottom {
     --border-radius: 0 0 10px 10px;
     --highlight-height: 0;
     --background: black;
+    --border-color: red;
+    --border-width: 2px;    
 }
 
 .searchbar {
@@ -276,7 +283,7 @@ ion-slides {
 }
 
 .swiper-slide {
-    bottom: 230px;
+    display: block
 }
 
 ion-tab-button {

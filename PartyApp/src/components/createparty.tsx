@@ -267,7 +267,7 @@ const CreateParty = ({editingParty, backButton}) => {
             </IonButton>
           </IonButtons>        
           {editingParty ? <IonTitle color="dark">Editing</IonTitle> : 
-          <IonTitle color="dark">Create<br/>a party</IonTitle> 
+            <IonTitle color="dark">Create<br/>a party</IonTitle> 
           }  
         </IonToolbar>
           <IonItem class="rounded-top">
