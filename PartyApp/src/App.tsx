@@ -230,12 +230,6 @@ const PartyList = () => {
     }
   });
 
-  // Checks for party invites
-  firebase.firestore().collection("users").doc(current_user.uid).collection("myParties")
-  .onSnapshot(function(doc) {
-
-  })
-
   // Checks for friend requests
   collectionRef.doc(current_user.uid)
   .onSnapshot(function(doc) {
