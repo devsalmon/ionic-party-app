@@ -4,6 +4,11 @@
     max-height: 70%;    
 }
 
+.accordion-profile {
+    border-top: 3px solid yellow;
+    border-bottom: 3px solid yellow;    
+}
+
 .custom-button {
     --background: yellow; 
     color: black;
@@ -130,6 +135,21 @@
     width: 180px;
 }
 
+.radio-buttons {
+    border: solid;
+    border-width: 3px;
+    border-color: yellow;
+    color: yellow
+}
+
+.refresh-toast {
+    --background:#FF4127;
+    --color:#fff;
+    top: 100px;
+    text-align: center;
+    align: center
+}
+
 .rounded-top {
     --border-radius: 10px 10px 0 0;
     --highlight-height: 0;
@@ -217,7 +237,6 @@ ion-card-title {
 }
 
 ion-content {
-    padding: 10px;
     --background: transparent;
 }
 
@@ -242,9 +261,22 @@ ion-label {
     color: yellow
 }
 
+ion-radio {
+    --color: yellow;
+    --color-checked: yellow;
+}
+
 ion-refresher-content {
     color: white;
     --color: white
+}
+
+ion-slides {
+    height: 100%
+}
+
+.swiper-slide {
+    bottom: 230px;
 }
 
 ion-tab-button {

@@ -1,9 +1,11 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import {
   IonText,
   IonItem,
   IonToolbar,
   IonTitle,
+  IonRadioGroup,
+  IonRadio,
   IonContent,
   IonIcon,
   IonButtons,
@@ -52,6 +54,7 @@ const MemoryList = ({memoriesPage}) => {
   const [attendedParties, setAttendedParties] = useState([]);  
   const [showAttendedParties, setShowAttendedParties] = useState(true);
   const [showYourParties, setShowYourParties] = useState(false);
+  const [selected, setSelected] = useState('attended');
   const [partyID, setPartyID] = useState<string>('');
   const [hostID, setHostID] = useState<string>('');
   const [inGallery, setInGallery] = useState(false);
@@ -130,15 +133,24 @@ const MemoryList = ({memoriesPage}) => {
     });      
   }
 
+  const slides = useRef(null);
 
-  const displayYourParties = () => {
-    setShowYourParties(true);
-    setShowAttendedParties(false);
+  const handleSlideChange = async() => {
+    const swiper = await slides.current.getSwiper();
+    if (swiper.activeIndex === 0) {
+      setSelected("attended")
+    } else {
+      setSelected("hosted")
+    }
   }
 
-  const displayAttendedParties = () => {
-    setShowAttendedParties(true);
-    setShowYourParties(false);
+  const changeSlide = async(direction) => {
+    const swiper = await slides.current.getSwiper();
+    if (direction === "next") {
+      swiper.slideNext()
+    } else if (direction === "prev") {
+      swiper.slidePrev()
+    }
   }
 
   if (inGallery) {
@@ -167,7 +179,7 @@ const MemoryList = ({memoriesPage}) => {
             <IonToolbar>
               <IonTitle size="large">My Parties</IonTitle>
             </IonToolbar>
-            <IonItem class="accordion-item">
+            <IonItem class="accordion-profile">
               <IonGrid>
                 <IonRow>
                   <IonCol size="3">
@@ -181,31 +193,45 @@ const MemoryList = ({memoriesPage}) => {
                   </IonCol>      
                 </IonRow>      
               </IonGrid> 
-            </IonItem><br/>                      
+            </IonItem>                     
           </IonHeader>
           :
           null
         }
         <IonContent fullscreen={true}>
-        <IonItem className="ion-padding-bottom">
-          <IonButton class={showAttendedParties ? "custom-button" : "create-button"} onClick={() => displayAttendedParties()}>Attended</IonButton>
-          <IonButton class={showYourParties ? "custom-button": "create-button"} onClick={() => displayYourParties()}>Hosted</IonButton>
-        </IonItem> 
-        {showYourParties ?           
-          (yourParties.length === 0 ?
-          <><br/><br/><IonText class=" white-text ion-padding-start"> No hosted parties yet..</IonText></> : 
-          yourParties.map(doc => {
-            return(<Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>)          
-          })) : null
-        }
-        {showAttendedParties ?
-          (attendedParties.length === 0 ?
-          <><br/><br/><IonText class="white-text ion-padding-start">No attended parties yet..</IonText></> :          
+        <IonRadioGroup value={selected} onIonChange={e => setSelected(e.detail.value)}>
+        <IonRow>
+          <IonCol>
+            <IonItem class="radio-buttons">
+              <IonText>Attended</IonText>
+              <IonRadio onIonFocus={(e) => changeSlide("prev")} slot="end" value="attended" />
+            </IonItem>
+          </IonCol>
+          <IonCol>
+            <IonItem class="radio-buttons">
+              <IonText>Hosted</IonText>
+              <IonRadio onIonFocus={e => changeSlide("next")} slot="end" value="hosted" />
+            </IonItem>
+          </IonCol>
+        </IonRow>
+        </IonRadioGroup>    
+        <IonSlides ref={slides} onIonSlideDidChange={e => handleSlideChange()}>                   
+          <IonSlide>      
+          {attendedParties.length === 0 ?
+          <IonText class="white-text">No attended parties yet..</IonText> :          
           attendedParties.map(doc => {
             return(<Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>)          
-          })) :
-          null
-        }              
+          })}
+          </IonSlide>
+        :        
+          <IonSlide>
+          {yourParties.length === 0 ?
+          <IonText class="white-text"> No hosted parties yet..</IonText> : 
+          yourParties.map(doc => {
+            return(<Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>)          
+          })}                    
+          </IonSlide>
+        </IonSlides>   
         </IonContent>
       </>
     )

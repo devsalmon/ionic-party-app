@@ -160,9 +160,19 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
 
     const deleteAccount = () => {
       var user = firebase.auth().currentUser;
-      user.delete().then(function() {
-      }).catch(function(error) {
-      });      
+      const credential = firebase.auth.EmailAuthProvider.credential(
+        user.email, 
+        oldPassword
+      ); 
+      // Now reauthenticate user then delete from firebase auth
+      user.reauthenticateWithCredential(credential).then(function() {
+        user.delete();
+        setOldPassword('');
+        setPasswordError('');
+        return(<Redirect to="/signin" />)
+      }).catch(error => {
+        setPasswordError(error.message)
+      })
     }
 
     return(   
@@ -184,7 +194,7 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
               <IonButton onClick={() => setUsernamePopover(true)}>
                 Change username              
               </IonButton> <br/>
-              <IonButton onClick={() => setUsernamePopover(true)}>
+              <IonButton>
                 Change photo             
               </IonButton> <br/>              
               <IonButton onClick={() => setPasswordPopover(true)}>
@@ -290,6 +300,13 @@ const Profile: React.FC<RouteComponentProps> = ({match}) => {
         >
           <IonText className="ion-padding">Delete Account?</IonText><br/>
           <IonText class="white-text">You won't be able to recover this account</IonText><br/>
+          <IonInput 
+          class="create-input" 
+          value={oldPassword} 
+          onIonChange={e => setOldPassword(e.detail.value!)} 
+          placeholder="Enter password to delete account" clearInput>            
+          </IonInput>    
+          <IonText>{passwordError}</IonText>
           <IonButton onClick={()=>setDeleteAccPopover(false)}>
             Cancel
           </IonButton>            

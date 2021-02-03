@@ -3,6 +3,8 @@ http://ionicframework.com/docs/theming/ */
 
 /** Ionic CSS Variables **/
 :root {  
+
+  --ion-font-family: arial;  
   /* Set the background of the entire app */
   --ion-background-color: black;
   --ion-background-color-rgb: 0, 0, 0;

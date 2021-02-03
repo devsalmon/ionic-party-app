@@ -74,10 +74,6 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 /* Theme variables */
 import './variables.css';
-// once finished, run ionic build then npx cap add ios and npx cap add android
-
-//TODO - 
-// delete party document in firebase after it's happened
 
 const Party = ({id, data, live, edit, classname}) => {
   // party card
@@ -207,92 +203,95 @@ const PartyList = () => {
   const [partyreqs, setPartyReqs] = useState([]);
   const [upcomingParties, setUpcomingParties] = useState([]);
   const [liveParties, setLiveParties] = useState([]);
-  const [newParties, setNewParties] = useState(false);
+  const [refresh, setRefresh] = useState(false);
+  const [newNotifications, setNewNotifications] = useState(false);
   const [editingParty, setEditingParty] = useState(""); // holds data of the party being edited
 
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once    
-    displayParties()
+    displayParties()   
     // this means display parties only runs once
-  },  [newParties]);  
-
+  },  [refresh]);  
+  
   var current_user = firebase.auth().currentUser; 
 
-  firebase.firestore().collection("users").where("id", "==", current_user.uid).onSnapshot(snapshot => {
-    snapshot.docChanges().forEach(function(change) {
-        if (change.type === "added") {
-          //setNewParties(!newParties);
-        }
-        if (change.type === "modified") {
-          setNewParties(!newParties);
-        }
-        if (change.type === "removed") {
-          setNewParties(!newParties);
-        }
-    });    
-  })
+  collectionRef.doc(current_user.uid)
+  .onSnapshot(function(doc) {
+    collectionRef.doc(current_user.uid).get().then(doc => {
+    if (doc.data().request_from !== null) {
+      for (var i = 0; i < doc.data().request_from.length; i++) {
+        var curr_id = doc.data().request_from[i]
+          var alreadyInReq = reqs.some(item => curr_id === item.id);
+          if (alreadyInReq) { 
+            setNewNotifications(false);
+          } else {
+            setNewNotifications(true);
+          }
+      }; 
+    }
+    })
 
-  // todo - make this so it doesn't depend on user manually refreshing 
+  });
+
+  // firebase.firestore().collection("users").doc(current_user.uid)
+  // .onSnapshot(function(doc) {
+  //   firebase.firestore().collection("users").doc(current_user.uid).get().then(doc => {
+  //   for (var i = 0; i < doc.data().myInvites.length; i++) {
+  //     var curr_id = doc.data().myInvites[i]
+  //       var alreadyInReq = partyreqs.some(item => curr_id === item.id);
+  //       if (!alreadyInReq) { 
+  //         setNewNotifications(true);
+  //       } else {
+  //         setNewNotifications(false);
+  //       }
+  //   }; 
+  //   });
+  // });  
+
   //This just handles the requests once they have been made.
   //On refresh check current user's 'request from' array inside friend requests and display their profile. Then see
   // accept friend.
   function doRefresh(event: CustomEvent<RefresherEventDetail>) {
     // toggle new parties so displayParties runs and it checks for new parties
-    setNewParties(!newParties);        
-    checkForRequests();   
+    checkForRequests();
+    setRefresh(!refresh);                
+    setNewNotifications(false);
     setTimeout(() => {
       event.detail.complete();
     }, 2000);
   }   
 
-  const checkForRequests = () => {           
-      setReqs([]);
-      setPartyReqs([]);
-      //Inside friend_requests, inside current user's doc. HERE
-      collectionRef.doc(current_user.uid).get().then(function(doc) {          
-        console.log("req - Document data:", doc.data().request_from);          
+  const checkForRequests = () => {  
+      setReqs([])
+      setPartyReqs([])
+      collectionRef.doc(current_user.uid).get().then(function(doc) {    
         for (var i = 0; i < doc.data().request_from.length; i++) {
           var curr_id = doc.data().request_from[i]
-          // set curr_id to the current id in the request_from list
-          console.log(i, curr_id)
-          // if the current id (i.e. request from) is already in the state, don't do anything        
-            // otherwise, add it to the state   
-            setReqs(reqs => [
-              ...reqs, 
-              {
-                id: curr_id, 
-                name: curr_id
-              }
-            ]);              
-          // Remove ID from the document
-          // var removeID = collectionRef.doc(current_user).update({
-          //     request_from: firebase.firestore.FieldValue.arrayRemove(curr_id)
-          // });        
+          // if the current id (i.e. request from) is already in the state, don't do anything 
+          // otherwise, add it to the state   
+          setReqs(reqs => [
+            ...reqs, 
+            {
+              id: curr_id, 
+              name: curr_id
+            }
+          ]);                      
         };
-        console.log(reqs)
       }).catch(function(error) {
           console.log("Error getting document:", error);
       });
-
-      //Inside users, inside current user's doc. HERE
-      firebase.firestore().collection("users").doc(current_user.uid).get().then(function(doc) {          
-        //console.log("req - Document data:", doc.data().request_from);          
+      firebase.firestore().collection("users").doc(current_user.uid).get().then(function(doc) {                  
         for (var j = 0; j < doc.data().inviteFrom.length; j++) {
           var hostid = doc.data().inviteFrom && doc.data().inviteFrom[j]
           var partyid = doc.data().myInvites && doc.data().myInvites[j]
-            setPartyReqs(reqs => [
-              ...reqs, 
-              {
-                hostid: hostid, 
-                partyid: partyid
-              }
-            ]);              
-          // Remove ID from the document
-          // var removeID = collectionRef.doc(current_user).update({
-          //     request_from: firebase.firestore.FieldValue.arrayRemove(curr_id)
-          // });        
+          setPartyReqs(reqs => [
+            ...reqs, 
+            {
+              hostid: hostid, 
+              partyid: partyid
+            }
+          ]);                                          
         };
-        //console.log(reqs)
       }).catch(function(error) {
           console.log("Error getting document:", error);
       });
@@ -304,7 +303,6 @@ const PartyList = () => {
         querySnapshot.forEach(doc => {
           let today = new Date();
           let data = doc.data();          
-          // if party is in the future and party isn't already in the state 
           var alreadyInUP = upcomingParties.some(item => doc.id === item.id);
           var alreadyInLP = liveParties.some(item => doc.id === item.id);
           if (moment(today).isBefore(data.dateTime) && !alreadyInUP) { 
@@ -324,22 +322,14 @@ const PartyList = () => {
                 data: data
               }
             ])
-            // remove the party from upcomingParties array 
+            // remove the party from upcomingParties array if party turns live
             for (var i=0; i < upcomingParties.length; i++) {
               if (upcomingParties[i].id === doc.id) {
                   upcomingParties.splice(i,1);
                   break;
               }   
             }             
-          } else {
-            // remove the party from liveParties array 
-            for (var i=0; i < liveParties.length; i++) {
-              if (liveParties[i].id === doc.id) {
-                  liveParties.splice(i,1);
-                  break;
-              }   
-            }          
-          }
+          } 
         })
       })
 
@@ -378,15 +368,7 @@ const PartyList = () => {
                           break;
                       }   
                     }             
-                  } else {
-                    // remove the party from liveParties array 
-                    for (var i=0; i < liveParties.length; i++) {
-                      if (liveParties[i].id === partydoc.id) {
-                          liveParties.splice(i,1);
-                          break;
-                      }   
-                    }               
-                  }
+                  } 
               })
             } 
           }                 
@@ -406,15 +388,32 @@ const PartyList = () => {
           refreshingSpinner="circles">
         </IonRefresherContent>
       </IonRefresher> 
-      {reqs && reqs.map(req => 
-          (<FriendRequest id={req.name} click={()=>checkForRequests()} key={req.id}/>)
+        <IonToast
+          isOpen={newNotifications}
+          cssClass={"refresh-toast"}
+          onDidDismiss={() => setNewNotifications(false)}
+          position = 'top'
+          color="danger"
+          buttons={[
+            {
+              side: 'start',
+              text: 'new notifications',
+              handler: () => {
+                checkForRequests();
+              }
+            }
+          ]}
+        />     
+      {newNotifications ? <><br/><br/></> : null} 
+      {reqs && reqs.map(req =>        
+        <FriendRequest id={req.name} click={()=>checkForRequests()} key={req.id}/>
       )}
       {partyreqs && partyreqs.map(req => 
           (<PartyRequest hostid={req.hostid} partyid={req.partyid} click={()=>checkForRequests()} key={req.partyid}/>)
       )}
       { upcomingParties.length > 0 ? null :
         liveParties.length > 0 ? null :
-        <IonText class="ion-padding-start">No upcoming parties...</IonText>
+        <><br/><br/><IonText class="ion-padding-start">No upcoming parties...</IonText></>
       }     
       {liveParties && liveParties.map(party => { 
         return(        
