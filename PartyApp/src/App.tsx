@@ -206,19 +206,19 @@ const PartyList = () => {
   const [refresh, setRefresh] = useState(false);
   const [newNotifications, setNewNotifications] = useState(false);
   const [editingParty, setEditingParty] = useState(""); // holds data of the party being edited
+  var current_user = firebase.auth().currentUser; 
 
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once    
     displayParties()   
     // this means display parties only runs once
   },  [refresh]);  
-  
-  var current_user = firebase.auth().currentUser; 
 
+  // Checks for friend requests
   collectionRef.doc(current_user.uid)
   .onSnapshot(function(doc) {
-    collectionRef.doc(current_user.uid).get().then(doc => {
-    if (doc.data().request_from !== null) {
+    //collectionRef.doc(current_user.uid).get().then(doc => {
+    if (doc.exists && doc.data().request_from) {
       for (var i = 0; i < doc.data().request_from.length; i++) {
         var curr_id = doc.data().request_from[i]
           var alreadyInReq = reqs.some(item => curr_id === item.id);
@@ -229,10 +229,14 @@ const PartyList = () => {
           }
       }; 
     }
-    })
-
+   // })
   });
 
+  // Checks for party invites
+  firebase.firestore().collection("users").doc(current_user.uid).collection("myParties")
+  .onSnapshot(function(doc) {
+
+  })
   // firebase.firestore().collection("users").doc(current_user.uid)
   // .onSnapshot(function(doc) {
   //   firebase.firestore().collection("users").doc(current_user.uid).get().then(doc => {
