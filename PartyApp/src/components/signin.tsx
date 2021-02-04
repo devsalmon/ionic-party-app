@@ -81,7 +81,8 @@ const SignIn: React.FC = () => {
         fullname: fullname,
         username: username,
         email: email,      
-        id: result.user.uid       
+        id: result.user.uid ,
+        photoUrl: ""      
         //mobileNumber: mobileNumber ? mobileNumber : null              
       })    
     })

@@ -282,7 +282,7 @@ const PartyList = () => {
         if (doc.exists && doc.data().request_from) {          
           for (var i = 0; i < doc.data().request_from.length; i++) {
             var curr_id = doc.data().request_from[i]
-            var alreadyInReq = reqs.some(item => curr_id === item.id);
+            //var alreadyInReq = reqs.some(item => curr_id === item.id);
             // if the current id (i.e. request from) is already in the state, don't do anything 
             // otherwise, add it to the state   
             //if (!alreadyInReq) {

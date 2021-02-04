@@ -289,6 +289,9 @@ const MyPartyList = () => {
   }
 
   const saveNewPhoto = async() =>{
+    firebase.firestore().collection("users").doc(user.uid).update({
+      photoUrl: profilePhoto
+    })    
     await user.updateProfile({
       photoURL: profilePhoto
     }).then(function() {
@@ -299,6 +302,9 @@ const MyPartyList = () => {
   }
 
   const deletePhoto = async() => {
+    firebase.firestore().collection("users").doc(user.uid).update({
+      photoUrl: ''
+    })
     await user.updateProfile({
       photoURL: ''
     }).then(function() {

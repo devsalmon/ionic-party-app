@@ -32,7 +32,8 @@ exports.addUser = functions.firestore
     email: newValue.email,
     fullname: newValue.fullname,    
     id: newValue.id,    
-    username: newValue.username,    
+    username: newValue.username,
+    photoUrl: newValue.photoUrl    
   });
 });
 
