@@ -296,6 +296,14 @@ const CreateParty = ({editingParty, backButton}) => {
           <IonItem class="create-card">
             <IonButton class="create-button" expand="block" onClick={e => setShowPeopleSearch(true)}>Invite People</IonButton>
           </IonItem>       
+          {invitedPeople && invitedPeople.map(person => {
+            return(
+              <IonItem class="create-card" key={person.id}>                
+                <IonText>{person.username}</IonText>
+                <IonButton slot="end" color="warning" onClick={() => removeInvite(person.id)}>Remove</IonButton>
+              </IonItem>
+            )
+          })}  
           <IonItem class="rounded-bottom"> 
             <IonButton 
             class="create-button" 
@@ -348,7 +356,7 @@ const CreateParty = ({editingParty, backButton}) => {
           })}                    
         </IonContent>
         <IonFooter>
-          <IonButton class="custom-button" onClick={e => setShowPeopleSearch(false)}>DONE</IonButton>
+          <IonButton class="custom-button" onClick={e => setShowPeopleSearch(false)}>Add People</IonButton>
         </IonFooter>        
       </IonModal>    
       <IonToast

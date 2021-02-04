@@ -3,9 +3,8 @@ import Users from './components/users';
 import CreateParty from './components/createparty';
 import MapContainer from './components/mapcontainer';
 import Gallery from './components/gallery';
-import MemoryList from './components/memories';
+import MyPartyList from './components/myparties';
 import SignIn from './components/signin';
-import Profile from './components/profile';
 import OtherProfile from './components/otherprofile';
 
 import {
@@ -15,7 +14,7 @@ import {
     AccordionItemButton,
     AccordionItemPanel,
 } from 'react-accessible-accordion';
-import { Route, Redirect, RouteComponentProps } from 'react-router-dom';
+import { Route, Redirect, RouteComponentProps, useLocation } from 'react-router-dom';
 import { RefresherEventDetail } from '@ionic/core';
 import {
   IonApp,
@@ -108,11 +107,12 @@ const Party = ({id, data, live, edit, classname}) => {
   // TODO - add IOS AND ANDROID permissions from pwa elements
   const takePhoto = async() => {
     const cameraPhoto = await Camera.getPhoto({
-      resultType: CameraResultType.Base64,
-      source: CameraSource.Camera,
-      quality: 100
+      resultType: CameraResultType.Uri,
+      source: CameraSource.Prompt,
+      quality: 100,
+      saveToGallery: true
     });
-    var photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`
+    var photo = cameraPhoto.webPath;
     setPhoto(photo);  
   }    
   
@@ -205,6 +205,8 @@ const PartyList = () => {
   const [liveParties, setLiveParties] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const [newNotifications, setNewNotifications] = useState(false);
+  const [newInvites, setNewInvites] = useState(false);
+  const [newRequests, setNewRequests] = useState(false);
   const [editingParty, setEditingParty] = useState(""); // holds data of the party being edited
   var current_user = firebase.auth().currentUser; 
 
@@ -222,9 +224,9 @@ const PartyList = () => {
         var curr_id = doc.data().request_from[i]
           var alreadyInReq = reqs.some(item => curr_id === item.id);
           if (alreadyInReq) { 
-            setNewNotifications(false);
+            setNewRequests(false);
           } else {
-            setNewNotifications(true);
+            setNewRequests(true);
           }
       }; 
     }
@@ -234,24 +236,27 @@ const PartyList = () => {
   collectionRef.doc(current_user.uid)
   .onSnapshot(function(doc) {
     //collectionRef.doc(current_user.uid).get().then(doc => {
-    if (doc.data().request_from) {
+    if (doc.exists && doc.data().request_from) {
       for (var i = 0; i < doc.data().request_from.length; i++) {
         var curr_id = doc.data().request_from[i]
           var alreadyInReq = reqs.some(item => curr_id === item.id);
           if (alreadyInReq) { 
-            setNewNotifications(false);
+            setNewInvites(false);
           console.log("something")
           } else {
-            setNewNotifications(true);
+            setNewInvites(true);
             console.log("something")
           }
       }; 
+    }
+    if (newInvites || newRequests) {
+      setNewNotifications(true);
     }
   });
  
   // Checks for party invites
  firebase.firestore().collection("users").doc(current_user.uid).onSnapshot(function(doc) {
-    if (doc.data().myInvites) {
+    if (doc.exists && doc.data().myInvites) {
       for (var j = 0; j < doc.data().myInvites.length; j++) {
         var curr_id = doc.data().myInvites[j]
           var alreadyInInv = partyreqs.some(item => curr_id === item.partyid);
@@ -266,6 +271,9 @@ const PartyList = () => {
           }
       };
     }
+    if (newInvites || newRequests) {
+      setNewNotifications(true);
+    }    
   });  
 
   //This just handles the requests once they have been made.
@@ -282,7 +290,6 @@ const PartyList = () => {
   }   
 
   const checkForRequests = () => {  
-
       setReqs([])
       setPartyReqs([])
       collectionRef.doc(current_user.uid).get().then(function(doc) {  
@@ -412,6 +419,8 @@ const PartyList = () => {
     displayParties();    
   }
 
+  const location = useLocation();
+
   if (editingParty ) {
     return(
       <CreateParty editingParty={editingParty} backButton={() => setEditingParty("")}/>
@@ -425,6 +434,7 @@ const PartyList = () => {
           refreshingSpinner="circles">
         </IonRefresherContent>
       </IonRefresher> 
+        {location.pathname === '/home' ? 
         <IonToast
           isOpen={newNotifications}
           cssClass={"refresh-toast"}
@@ -440,7 +450,7 @@ const PartyList = () => {
               }
             }
           ]}
-        />     
+        /> : null}
       {newNotifications ? <><br/><br/></> : null} 
       {reqs && reqs.map(req =>        
         <FriendRequest id={req.name} click={()=>checkForRequests()} key={req.id}/>
@@ -611,11 +621,11 @@ const PartyRequest = ({hostid, partyid, click}) => {
   )
 }
 
-const Memories: React.FC = () => {
+const MyParties: React.FC = () => {
 
   return(
     <IonPage>
-      <MemoryList memoriesPage={true}/>
+      <MyPartyList/>
         {/* to allow for last item in list to be clicked (otherwise it's covered by tabbar) */}
         <br/> <br/> <br/> <br/> <br/> <br/>
     </IonPage>
@@ -633,8 +643,7 @@ const Home: React.FC = () => {
         </IonButtons>
         <IonTitle>Upcoming <br/> parties</IonTitle>
         <IonButtons slot="end">   
-          <IonButton class="top-icons" href='/profile'>
-            <IonIcon slot="icon-only" src="assets/icon/People.svg"/> 
+          <IonButton>             
           </IonButton>         
         </IonButtons>                        
       </IonToolbar>
@@ -653,10 +662,8 @@ const SignedInRoutes: React.FC = () => {
           <Route path='/signin' component={SignIn} />
           <Route path='/create' component={Create} />
           <Route path='/users' component={Users} />
-          <Route path='/profile' render={props => <Profile {...props}/>} />   
-          <Route exact path="/profile" render={() => <Redirect to='/profile' />} />                 
           <Route path='/gallery' component={Gallery} />
-          <Route path='/memories' component={Memories} />
+          <Route path='/myparties' component={MyParties} />
           <Route exact path='/home' component={Home} />      
           <Route exact path={["/signin", "/"]} render={() => <Redirect to="/home" />} />
         </IonRouterOutlet> 
@@ -672,9 +679,9 @@ const SignedInRoutes: React.FC = () => {
             Create
             <IonRippleEffect></IonRippleEffect>
           </IonTabButton>              
-          <IonTabButton tab="memories" href="/memories">
+          <IonTabButton tab="myparties" href="/myparties">
             <IonIcon class="side-icons" src="assets/icon/Memories.svg" />
-            Memories
+            MyParties
             <IonRippleEffect></IonRippleEffect>
           </IonTabButton>                         
         </IonTabBar>

@@ -115,6 +115,7 @@ const UserItem = ({hit, username, id}) => {
   const requestFriend = (username, objectID) => {
     var receiver_user_id = objectID
     var sender_user_id = firebase.auth().currentUser.uid
+        
     //create doc with sender's id if it doesn't already exist and adds receiver's id to field.
     friendRequestsRef.doc(sender_user_id).get()
       .then((docSnapshot) => {

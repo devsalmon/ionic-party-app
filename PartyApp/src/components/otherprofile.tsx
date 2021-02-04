@@ -19,8 +19,6 @@ import {
   chevronBackSharp
 } from 'ionicons/icons';
 
-import MemoryList from './memories';
-
 import '../App.css'
 import firebase from '../firestore'
 import moment from 'moment'
@@ -100,7 +98,6 @@ const OtherProfile: React.FC<OtherProfileProps> = ({match}) => {
         <IonItem class="accordion-item"  button href="/people">
           <IonText>Status: sesh gremlin</IonText> <br/>
         </IonItem >    */}
-        <MemoryList memoriesPage={false} />:
         <br/><br/><br/><br/><br/><br/>
       </IonPage>
     )
