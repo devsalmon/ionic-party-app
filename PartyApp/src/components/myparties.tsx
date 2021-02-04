@@ -83,6 +83,7 @@ const MyPartyList = () => {
   const [photoPopover, setPhotoPopover] = useState(false); 
   const [showPhotoSaved, setShowPhotoSaved] = useState(false);
   const [showPhotoDeleted, setShowPhotoDeleted] = useState(false);
+  const [currentPhoto, setCurrentPhoto] = useState('');
 
 
   const [friends, setFriends] = useState([]);
@@ -92,6 +93,11 @@ const MyPartyList = () => {
 
 
   useEffect(() => {  
+    firebase.firestore().collection("users").doc(user.uid).get().then(doc => {
+      if (doc.data().photoUrl) {
+        setCurrentPhoto(doc.data().photoUrl)
+      }
+    })
     findFriends();  
     // useeffect hook only runs after first render so it only runs once
     displayParties();
@@ -107,6 +113,7 @@ const MyPartyList = () => {
 
   var user = firebase.auth().currentUser;    
   console.log("photoo", user.photoURL)
+  console.log("ph", currentPhoto)
   const friendsCollection = firebase.firestore().collection('friends');
   const usersCollection = firebase.firestore().collection('users');
   var tempFriends = []; // list for friend id's
@@ -383,7 +390,7 @@ const MyPartyList = () => {
               <IonRow>
                 <IonCol size="3">
                   <IonAvatar>
-                    <img src={user.photoURL ? user.photoURL : "https://img.favpng.com/18/24/16/user-silhouette-png-favpng-4mEnHSRfJZD8p9eEBiRpA9GeS.jpg"} />
+                    <img src={currentPhoto ? currentPhoto : "https://img.favpng.com/18/24/16/user-silhouette-png-favpng-4mEnHSRfJZD8p9eEBiRpA9GeS.jpg"} />
                   </IonAvatar>                   
                 </IonCol>
                 <IonCol size="6"> 
