@@ -219,39 +219,25 @@ const PartyList = () => {
   // Checks for friend requests
   collectionRef.doc(current_user.uid)
   .onSnapshot(function(doc) {
-    if (doc.exists && doc.data().request_from) {
-      for (var i = 0; i < doc.data().request_from.length; i++) {
-        var curr_id = doc.data().request_from[i]
-          var alreadyInReq = reqs.some(item => curr_id === item.id);
-          if (alreadyInReq) { 
-            setNewRequests(false);
-          } else {
-            setNewRequests(true);
-          }
-      }; 
-    }
-  });
-
-  // Checks for friend requests
-  collectionRef.doc(current_user.uid)
-  .onSnapshot(function(doc) {
     //collectionRef.doc(current_user.uid).get().then(doc => {
     if (doc.exists && doc.data().request_from) {
       for (var i = 0; i < doc.data().request_from.length; i++) {
         var curr_id = doc.data().request_from[i]
           var alreadyInReq = reqs.some(item => curr_id === item.id);
           if (alreadyInReq) { 
-            setNewInvites(false);
+            //setNewInvites(false);
+            setNewNotifications(false)
           console.log("something")
-          } else {
-            setNewInvites(true);
+          } else if (newNotifications == false){
+            //setNewInvites(true);
+            setNewNotifications(true);
             console.log("something")
           }
       }; 
     }
-    if (newInvites || newRequests) {
-      setNewNotifications(true);
-    }
+    //if (newInvites || newRequests) {
+     // setNewNotifications(true);
+   // }
   });
  
   // Checks for party invites
@@ -265,15 +251,15 @@ const PartyList = () => {
           if (alreadyInInv) { 
             setNewNotifications(false);
             console.log("false")
-          } else {
+          } else if (newNotifications == false) {
             setNewNotifications(true);
             console.log("true")
           }
       };
     }
-    if (newInvites || newRequests) {
-      setNewNotifications(true);
-    }    
+    //if (newInvites || newRequests) {
+      //setNewNotifications(true);
+   // }    
   });  
 
   //This just handles the requests once they have been made.
@@ -292,19 +278,22 @@ const PartyList = () => {
   const checkForRequests = () => {  
       setReqs([])
       setPartyReqs([])
-      collectionRef.doc(current_user.uid).get().then(function(doc) {  
+      collectionRef.doc(current_user.uid).get().then(function(doc) {
         if (doc.exists && doc.data().request_from) {          
           for (var i = 0; i < doc.data().request_from.length; i++) {
             var curr_id = doc.data().request_from[i]
+            var alreadyInReq = reqs.some(item => curr_id === item.id);
             // if the current id (i.e. request from) is already in the state, don't do anything 
             // otherwise, add it to the state   
+            //if (!alreadyInReq) {
             setReqs(reqs => [
               ...reqs, 
               {
                 id: curr_id, 
                 name: curr_id
               }
-            ]);                      
+            ]);  
+          //}                    
           };
         }
       }).catch(function(error) {
@@ -327,6 +316,10 @@ const PartyList = () => {
       }).catch(function(error) {
           console.log("Error getting document:", error);
       });
+
+      setNewNotifications(false);
+      setNewInvites(false);
+      setNewRequests(false);
   }
 
   const displayParties = () => {          
