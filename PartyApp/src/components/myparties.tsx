@@ -8,7 +8,9 @@ import {
   IonMenu,
   IonRouterOutlet,
   IonItem,
+  IonImg,
   IonToolbar,
+  IonToast,
   IonTitle,
   IonRadioGroup,
   IonRadio,
@@ -77,8 +79,11 @@ const MyPartyList = () => {
   const [newPassword, setNewPassword] = useState(''); //popover to change username
   const [verifyNewPassword, setVerifyNewPassword] = useState(''); //popover to change username
   const [passwordError, setPasswordError] = useState('');
-  const [profilePhoto, setProfilePhoto] = useState('');
+  const [profilePhoto, setProfilePhoto] = useState('');  
   const [photoPopover, setPhotoPopover] = useState(false); 
+  const [showPhotoSaved, setShowPhotoSaved] = useState(false);
+  const [showPhotoDeleted, setShowPhotoDeleted] = useState(false);
+
 
   const [friends, setFriends] = useState([]);
   const [newFriends, setNewFriends] = useState(false);  
@@ -87,7 +92,7 @@ const MyPartyList = () => {
 
 
   useEffect(() => {  
-    findFriends();
+    findFriends();  
     // useeffect hook only runs after first render so it only runs once
     displayParties();
     //finds the number of friends you have.
@@ -101,6 +106,7 @@ const MyPartyList = () => {
   }, [newFriends]);  
 
   var user = firebase.auth().currentUser;    
+  console.log("photoo", user.photoURL)
   const friendsCollection = firebase.firestore().collection('friends');
   const usersCollection = firebase.firestore().collection('users');
   var tempFriends = []; // list for friend id's
@@ -275,26 +281,30 @@ const MyPartyList = () => {
       resultType: CameraResultType.Uri,
       source: CameraSource.Prompt,
       quality: 100,
-      saveToGallery: true
+      saveToGallery: true,
+      allowEditing: true
     });
     var photo = cameraPhoto.webPath;
-    setProfilePhoto(photo);      
-    user.updateProfile({
-      photoURL: profilePhoto
-    }).then(function() {
-      // Update successful.
-    }).catch(function(error) {
-      // An error happened.
-    });    
+    setProfilePhoto(photo);        
   }
 
-  const deletePhoto = () => {
-    user.updateProfile({
+  const saveNewPhoto = async() =>{
+    await user.updateProfile({
+      photoURL: profilePhoto
+    }).then(function() {
+      setShowPhotoSaved(true)
+    }).catch(function(error) {
+      console.log(error.message)
+    });  
+  }
+
+  const deletePhoto = async() => {
+    await user.updateProfile({
       photoURL: ''
     }).then(function() {
-      // Update successful.
+      setShowPhotoDeleted(true)
     }).catch(function(error) {
-      // An error happened.
+      console.log(error.message)
     });     
   }
 
@@ -440,7 +450,9 @@ const MyPartyList = () => {
           isOpen={photoPopover}
           onDidDismiss={() => setPhotoPopover(false)}
         >
-        <IonButton onClick={() => updatePhoto()}>New Profile Photo</IonButton>             
+        <IonButton onClick={() => updatePhoto()}>New Profile Photo</IonButton>        
+        {profilePhoto ? <IonImg src={profilePhoto}></IonImg> : null}   
+        {profilePhoto ? <IonButton class="custom-button" onClick={()=>saveNewPhoto()}>Save New Photo</IonButton> : null}
         <IonButton onClick={() => deletePhoto()}>Delete Profile Photo</IonButton>                     
         </IonPopover>        
         <IonPopover
@@ -505,6 +517,22 @@ const MyPartyList = () => {
               })}
           </IonList>
         </IonPopover>
+        <IonToast
+          isOpen={showPhotoSaved}
+          cssClass={"refresh-toast"}
+          onDidDismiss={() => setShowPhotoSaved(false)}
+          position = 'bottom'
+          color="danger"
+          duration={2000}
+        />      
+        <IonToast
+          isOpen={showPhotoDeleted}
+          cssClass={"refresh-toast"}
+          onDidDismiss={() => setShowPhotoDeleted(false)}
+          position = 'bottom'
+          color="danger"
+          duration={2000}
+        />               
         </div>    
       </>
     )
