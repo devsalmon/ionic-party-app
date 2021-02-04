@@ -107,12 +107,12 @@ const Party = ({id, data, live, edit, classname}) => {
   // TODO - add IOS AND ANDROID permissions from pwa elements
   const takePhoto = async() => {
     const cameraPhoto = await Camera.getPhoto({
-      resultType: CameraResultType.Uri,
+      resultType: CameraResultType.Base64,
       source: CameraSource.Prompt,
       quality: 100,
       saveToGallery: true
     });
-    var photo = cameraPhoto.webPath;
+    var photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`;
     setPhoto(photo);  
   }    
   
@@ -459,7 +459,7 @@ const PartyList = () => {
         return(        
           <>
           <IonTitle color="danger">LIVE!</IonTitle>             
-          <Party key={party.id} id={party.id} data={party.data} live={true} edit={null} classname="live-item"/>              
+          <Party key={party.id} id={party.id} data={party.data} live={true} edit={() => setEditingParty(party.data)} classname="live-item"/>              
           <br/>
           </>
         );                    

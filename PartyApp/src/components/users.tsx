@@ -223,7 +223,7 @@ const UserItem = ({hit, username, id}) => {
       <IonItem button key={id}>    
         <IonCol size="4">
           <IonAvatar>
-            <img src={hit.photoURL ? hit.photoURL : "https://img.favpng.com/18/24/16/user-silhouette-png-favpng-4mEnHSRfJZD8p9eEBiRpA9GeS.jpg"} />
+            <img src={hit.photoUrl ? hit.photoUrl : "https://img.favpng.com/18/24/16/user-silhouette-png-favpng-4mEnHSRfJZD8p9eEBiRpA9GeS.jpg"} />
           </IonAvatar>  
         </IonCol>
         <IonCol offset="1" size="7">

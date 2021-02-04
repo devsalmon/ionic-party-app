@@ -89,7 +89,7 @@ const MyPartyList = () => {
   const [friends, setFriends] = useState([]);
   const [newFriends, setNewFriends] = useState(false);  
   var user = firebase.auth().currentUser;
-  var currentuser = firebase.auth().currentUser.uid
+  var currentuser = firebase.auth().currentUser.uid;
 
 
   useEffect(() => {  
@@ -285,13 +285,13 @@ const MyPartyList = () => {
   const { Camera } = Plugins;
   const updatePhoto = async() => {
     const cameraPhoto = await Camera.getPhoto({
-      resultType: CameraResultType.Uri,
+      resultType: CameraResultType.Base64,
       source: CameraSource.Prompt,
       quality: 100,
       saveToGallery: true,
       allowEditing: true
     });
-    var photo = cameraPhoto.webPath;
+    var photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`;
     setProfilePhoto(photo);        
   }
 
