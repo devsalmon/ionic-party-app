@@ -476,10 +476,12 @@ const PartyList = () => {
   }
 }
 const Create: React.FC = () => {
+
+  const [back, setBack] = useState(false)
   
   return(
     <IonPage>
-      <CreateParty editingParty={null} backButton={null} />
+      <CreateParty editingParty={null} backButton={() => setBack(!back)} />
     </IonPage>
   )
 }

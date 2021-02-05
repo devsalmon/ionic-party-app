@@ -1,5 +1,5 @@
 import React, { useState, useEffect} from 'react';
-import { Redirect } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import MapContainer from './mapcontainer';
 import App from '../App';
 import {
@@ -63,17 +63,19 @@ const CreateParty = ({editingParty, backButton}) => {
       })
     }, [])
 
+    var history = useHistory()
+
     // function to hide tabs when in the create page
-    function hideTab() {
-      const tabBar = document.getElementById('appTabBar');
-      tabBar.style.display = 'none';
-    }
+    // function hideTab() {
+    //   const tabBar = document.getElementById('appTabBar');
+    //   tabBar.style.display = 'none';
+    // }
     // show tabs again when create page is exited
-    function showTab() {       
-      backButton() 
-      const tabBar = document.getElementById('appTabBar');
-      tabBar.style.display = 'flex';
-    }        
+    // function showTab() {       
+    //   backButton() 
+    //   const tabBar = document.getElementById('appTabBar');
+    //   tabBar.style.display = 'flex';
+    // }        
 
     const [friends, setFriends] = useState([]); // list of people who can be searched for when inviting people
     const [invitedPeople, setInvitedPeople] = useState(editingParty ? editingParty.invited_people : []); // array of invited people
@@ -128,6 +130,7 @@ const CreateParty = ({editingParty, backButton}) => {
               dateTime: moment(dateTime).format('LLL'),
               invited_people: invitedPeople,             
               }).then(function() {
+                
                 setShowToast(true);
                 // if people get invited then add them to list below.
                 // A party gets created. A person gets invited, they accept invite.
@@ -156,7 +159,8 @@ const CreateParty = ({editingParty, backButton}) => {
               setDetails("");
               setEndTime("");
               setDateTime("");
-              setInvitedPeople([]);                               
+              setInvitedPeople([]);  
+              history.push("/home")                             
               })  
             } else {
               console.log("creating")
@@ -175,7 +179,7 @@ const CreateParty = ({editingParty, backButton}) => {
                 hostid: firebase.auth().currentUser.uid,
                 invited_people: invitedPeople,             
                 createdOn: moment(new Date()).format('LL'), 
-                }).then(function(docRef) {
+                }).then(function(docRef) {                  
                   console.log(docRef.id)
                   setShowToast(true);
                   collectionRef.doc(docRef.id).update({
@@ -202,7 +206,8 @@ const CreateParty = ({editingParty, backButton}) => {
                   setDetails("");
                   setEndTime("");
                   setDateTime("");
-                  setInvitedPeople([]);                            
+                  setInvitedPeople([]);
+                  history.push("/home")                            
               })  
             }     
           }    
@@ -259,10 +264,9 @@ const CreateParty = ({editingParty, backButton}) => {
     }
     return(
       <IonContent class="create-content" fullscreen={true}>
-        {hideTab()} 
         <IonToolbar color="warning">
           <IonButtons slot="start" class="create-back-button">
-            <IonButton  fill="clear" color="dark" onClick={()=>showTab()} href="/home">
+            <IonButton  fill="clear" color="dark" href="/home">
               <IonIcon slot="icon-only" icon={chevronBackSharp}></IonIcon>
             </IonButton>
           </IonButtons>        

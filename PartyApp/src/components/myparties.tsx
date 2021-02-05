@@ -111,9 +111,7 @@ const MyPartyList = () => {
     // useeffect makes display parties only runs once
   }, [newFriends]);  
 
-  var user = firebase.auth().currentUser;    
-  console.log("photoo", user.photoURL)
-  console.log("ph", currentPhoto)
+  var user = firebase.auth().currentUser;  
   const friendsCollection = firebase.firestore().collection('friends');
   const usersCollection = firebase.firestore().collection('users');
   var tempFriends = []; // list for friend id's
@@ -291,7 +289,7 @@ const MyPartyList = () => {
       saveToGallery: true,
       allowEditing: true
     });
-    var photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`;
+    var photo = cameraPhoto.webPath;
     setProfilePhoto(photo);        
   }
 
