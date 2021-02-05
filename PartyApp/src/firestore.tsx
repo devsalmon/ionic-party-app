@@ -18,23 +18,23 @@ firebase.initializeApp(fbConfig);
 const messaging = firebase.messaging();
 
 // Add the public key generated from the console here.
-messaging.getToken();
+//messaging.getToken();
 
 // Get registration token. Initially this makes a network call, once retrieved
 // subsequent calls to getToken will return from cache.
-messaging.getToken().then((currentToken) => {
-  if (currentToken) {
+//messaging.getToken().then((currentToken) => {
+//  if (currentToken) {
     // Send the token to your server and update the UI if necessary
     // ...
-    console.log("current FCM token", currentToken)
-  } else {
+//    console.log("current FCM token", currentToken)
+//  } else {
     // Show permission request UI
-    console.log('No registration token available. Request permission to generate one.');
+//    console.log('No registration token available. Request permission to generate one.');
     // ...
-  }
-}).catch((err) => {
-  console.log('An error occurred while retrieving token. ', err);
+//  }
+//}).catch((err) => {
+//  console.log('An error occurred while retrieving token. ', err);
   // ...
-});
+//});
 
 export default firebase;
