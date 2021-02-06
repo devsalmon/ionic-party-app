@@ -14,7 +14,7 @@ import {
     AccordionItemButton,
     AccordionItemPanel,
 } from 'react-accessible-accordion';
-import { Route, Redirect, RouteComponentProps, useLocation } from 'react-router-dom';
+import { Route, Redirect, RouteComponentProps, useLocation, useHistory } from 'react-router-dom';
 import { RefresherEventDetail } from '@ionic/core';
 import {
   IonApp,
@@ -205,8 +205,6 @@ const PartyList = () => {
   const [liveParties, setLiveParties] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const [newNotifications, setNewNotifications] = useState(false);
-  const [newInvites, setNewInvites] = useState(false);
-  const [newRequests, setNewRequests] = useState(false);
   const [editingParty, setEditingParty] = useState(""); // holds data of the party being edited
   var current_user = firebase.auth().currentUser; 
 
@@ -214,7 +212,7 @@ const PartyList = () => {
     // useeffect hook only runs after first render so it only runs once    
     displayParties()   
     // this means display parties only runs once
-  },  [refresh]);  
+  },  [refresh]); 
 
   // Checks for friend requests
   collectionRef.doc(current_user.uid)
@@ -225,23 +223,19 @@ const PartyList = () => {
         var curr_id = doc.data().request_from[i]
           var alreadyInReq = reqs.some(item => curr_id === item.id);
           if (alreadyInReq) { 
-            //setNewInvites(false);
             setNewNotifications(false)
           console.log("something")
           } else if (newNotifications == false){
-            //setNewInvites(true);
             setNewNotifications(true);
             console.log("something")
           }
       }; 
     }
-    //if (newInvites || newRequests) {
-     // setNewNotifications(true);
-   // }
   });
  
   // Checks for party invites
- firebase.firestore().collection("users").doc(current_user.uid).onSnapshot(function(doc) {
+ firebase.firestore().collection("users").doc(current_user.uid)
+ .onSnapshot(function(doc) {
     if (doc.exists && doc.data().myInvites) {
       for (var j = 0; j < doc.data().myInvites.length; j++) {
         var curr_id = doc.data().myInvites[j]
@@ -257,9 +251,6 @@ const PartyList = () => {
           }
       };
     }
-    //if (newInvites || newRequests) {
-      //setNewNotifications(true);
-   // }    
   });  
 
   //This just handles the requests once they have been made.
@@ -316,10 +307,7 @@ const PartyList = () => {
       }).catch(function(error) {
           console.log("Error getting document:", error);
       });
-
       setNewNotifications(false);
-      setNewInvites(false);
-      setNewRequests(false);
   }
 
   const displayParties = () => {          
@@ -412,11 +400,13 @@ const PartyList = () => {
     displayParties();    
   }
 
+  var history = useHistory();
+
   const location = useLocation();
 
   if (editingParty ) {
     return(
-      <CreateParty editingParty={editingParty} backButton={() => setEditingParty("")}/>
+      <CreateParty editingParty={editingParty} displayParties={() => setRefresh(!refresh)}/>
     )
   } else {
   return(    
@@ -443,7 +433,8 @@ const PartyList = () => {
               }
             }
           ]}
-        /> : null}
+        />     
+         : null}
       {newNotifications ? <><br/><br/></> : null} 
       {reqs && reqs.map(req =>        
         <FriendRequest id={req.name} click={()=>checkForRequests()} key={req.id}/>
@@ -481,7 +472,7 @@ const Create: React.FC = () => {
   
   return(
     <IonPage>
-      <CreateParty editingParty={null} backButton={() => setBack(!back)} />
+      <CreateParty editingParty={null} displayParties={() => setBack(!back)} />
     </IonPage>
   )
 }

@@ -51,7 +51,7 @@ import '@ionic/react/css/display.css';
 import '../variables.css';
 import algoliasearch from 'algoliasearch/lite';
 
-const CreateParty = ({editingParty, backButton}) => {
+const CreateParty = ({editingParty, displayParties}) => {
 
     var currentuser = firebase.auth().currentUser;  
 
@@ -63,7 +63,7 @@ const CreateParty = ({editingParty, backButton}) => {
       })
     }, [])
 
-    var history = useHistory()
+    var history = useHistory();
 
     // function to hide tabs when in the create page
     // function hideTab() {
@@ -130,7 +130,6 @@ const CreateParty = ({editingParty, backButton}) => {
               dateTime: moment(dateTime).format('LLL'),
               invited_people: invitedPeople,             
               }).then(function() {
-                
                 setShowToast(true);
                 // if people get invited then add them to list below.
                 // A party gets created. A person gets invited, they accept invite.
@@ -144,10 +143,12 @@ const CreateParty = ({editingParty, backButton}) => {
                       var alreadyInIF = doc.data().inviteFrom.some(item => host_user_id === item);                    
                     }
                     if ((!alreadyInMI && !alreadyInIF) || !doc.data().myInvites) {
+                      var newInviteFrom = []
+                      newInviteFrom.push(host_user_id)
                       userDocument.update({
                         // add party id to user documents
                         myInvites: firebase.firestore.FieldValue.arrayUnion(editingParty.id),
-                        inviteFrom: firebase.firestore.FieldValue.arrayUnion(host_user_id)
+                        inviteFrom: newInviteFrom
                       }) 
                     }   
                   })
@@ -159,11 +160,9 @@ const CreateParty = ({editingParty, backButton}) => {
               setDetails("");
               setEndTime("");
               setDateTime("");
-              setInvitedPeople([]);  
-              history.push("/home")                             
+              setInvitedPeople([]);                               
               })  
             } else {
-              console.log("creating")
             // only add documents to collection if forms are validated
               collectionRef.add({
                 title: title, 
@@ -206,8 +205,7 @@ const CreateParty = ({editingParty, backButton}) => {
                   setDetails("");
                   setEndTime("");
                   setDateTime("");
-                  setInvitedPeople([]);
-                  history.push("/home")                            
+                  setInvitedPeople([]);                
               })  
             }     
           }    
@@ -311,8 +309,9 @@ const CreateParty = ({editingParty, backButton}) => {
           <IonItem class="rounded-bottom"> 
             <IonButton 
             class="create-button" 
-            expand="block" 
-            onClick={() => onSave()}>{editingParty ? "Update!" : "Create!"}</IonButton>        
+            expand="block"            
+            onClick={() => onSave()}
+            >{editingParty ? "Update!" : "Create!"}</IonButton>        
           </IonItem><br/><br/>
           {editingParty ? 
             <IonButton color="danger" class="create-button" onClick={() => setShowPopover(true)}>Delete party</IonButton> :
@@ -362,14 +361,18 @@ const CreateParty = ({editingParty, backButton}) => {
         <IonFooter>
           <IonButton class="custom-button" onClick={e => setShowPeopleSearch(false)}>Add People</IonButton>
         </IonFooter>        
-      </IonModal>    
-      <IonToast
+      </IonModal>  
+      <IonPopover
+        cssClass="create-popover"        
         isOpen={showToast}
         onDidDismiss={() => setShowToast(false)}
-        duration={2000}
-        message="Party Created!"
-        position="bottom"
-      />
+      >
+        <div className="ion-text-center">
+        <IonButton class="create-popover" href="/home">
+          Party Created! <br/> Click here to see it
+        </IonButton>   
+        </div>
+      </IonPopover>   
       <IonToast
         isOpen={partyDeletedToast}
         onDidDismiss={() => setPartyDeletedToast(false)}

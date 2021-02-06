@@ -214,7 +214,6 @@ const MyPartyList = () => {
   }  
 
  const displayParties = () => {          
-
     // get your parties
     firebase.firestore().collection("users")
       .doc(currentuser).collection("myParties").get().then(querySnapshot => {
@@ -223,7 +222,7 @@ const MyPartyList = () => {
           let data = doc.data();          
           // if party is in the future and party isn't already in the state 
           var alreadyInYP = yourParties.some(item => doc.id === item.id);
-          if (moment(today).isAfter(data.dateTime) && !alreadyInYP) { 
+          if (moment(today).isAfter(data.endTime) && !alreadyInYP) { 
             setYourParties(parties => [
               ...parties, 
               {
@@ -283,7 +282,7 @@ const MyPartyList = () => {
   const { Camera } = Plugins;
   const updatePhoto = async() => {
     const cameraPhoto = await Camera.getPhoto({
-      resultType: CameraResultType.Base64,
+      resultType: CameraResultType.Uri,
       source: CameraSource.Prompt,
       quality: 100,
       saveToGallery: true,
@@ -422,24 +421,28 @@ const MyPartyList = () => {
         </IonRow>
         </IonRadioGroup>    
         <IonSlides ref={slides} onIonSlideDidChange={e => handleSlideChange()}>                   
-          <IonSlide>      
-          {attendedParties.length === 0 ?
-          <IonText class="white-text">No attended parties yet..</IonText> :          
-          attendedParties.map(doc => {
-            return(
-              <Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>
-            )          
-          })}
+          <IonSlide>     
+          <IonContent> 
+            {attendedParties.length === 0 ?
+            <IonText class="white-text">No attended parties yet..</IonText> :          
+            attendedParties.map(doc => {
+              return(
+                <Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>
+              )          
+            })}
+          </IonContent>
           </IonSlide>
         :        
           <IonSlide>
-          {yourParties.length === 0 ?
-          <IonText class="white-text"> No hosted parties yet..</IonText> : 
-          yourParties.map(doc => {
-            return(
-            <Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>
-            )          
-          })}                    
+          <IonContent>
+            {yourParties.length === 0 ?
+            <IonText class="white-text"> No hosted parties yet..</IonText> : 
+            yourParties.map(doc => {
+              return(              
+                <Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>
+              )          
+            })}                    
+          </IonContent>
           </IonSlide>
         </IonSlides>   
         </IonContent>
