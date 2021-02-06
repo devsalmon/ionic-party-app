@@ -143,12 +143,10 @@ const CreateParty = ({editingParty, displayParties}) => {
                       var alreadyInIF = doc.data().inviteFrom.some(item => host_user_id === item);                    
                     }
                     if ((!alreadyInMI && !alreadyInIF) || !doc.data().myInvites) {
-                      var newInviteFrom = []
-                      newInviteFrom.push(host_user_id)
                       userDocument.update({
                         // add party id to user documents
                         myInvites: firebase.firestore.FieldValue.arrayUnion(editingParty.id),
-                        inviteFrom: newInviteFrom
+                        inviteFrom: firebase.firestore.FieldValue.arrayUnion(host_user_id)
                       }) 
                     }   
                   })
