@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Users from './components/users';
 import CreateParty from './components/createparty';
 import MapContainer from './components/mapcontainer';
@@ -26,6 +26,10 @@ import {
   IonTabBar,
   IonTabButton,
   IonTabs, 
+  IonSlides,
+  IonSlide,
+  IonRadio,
+  IonRadioGroup,
   IonItem,
   IonButton,
   IonPage,
@@ -43,6 +47,10 @@ import {
   IonToast,
   IonRippleEffect,
   IonLoading,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardContent
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { 
@@ -220,15 +228,13 @@ const PartyList = () => {
     //collectionRef.doc(current_user.uid).get().then(doc => {
     if (doc.exists && doc.data().request_from) {
       for (var i = 0; i < doc.data().request_from.length; i++) {
-        var curr_id = doc.data().request_from[i]
-          var alreadyInReq = reqs.some(item => curr_id === item.id);
-          if (alreadyInReq) { 
-            setNewNotifications(false)
-          console.log("something")
-          } else if (newNotifications == false){
-            setNewNotifications(true);
-            console.log("something")
-          }
+        var curr_id = doc.data().request_from[i].id
+        var alreadyInReq = reqs.some(item => curr_id === item.id);
+        if (alreadyInReq) { 
+          setNewNotifications(false)
+        } else if (newNotifications == false){
+          setNewNotifications(true);
+        }
       }; 
     }
   });
@@ -238,17 +244,13 @@ const PartyList = () => {
  .onSnapshot(function(doc) {
     if (doc.exists && doc.data().myInvites) {
       for (var j = 0; j < doc.data().myInvites.length; j++) {
-        var curr_id = doc.data().myInvites[j]
-          var alreadyInInv = partyreqs.some(item => curr_id === item.partyid);
-          console.log("AlreadyInInv: ", alreadyInInv)
-          console.log("partyreqs: ", partyreqs)
-          if (alreadyInInv) { 
-            setNewNotifications(false);
-            console.log("false")
-          } else if (newNotifications == false) {
-            setNewNotifications(true);
-            console.log("true")
-          }
+        var curr_id = doc.data().myInvites[j].partyid
+        var alreadyInInv = partyreqs.some(item => curr_id === item.partyid);
+        if (alreadyInInv) { 
+          setNewNotifications(false);
+        } else if (newNotifications == false) {
+          setNewNotifications(true);
+        }
       };
     }
   });  
@@ -272,29 +274,24 @@ const PartyList = () => {
       collectionRef.doc(current_user.uid).get().then(function(doc) {
         if (doc.exists && doc.data().request_from) {          
           for (var i = 0; i < doc.data().request_from.length; i++) {
-            var curr_id = doc.data().request_from[i]
-            //var alreadyInReq = reqs.some(item => curr_id === item.id);
-            // if the current id (i.e. request from) is already in the state, don't do anything 
-            // otherwise, add it to the state   
-            //if (!alreadyInReq) {
+            var curr_id = doc.data().request_from[i].id
             setReqs(reqs => [
               ...reqs, 
               {
                 id: curr_id, 
                 name: curr_id
               }
-            ]);  
-          //}                    
+            ]);            
           };
         }
       }).catch(function(error) {
           console.log("Error getting document:", error);
       });
       firebase.firestore().collection("users").doc(current_user.uid).get().then(function(doc) {  
-        if (doc.exists && doc.data().inviteFrom) {                  
-          for (var j = 0; j < doc.data().inviteFrom.length; j++) {
-            var hostid = doc.data().inviteFrom[j]
-            var partyid = doc.data().myInvites[j]
+        if (doc.exists && doc.data().myInvites) {                  
+          for (var j = 0; j < doc.data().myInvites.length; j++) {
+            var hostid = doc.data().myInvites[j].hostid
+            var partyid = doc.data().myInvites[j].partyid
             setPartyReqs(reqs => [
               ...reqs, 
               {
@@ -360,7 +357,7 @@ const PartyList = () => {
           if (data.acceptedInvites) { 
             for (var i=0; i < data.acceptedInvites.length; i++) {
               firebase.firestore().collection("users")
-                .doc(data.acceptedInvitesFrom[i]).collection("myParties").doc(data.acceptedInvites[i]).get().then(partydoc => {
+                .doc(data.acceptedInvites[i].hostid).collection("myParties").doc(data.acceptedInvites[i].partyid).get().then(partydoc => {
                   // if party is in the future and party isn't already in the state                   
                   var alreadyInUP = upcomingParties.some(item => partydoc.id === item.id);
                   var alreadyInLP = liveParties.some(item => partydoc.id === item.id);
@@ -507,12 +504,15 @@ const FriendRequest = ({id, click}) => {
           collectionRef.doc(current_user_id).onSnapshot((doc) => {
             collectionRef.doc(current_user_id).update({
               //...add friend's UID to array inside current users doc
-              friends: firebase.firestore.FieldValue.arrayUnion(friend_user_id)
+              friends: firebase.firestore.FieldValue.arrayUnion({id: friend_user_id, name: userName})
             })      
           });
         } else {
           // if array doesn't exist, create the array
-          collectionRef.doc(current_user_id).set({id: current_user_id, friends: [friend_user_id]}) // create the document
+          collectionRef.doc(current_user_id).set({
+            id: current_user_id,
+            friends: [{id: friend_user_id, name: userName}]
+          }) // create the document
         }
     })
         //console.log("Document written with ID: ", docRef.id);
@@ -523,23 +523,26 @@ const FriendRequest = ({id, click}) => {
           if (docSnapshot.exists) {
             collectionRef.doc(friend_user_id).onSnapshot((doc) => {
               collectionRef.doc(friend_user_id).update({
-                friends: firebase.firestore.FieldValue.arrayUnion(current_user_id)
+                friends: firebase.firestore.FieldValue.arrayUnion({id: current_user_id, name: firebase.auth().currentUser.displayName})
               })      
             });
           } else {
-            collectionRef.doc(friend_user_id).set({id: friend_user_id, friends: [current_user_id]}) // create the document
+            collectionRef.doc(friend_user_id).set({
+              id: friend_user_id, 
+              friends: [{id: current_user_id, name: firebase.auth().currentUser.displayName}]
+            }) // create the document
           }
       })        
           //if successful
           .then(function(docRef) {
             //HERE IS WHERE YOU SHOULD REMOVE REQUEST from friends_requests collection
             firebase.firestore().collection("friend_requests").doc(friend_user_id).update({
-              request_to: firebase.firestore.FieldValue.arrayRemove(current_user_id)
+              request_to: firebase.firestore.FieldValue.arrayRemove({id: current_user_id, name: firebase.auth().currentUser.displayName})
             })
                 // if requests_to item is removed successfully... then remove item from request_from array
                 .then(function(docRef) {
                 firebase.firestore().collection("friend_requests").doc(current_user_id).update({
-                  request_from: firebase.firestore.FieldValue.arrayRemove(friend_user_id)                
+                  request_from: firebase.firestore.FieldValue.arrayRemove({id: friend_user_id, name: userName})                
                   //removes text display 
                 }).then(() => click());                          
                 }).catch(function(error) {
@@ -568,11 +571,17 @@ const FriendRequest = ({id, click}) => {
 const PartyRequest = ({hostid, partyid, click}) => {
   // notification item
   const [userName, setUserName] = useState(''); // name of person who requested
+  const [date, setDate] = useState(''); // date of party you've been invited to
+  const [time, setTime] = useState(''); // time of party you've been invited to
 
-  const userRef = firebase.firestore().collection("users").doc(hostid); // get document of person who requested
-  userRef.get().then(function(doc) {
+  // get party document of the person who requested
+  const userRef = firebase.firestore().collection("users").doc(hostid); 
+  userRef.collection("myParties").doc(partyid).get().then(function(doc) {
     if (doc.exists) { 
-      setUserName(doc.data().username) // set name to the name in that document
+      setUserName(doc.data().host) // set name to the host name in that document
+      setDate(doc.data().date)
+      var time = moment(doc.data().dateTime).format('LT')
+      setTime(time)
     } 
   }).catch(function(error) {
     console.log(error);
@@ -584,26 +593,35 @@ const PartyRequest = ({hostid, partyid, click}) => {
   // If this is successful then remove eachother from requests.
   const acceptInvite = async() => {
     var current_user_id = firebase.auth().currentUser.uid
-    // remove party from myinvites so the notification disappears
+    // remove party from myinvites so the notification disappears, add to accepted invites
     firebase.firestore().collection("users").doc(current_user_id).update({
-        myInvites: firebase.firestore.FieldValue.arrayRemove(partyid),
-        inviteFrom: firebase.firestore.FieldValue.arrayRemove(hostid),
-        acceptedInvites: firebase.firestore.FieldValue.arrayUnion(partyid),
-        acceptedInvitesFrom: firebase.firestore.FieldValue.arrayUnion(hostid)
+        myInvites: firebase.firestore.FieldValue.arrayRemove({hostid, partyid}),
+        acceptedInvites: firebase.firestore.FieldValue.arrayUnion({hostid: hostid, partyid: partyid}),
+      }).then(() => click());
+  }
+
+  const declineInvite = async() => {
+    var current_user_id = firebase.auth().currentUser.uid
+    // remove party from myinvites so the notification disappears, add to declined invites
+    firebase.firestore().collection("users").doc(current_user_id).update({
+        myInvites: firebase.firestore.FieldValue.arrayRemove({hostid, partyid}),
+        declinedInvites: firebase.firestore.FieldValue.arrayUnion({hostid: hostid, partyid: partyid}),
       }).then(() => click());
   }
 
   return(
-    <IonItem>
-      <IonRow>
-        <IonCol size="9">
-          <IonText>{userName} has invited you</IonText>
-        </IonCol>
-        <IonCol size="3">
-          <IonButton color="danger" onClick={() => acceptInvite()}>Accept</IonButton>
-        </IonCol>
-      </IonRow>
-    </IonItem>
+    <IonCard>
+      <IonCardHeader>
+        <IonCardTitle>
+          <IonText>{userName} has invited you to a party!</IonText>
+        </IonCardTitle>
+      </IonCardHeader>
+      <IonCardContent>
+        <IonText class="white-text">Starts at {time} on {date}</IonText><br/>        
+        <IonButton color="danger" onClick={() => acceptInvite()}>Accept</IonButton>
+        <IonButton color="danger" onClick={() => declineInvite()}>Decline</IonButton>        
+      </IonCardContent>                        
+    </IonCard>
   )
 }
 
@@ -629,7 +647,8 @@ const Home: React.FC = () => {
         </IonButtons>
         <IonTitle>Upcoming <br/> parties</IonTitle>
         <IonButtons slot="end">   
-          <IonButton>             
+          <IonButton>   
+            <IonIcon src="assets/icon/People.svg" />         
           </IonButton>         
         </IonButtons>                        
       </IonToolbar>
@@ -640,8 +659,8 @@ const Home: React.FC = () => {
 }
 const SignedInRoutes: React.FC = () => {
 
-  return(
-    <IonReactRouter>  
+  return(  
+    <IonReactRouter>
       <IonTabs>
         <IonRouterOutlet>    
           <Route path='/googlemap' component={MapContainer} />   

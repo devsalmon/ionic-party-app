@@ -242,7 +242,7 @@ const MyPartyList = () => {
           if (data.acceptedInvites) {
             for (var i=0; i < data.acceptedInvites.length; i++) {
               firebase.firestore().collection("users")
-                .doc(data.acceptedInvitesFrom[i]).collection("myParties").doc(data.acceptedInvites[i]).get().then(partydoc => {
+                .doc(data.acceptedInvites[i].hostid).collection("myParties").doc(data.acceptedInvites[i].partyid).get().then(partydoc => {
                   // if party is in the future and party isn't already in the state 
                   var alreadyInAP = attendedParties.some(item => partydoc.id === item.id);
                   if (moment(today).isAfter(partydoc.data().endTime) && !alreadyInAP) {
@@ -432,7 +432,7 @@ const MyPartyList = () => {
             })}
           </IonContent>
           </IonSlide>
-        :        
+                
           <IonSlide>
           <IonContent>
             {yourParties.length === 0 ?

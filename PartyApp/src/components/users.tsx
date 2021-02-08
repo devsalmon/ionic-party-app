@@ -83,19 +83,23 @@ const UserItem = ({hit, username, id}) => {
     var sender_user_id = firebase.auth().currentUser.uid;    
     friendRequestsRef.doc(sender_user_id).get() // check the current user hasn't already send a request
       .then((docSnapshot) => {
-        if (docSnapshot.exists && docSnapshot.data().request_to) {
-          if (docSnapshot.data().request_to.includes(receiver_user_id)) {
+        var data = docSnapshot.data()
+        if (docSnapshot.exists && data.request_to) {
+          var alreadyRequested = data.request_to.some(item => receiver_user_id === item.id);
+          if (alreadyRequested) {
             // if user has already sent request to the user, disable add button 
             setRequestAlreadySent(true);
             setAddDisabled(true);
             setCancelDisabled(false);
           } else {
-            setRequestAlreadySent(false);
+            setRequestAlreadySent(false);            
             // check if the users are already friends, and if so, disable add button
             friendsRef.doc(sender_user_id).get()
               .then(docSnapshot => {
-                if (docSnapshot.exists && docSnapshot.data().friends) {
-                  if (docSnapshot.data().friends.includes(receiver_user_id)) {
+                var data = docSnapshot.data()                
+                if (docSnapshot.exists && data.friends) {
+                  var alreadyFriends = data.friends.some(item => receiver_user_id === item.id);
+                  if (alreadyFriends) {
                     setAlreadyFriends(true);
                     setAddDisabled(true); 
                     setCancelDisabled(false);            
@@ -112,8 +116,8 @@ const UserItem = ({hit, username, id}) => {
 
   })
 
-  const requestFriend = (username, objectID) => {
-    var receiver_user_id = objectID
+  const requestFriend = () => {
+    var receiver_user_id = id
     var sender_user_id = firebase.auth().currentUser.uid
         
     //create doc with sender's id if it doesn't already exist and adds receiver's id to field.
@@ -121,22 +125,29 @@ const UserItem = ({hit, username, id}) => {
       .then((docSnapshot) => {
         if (docSnapshot.exists) {
           friendRequestsRef.doc(sender_user_id).update({
-            request_to: firebase.firestore.FieldValue.arrayUnion(receiver_user_id)
+            request_to: firebase.firestore.FieldValue.arrayUnion({id: receiver_user_id, name: username})
           })                       
         } else {
-          friendRequestsRef.doc(sender_user_id).set({id: sender_user_id, request_to: [receiver_user_id]}) // create the document
+          friendRequestsRef.doc(sender_user_id).set({
+            id: sender_user_id, 
+            request_to: [{id: receiver_user_id, name: username}]
+          }) // create the document
         }
     })
         //if successful, create doc w receiver's id and add sender's id to collection      
       .then(function(docRef) {
       friendRequestsRef.doc(receiver_user_id).get()
         .then((docSnapshot) => {
+          var currentUserName= firebase.auth().currentUser.displayName
           if (docSnapshot.exists) {
             friendRequestsRef.doc(receiver_user_id).update({
-              request_from: firebase.firestore.FieldValue.arrayUnion(sender_user_id)
+              request_from: firebase.firestore.FieldValue.arrayUnion({id: sender_user_id, name: currentUserName})
             })    
           } else {
-            friendRequestsRef.doc(receiver_user_id).set({id: receiver_user_id, request_from: [sender_user_id]}) // create the document
+            friendRequestsRef.doc(receiver_user_id).set({
+              id: receiver_user_id, 
+              request_from: [{id: sender_user_id, name: currentUserName}]
+            }) // create the document
           }
       })        
           .then(function(docRef) {
@@ -153,14 +164,14 @@ const UserItem = ({hit, username, id}) => {
     });
   }
 
-  const removeRequest = (username, objectID) => {
-    var receiver_user_id = objectID
+  const removeRequest = () => {
+    var receiver_user_id = id
     var sender_user_id = firebase.auth().currentUser.uid
     //create doc with sender's id if it doesn't already exist and adds receiver's id to field.
     friendRequestsRef.doc(sender_user_id).get()
       .then((docSnapshot) => {
         friendRequestsRef.doc(sender_user_id).update({
-          request_to: firebase.firestore.FieldValue.arrayRemove(receiver_user_id)
+          request_to: firebase.firestore.FieldValue.arrayRemove({id: receiver_user_id, name: username})
         })       
     })
         //if successful, create doc w receiver's id and add sender's id to collection      
@@ -168,7 +179,7 @@ const UserItem = ({hit, username, id}) => {
       friendRequestsRef.doc(receiver_user_id).get()
         .then((docSnapshot) => {
           friendRequestsRef.doc(receiver_user_id).update({
-            request_from: firebase.firestore.FieldValue.arrayRemove(sender_user_id)
+            request_from: firebase.firestore.FieldValue.arrayRemove({id: sender_user_id, name: firebase.auth().currentUser.displayName})
           })    
       })        
           .then(function(docRef) {
@@ -185,14 +196,14 @@ const UserItem = ({hit, username, id}) => {
     });
   }
 
-  const removeFriend = (username, objectID) => {
-    var receiver_user_id = objectID
+  const removeFriend = () => {
+    var receiver_user_id = id
     var sender_user_id = firebase.auth().currentUser.uid
     //create doc with sender's id if it doesn't already exist and adds receiver's id to field.
     friendsRef.doc(sender_user_id).get()
       .then((docSnapshot) => {
         friendsRef.doc(sender_user_id).update({
-          friends: firebase.firestore.FieldValue.arrayRemove(receiver_user_id)
+          friends: firebase.firestore.FieldValue.arrayRemove({id: receiver_user_id, name: username})
         })       
     })
         //if successful, create doc w receiver's id and add sender's id to collection      
@@ -200,7 +211,7 @@ const UserItem = ({hit, username, id}) => {
       friendsRef.doc(receiver_user_id).get()
         .then((docSnapshot) => {
           friendsRef.doc(receiver_user_id).update({
-            friends: firebase.firestore.FieldValue.arrayRemove(sender_user_id)
+            friends: firebase.firestore.FieldValue.arrayRemove({id: sender_user_id, name: firebase.auth().currentUser.displayName})
           })    
       })        
           .then(function(docRef) {
@@ -235,13 +246,13 @@ const UserItem = ({hit, username, id}) => {
         <IonButton 
         class="profile-button" 
         disabled={addDisabled} 
-        onClick={() => requestFriend(username, id)}>
+        onClick={() => requestFriend()}>
           <IonIcon slot="icon-only" src="assets/icon/Create.svg" />
         </IonButton>
         <IonButton 
         class="profile-button" 
         disabled={cancelDisabled} 
-        onClick={alreadyFriends ? () => removeFriend(username, id) : () => removeRequest(username, id)}>
+        onClick={alreadyFriends ? () => removeFriend() : () => removeRequest()}>
           <IonIcon icon={closeCircleSharp} />
         </IonButton> 
       </IonCol>

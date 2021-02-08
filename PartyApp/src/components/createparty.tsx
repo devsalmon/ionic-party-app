@@ -53,15 +53,40 @@ import algoliasearch from 'algoliasearch/lite';
 
 const CreateParty = ({editingParty, displayParties}) => {
 
-    var currentuser = firebase.auth().currentUser;  
+    var currentuser = firebase.auth().currentUser; 
+    const friendsCollection = firebase.firestore().collection('friends'); 
+    const usersCollection = firebase.firestore().collection('users');
 
     useEffect(() => {
-      firebase.firestore().collection("friends").doc(currentuser.uid).get().then(doc => {     
-        if (doc.exists && doc.data().friends) {
-          setFriends(doc.data().friends); // set state to have all current user's friends
-        }
-      })
+      findFriends()
     }, [])
+  
+  const findFriends = () => {
+    var tempFriends = []; // list for friend id's
+    // loop through friends list in the document of current user in friends collection    
+    // and add all the id's into tempFriends
+    friendsCollection.doc(currentuser.uid).get().then(doc => {
+      if (doc.exists) {
+        let data = doc.data().friends && doc.data().friends;
+        data && data.map(friend => {
+            tempFriends.push(friend)
+        })
+        // loop through tempFriends and get all user documents of those id's, and add to friends array
+        tempFriends && tempFriends.map(friend => {
+            usersCollection.doc(friend).get().then(doc => {
+                let data = doc.data();
+                data && setFriends(friends => [
+                    ...friends, 
+                    {
+                        name: data.username,
+                        id: doc.id
+                    }
+                ]);  
+            });
+        })  
+      }              
+    })
+  }    
 
     var history = useHistory();
 
@@ -145,8 +170,7 @@ const CreateParty = ({editingParty, displayParties}) => {
                     if ((!alreadyInMI && !alreadyInIF) || !doc.data().myInvites) {
                       userDocument.update({
                         // add party id to user documents
-                        myInvites: firebase.firestore.FieldValue.arrayUnion(editingParty.id),
-                        inviteFrom: firebase.firestore.FieldValue.arrayUnion(host_user_id)
+                        myInvites: firebase.firestore.FieldValue.arrayUnion({hostid: host_user_id, partyid: editingParty.id}),                      
                       }) 
                     }   
                   })
@@ -189,8 +213,7 @@ const CreateParty = ({editingParty, displayParties}) => {
                   invitedPeople && invitedPeople.map(person => {
                     firebase.firestore().collection("users").doc(person.id).update({
                       // add party id to user documents
-                      myInvites: firebase.firestore.FieldValue.arrayUnion(docRef.id),
-                      inviteFrom: firebase.firestore.FieldValue.arrayUnion(host_user_id)
+                      myInvites: firebase.firestore.FieldValue.arrayUnion({hostid: host_user_id, partyid: docRef.id}),                      
                     })                
                     .catch(function(error) {
                       console.error("error adding party id to user document", error);
@@ -238,10 +261,8 @@ const CreateParty = ({editingParty, displayParties}) => {
       // remove invites for all invited people
       await invitedPeople && invitedPeople.map(person => {
         firebase.firestore().collection("users").doc(person.id).update({         
-          myInvites: firebase.firestore.FieldValue.arrayRemove(editingParty.id),
-          inviteFrom: firebase.firestore.FieldValue.arrayRemove(currentuser.uid),
-          acceptedInvitesFrom: firebase.firestore.FieldValue.arrayRemove(currentuser.uid),
-          acceptedInvites: firebase.firestore.FieldValue.arrayRemove(editingParty.id)
+          myInvites: firebase.firestore.FieldValue.arrayRemove({hostid: currentuser.uid, partyid: editingParty.id}),
+          acceptedInvites: firebase.firestore.FieldValue.arrayRemove({hostid: currentuser.uid, partyid: editingParty.id})
         })
       })
       // delete party document from firebase
@@ -326,24 +347,39 @@ const CreateParty = ({editingParty, displayParties}) => {
         <IonContent class="create-content ion-padding">
           {query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map(hit => (
             hit.objectID === currentuser.uid || !friends.includes(hit.objectID) ? null :
-              <IonRow key={hit.objectID}>
-                <IonCol size="9">
-                  <IonItem button class="create-input">    
-                    <IonCol size="4">
-                      <IonAvatar>
-                        <img src={hit.photoURL ? hit.photoURL : "https://img.favpng.com/18/24/16/user-silhouette-png-favpng-4mEnHSRfJZD8p9eEBiRpA9GeS.jpg"} />
-                      </IonAvatar>  
-                    </IonCol>
-                    <IonCol offset="1" size="7">
-                      <IonText>{hit.username}</IonText>   
-                    </IonCol>
-                  </IonItem>
-                </IonCol>                            
-                <IonCol size="3">
-                  <IonButton color="dark" onClick={() => addInvite(hit.objectID, hit.username)}>Invite</IonButton>
-                </IonCol>
+            <IonItem button class="create-input"> 
+              <IonRow key={hit.objectID}>                   
+                  <IonCol size="4">
+                    <IonAvatar>
+                      <img src={hit.photoURL ? hit.photoURL : "https://mackley.co.uk/wp-content/uploads/2020/11/cropped-mackley-logo-icon-M.jpg"} />
+                    </IonAvatar>  
+                  </IonCol>
+                  <IonCol offset="2" size="6">
+                    <IonText>{hit.username}</IonText>   
+                  </IonCol>                            
+                  <IonCol size="2">
+                    <IonButton color="danger" onClick={() => addInvite(hit.objectID, hit.username)}>Invite</IonButton>
+                  </IonCol>
               </IonRow>
-          ))}<br/>          
+            </IonItem>            
+          ))}<br/>    
+          {query ? friends.map(friend => ( // show all friends below the searched items
+            <IonItem button class="create-input"> 
+              <IonRow key={friend.id}>                   
+                  <IonCol size="3">
+                    <IonAvatar>
+                      <img src={friend.photoURL ? friend.photoURL : "https://mackley.co.uk/wp-content/uploads/2020/11/cropped-mackley-logo-icon-M.jpg"} />
+                    </IonAvatar>  
+                  </IonCol>
+                  <IonCol offset="1" size="6">
+                    <IonText>{friend.name}</IonText>   
+                  </IonCol>                            
+                  <IonCol size="2">
+                    <IonButton color="danger" onClick={() => addInvite(friend.id, friend.id)}>Invite</IonButton>
+                  </IonCol>
+              </IonRow>
+            </IonItem>              
+          )) : null}      
           <IonItem class="create-card">
             <IonText>People invited: </IonText>
           </IonItem>
@@ -354,7 +390,7 @@ const CreateParty = ({editingParty, displayParties}) => {
                 <IonButton slot="end" color="warning" onClick={() => removeInvite(person.id)}>Remove</IonButton>
               </IonItem>
             )
-          })}                    
+          })}<br/>                    
         </IonContent>
         <IonFooter>
           <IonButton class="custom-button" onClick={e => setShowPeopleSearch(false)}>Add People</IonButton>

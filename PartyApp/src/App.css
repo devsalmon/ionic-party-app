@@ -226,32 +226,24 @@ ion-buttons {
 } 
 
 ion-card {
-    --background: yellow;
-    border: 2px solid yellow;
+    border: 2px solid red;
+    border-radius: 10px;
 }
 
 ion-card-header {
     font-size: 15px;
     font-weight: bold;
     color: yellow;
+    text-align: center
 }
 
-ion-card-subtitle {
-    color: black;
-    padding-left: 10px;
-    padding-top: 0px;
-    font-weight: bold    
-}
-
-ion-card-title {
-    color: black;
-    font-weight: bold;
-    padding-left: 10px;
-    padding-bottom: 10px
+ion-card-content {
+    text-align: center
 }
 
 ion-content {
     --background: transparent;
+    
 }
 
 ion-footer {
