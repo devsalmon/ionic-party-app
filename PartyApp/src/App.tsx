@@ -60,6 +60,8 @@ import {
   chevronDownCircleOutline,
   cloudUploadSharp,
   chevronBackSharp,  
+  thumbsUpOutline,
+  thumbsDownOutline
 } from 'ionicons/icons';
 import {useCamera} from '@ionic/react-hooks/camera';
 import {CameraResultType, CameraSource, Plugins} from '@capacitor/core';
@@ -560,11 +562,51 @@ const FriendRequest = ({id, click}) => {
     });
   }
 
+  const declineFriend = (friendsID) => {
+    const collectionRef = firebase.firestore().collection("friend_requests"); 
+    var friend_user_id = friendsID
+    var current_user_id = firebase.auth().currentUser.uid
+    //REMOVE REQUEST from friends_requests collection
+    collectionRef.doc(friend_user_id).update({
+      request_to: firebase.firestore.FieldValue.arrayRemove({id: current_user_id, name: firebase.auth().currentUser.displayName})
+    })
+      // if requests_to item is removed successfully... then remove item from request_from array
+      .then(function(docRef) {
+      collectionRef.doc(current_user_id).update({
+        request_from: firebase.firestore.FieldValue.arrayRemove({id: friend_user_id, name: userName})                
+        //removes text display 
+      }).then(() => click());                          
+      }).catch(function(error) {
+        console.error("Error deleting id from requests_from: ", error);
+      });
+  }
+
+
   return(
-    <IonItem button>
-      <IonText>{userName} wants to be friends</IonText>
-      <IonButton onClick={() => acceptFriend(id)}>Accept</IonButton>
-    </IonItem>
+    <IonCard>
+      <IonCardHeader>
+        <IonCardTitle>
+          <IonText>{userName} wants to be friends</IonText>
+        </IonCardTitle>
+      </IonCardHeader>
+      <IonCardContent>
+      <IonButton onClick={() => acceptFriend(id)}>
+        <IonIcon size="large" icon={thumbsUpOutline} />
+      </IonButton>
+      <IonButton onClick={() => declineFriend(id)}>
+        <IonIcon size="large" icon={thumbsDownOutline} />
+      </IonButton>        
+      </IonCardContent>                        
+    </IonCard>    
+    // <IonItem button>
+    //   <IonText>{userName} wants to be friends</IonText><br/>
+    //   <IonButton onClick={() => acceptFriend(id)}>
+    //     <IonIcon icon={thumbsUpOutline} />
+    //   </IonButton>
+    //   <IonButton onClick={() => declineFriend(id)}>
+    //     <IonIcon icon={thumbsDownOutline} />
+    //   </IonButton>      
+    // </IonItem>
   )
 }
 
@@ -640,17 +682,12 @@ const Home: React.FC = () => {
   return(
     <IonPage>
       <IonToolbar>
-        <IonButtons slot="start">
+        <IonTitle class="ion-padding-bottom">Upcoming parties</IonTitle>
+        <IonButtons slot="end">
           <IonButton class="top-icons" href='/users'>
             <IonIcon slot="icon-only" icon={personAddSharp} />
           </IonButton>       
-        </IonButtons>
-        <IonTitle>Upcoming <br/> parties</IonTitle>
-        <IonButtons slot="end">   
-          <IonButton>   
-            <IonIcon src="assets/icon/People.svg" />         
-          </IonButton>         
-        </IonButtons>                        
+        </IonButtons>                     
       </IonToolbar>
       <PartyList/>
       <br/> <br/> <br/> <br/> <br/> <br/>

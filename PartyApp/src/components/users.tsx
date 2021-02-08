@@ -10,11 +10,12 @@ import {
   IonRow,
   IonCol,
   IonText,
-  IonAvatar,
   IonImg,
 } from '@ionic/react';
 import { 
-  closeCircleSharp
+  personOutline,
+  personAddOutline,
+  personRemoveOutline
 } from 'ionicons/icons';
 import '../App.css'
 import firebase from '../firestore'
@@ -233,9 +234,7 @@ const UserItem = ({hit, username, id}) => {
       <IonCol size="9">
       <IonItem button key={id}>    
         <IonCol size="4">
-          <IonAvatar>
-            <img src={hit.photoUrl ? hit.photoUrl : "https://img.favpng.com/18/24/16/user-silhouette-png-favpng-4mEnHSRfJZD8p9eEBiRpA9GeS.jpg"} />
-          </IonAvatar>  
+          <IonIcon icon={personOutline} className="profile-icon" />
         </IonCol>
         <IonCol offset="1" size="7">
           <IonText>{username}</IonText>   
@@ -244,16 +243,14 @@ const UserItem = ({hit, username, id}) => {
       </IonCol>
       <IonCol>
         <IonButton 
-        class="profile-button" 
         disabled={addDisabled} 
         onClick={() => requestFriend()}>
-          <IonIcon slot="icon-only" src="assets/icon/Create.svg" />
+          <IonIcon slot="icon-only" icon={personAddOutline} />
         </IonButton>
         <IonButton 
-        class="profile-button" 
         disabled={cancelDisabled} 
         onClick={alreadyFriends ? () => removeFriend() : () => removeRequest()}>
-          <IonIcon icon={closeCircleSharp} />
+          <IonIcon slot="icon-only" icon={personRemoveOutline} />
         </IonButton> 
       </IonCol>
     </IonRow>

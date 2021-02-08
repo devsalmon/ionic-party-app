@@ -82,7 +82,6 @@ const SignIn: React.FC = () => {
         username: username,
         email: email,      
         id: result.user.uid ,
-        photoUrl: ""      
         //mobileNumber: mobileNumber ? mobileNumber : null              
       })    
     })
@@ -158,35 +157,35 @@ const SignIn: React.FC = () => {
     }
 
     // Signs-in Messaging with GOOGLE POP UP
-  const SignInGooglepu = async() => {
-    // Initiate Firebase Auth.
-    // Sign into Firebase using popup auth & Google as the identity provider.
-    setGoogleError(''); // clear errors
-    var provider = new firebase.auth.GoogleAuthProvider();
-    //Sign in with pop up
-    firebase.auth().signInWithPopup(provider).then(function (result) {
-      // This gives you a Google Access Token. You can use it to access the Google API.
-      //var token = result.credential.accessToken;
-      // The signed-in user info.
-      var user = result.user;
-      const isNewUser = result.additionalUserInfo.isNewUser
-      if (isNewUser) {
-        firebase.firestore().collection('users').doc(user.uid).set({
-          name: user.displayName,
-          photoUrl: user.photoURL
-        })       
-      }
-    }).catch(function (error) {
-      // Handle Errors here.
-      setGoogleError(error.message);
-    });
-    // Get the signed-in user's profile pic and name.
-    //var profilePicUrl = getProfilePicUrl();
-    //var userName = getUserName();
-    // Set the user's profile pic and name.
-    //document.getElementById('user-pic').style.backgroundImage = 'url(' + addSizeToGoogleProfilePic(profilePicUrl) + ')';
-    //document.getElementById('user-name').textContent = userName;
-  }
+  // const SignInGooglepu = async() => {
+  //   // Initiate Firebase Auth.
+  //   // Sign into Firebase using popup auth & Google as the identity provider.
+  //   setGoogleError(''); // clear errors
+  //   var provider = new firebase.auth.GoogleAuthProvider();
+  //   //Sign in with pop up
+  //   firebase.auth().signInWithPopup(provider).then(function (result) {
+  //     // This gives you a Google Access Token. You can use it to access the Google API.
+  //     //var token = result.credential.accessToken;
+  //     // The signed-in user info.
+  //     var user = result.user;
+  //     const isNewUser = result.additionalUserInfo.isNewUser
+  //     if (isNewUser) {
+  //       firebase.firestore().collection('users').doc(user.uid).set({
+  //         name: user.displayName,
+  //         photoUrl: user.photoURL
+  //       })       
+  //     }
+  //   }).catch(function (error) {
+  //     // Handle Errors here.
+  //     setGoogleError(error.message);
+  //   });
+  //   // Get the signed-in user's profile pic and name.
+  //   //var profilePicUrl = getProfilePicUrl();
+  //   //var userName = getUserName();
+  //   // Set the user's profile pic and name.
+  //   //document.getElementById('user-pic').style.backgroundImage = 'url(' + addSizeToGoogleProfilePic(profilePicUrl) + ')';
+  //   //document.getElementById('user-name').textContent = userName;
+  // }
 
   return (
     <IonPage>
@@ -194,7 +193,7 @@ const SignIn: React.FC = () => {
         <IonTitle size="large">Sign in</IonTitle>
       </IonToolbar>
       <IonContent>   
-        <IonText>(logo here)</IonText><br/><br/>      
+        <IonTitle>MOTIV</IonTitle><br/><br/>      
         <IonInput 
         class="create-input"
         value={email} 
@@ -249,8 +248,6 @@ const SignIn: React.FC = () => {
           {linkSent ? (
             <IonText class="errormsg">A verification link has been sent to your email, please click it to finish signing up</IonText>
           ) : (null)}       
-        <IonButton class="create-button" onClick={() => SignInGooglepu()}>Sign in with google</IonButton>  
-        <IonText class="errormsg">{googleError}</IonText>
       </IonContent>
     </IonPage>
   )

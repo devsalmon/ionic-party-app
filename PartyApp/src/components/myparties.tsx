@@ -40,7 +40,8 @@ import Memory from './memory';
 
 import { 
   chevronBackSharp,
-  settingsSharp
+  settingsSharp,
+  personOutline
 } from 'ionicons/icons';
 import '../App.css'
 /* Core CSS required for Ionic components to work properly */
@@ -83,8 +84,6 @@ const MyPartyList = () => {
   const [photoPopover, setPhotoPopover] = useState(false); 
   const [showPhotoSaved, setShowPhotoSaved] = useState(false);
   const [showPhotoDeleted, setShowPhotoDeleted] = useState(false);
-  const [currentPhoto, setCurrentPhoto] = useState('');
-
 
   const [friends, setFriends] = useState([]);
   const [newFriends, setNewFriends] = useState(false);  
@@ -93,10 +92,9 @@ const MyPartyList = () => {
 
 
   useEffect(() => {  
-    firebase.firestore().collection("users").doc(user.uid).get().then(doc => {
-      if (doc.data().photoUrl) {
-        setCurrentPhoto(doc.data().photoUrl)
-      }
+    firebase.storage().ref('users/' + currentuser + '/profile.jpg').getDownloadURL().then(url => {
+      setProfilePhoto(url)
+      console.log("url = ", url)
     })
     findFriends();  
     // useeffect hook only runs after first render so it only runs once
@@ -127,7 +125,7 @@ const MyPartyList = () => {
           })
           // loop through tempFriends and get all user documents of those id's, and add to friends array
           tempFriends && tempFriends.map(friend => {
-              usersCollection.doc(friend).get().then(doc => {
+              usersCollection.doc(friend.id).get().then(doc => {
                   let data = doc.data();
                   data && setFriends(friends => [
                       ...friends, 
@@ -279,44 +277,45 @@ const MyPartyList = () => {
     }
   }
 
-  const { Camera } = Plugins;
-  const updatePhoto = async() => {
-    const cameraPhoto = await Camera.getPhoto({
-      resultType: CameraResultType.Uri,
-      source: CameraSource.Prompt,
-      quality: 100,
-      saveToGallery: true,
-      allowEditing: true
-    });
-    var photo = cameraPhoto.webPath;
-    setProfilePhoto(photo);        
-  }
+  // const { Camera } = Plugins;
+  // const updatePhoto = async() => {
+  //   const cameraPhoto = await Camera.getPhoto({
+  //     resultType: CameraResultType.Uri,
+  //     source: CameraSource.Prompt,
+  //     quality: 100,
+  //     allowEditing: true
+  //   });
+  //   var photo = cameraPhoto.webPath;
+  //   setProfilePhoto(photo);        
+  // }
 
-  const saveNewPhoto = async() =>{
-    firebase.firestore().collection("users").doc(user.uid).update({
-      photoUrl: profilePhoto
-    })    
-    await user.updateProfile({
-      photoURL: profilePhoto
-    }).then(function() {
-      setShowPhotoSaved(true)
-    }).catch(function(error) {
-      console.log(error.message)
-    });  
-  }
+  // const saveNewPhoto = async() => {
+  //   firebase.storage().ref('users/' + currentuser + '/profile.jpg').putString(profilePhoto).then(function() {
+  //     setShowPhotoSaved(true)
+  //     setProfilePhoto(profilePhoto);
+  //   }).catch(function(error) {
+  //     console.log(error.message)
+  //   });  
+  //   await user.updateProfile({
+  //     photoURL: profilePhoto
+  //   }).then(function() {
+  //     console.log("photo saved to auth profile")
+  //   }).catch(function(error) {
+  //     console.log(error.message)
+  //   });  
+  // }
 
-  const deletePhoto = async() => {
-    firebase.firestore().collection("users").doc(user.uid).update({
-      photoUrl: ''
-    })
-    await user.updateProfile({
-      photoURL: ''
-    }).then(function() {
-      setShowPhotoDeleted(true)
-    }).catch(function(error) {
-      console.log(error.message)
-    });     
-  }
+  // const deletePhoto = async() => {
+  //   firebase.storage().ref('users/' + currentuser + '/profile.jpg').delete().then(() => {
+  //     setShowPhotoDeleted(true);
+  //   })
+  //   await user.updateProfile({
+  //     photoURL: ''
+  //   }).then(function() {
+  //   }).catch(function(error) {
+  //     console.log(error.message)
+  //   });     
+  // }
 
   const exitGallery = () => {
     setInGallery(false)    
@@ -357,9 +356,9 @@ const MyPartyList = () => {
               <IonButton onClick={() => setUsernamePopover(true)}>
                 Change username              
               </IonButton> <br/>
-              <IonButton onClick={() => setPhotoPopover(true)}>
+              {/* <IonButton onClick={() => setPhotoPopover(true)}>
                 Change photo             
-              </IonButton> <br/>              
+              </IonButton> <br/>               */}
               <IonButton onClick={() => setPasswordPopover(true)}>
                 Change password              
               </IonButton><br/>
@@ -386,9 +385,7 @@ const MyPartyList = () => {
             <IonGrid>
               <IonRow>
                 <IonCol size="3">
-                  <IonAvatar>
-                    <img src={currentPhoto ? currentPhoto : "https://img.favpng.com/18/24/16/user-silhouette-png-favpng-4mEnHSRfJZD8p9eEBiRpA9GeS.jpg"} />
-                  </IonAvatar>                   
+                  <IonIcon className="profile-icon" icon={personOutline}/>                   
                 </IonCol>
                 <IonCol size="6"> 
                   <IonText>{user.displayName}</IonText><br/>
@@ -459,7 +456,7 @@ const MyPartyList = () => {
           </IonInput>
           <IonButton onClick={() => updateUsername()}>Done</IonButton>             
         </IonPopover>
-        <IonPopover
+        {/* <IonPopover
           cssClass="popover"        
           isOpen={photoPopover}
           onDidDismiss={() => setPhotoPopover(false)}
@@ -468,7 +465,7 @@ const MyPartyList = () => {
         {profilePhoto ? <IonImg src={profilePhoto}></IonImg> : null}   
         {profilePhoto ? <IonButton class="custom-button" onClick={()=>saveNewPhoto()}>Save New Photo</IonButton> : null}
         <IonButton onClick={() => deletePhoto()}>Delete Profile Photo</IonButton>                     
-        </IonPopover>        
+        </IonPopover>         */}
         <IonPopover
           cssClass="popover"        
           isOpen={passwordPopover}

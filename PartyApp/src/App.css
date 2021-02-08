@@ -37,11 +37,10 @@
 }
 
 .create-card {
-    --color: black;
+    --highlight-height: 0;    
     --background: black;
     --border-color: red;
-    --border-color: red;
-    --border-width: 1px;    
+    --border-width: 2px;
 }
 
 .create-content {
@@ -139,6 +138,10 @@
     height: 30px;     
 }
 
+.profile-icon {
+    font-size: 55px;
+}
+
 .profile-item {
     --background: transparent;
     --background-hover-opacity: 0.3;
@@ -227,7 +230,7 @@ ion-buttons {
 
 ion-card {
     border: 2px solid red;
-    border-radius: 10px;
+    border-radius: 10px;    
 }
 
 ion-card-header {
@@ -238,12 +241,22 @@ ion-card-header {
 }
 
 ion-card-content {
-    text-align: center
+    text-align: center;
+}
+
+ion-card-title {
+    color: yellow;
+    font-weight: bold;
+    font-size: 40px
+}
+
+ion-card-subtitle {
+    color: yellow;
+    font-size: 20px;
 }
 
 ion-content {
     --background: transparent;
-    
 }
 
 ion-footer {

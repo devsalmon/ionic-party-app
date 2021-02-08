@@ -10,12 +10,12 @@ import {
   IonButtons,
   IonBackButton,
   IonCol,
+  IonGrid,
   IonRow,
   IonHeader, 
   IonContent, 
   IonToolbar, 
   IonTitle,
-  IonAvatar,
   IonSearchbar,
   IonPopover,
   IonInput,
@@ -30,6 +30,9 @@ import {
 } from '@ionic/react';
 import { 
   chevronBackSharp,  
+  personOutline,
+  addOutline,
+  removeOutline
 } from 'ionicons/icons';
 import '../App.css'
 import firebase from '../firestore'
@@ -73,7 +76,7 @@ const CreateParty = ({editingParty, displayParties}) => {
         })
         // loop through tempFriends and get all user documents of those id's, and add to friends array
         tempFriends && tempFriends.map(friend => {
-            usersCollection.doc(friend).get().then(doc => {
+            usersCollection.doc(friend.id).get().then(doc => {
                 let data = doc.data();
                 data && setFriends(friends => [
                     ...friends, 
@@ -344,39 +347,42 @@ const CreateParty = ({editingParty, displayParties}) => {
             <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)} placeholder="Search Friends"></IonSearchbar>                            
           </IonToolbar>
         </IonHeader>
-        <IonContent class="create-content ion-padding">
+        <IonContent class="create-content">
           {query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map(hit => (
             hit.objectID === currentuser.uid || !friends.includes(hit.objectID) ? null :
-            <IonItem button class="create-input"> 
-              <IonRow key={hit.objectID}>                   
-                  <IonCol size="4">
-                    <IonAvatar>
-                      <img src={hit.photoURL ? hit.photoURL : "https://mackley.co.uk/wp-content/uploads/2020/11/cropped-mackley-logo-icon-M.jpg"} />
-                    </IonAvatar>  
-                  </IonCol>
-                  <IonCol offset="2" size="6">
-                    <IonText>{hit.username}</IonText>   
-                  </IonCol>                            
-                  <IonCol size="2">
-                    <IonButton color="danger" onClick={() => addInvite(hit.objectID, hit.username)}>Invite</IonButton>
-                  </IonCol>
+            <IonItem class="create-input"> 
+              <IonRow key={hit.objectID} class="ion-align-items-center">                   
+                <IonCol size="3">
+                  <IonIcon icon={personOutline} className="profile-icon" />
+                </IonCol>
+                <IonCol size="6" offset="1">
+                  <IonText>{hit.username}</IonText>   
+                </IonCol>                            
+                <IonCol size="2">
+                  <IonButton onClick={() => addInvite(hit.objectID, hit.username)}>
+                    <IonIcon size="large" icon={addOutline} />
+                  </IonButton>
+                </IonCol>
               </IonRow>
             </IonItem>            
           ))}<br/>    
+
+          <IonText color="dark">Friends:</IonText><br/>
+          
           {query ? friends.map(friend => ( // show all friends below the searched items
-            <IonItem button class="create-input"> 
-              <IonRow key={friend.id}>                   
-                  <IonCol size="3">
-                    <IonAvatar>
-                      <img src={friend.photoURL ? friend.photoURL : "https://mackley.co.uk/wp-content/uploads/2020/11/cropped-mackley-logo-icon-M.jpg"} />
-                    </IonAvatar>  
-                  </IonCol>
-                  <IonCol offset="1" size="6">
-                    <IonText>{friend.name}</IonText>   
-                  </IonCol>                            
-                  <IonCol size="2">
-                    <IonButton color="danger" onClick={() => addInvite(friend.id, friend.id)}>Invite</IonButton>
-                  </IonCol>
+            <IonItem class="create-input"> 
+              <IonRow class="ion-align-items-center" key={friend.id}>                   
+                <IonCol size="3">
+                  <IonIcon icon={personOutline} className="profile-icon" />
+                </IonCol>
+                <IonCol size="6" offset="1">
+                  <IonText>{friend.name}</IonText>   
+                </IonCol>                            
+                <IonCol size="2">
+                  <IonButton onClick={() => addInvite(friend.id, friend.name)}>
+                    <IonIcon size="large" icon={addOutline} />                    
+                  </IonButton>
+                </IonCol>
               </IonRow>
             </IonItem>              
           )) : null}      
@@ -387,7 +393,9 @@ const CreateParty = ({editingParty, displayParties}) => {
             return(
               <IonItem class="create-card" key={person.id}>                
                 <IonText>{person.username}</IonText>
-                <IonButton slot="end" color="warning" onClick={() => removeInvite(person.id)}>Remove</IonButton>
+                <IonButton slot="end" onClick={() => removeInvite(person.id)}>
+                  <IonIcon size="large" icon={removeOutline} />  
+                </IonButton>
               </IonItem>
             )
           })}<br/>                    
