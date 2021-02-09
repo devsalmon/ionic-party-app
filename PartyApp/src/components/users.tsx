@@ -232,7 +232,7 @@ const UserItem = ({hit, username, id}) => {
   return(
     <IonRow>
       <IonCol size="9">
-      <IonItem button key={id}>    
+      <IonItem key={id}>    
         <IonCol size="4">
           <IonIcon icon={personOutline} className="profile-icon" />
         </IonCol>
@@ -241,7 +241,7 @@ const UserItem = ({hit, username, id}) => {
         </IonCol>
       </IonItem>
       </IonCol>
-      <IonCol>
+      <IonCol className="ion-align-self-center">
         <IonButton 
         disabled={addDisabled} 
         onClick={() => requestFriend()}>

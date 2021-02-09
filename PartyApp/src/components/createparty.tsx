@@ -284,45 +284,45 @@ const CreateParty = ({editingParty, displayParties}) => {
     }
     return(
       <IonContent class="create-content" fullscreen={true}>
-        <IonToolbar color="warning">
+        <IonToolbar color="warning" className="ion-padding">
           <IonButtons slot="start" class="create-back-button">
             <IonButton  fill="clear" color="dark" href="/home">
               <IonIcon slot="icon-only" icon={chevronBackSharp}></IonIcon>
             </IonButton>
           </IonButtons>        
           {editingParty ? <IonTitle color="dark">Editing</IonTitle> : 
-            <IonTitle color="dark">Create<br/>a party</IonTitle> 
+            <IonTitle color="dark">Create<br/>a party</IonTitle>
           }  
         </IonToolbar>
-          <IonItem class="rounded-top">
+          <IonItem class="rounded-top" lines="none">
             <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>
           </IonItem>
-          <IonItem class="create-card">   
+          <IonItem class="create-card" lines="none">   
             <IonInput class="create-input" value={address}  onIonChange={e => setAddress(e.detail.value!)} placeholder="Address" clearInput></IonInput>                               
           </IonItem>
-          <IonItem class="create-card">   
+          <IonItem class="create-card" lines="none">   
             <IonInput class="create-input" value={postcode}  onIonChange={e => setPostcode(e.detail.value!)} placeholder="Postcode/Zipcode" clearInput></IonInput>                               
           </IonItem>
-          {/* <IonItem class="create-card">
+          {/* <IonItem class="create-card" lines="none">
             <IonButton class="create-button" expand="block"  href='/googlemap'> See Map </IonButton>  
           </IonItem> */}
-          <IonItem class="create-card">
+          <IonItem class="create-card" lines="none">
             <IonLabel color="warning">Starts</IonLabel>
             <IonDatetime class="create-datetime" value={dateTime} onIonChange={e => setDateTime(e.detail.value!)} displayFormat="DD-MMM-YY HH:mm" placeholder="select"></IonDatetime>
           </IonItem>
-          <IonItem class="create-card">
+          <IonItem class="create-card" lines="none">
             <IonLabel color="warning">Ends</IonLabel>
             <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} displayFormat="DD-MMM-YY HH:mm" placeholder="select"></IonDatetime>
           </IonItem>
-          <IonItem class="create-card">
+          <IonItem class="create-card" lines="none">
             <IonTextarea maxlength={150} class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
           </IonItem>
-          <IonItem class="create-card">
+          <IonItem class="create-card" lines="none">
             <IonButton class="create-button" expand="block" onClick={e => setShowPeopleSearch(true)}>Invite People</IonButton>
           </IonItem>       
           {invitedPeople && invitedPeople.map(person => {
             return(
-              <IonItem class="create-card" key={person.id}>                
+              <IonItem class="create-card" lines="none" key={person.id}>                
                 <IonText>{person.username}</IonText>
                 <IonButton slot="end" color="warning" onClick={() => removeInvite(person.id)}>Remove</IonButton>
               </IonItem>
@@ -341,7 +341,7 @@ const CreateParty = ({editingParty, displayParties}) => {
 
           
       <br/><br/><br/><br/><br/><br/><br/>
-      <IonModal isOpen={showPeopleSearch}>
+      <IonModal swipeToClose={true} isOpen={showPeopleSearch}>
         <IonHeader>
           <IonToolbar>  
             <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)} placeholder="Search Friends"></IonSearchbar>                            
@@ -386,12 +386,12 @@ const CreateParty = ({editingParty, displayParties}) => {
               </IonRow>
             </IonItem>              
           )) : null}      
-          <IonItem class="create-card">
+          <IonItem class="create-card" lines="none">
             <IonText>People invited: </IonText>
           </IonItem>
           {invitedPeople && invitedPeople.map(person => {
             return(
-              <IonItem class="create-card" key={person.id}>                
+              <IonItem class="create-card" lines="none" key={person.id}>                
                 <IonText>{person.username}</IonText>
                 <IonButton slot="end" onClick={() => removeInvite(person.id)}>
                   <IonIcon size="large" icon={removeOutline} />  

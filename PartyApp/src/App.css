@@ -12,6 +12,7 @@
 .custom-button {
     --background: yellow; 
     color: black;
+    --background-activated: transparent;
     font-weight: bold;
     font-size: 18px;
     --background-hover-opacity: 0.3;
@@ -28,6 +29,7 @@
 .create-button {
     --background: black; 
     color: yellow;
+    --background-activated: transparent;
     font-weight: bold;
     font-size: 18px;
     --background-hover-opacity: 0.3;
@@ -39,8 +41,6 @@
 .create-card {
     --highlight-height: 0;    
     --background: black;
-    --border-color: red;
-    --border-width: 2px;
 }
 
 .create-content {
@@ -85,11 +85,15 @@
     text-align: center;
 }
 
+.gallery-card {
+    border: 2px solid yellow;
+    border-radius: 10px;    
+}
+
 .like-panel {
     position: absolute;
     color: yellow;
     --ripple-color: transparent;
-    bottom: 0px;
     right: 0px;  
     font-size: 20px;  
 }
@@ -121,6 +125,11 @@
 
 .picker-opt {
     color: white;
+}
+
+.picture-card {
+    border: 2px solid yellow;
+    border-radius: 10px;    
 }
 
 .popover {
@@ -167,16 +176,12 @@
     --border-radius: 10px 10px 0 0;
     --highlight-height: 0;
     --background: black;
-    --border-color: red;
-    --border-width: 2px;
 }
 
 .rounded-bottom {
     --border-radius: 0 0 10px 10px;
     --highlight-height: 0;
-    --background: black;
-    --border-color: red;
-    --border-width: 2px;    
+    --background: black;  
 }
 
 .searchbar {
@@ -219,6 +224,7 @@
 
 ion-button {
     --color: yellow;
+    --color-activated: black;
     --background: black;
     --background-hover-opacity: 0.3;
 }

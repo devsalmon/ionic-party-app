@@ -3,6 +3,7 @@ import {useCollection} from 'react-firebase-hooks/firestore';
 import {
   IonIcon,
   IonCard,
+  IonRow,
   IonCardHeader,
   IonCardContent,
   IonCardTitle,
@@ -64,11 +65,11 @@ const Gallery = ({hostid, partyid}) => {
     // passing through the document and doc.id to the picture function
     return(   
       <IonContent fullscreen={true}>
-          <IonCard>
-            <IonCardContent>
-              <IonCardTitle>{title}</IonCardTitle>         
-              <IonCardSubtitle>Hosted on {date} by {host}</IonCardSubtitle>   
-              <IonCardSubtitle>{location}</IonCardSubtitle>              
+          <IonCard class="gallery-card">
+            <IonCardContent class="gallery-card-content">
+              <IonCardTitle class="gallery-card-title">{title}</IonCardTitle>         
+              <IonCardSubtitle class="gallery-card-subtitle">Hosted on {date} by {host}</IonCardSubtitle>   
+              <IonCardSubtitle class="gallery-card-subtitle">{location}</IonCardSubtitle>              
             </IonCardContent>
           </IonCard>
           {value && value.docs.map(doc => {
@@ -161,12 +162,12 @@ const Picture = ({doc, hostid, partyid}) => {
 
   // display appropriate like button depending on whether photo has been liked or not (either filled or unfilled heart)
   const likeButton = liked ? (
-    <IonButton onClick={unlike} fill="clear" class="like-panel">
-      <IonIcon icon={heart} />   
+    <IonButton onClick={unlike} class="like-panel">
+      <IonIcon slot="icon-only" icon={heart} />   
     </IonButton>       
   ) : (
-    <IonButton onClick={like} fill="clear" class="like-panel">
-      <IonIcon icon={heartOutline} />   
+    <IonButton onClick={like} class="like-panel">
+      <IonIcon slot="icon-only" icon={heartOutline} />   
     </IonButton>     
   )
 
@@ -177,15 +178,22 @@ const Picture = ({doc, hostid, partyid}) => {
   ) : null 
 
   return(
-    <IonCard class="create-card">
+    <IonCard class="picture-card">
       <IonCardHeader>
+        <IonRow>
         <IonCol>{doc.data().takenAt}</IonCol> 
         <IonCol size="5">{doc.data().takenBy}</IonCol> 
-        <IonCol>Likes - {numLikes}</IonCol> 
+        <IonCol>{numLikes} likes</IonCol> 
+        </IonRow>
       </IonCardHeader>       
       <IonImg class="gallery-photo" src={doc.data().picture} />  
-      {likeButton}    
-      {removePicture}    
+      <IonRow>
+        {likeButton}    
+        {removePicture}    
+      </IonRow>
+      <IonRow>
+      comments...
+      </IonRow>
     </IonCard>  
   )
 }
