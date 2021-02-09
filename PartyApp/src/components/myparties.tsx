@@ -92,10 +92,6 @@ const MyPartyList = () => {
 
 
   useEffect(() => {  
-    firebase.storage().ref('users/' + currentuser + '/profile.jpg').getDownloadURL().then(url => {
-      setProfilePhoto(url)
-      console.log("url = ", url)
-    })
     findFriends();  
     // useeffect hook only runs after first render so it only runs once
     displayParties();
@@ -381,7 +377,7 @@ const MyPartyList = () => {
           <IonToolbar>
             <IonTitle size="large">My Parties</IonTitle>
           </IonToolbar>
-          <IonItem class="accordion-profile">
+          <IonItem class="accordion-profile" lines="none">
             <IonGrid>
               <IonRow>
                 <IonCol size="3">
@@ -404,13 +400,13 @@ const MyPartyList = () => {
         <IonRadioGroup value={selected} onIonChange={e => setSelected(e.detail.value)}>
         <IonRow>
           <IonCol>
-            <IonItem class="radio-buttons">
+            <IonItem class="radio-buttons" lines="none">
               <IonText>Attended</IonText>
               <IonRadio onIonFocus={(e) => changeSlide("prev")} slot="end" value="attended" />
             </IonItem>
           </IonCol>
           <IonCol>
-            <IonItem class="radio-buttons">
+            <IonItem class="radio-buttons" lines="none">
               <IonText>Hosted</IonText>
               <IonRadio onIonFocus={e => changeSlide("next")} slot="end" value="hosted" />
             </IonItem>

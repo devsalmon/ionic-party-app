@@ -121,6 +121,8 @@
     --background: red;
     color: red;
     --backdrop-opacity: 0.9;
+    --height: 70%;
+    --width: 70%
 }
 
 .picker-opt {
@@ -253,7 +255,9 @@ ion-card-content {
 ion-card-title {
     color: yellow;
     font-weight: bold;
-    font-size: 40px
+    font-size: 30px;
+    text-align: center;
+    color: red
 }
 
 ion-card-subtitle {
@@ -289,6 +293,12 @@ ion-label {
 ion-radio {
     --color: yellow;
     --color-checked: yellow;
+}
+
+ion-range {
+    --bar-background: yellow;
+    --knob-background: yellow;
+    --knob-size: 20px;
 }
 
 ion-refresher-content {

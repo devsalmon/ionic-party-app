@@ -30,7 +30,7 @@ const Memory = ({id, data, click}) => {
   // party card  
   
   return(
-    <IonItem button onClick={click} class="accordion-item">
+    <IonItem button lines="none" onClick={click} class="accordion-item">
     <IonGrid>
       <IonRow>
         <IonCol size="12">

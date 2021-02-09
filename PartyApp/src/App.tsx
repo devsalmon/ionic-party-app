@@ -44,6 +44,7 @@ import {
   IonImg,
   IonInput, 
   IonText,
+  IonRange,
   IonToast,
   IonRippleEffect,
   IonLoading,
@@ -61,7 +62,9 @@ import {
   cloudUploadSharp,
   chevronBackSharp,  
   thumbsUpOutline,
-  thumbsDownOutline
+  thumbsDownOutline,
+  manOutline,
+  womanOutline
 } from 'ionicons/icons';
 import {useCamera} from '@ionic/react-hooks/camera';
 import {CameraResultType, CameraSource, Plugins} from '@capacitor/core';
@@ -137,7 +140,9 @@ const Party = ({id, data, live, edit, classname}) => {
   } else {};
 
   return(
-    <IonItem className={classname}>
+    <>
+    {isLive ? <><IonCardTitle color="danger">LIVE!</IonCardTitle><br/></> : null}
+    <IonItem className={classname} lines="none">
       <IonGrid>
         {firebase.auth().currentUser.displayName === data.host ? 
           <IonRow>
@@ -179,15 +184,24 @@ const Party = ({id, data, live, edit, classname}) => {
         isOpen={showPopover}
         onDidDismiss={() => setShowPopover(false)}
       >
-        <IonItem>Address: {data.address} </IonItem>  
-        <IonItem>Postcode: {data.postcode} </IonItem>     
-        <IonItem>Starts: {moment(data.dateTime).format('LT')}</IonItem>     
-        <IonItem>Ends: {moment(data.endTime).format('LT')}</IonItem>
-        {data.invited_people ? <IonItem>Number of Invites: {data.invited_people.length}</IonItem>  : null}
+        <IonItem lines="none">Address: {data.address} </IonItem>  
+        <IonItem lines="none">Postcode: {data.postcode} </IonItem>     
+        <IonItem lines="none">Dress Code: {data.dresscode} </IonItem>             
+        <IonItem lines="none">Drinks Provided: {data.drinksProvided} </IonItem> 
+        <IonItem lines="none">
+          <IonText>Male:Female Ratio</IonText><br/>
+        </IonItem>
+        <IonItem lines="none">          
+            <IonRange color="yellow" value={data.malesToFemales} disabled={true}>
+              <IonIcon slot="start" icon={manOutline} />
+              <IonIcon slot="end" icon={womanOutline} />
+            </IonRange>        </IonItem> 
+        <IonItem lines="none">Starts: {moment(data.dateTime).format('LT')}</IonItem>     
+        <IonItem lines="none">Ends: {moment(data.endTime).format('LT')}</IonItem>
+        {data.invited_people ? <IonItem lines="none">Number of Invites: {data.invited_people.length}</IonItem>  : null}
         {data.details ? 
         <>
-        <IonLabel className="ion-padding" color="warning">Details:</IonLabel>
-        <IonItem>{data.details}</IonItem> 
+        <IonItem lines="none">Details: {data.details}</IonItem>
         </>: null              
         } 
       </IonPopover>    
@@ -199,6 +213,7 @@ const Party = ({id, data, live, edit, classname}) => {
       position="bottom"
       />       
     </IonItem>
+    </>
   )
 }
 
@@ -227,7 +242,6 @@ const PartyList = () => {
   // Checks for friend requests
   collectionRef.doc(current_user.uid)
   .onSnapshot(function(doc) {
-    //collectionRef.doc(current_user.uid).get().then(doc => {
     if (doc.exists && doc.data().request_from) {
       for (var i = 0; i < doc.data().request_from.length; i++) {
         var curr_id = doc.data().request_from[i].id
@@ -448,7 +462,6 @@ const PartyList = () => {
       {liveParties && liveParties.map(party => { 
         return(        
           <>
-          <IonTitle color="danger">LIVE!</IonTitle>             
           <Party key={party.id} id={party.id} data={party.data} live={true} edit={() => setEditingParty(party.data)} classname="live-item"/>              
           <br/>
           </>
@@ -598,15 +611,6 @@ const FriendRequest = ({id, click}) => {
       </IonButton>        
       </IonCardContent>                        
     </IonCard>    
-    // <IonItem button>
-    //   <IonText>{userName} wants to be friends</IonText><br/>
-    //   <IonButton onClick={() => acceptFriend(id)}>
-    //     <IonIcon icon={thumbsUpOutline} />
-    //   </IonButton>
-    //   <IonButton onClick={() => declineFriend(id)}>
-    //     <IonIcon icon={thumbsDownOutline} />
-    //   </IonButton>      
-    // </IonItem>
   )
 }
 
@@ -615,13 +619,17 @@ const PartyRequest = ({hostid, partyid, click}) => {
   const [userName, setUserName] = useState(''); // name of person who requested
   const [date, setDate] = useState(''); // date of party you've been invited to
   const [time, setTime] = useState(''); // time of party you've been invited to
+  const [endTime, setEndTime] = useState(''); // time of party you've been invited to
 
   // get party document of the person who requested
   const userRef = firebase.firestore().collection("users").doc(hostid); 
   userRef.collection("myParties").doc(partyid).get().then(function(doc) {
     if (doc.exists) { 
       setUserName(doc.data().host) // set name to the host name in that document
-      setDate(doc.data().date)
+      var date = moment(doc.data().date).format('LL')
+      setDate(date)
+      var end = moment(doc.data().endTime).format('LT')
+      setEndTime(end)
       var time = moment(doc.data().dateTime).format('LT')
       setTime(time)
     } 
@@ -660,6 +668,7 @@ const PartyRequest = ({hostid, partyid, click}) => {
       </IonCardHeader>
       <IonCardContent>
         <IonText class="white-text">Starts at {time} on {date}</IonText><br/>        
+        <IonText class="white-text">Ends at {endTime}</IonText><br/>        
         <IonButton color="danger" onClick={() => acceptInvite()}>Accept</IonButton>
         <IonButton color="danger" onClick={() => declineInvite()}>Decline</IonButton>        
       </IonCardContent>                        

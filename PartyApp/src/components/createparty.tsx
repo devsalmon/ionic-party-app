@@ -26,13 +26,16 @@ import {
   IonAlert,
   IonIcon,
   IonList,
-  IonText
+  IonText,
+  IonRange,
 } from '@ionic/react';
 import { 
   chevronBackSharp,  
   personOutline,
   addOutline,
-  removeOutline
+  removeOutline,
+  manOutline,
+  womanOutline
 } from 'ionicons/icons';
 import '../App.css'
 import firebase from '../firestore'
@@ -110,9 +113,12 @@ const CreateParty = ({editingParty, displayParties}) => {
     const [title, setTitle] = useState<string>(editingParty ? editingParty.title : "");
     const [address, setAddress] = useState<string>(editingParty ? editingParty.address : "");
     const [postcode, setPostcode] = useState<string>(editingParty ? editingParty.postcode : "");
+    const [dresscode, setDresscode] = useState<string>(editingParty ? editingParty.dresscode : "");
     const [details, setDetails] = useState<string>(editingParty ? editingParty.details : "");
     const [endTime, setEndTime] = useState<string>(editingParty ? editingParty.endTime : "");
     const [dateTime, setDateTime] = useState<string>(editingParty ? editingParty.dateTime : ""); 
+    const [drinksProvided, setDrinksProvided] = useState(editingParty ? editingParty.drinksProvided : "");
+    const [malesToFemales, setMalesToFemales] = useState(editingParty ? editingParty.malesToFemales : 50);
     const [showPeopleSearch, setShowPeopleSearch] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [fieldsMissing, setFieldsMissing] = useState(false);
@@ -134,7 +140,7 @@ const CreateParty = ({editingParty, displayParties}) => {
 
     const onSave = () => {  
       // validate inputs  
-      const inputsFilled = Boolean((title !== "") && (address !== "") && (postcode !== "") && (dateTime !== "") && (endTime !== ""));
+      const inputsFilled = Boolean((title !== "") && (address !== "") && (postcode !== "") && (dateTime !== "") && (endTime !== "") && (dresscode !== "") && (drinksProvided !== ""));
       const timesValid = Boolean(moment(endTime).isAfter(dateTime));
       const collectionRef = firebase.firestore().collection("users").doc(currentuser.uid).collection("myParties");
       
@@ -150,6 +156,9 @@ const CreateParty = ({editingParty, displayParties}) => {
               title: title, 
               address: address,
               postcode: postcode,
+              dresscode: dresscode,
+              drinksProvided: drinksProvided,
+              malesToFemales: malesToFemales,
               date: moment(dateTime).format('LL'), 
               day: moment(dateTime).format('D'), 
               month: moment(dateTime).format('MMM'),
@@ -185,6 +194,9 @@ const CreateParty = ({editingParty, displayParties}) => {
               setDetails("");
               setEndTime("");
               setDateTime("");
+              setDresscode("");
+              setDrinksProvided("");
+              setMalesToFemales(0);
               setInvitedPeople([]);                               
               })  
             } else {
@@ -193,6 +205,9 @@ const CreateParty = ({editingParty, displayParties}) => {
                 title: title, 
                 address: address,
                 postcode: postcode,
+                dresscode: dresscode,
+                drinksProvided: drinksProvided,
+                malesToFemales: malesToFemales,
                 date: moment(dateTime).format('LL'), 
                 day: moment(dateTime).format('D'), 
                 month: moment(dateTime).format('MMM'),
@@ -229,6 +244,9 @@ const CreateParty = ({editingParty, displayParties}) => {
                   setDetails("");
                   setEndTime("");
                   setDateTime("");
+                  setDresscode("");
+                  setDrinksProvided("");
+                  setMalesToFemales(0);
                   setInvitedPeople([]);                
               })  
             }     
@@ -282,6 +300,7 @@ const CreateParty = ({editingParty, displayParties}) => {
           setPartyDeletedToast(true);
         })    
     }
+
     return(
       <IonContent class="create-content" fullscreen={true}>
         <IonToolbar color="warning" className="ion-padding">
@@ -303,9 +322,12 @@ const CreateParty = ({editingParty, displayParties}) => {
           <IonItem class="create-card" lines="none">   
             <IonInput class="create-input" value={postcode}  onIonChange={e => setPostcode(e.detail.value!)} placeholder="Postcode/Zipcode" clearInput></IonInput>                               
           </IonItem>
-          {/* <IonItem class="create-card" lines="none">
-            <IonButton class="create-button" expand="block"  href='/googlemap'> See Map </IonButton>  
-          </IonItem> */}
+          <IonItem class="create-card" lines="none">
+            <IonInput class="create-input" value={dresscode}  onIonChange={e => setDresscode(e.detail.value!)} placeholder="Dress Code" clearInput></IonInput>  
+          </IonItem>
+          <IonItem class="create-card" lines="none">
+            <IonInput class="create-input" value={drinksProvided}  onIonChange={e => setDrinksProvided(e.detail.value!)} placeholder="Drinks Provided" clearInput></IonInput>  
+          </IonItem>         
           <IonItem class="create-card" lines="none">
             <IonLabel color="warning">Starts</IonLabel>
             <IonDatetime class="create-datetime" value={dateTime} onIonChange={e => setDateTime(e.detail.value!)} displayFormat="DD-MMM-YY HH:mm" placeholder="select"></IonDatetime>
@@ -313,6 +335,15 @@ const CreateParty = ({editingParty, displayParties}) => {
           <IonItem class="create-card" lines="none">
             <IonLabel color="warning">Ends</IonLabel>
             <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} displayFormat="DD-MMM-YY HH:mm" placeholder="select"></IonDatetime>
+          </IonItem>        
+          <IonItem class="create-card" lines="none">
+            <IonText color="warning">Male:Female ratio</IonText>
+          </IonItem>
+          <IonItem class="create-card" lines="none">            
+            <IonRange value={malesToFemales}  onIonChange={e => setMalesToFemales(e.detail.value!)}>
+              <IonIcon slot="start" icon={manOutline} />
+              <IonIcon slot="end" icon={womanOutline} />
+            </IonRange>
           </IonItem>
           <IonItem class="create-card" lines="none">
             <IonTextarea maxlength={150} class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
@@ -324,7 +355,9 @@ const CreateParty = ({editingParty, displayParties}) => {
             return(
               <IonItem class="create-card" lines="none" key={person.id}>                
                 <IonText>{person.username}</IonText>
-                <IonButton slot="end" color="warning" onClick={() => removeInvite(person.id)}>Remove</IonButton>
+                <IonButton slot="end" onClick={() => removeInvite(person.id)}>
+                  <IonIcon size="large" icon={removeOutline} /> 
+                </IonButton>
               </IonItem>
             )
           })}  
@@ -338,9 +371,7 @@ const CreateParty = ({editingParty, displayParties}) => {
           {editingParty ? 
             <IonButton color="danger" class="create-button" onClick={() => setShowPopover(true)}>Delete party</IonButton> :
           null}
-
-          
-      <br/><br/><br/><br/><br/><br/><br/>
+             
       <IonModal swipeToClose={true} isOpen={showPeopleSearch}>
         <IonHeader>
           <IonToolbar>  
@@ -414,7 +445,7 @@ const CreateParty = ({editingParty, displayParties}) => {
           Party Created! <br/> Click here to see it
         </IonButton>   
         </div>
-      </IonPopover>   
+      </IonPopover> 
       <IonToast
         isOpen={partyDeletedToast}
         onDidDismiss={() => setPartyDeletedToast(false)}

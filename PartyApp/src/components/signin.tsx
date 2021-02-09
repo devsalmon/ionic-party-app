@@ -7,10 +7,15 @@ import {
   IonContent, 
   IonToolbar, 
   IonButtons, 
+  IonIcon,
   IonTitle,
   IonInput, 
   IonText,
+  IonLabel
 } from '@ionic/react';
+import { 
+  eyeOutline
+} from 'ionicons/icons';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */
@@ -224,13 +229,17 @@ const SignIn: React.FC = () => {
             </>
           )
         }       
-        <IonInput 
-        class="create-input" 
-        value={password} 
-        placeholder="Password"
-        type="password"
-        onIonChange={e => setPassword(e.detail.value!)}
-        ></IonInput>
+          <IonInput 
+          class="create-input" 
+          value={password} 
+          type="password"
+          placeholder="Password"
+          onIonChange={e => setPassword(e.detail.value!)}
+          >
+          <IonButton className="ion-align-self-end">
+            <IonIcon slot="icon-only" icon={eyeOutline} />
+          </IonButton>          
+          </IonInput>          
         <IonText class="errormsg">{passwordError}</IonText>
         <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
           {hasAccount ? (
