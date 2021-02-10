@@ -199,6 +199,21 @@
     font-size: 50px;
 }
 
+.signin-button {
+    --background: yellow; 
+    color: black;
+    --background-activated: transparent;
+    font-weight: bold;
+    font-size: 18px;
+    --background-hover-opacity: 0.3;
+    --border-radius: 0px;
+    margin-left: 19px;
+    --background-activated: transparent;
+    width: 90%;
+    height: 50px;    
+    text-align: center;    
+}
+
 .slide-text{
     position: absolute;
     color: yellow;
@@ -228,6 +243,7 @@ ion-button {
     --color: yellow;
     --color-activated: black;
     --background: black;
+    --background-activated: transparent;
     --background-hover-opacity: 0.3;
 }
 

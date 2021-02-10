@@ -14,7 +14,9 @@ import {
   IonLabel
 } from '@ionic/react';
 import { 
-  eyeOutline
+  eyeOutline,
+  mailOutline,
+  personOutline
 } from 'ionicons/icons';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -39,6 +41,7 @@ const SignIn: React.FC = () => {
   const [fullname, setFullname] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [fullnameError, setFullnameError] = useState('');
   const [usernameError, setUsernameError] = useState('');
@@ -66,7 +69,7 @@ const SignIn: React.FC = () => {
     // When multiple custom dynamic link domains are defined, specify which
     // one to use.
     dynamicLinkDomain: "partyuptest.page.link"
-  };  
+  };    
 
   const userVerification = () => {
     var user = firebase.auth().currentUser;
@@ -205,7 +208,11 @@ const SignIn: React.FC = () => {
         placeholder="Email"
         type="email"
         onIonChange={e => setEmail(e.detail.value!)}
-        ></IonInput>
+        >
+        <IonButton>
+          <IonIcon slot="icon-only" icon={mailOutline} />
+        </IonButton>         
+        </IonInput>
         <IonText class="errormsg">{emailError}</IonText>
         {hasAccount ? 
           null : (
@@ -216,7 +223,11 @@ const SignIn: React.FC = () => {
               placeholder="Full name"
               type="text"
               onIonChange={e => setFullname(e.detail.value!)}
-              ></IonInput>  
+              >
+                <IonButton>
+                  <IonIcon slot="icon-only" icon={personOutline} />
+                </IonButton>                  
+              </IonInput>  
               <IonText class="errormsg">{fullnameError}</IonText>
               <IonInput 
               class="create-input" 
@@ -224,33 +235,37 @@ const SignIn: React.FC = () => {
               placeholder="Username"
               type="text"
               onIonChange={e => setUsername(e.detail.value!)}
-              ></IonInput> 
+              >
+                <IonButton>
+                  <IonIcon slot="icon-only" icon={personOutline} />
+                </IonButton>                  
+              </IonInput> 
               <IonText class="errormsg">{usernameError}</IonText>
             </>
           )
         }       
-          <IonInput 
-          class="create-input" 
-          value={password} 
-          type="password"
-          placeholder="Password"
-          onIonChange={e => setPassword(e.detail.value!)}
-          >
-          <IonButton className="ion-align-self-end">
-            <IonIcon slot="icon-only" icon={eyeOutline} />
-          </IonButton>          
-          </IonInput>          
+        <IonInput 
+        class="create-input" 
+        value={password} 
+        type={showPassword ? "text" : "password"}
+        placeholder="Password"
+        onIonChange={e => setPassword(e.detail.value!)}
+        >
+        <IonButton onClick={()=>setShowPassword(!showPassword)}>
+          <IonIcon slot="icon-only" icon={eyeOutline} />
+        </IonButton>          
+        </IonInput>          
         <IonText class="errormsg">{passwordError}</IonText>
         <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
           {hasAccount ? (
             <>
-              <IonButton class="create-button" onClick={() => handleLogin()}>Sign in</IonButton>
+              <IonButton class="signin-button" /*onClick={() => handleLogin()}*/>Sign in</IonButton>
               <p className="errormsg">Don't have an account? <span onClick={() => setHasAccount(!hasAccount)}>Sign up</span></p>
               <p className="errormsg"><span>Forgot Password?</span></p>
             </>
           ) : (
             <>
-              <IonButton class="create-button" onClick={() => handleSignUp()}>Sign up</IonButton>
+              <IonButton class="signin-button" onClick={() => handleSignUp()}>Sign up</IonButton>
               <p className="errormsg">Have an account? <span onClick={() => setHasAccount(!hasAccount)}>Sign in</span></p>
             </>
           )}
