@@ -57,16 +57,15 @@ import { IonReactRouter } from '@ionic/react-router';
 import { 
   home, 
   personAddSharp,   
-  cameraSharp,
+  cameraOutline,
   chevronDownCircleOutline,
-  cloudUploadSharp,
+  cloudUploadOutline,
   chevronBackSharp,  
   thumbsUpOutline,
   thumbsDownOutline,
   manOutline,
   womanOutline,
-  informationOutline,
-  pencilOutline
+  createOutline
 } from 'ionicons/icons';
 import {useCamera} from '@ionic/react-hooks/camera';
 import {CameraResultType, CameraSource, Plugins} from '@capacitor/core';
@@ -135,8 +134,8 @@ const Party = ({id, data, live, edit, classname}) => {
   if (isLive) {
     liveParty =   
     <IonCol className="ion-self-align-center"> 
-      <IonButton onClick={photo ? onSave : takePhoto}>
-        <IonIcon slot="icon-only" icon={photo ? cloudUploadSharp : cameraSharp} />        
+      <IonButton color="warning" onClick={photo ? onSave : takePhoto}>
+        <IonIcon slot="icon-only" icon={photo ? cloudUploadOutline : cameraOutline} />        
       </IonButton>  
     </IonCol>
   } else {};
@@ -164,21 +163,21 @@ const Party = ({id, data, live, edit, classname}) => {
         <IonRow className="ion-text-center">
           <IonCol className="ion-align-self-center">
             {firebase.auth().currentUser.displayName === data.host ?              
-              <IonButton onClick={edit}>
-                <IonIcon slot="icon-only" icon={pencilOutline} />
+              <IonButton color="warning" onClick={edit}>
+                <IonIcon slot="icon-only" icon={createOutline} />
               </IonButton>
              : null
             }      
             </IonCol>
           <IonCol className="ion-align-self-center">    
-            <IonButton onClick={()=> setShowPopover(true)}>
-              <IonIcon slot="icon-only" icon={informationOutline}/>
+            <IonButton color="warning" onClick={()=> setShowPopover(true)}>
+              <IonIcon slot="icon-only" src="assets/icon/balloon-outline.svg"/>
             </IonButton>
           </IonCol>
           {liveParty} {/*if live then display camera buttons */}             
             {photo ? 
             <IonCol className="ion-align-self-center">
-            <IonButton onClick={() => setPhoto('')}>
+            <IonButton color="warning" onClick={() => setPhoto('')}>
               Cancel
             </IonButton> 
             </IonCol> :

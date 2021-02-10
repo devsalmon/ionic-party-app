@@ -321,11 +321,11 @@ ion-range {
 ion-refresher-content {
     color: white;
     --color: white;
-    overflow-y: scroll
 }
 
 ion-slides {
     height: 500%;
+    overflow-y: scroll
 }
 
 .swiper-slide {

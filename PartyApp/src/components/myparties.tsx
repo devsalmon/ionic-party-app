@@ -408,13 +408,7 @@ const MyPartyList = () => {
             </IonGrid> 
           </IonItem>                     
         </IonHeader>
-        <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
-          <IonRefresherContent
-            pullingIcon={chevronDownCircleOutline}
-            refreshingSpinner="circles">
-          </IonRefresherContent>
-        </IonRefresher>         
-        <IonContent fullscreen={true} scroll-y="false">        
+        <IonContent fullscreen={true} scroll-y="false">         
         <IonRadioGroup value={selected} onIonChange={e => setSelected(e.detail.value)}>
         <IonRow>
           <IonCol>
@@ -434,6 +428,12 @@ const MyPartyList = () => {
         <IonSlides ref={slides} onIonSlideDidChange={e => handleSlideChange()}>                   
           <IonSlide>     
           <IonContent> 
+            <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
+              <IonRefresherContent
+                pullingIcon={chevronDownCircleOutline}
+                refreshingSpinner="circles">
+              </IonRefresherContent>
+            </IonRefresher>          
             {attendedParties.length === 0 ?
             <IonText class="white-text">No attended parties yet..</IonText> :          
             attendedParties.map(doc => {
@@ -446,6 +446,12 @@ const MyPartyList = () => {
                 
           <IonSlide>
           <IonContent>
+            <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
+              <IonRefresherContent
+                pullingIcon={chevronDownCircleOutline}
+                refreshingSpinner="circles">
+              </IonRefresherContent>
+            </IonRefresher>          
             {yourParties.length === 0 ?
             <IonText class="white-text"> No hosted parties yet..</IonText> : 
             yourParties.map(doc => {
