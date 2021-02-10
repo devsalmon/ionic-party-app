@@ -1,6 +1,6 @@
 .accordion-item {
-    border-top: 1px solid yellow;
-    border-bottom: 1px solid yellow;
+    border-top: 2px solid yellow;
+    border-bottom: 2px solid yellow;
     max-height: 70%;    
 }
 
@@ -68,13 +68,6 @@
     --backdrop-opacity: 0.9;
 }
 
-.date-box {
-    border: 1px groove red;    
-    border-radius: 5px;
-    text-align: center;
-    margin: auto
-}
-
 .day-text {
     font-size: 35px;
 }
@@ -100,11 +93,6 @@
 
 .list {
     background-color: black;
-}
-
-.live-item {
-    border-top: 1px solid red;
-    border-bottom: 1px solid red;    
 }
 
 .loading {
@@ -157,6 +145,13 @@
     --background: transparent;
     --background-hover-opacity: 0.3;
     width: 180px;
+}
+
+.red-date-box {
+    border: 4px double red;    
+    border-radius: 5px;
+    text-align: center;
+    margin: auto
 }
 
 .radio-buttons {
@@ -239,6 +234,13 @@
     font-size: 15px;
 }
 
+.yellow-date-box {
+    border: 2px solid yellow;    
+    border-radius: 5px;
+    text-align: center;
+    margin: auto
+}
+
 ion-button {
     --color: yellow;
     --color-activated: black;
@@ -295,7 +297,7 @@ ion-footer {
     display: none;
 }
 
-ion-item{
+ion-item {
     --background: transparent;
     --ion-text-color: yellow;
     text-transform: uppercase;
@@ -315,7 +317,11 @@ ion-radio {
 ion-range {
     --bar-background: yellow;
     --knob-background: yellow;
-    --knob-size: 20px;
+    --knob-size: 30px;
+    --bar-background-active: yellow;
+    --bar-height: 3px;
+    --height: 3px;
+    --knob-border-radius: 0px;
 }
 
 ion-refresher-content {
@@ -324,8 +330,7 @@ ion-refresher-content {
 }
 
 ion-slides {
-    height: 500%;
-    overflow-y: scroll
+    height: 235%;
 }
 
 .swiper-slide {
@@ -346,7 +351,6 @@ ion-text {
     color: yellow;    
     font-size: 18px;
     font-weight: bold;
-    text-transform: uppercase;
 }
 
 ion-tab-bar {

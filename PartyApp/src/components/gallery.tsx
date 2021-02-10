@@ -11,11 +11,15 @@ import {
   IonButton,
   IonContent,
   IonImg,
-  IonCol
+  IonCol,
+  IonInput,
+  IonText,
+  IonItem
 } from '@ionic/react';
 import {   
   heartOutline,
-  heart
+  heart,
+  sendOutline
 } from 'ionicons/icons';
 import '../App.css'
 import firebase from '../firestore'
@@ -89,12 +93,15 @@ const Picture = ({doc, hostid, partyid}) => {
   const [liked, setLiked] = useState(Boolean);
   const [numLikes, setNumLikes] = useState(Number); 
   const [ownPicture, setOwnPicture] = useState(Boolean);
+  const [comment, setComment] = useState('');
+  const [refresh, setRefresh] = useState(false);
+  const [otherComments, setOtherComments] = useState([]);
 
   useEffect(() => {  
     likedPicture();
     checkOwnPicture();
-  },
-  []);
+    displayComments();
+  }, [refresh]);
 
   const checkOwnPicture = () => {
     // function to check if the picture was taken by the current user
@@ -177,6 +184,38 @@ const Picture = ({doc, hostid, partyid}) => {
     </IonButton>
   ) : null 
 
+  const writeComments = () => {
+    collectionRef.doc(doc.id).get().then(function(doc){
+      // increase like counter in the picture document, and add current user to the likes array
+      collectionRef.doc(doc.id).update({
+        comments: firebase.firestore.FieldValue.arrayUnion({name: firebase.auth().currentUser.displayName, comment: comment})
+      })       
+    });
+    //clear the comment  
+    setComment('');
+    //setRefresh(!refresh);
+  }
+
+  const displayComments = () => {
+  // Checks for friend requests
+    if (doc.exists && doc.data().comments) {
+      for (var i = 0; i < doc.data().comments.length; i++) {
+        var commentor = doc.data().comments[i].name
+        var theComment = doc.data().comments[i].comment
+        var alreadyInComments = otherComments.some(item => doc.data().comments[i].comment === item.comment);
+        if (!alreadyInComments) {
+          setOtherComments(otherComments => [
+            ...otherComments, 
+            {
+              name: commentor,
+              comment: theComment
+            }              
+          ]);
+        }
+        }
+      }; 
+    }
+
   return(
     <IonCard class="picture-card">
       <IonCardHeader>
@@ -191,8 +230,20 @@ const Picture = ({doc, hostid, partyid}) => {
         {likeButton}    
         {removePicture}    
       </IonRow>
+      {otherComments && otherComments.map(comment => {
+          return(<><IonText class="ion-padding-start">{comment.name}: {comment.comment}</IonText><br/></>)
+      })}
       <IonRow>
-      comments...
+      <IonInput 
+        class="create-input" 
+        value={comment} 
+        placeholder="Comment"
+        type="text"
+        onIonChange={e => setComment(e.detail.value!)}>
+        <IonButton onClick={()=>writeComments()}>
+        <IonIcon slot="icon-only" icon={sendOutline} />
+        </IonButton>                  
+      </IonInput>  
       </IonRow>
     </IonCard>  
   )

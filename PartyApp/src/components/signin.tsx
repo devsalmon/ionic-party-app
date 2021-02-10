@@ -11,12 +11,12 @@ import {
   IonTitle,
   IonInput, 
   IonText,
-  IonLabel
+  IonLabel,
+  IonRow,
+  IonCol
 } from '@ionic/react';
 import { 
   eyeOutline,
-  mailOutline,
-  personOutline
 } from 'ionicons/icons';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -208,10 +208,7 @@ const SignIn: React.FC = () => {
         placeholder="Email"
         type="email"
         onIonChange={e => setEmail(e.detail.value!)}
-        >
-        <IonButton>
-          <IonIcon slot="icon-only" icon={mailOutline} />
-        </IonButton>         
+        >        
         </IonInput>
         <IonText class="errormsg">{emailError}</IonText>
         {hasAccount ? 
@@ -223,10 +220,7 @@ const SignIn: React.FC = () => {
               placeholder="Full name"
               type="text"
               onIonChange={e => setFullname(e.detail.value!)}
-              >
-                <IonButton>
-                  <IonIcon slot="icon-only" icon={personOutline} />
-                </IonButton>                  
+              >                  
               </IonInput>  
               <IonText class="errormsg">{fullnameError}</IonText>
               <IonInput 
@@ -235,26 +229,25 @@ const SignIn: React.FC = () => {
               placeholder="Username"
               type="text"
               onIonChange={e => setUsername(e.detail.value!)}
-              >
-                <IonButton>
-                  <IonIcon slot="icon-only" icon={personOutline} />
-                </IonButton>                  
+              >                
               </IonInput> 
               <IonText class="errormsg">{usernameError}</IonText>
             </>
           )
-        }       
-        <IonInput 
-        class="create-input" 
-        value={password} 
-        type={showPassword ? "text" : "password"}
-        placeholder="Password"
-        onIonChange={e => setPassword(e.detail.value!)}
-        >
-        <IonButton onClick={()=>setShowPassword(!showPassword)}>
-          <IonIcon slot="icon-only" icon={eyeOutline} />
-        </IonButton>          
-        </IonInput>          
+        }
+        <IonRow class="ion-align-items-center">
+          <IonInput 
+          class="create-input" 
+          value={password} 
+          type={showPassword ? "text" : "password"}
+          placeholder="Password"
+          onIonChange={e => setPassword(e.detail.value!)}
+          >
+          </IonInput>   
+          <IonButton onClick={()=>setShowPassword(!showPassword)}>
+            <IonIcon slot="icon-only" icon={eyeOutline} />
+          </IonButton>                  
+        </IonRow>
         <IonText class="errormsg">{passwordError}</IonText>
         <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
           {hasAccount ? (

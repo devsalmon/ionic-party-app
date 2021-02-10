@@ -88,12 +88,17 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './variables.css';
 
-const Party = ({id, data, live, edit, classname}) => {
+const Party = ({id, data, live, edit}) => {
   // party card
+
+  useEffect(()=>{
+    getDaysUntilParty()
+  })
 
   const [showToast, setShowToast] = useState(false);
   const [showPopover, setShowPopover] = useState(false);
   const [photo, setPhoto] = useState('');
+  const [daysUntilParty, setDaysUntilParty] = useState(0);
   //const {photo, getPhoto} = useCamera(); 
   const { Camera } = Plugins;
   const [isLive, setIsLive] = useState(live);
@@ -129,27 +134,25 @@ const Party = ({id, data, live, edit, classname}) => {
     var photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`;
     setPhoto(photo);  
   }    
-  
-  let liveParty // not live initially
-  if (isLive) {
-    liveParty =   
-    <IonCol className="ion-self-align-center"> 
-      <IonButton color="warning" onClick={photo ? onSave : takePhoto}>
-        <IonIcon slot="icon-only" icon={photo ? cloudUploadOutline : cameraOutline} />        
-      </IonButton>  
-    </IonCol>
-  } else {};
+
+  const getDaysUntilParty = () => {    
+    var now = new Date().getTime();
+    var countdownTime = moment(data.dateTime).valueOf();
+    var days = Math.floor((countdownTime - now) / (1000 * 60 * 60 * 24));
+    setDaysUntilParty(days);
+  }
 
   var today = new Date();
   return(
     <>
     {moment(today).isBetween(moment(data.endTime), moment(data.endTime).add(1, 'days')) ? 
     <><IonCardTitle color="warning">After Party</IonCardTitle><br/></> :
-    isLive ? <><IonCardTitle color="danger">LIVE!</IonCardTitle><br/></> : null}
-    <IonItem className={classname} lines="none">
+    isLive ? <><IonCardTitle color="danger">Live!</IonCardTitle><br/></> : 
+    <><IonText class="ion-padding">{daysUntilParty}d</IonText><br/></>}
+    <IonItem className="accordion-item" lines="none">
       <IonGrid>
         <IonRow>
-          <IonCol size="2.5" class="date-box">
+          <IonCol size="2.5" class={live ? "red-date-box" : "yellow-date-box"}>
             <IonText>{data.month} <br/></IonText>   
             <IonText class="day-text">{data.day}</IonText> 
           </IonCol>
@@ -174,18 +177,31 @@ const Party = ({id, data, live, edit, classname}) => {
               <IonIcon slot="icon-only" src="assets/icon/balloon-outline.svg"/>
             </IonButton>
           </IonCol>
-          {liveParty} {/*if live then display camera buttons */}             
-            {photo ? 
-            <IonCol className="ion-align-self-center">
-            <IonButton color="warning" onClick={() => setPhoto('')}>
-              Cancel
-            </IonButton> 
-            </IonCol> :
-            null}                      
-        </IonRow>  
-        <IonRow> 
-          {photo ? <IonImg src={photo}></IonImg> : null}
-        </IonRow>                                  
+          {isLive ? 
+          <IonCol className="ion-self-align-center"> 
+            <IonButton color="warning" onClick={takePhoto}>
+              <IonIcon slot="icon-only" icon={cameraOutline} />      
+            </IonButton>  
+          </IonCol>           
+          : null}
+        </IonRow> 
+        {photo ?
+        <>         
+        <IonRow  className="ion-text-center"> 
+          <IonImg src={photo}></IonImg>
+        </IonRow>     
+        <IonRow  className="ion-text-center">
+          <IonCol>
+          <IonButton color="warning" onClick={onSave}>
+            Share      
+          </IonButton>
+          </IonCol>
+          <IonCol className="ion-align-self-center">
+          <IonButton color="warning" onClick={() => setPhoto('')}>
+            Cancel
+          </IonButton> 
+          </IonCol>           
+        </IonRow></> : null}                             
       </IonGrid>   
       <IonPopover
         cssClass="party-details-popover"        
@@ -197,13 +213,14 @@ const Party = ({id, data, live, edit, classname}) => {
         <IonItem lines="none">Dress Code: {data.dresscode} </IonItem>             
         <IonItem lines="none">Drinks Provided: {data.drinksProvided} </IonItem> 
         <IonItem lines="none">
-          <IonText>Male:Female Ratio</IonText><br/>
+        Male:Female Ratio<br/>
         </IonItem>
         <IonItem lines="none">          
-            <IonRange color="yellow" value={data.malesToFemales} disabled={true}>
-              <IonIcon slot="start" icon={manOutline} />
-              <IonIcon slot="end" icon={womanOutline} />
-            </IonRange>        </IonItem> 
+          <IonRange color="yellow" value={data.malesToFemales} disabled={true}>
+            <IonIcon slot="start" icon={manOutline} />
+            <IonIcon slot="end" icon={womanOutline} />
+          </IonRange>       
+        </IonItem> 
         <IonItem lines="none">Starts: {moment(data.dateTime).format('LT')}</IonItem>     
         <IonItem lines="none">Ends: {moment(data.endTime).format('LT')}</IonItem>
         {data.invited_people ? <IonItem lines="none">Number of Invites: {data.invited_people.length}</IonItem>  : null}
@@ -483,7 +500,7 @@ const PartyList = ({editParty, stopEditing}) => {
       {liveParties && liveParties.map(party => { 
         return(        
           <>
-          <Party key={party.id} id={party.id} data={party.data} live={true} edit={() => setEditingParty(party.data)} classname="live-item"/>              
+          <Party key={party.id} id={party.id} data={party.data} live={true} edit={() => setEditingParty(party.data)}/>              
           <br/>
           </>
         );                    
@@ -491,7 +508,7 @@ const PartyList = ({editParty, stopEditing}) => {
       {upcomingParties && upcomingParties.map(party => {
         return( 
           <>
-          <Party key={party.id} id={party.id} data={party.data} live={false} edit={() => setEditingParty(party.data)} classname="accordion-item"/>
+          <Party key={party.id} id={party.id} data={party.data} live={false} edit={() => setEditingParty(party.data)}/>
           </>
         );                
       })}  

@@ -406,34 +406,34 @@ const MyPartyList = () => {
                 </IonCol>
               </IonRow>      
             </IonGrid> 
-          </IonItem>                     
-        </IonHeader>
-        <IonContent fullscreen={true} scroll-y="false">         
-        <IonRadioGroup value={selected} onIonChange={e => setSelected(e.detail.value)}>
-        <IonRow>
-          <IonCol>
-            <IonItem class="radio-buttons" lines="none">
-              <IonText>Attended</IonText>
-              <IonRadio onIonFocus={(e) => changeSlide("prev")} slot="end" value="attended" />
-            </IonItem>
-          </IonCol>
-          <IonCol>
-            <IonItem class="radio-buttons" lines="none">
-              <IonText>Hosted</IonText>
-              <IonRadio onIonFocus={e => changeSlide("next")} slot="end" value="hosted" />
-            </IonItem>
-          </IonCol>
-        </IonRow>
-        </IonRadioGroup>    
+          </IonItem>
+          <IonRadioGroup value={selected} onIonChange={e => setSelected(e.detail.value)}>
+          <IonRow>
+            <IonCol>
+              <IonItem class="radio-buttons" lines="none">
+                <IonText>Attended</IonText>
+                <IonRadio onIonFocus={(e) => changeSlide("prev")} slot="end" value="attended" />
+              </IonItem>
+            </IonCol>
+            <IonCol>
+              <IonItem class="radio-buttons" lines="none">
+                <IonText>Hosted</IonText>
+                <IonRadio onIonFocus={e => changeSlide("next")} slot="end" value="hosted" />
+              </IonItem>
+            </IonCol>
+          </IonRow>
+          </IonRadioGroup>                                
+        </IonHeader>       
+        <IonContent fullscreen={true}>         
+          <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
+            <IonRefresherContent
+              pullingIcon={chevronDownCircleOutline}
+              refreshingSpinner="circles">
+            </IonRefresherContent>
+          </IonRefresher>               
         <IonSlides ref={slides} onIonSlideDidChange={e => handleSlideChange()}>                   
           <IonSlide>     
-          <IonContent> 
-            <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
-              <IonRefresherContent
-                pullingIcon={chevronDownCircleOutline}
-                refreshingSpinner="circles">
-              </IonRefresherContent>
-            </IonRefresher>          
+          <IonContent fullscreen={true} scroll-y="true">         
             {attendedParties.length === 0 ?
             <IonText class="white-text">No attended parties yet..</IonText> :          
             attendedParties.map(doc => {
@@ -442,16 +442,9 @@ const MyPartyList = () => {
               )          
             })}
           </IonContent>
-          </IonSlide>
-                
+          </IonSlide><br/><br/><br/>                
           <IonSlide>
-          <IonContent>
-            <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
-              <IonRefresherContent
-                pullingIcon={chevronDownCircleOutline}
-                refreshingSpinner="circles">
-              </IonRefresherContent>
-            </IonRefresher>          
+          <IonContent fullscreen={true} scroll-y="true">       
             {yourParties.length === 0 ?
             <IonText class="white-text"> No hosted parties yet..</IonText> : 
             yourParties.map(doc => {
@@ -460,7 +453,7 @@ const MyPartyList = () => {
               )          
             })}                    
           </IonContent>
-          </IonSlide>
+          </IonSlide><br/><br/><br/>
         </IonSlides> 
         </IonContent> 
         <IonPopover
