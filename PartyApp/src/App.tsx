@@ -228,7 +228,7 @@ const Party = ({id, data, live, edit, classname}) => {
 // when party is created and invites are sent, each user invited gets the party id added to their document.
 // Each user then checks their document for parties and then if there is a new party id, this is then checked
 // against the same id in the parties collection in order to display all the details.
-const PartyList = () => {
+const PartyList = ({editParty, stopEditing}) => {
 
   // for friend request bit.
   const collectionRef = firebase.firestore().collection("friend_requests"); 
@@ -436,11 +436,13 @@ const PartyList = () => {
 
   const location = useLocation();
 
-  if (editingParty ) {
+  if (editingParty) {
+    editParty();
     return(
       <CreateParty editingParty={editingParty} displayParties={() => setRefresh(!refresh)}/>
     )
   } else {
+  stopEditing();
   return(    
     <IonContent fullscreen={true} no-bounce>
       <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
@@ -707,8 +709,11 @@ const MyParties: React.FC = () => {
 }
 const Home: React.FC = () => {
 
+  const [editing, setEditing] = useState(false);
+
   return(
     <IonPage>
+      {editing ? null : 
       <IonToolbar>
         <IonTitle class="ion-padding-bottom">Upcoming parties</IonTitle>
         <IonButtons slot="end">
@@ -716,8 +721,8 @@ const Home: React.FC = () => {
             <IonIcon slot="icon-only" icon={personAddSharp} />
           </IonButton>       
         </IonButtons>                     
-      </IonToolbar>
-      <PartyList/>
+      </IonToolbar>}
+      <PartyList editParty={() => setEditing(true)} stopEditing={()=>setEditing(false)}/>
       <br/> <br/> <br/> <br/> <br/> <br/>
     </IonPage>
   )
