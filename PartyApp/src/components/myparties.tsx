@@ -408,13 +408,13 @@ const MyPartyList = () => {
             </IonGrid> 
           </IonItem>                     
         </IonHeader>
-        <IonContent fullscreen={true} scroll-y="false">
         <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
           <IonRefresherContent
             pullingIcon={chevronDownCircleOutline}
             refreshingSpinner="circles">
           </IonRefresherContent>
         </IonRefresher>         
+        <IonContent fullscreen={true} scroll-y="false">        
         <IonRadioGroup value={selected} onIonChange={e => setSelected(e.detail.value)}>
         <IonRow>
           <IonCol>
@@ -557,7 +557,7 @@ const MyPartyList = () => {
           position = 'bottom'
           color="danger"
           duration={2000}
-        />   <br/><br/><br/> <br/>            
+        />           
         </div>    
       </>
     )

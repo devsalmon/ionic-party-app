@@ -320,7 +320,8 @@ ion-range {
 
 ion-refresher-content {
     color: white;
-    --color: white
+    --color: white;
+    overflow-y: scroll
 }
 
 ion-slides {

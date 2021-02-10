@@ -64,7 +64,9 @@ import {
   thumbsUpOutline,
   thumbsDownOutline,
   manOutline,
-  womanOutline
+  womanOutline,
+  informationOutline,
+  pencilOutline
 } from 'ionicons/icons';
 import {useCamera} from '@ionic/react-hooks/camera';
 import {CameraResultType, CameraSource, Plugins} from '@capacitor/core';
@@ -132,52 +134,59 @@ const Party = ({id, data, live, edit, classname}) => {
   let liveParty // not live initially
   if (isLive) {
     liveParty =   
-    <IonRow> 
-      <IonButton class="custom-button" expand="block" onClick={photo ? onSave : takePhoto}>
-        <IonIcon icon={photo ? cloudUploadSharp : cameraSharp} />        
+    <IonCol className="ion-self-align-center"> 
+      <IonButton onClick={photo ? onSave : takePhoto}>
+        <IonIcon slot="icon-only" icon={photo ? cloudUploadSharp : cameraSharp} />        
       </IonButton>  
-    </IonRow>
+    </IonCol>
   } else {};
 
+  var today = new Date();
   return(
     <>
-    {isLive ? <><IonCardTitle color="danger">LIVE!</IonCardTitle><br/></> : null}
+    {moment(today).isBetween(moment(data.endTime), moment(data.endTime).add(1, 'days')) ? 
+    <><IonCardTitle color="warning">After Party</IonCardTitle><br/></> :
+    isLive ? <><IonCardTitle color="danger">LIVE!</IonCardTitle><br/></> : null}
     <IonItem className={classname} lines="none">
       <IonGrid>
-        {firebase.auth().currentUser.displayName === data.host ? 
-          <IonRow>
-            <IonButton class="custom-button" color="warning" onClick={edit}>Edit party</IonButton>
-          </IonRow> : null
-        }
         <IonRow>
           <IonCol size="2.5" class="date-box">
             <IonText>{data.month} <br/></IonText>   
             <IonText class="day-text">{data.day}</IonText> 
           </IonCol>
-          <IonCol size="5.5">            
+          <IonCol>            
             <IonText>{data.title} <br/></IonText>  
             <IonText class="white-text">{data.address}</IonText><br/>
             <IonText class="white-text">{data.postcode}</IonText><br/>
             <IonText class="white-text">By {data.host}</IonText>
           </IonCol>      
-          <IonCol size="4">
-            <IonButton class="custom-button" onClick={()=> setShowPopover(true)}>
-              See <br/> details
+        </IonRow> 
+        <IonRow className="ion-text-center">
+          <IonCol className="ion-align-self-center">
+            {firebase.auth().currentUser.displayName === data.host ?              
+              <IonButton onClick={edit}>
+                <IonIcon slot="icon-only" icon={pencilOutline} />
+              </IonButton>
+             : null
+            }      
+            </IonCol>
+          <IonCol className="ion-align-self-center">    
+            <IonButton onClick={()=> setShowPopover(true)}>
+              <IonIcon slot="icon-only" icon={informationOutline}/>
             </IonButton>
           </IonCol>
-        </IonRow> 
-        <IonRow>
-          {photo ? 
-          <IonButton onClick={() => setPhoto('')}>
-            Cancel
-          </IonButton> :
-          null}
+          {liveParty} {/*if live then display camera buttons */}             
+            {photo ? 
+            <IonCol className="ion-align-self-center">
+            <IonButton onClick={() => setPhoto('')}>
+              Cancel
+            </IonButton> 
+            </IonCol> :
+            null}                      
         </IonRow>  
         <IonRow> 
           {photo ? <IonImg src={photo}></IonImg> : null}
-        </IonRow>          
-        {/*if live then display camera buttons */}   
-        {liveParty}        
+        </IonRow>                                  
       </IonGrid>   
       <IonPopover
         cssClass="party-details-popover"        
@@ -331,6 +340,7 @@ const PartyList = () => {
           let data = doc.data();          
           var alreadyInUP = upcomingParties.some(item => doc.id === item.id);
           var alreadyInLP = liveParties.some(item => doc.id === item.id);
+          var endTime = moment(data.endTime).add(1, 'days')
           if (moment(today).isBefore(data.dateTime) && !alreadyInUP) { 
             setUpcomingParties(parties => [
               ...parties, 
@@ -339,7 +349,8 @@ const PartyList = () => {
                 data: data
               }              
             ]);
-          } else if (moment(today).isBetween(data.dateTime, data.endTime) && !alreadyInLP) {
+          } else if
+          (moment(today).isBetween(data.dateTime, endTime)  && !alreadyInLP) {
             // if party is live
             setLiveParties(parties => [
               ...parties,
@@ -355,7 +366,7 @@ const PartyList = () => {
                   break;
               }   
             }             
-          } else if (moment(today).isAfter(data.endTime)) {
+          } else if (moment(today).isAfter(endTime)) {
             for (var i=0; i < liveParties.length; i++) {
               if (liveParties[i].id === doc.id) {
                   liveParties.splice(i,1);
@@ -370,13 +381,14 @@ const PartyList = () => {
       .doc(current_user.uid).get().then(doc => {
           let today = new Date();
           let data = doc.data();
-          if (data.acceptedInvites) { 
+          if (data.acceptedInvites) {             
             for (var i=0; i < data.acceptedInvites.length; i++) {
               firebase.firestore().collection("users")
                 .doc(data.acceptedInvites[i].hostid).collection("myParties").doc(data.acceptedInvites[i].partyid).get().then(partydoc => {
                   // if party is in the future and party isn't already in the state                   
                   var alreadyInUP = upcomingParties.some(item => partydoc.id === item.id);
                   var alreadyInLP = liveParties.some(item => partydoc.id === item.id);
+                  var endTime = moment(partydoc.data().endTime).add(1, 'days')
                   if (moment(today).isBefore(partydoc.data().dateTime) && !alreadyInUP) { 
                     setUpcomingParties(parties => [
                       ...parties, 
@@ -386,7 +398,7 @@ const PartyList = () => {
                       }              
                     ]);
                   } else if 
-                  (moment(today).isBetween(partydoc.data().dateTime, moment(partydoc.data().endTime).add(1, 'days').calendar()) && !alreadyInLP) {
+                  (moment(today).isBetween(partydoc.data().dateTime, endTime) && !alreadyInLP) {
                     // if party is live
                     setLiveParties(parties => [
                       ...parties,
@@ -402,7 +414,14 @@ const PartyList = () => {
                           break;
                       }   
                     }             
-                  } 
+                  } else if (moment(today).isAfter(endTime)) {
+                      for (var i=0; i < liveParties.length; i++) {
+                        if (liveParties[i].id === doc.id) {
+                            liveParties.splice(i,1);
+                            break;
+                        }   
+                      }             
+                    }
               })
             } 
           }                 
