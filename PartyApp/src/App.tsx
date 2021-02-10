@@ -385,7 +385,8 @@ const PartyList = () => {
                         data: partydoc.data()
                       }              
                     ]);
-                  } else if (moment(today).isBetween(partydoc.data().dateTime, partydoc.data().endTime) && !alreadyInLP) {
+                  } else if 
+                  (moment(today).isBetween(partydoc.data().dateTime, moment(partydoc.data().endTime).add(1, 'days').calendar()) && !alreadyInLP) {
                     // if party is live
                     setLiveParties(parties => [
                       ...parties,
@@ -393,7 +394,7 @@ const PartyList = () => {
                         id: partydoc.id,
                         data: partydoc.data()
                       }
-                    ])
+                    ]) 
                     // remove the party from upcomingParties array 
                     for (var i=0; i < upcomingParties.length; i++) {
                       if (upcomingParties[i].id === partydoc.id) {

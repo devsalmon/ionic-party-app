@@ -304,13 +304,13 @@ const CreateParty = ({editingParty, displayParties}) => {
     return(
       <IonContent class="create-content" fullscreen={true}>
         <IonToolbar color="warning" className="ion-padding">
-          <IonButtons slot="start" class="create-back-button">
-            <IonButton  fill="clear" color="dark" href="/home">
+          {editingParty ? <IonButtons slot="start" class="create-back-button">
+            <IonButton fill="clear" color="dark" href="/home">
               <IonIcon slot="icon-only" icon={chevronBackSharp}></IonIcon>
             </IonButton>
-          </IonButtons>        
+          </IonButtons> : null}            
           {editingParty ? <IonTitle color="dark">Editing</IonTitle> : 
-            <IonTitle color="dark">Create<br/>a party</IonTitle>
+            <IonTitle color="dark">Create</IonTitle>
           }  
         </IonToolbar>
           <IonItem class="rounded-top" lines="none">
@@ -367,7 +367,7 @@ const CreateParty = ({editingParty, displayParties}) => {
             expand="block"            
             onClick={() => onSave()}
             >{editingParty ? "Update!" : "Create!"}</IonButton>        
-          </IonItem><br/><br/>
+          </IonItem><br/><br/><br/><br/><br/><br/>
           {editingParty ? 
             <IonButton color="danger" class="create-button" onClick={() => setShowPopover(true)}>Delete party</IonButton> :
           null}

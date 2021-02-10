@@ -259,7 +259,7 @@ const SignIn: React.FC = () => {
         <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
           {hasAccount ? (
             <>
-              <IonButton class="signin-button" /*onClick={() => handleLogin()}*/>Sign in</IonButton>
+              <IonButton class="signin-button" onClick={() => handleLogin()}>Sign in</IonButton>
               <p className="errormsg">Don't have an account? <span onClick={() => setHasAccount(!hasAccount)}>Sign up</span></p>
               <p className="errormsg"><span>Forgot Password?</span></p>
             </>

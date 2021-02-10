@@ -9,6 +9,8 @@ import {
   IonRouterOutlet,
   IonItem,
   IonImg,
+  IonRefresher,
+  IonRefresherContent,
   IonToolbar,
   IonToast,
   IonTitle,
@@ -41,7 +43,8 @@ import Memory from './memory';
 import { 
   chevronBackSharp,
   settingsSharp,
-  personOutline
+  personOutline,
+  chevronDownCircleOutline
 } from 'ionicons/icons';
 import '../App.css'
 /* Core CSS required for Ionic components to work properly */
@@ -86,7 +89,7 @@ const MyPartyList = () => {
   const [showPhotoDeleted, setShowPhotoDeleted] = useState(false);
 
   const [friends, setFriends] = useState([]);
-  const [newFriends, setNewFriends] = useState(false);  
+  const [refresh, setRefresh] = useState(false);  
   var user = firebase.auth().currentUser;
   var currentuser = firebase.auth().currentUser.uid;
 
@@ -103,12 +106,21 @@ const MyPartyList = () => {
         }
       })    
     // useeffect makes display parties only runs once
-  }, [newFriends]);  
+  }, [refresh]);  
 
   var user = firebase.auth().currentUser;  
   const friendsCollection = firebase.firestore().collection('friends');
   const usersCollection = firebase.firestore().collection('users');
   var tempFriends = []; // list for friend id's
+
+  function doRefresh(event) {
+    // toggle new parties so displayParties runs and it checks for new parties
+    displayParties();
+    setRefresh(!refresh);         
+    setTimeout(() => {
+      event.detail.complete();
+    }, 2000);
+  }     
 
   const findFriends = () => {
       // loop through friends list in the document of current user in friends collection    
@@ -216,7 +228,7 @@ const MyPartyList = () => {
           let data = doc.data();          
           // if party is in the future and party isn't already in the state 
           var alreadyInYP = yourParties.some(item => doc.id === item.id);
-          if (moment(today).isAfter(data.endTime) && !alreadyInYP) { 
+          if (moment(today).isAfter(data.dateTime) && !alreadyInYP) { 
             setYourParties(parties => [
               ...parties, 
               {
@@ -239,7 +251,7 @@ const MyPartyList = () => {
                 .doc(data.acceptedInvites[i].hostid).collection("myParties").doc(data.acceptedInvites[i].partyid).get().then(partydoc => {
                   // if party is in the future and party isn't already in the state 
                   var alreadyInAP = attendedParties.some(item => partydoc.id === item.id);
-                  if (moment(today).isAfter(partydoc.data().endTime) && !alreadyInAP) {
+                  if (moment(today).isAfter(partydoc.data().dateTime) && !alreadyInAP) {
                     // if party is live
                     setAttendedParties(parties => [
                       ...parties,
@@ -397,6 +409,12 @@ const MyPartyList = () => {
           </IonItem>                     
         </IonHeader>
         <IonContent fullscreen={true} scroll-y="false">
+        <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
+          <IonRefresherContent
+            pullingIcon={chevronDownCircleOutline}
+            refreshingSpinner="circles">
+          </IonRefresherContent>
+        </IonRefresher>         
         <IonRadioGroup value={selected} onIonChange={e => setSelected(e.detail.value)}>
         <IonRow>
           <IonCol>
@@ -437,8 +455,8 @@ const MyPartyList = () => {
             })}                    
           </IonContent>
           </IonSlide>
-        </IonSlides>   
-        </IonContent>
+        </IonSlides> 
+        </IonContent> 
         <IonPopover
           cssClass="popover"        
           isOpen={usernamePopover}
@@ -539,7 +557,7 @@ const MyPartyList = () => {
           position = 'bottom'
           color="danger"
           duration={2000}
-        />               
+        />   <br/><br/><br/> <br/>            
         </div>    
       </>
     )

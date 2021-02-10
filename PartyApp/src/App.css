@@ -243,6 +243,7 @@ ion-button {
     --color: yellow;
     --color-activated: black;
     --background: black;
+    --background-activated-opacity: 0.5;
     --background-activated: transparent;
     --background-hover-opacity: 0.3;
 }
@@ -323,11 +324,12 @@ ion-refresher-content {
 }
 
 ion-slides {
-    height: 300%
+    height: 500%;
 }
 
 .swiper-slide {
-    display: block
+    display: block;
+    overflow-y: scroll;
 }
 
 ion-tab-button {
