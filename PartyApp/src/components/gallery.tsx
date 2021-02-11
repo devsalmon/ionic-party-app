@@ -96,6 +96,7 @@ const Picture = ({doc, hostid, partyid}) => {
   const [comment, setComment] = useState('');
   const [refresh, setRefresh] = useState(false);
   const [otherComments, setOtherComments] = useState([]);
+  //const [updateComments, setUpdateComments] = useState(false);
 
   useEffect(() => {  
     likedPicture();
@@ -157,6 +158,9 @@ const Picture = ({doc, hostid, partyid}) => {
   collectionRef.doc(doc.id).onSnapshot(function(doc){
     // update like counter on the picture when there's an update in the picture document 
     doc.data() && setNumLikes(doc.data().likeCounter);
+   // if (updateComments == false) {
+    //setUpdateComments(true);
+   // }
   })
 
   const deletePicture = () => {
@@ -189,22 +193,26 @@ const Picture = ({doc, hostid, partyid}) => {
       // increase like counter in the picture document, and add current user to the likes array
       collectionRef.doc(doc.id).update({
         comments: firebase.firestore.FieldValue.arrayUnion({name: firebase.auth().currentUser.displayName, comment: comment})
-      })       
-    });
-    //clear the comment  
-    setComment('');
-    //setRefresh(!refresh);
+      })
+       .then(function(docRef) {
+        //clear the comment  
+        setComment('');
+        displayComments()
+        //setRefresh(!refresh);
+        })
+    })          //if successful
   }
 
   const displayComments = () => {
   // Checks for friend requests
-  setOtherComments([])
+    setOtherComments([])
     if (doc.exists && doc.data().comments) {
       for (var i = 0; i < doc.data().comments.length; i++) {
+        console.log("Count: ", i)
         var commentor = doc.data().comments[i].name
         var theComment = doc.data().comments[i].comment
-        var alreadyInComments = otherComments.some(item => doc.data().comments[i].comment === item.comment);
-        if (!alreadyInComments) {
+        console.log("Comment: ", theComment)
+        //var alreadyInComments = otherComments.some(item => doc.data().comments[i].comment === item.comment);
           setOtherComments(otherComments => [
             ...otherComments, 
             {
@@ -213,9 +221,15 @@ const Picture = ({doc, hostid, partyid}) => {
             }              
           ]);
         }
+        console.log("Other comments: ", otherComments)
+        //setUpdateComments(false)
         }
       }; 
-    }
+
+      console.log("Other comments outside: ", otherComments)
+     // if (updateComments == true) {
+       // displayComments()
+      //}
 
   return(
     <IonCard class="picture-card">
