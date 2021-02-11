@@ -198,6 +198,7 @@ const Picture = ({doc, hostid, partyid}) => {
 
   const displayComments = () => {
   // Checks for friend requests
+  setOtherComments([])
     if (doc.exists && doc.data().comments) {
       for (var i = 0; i < doc.data().comments.length; i++) {
         var commentor = doc.data().comments[i].name

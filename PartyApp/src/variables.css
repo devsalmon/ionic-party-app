@@ -2,9 +2,14 @@
 http://ionicframework.com/docs/theming/ */
 
 /** Ionic CSS Variables **/
+@font-face {
+  font-family: helvetica;
+  src: url("Audiowide-Regular.ttf")
+}
+
 :root {  
 
-  --ion-font-family: arial;  
+  --ion-font-family: helvetica;  
   /* Set the background of the entire app */
   --ion-background-color: black;
   --ion-background-color-rgb: 0, 0, 0;

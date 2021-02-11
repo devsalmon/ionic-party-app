@@ -15,35 +15,35 @@ var fbConfig = {
 // Initialize Firebase
 firebase.initializeApp(fbConfig);
 
-const messaging = firebase.messaging();
+// const messaging = firebase.messaging();
 
-messaging.requestPermission().then(function() {
-// Add the public key generated from the console here.
-  console.log("have persmission")
-  return messaging.getToken();  
-})
-.then(function(token) {
-  console.log(token)
-})
-.catch(function() {
-  console.log("error fetching token")
-})
+// messaging.requestPermission().then(function() {
+// // Add the public key generated from the console here.
+//   console.log("have persmission")
+//   return messaging.getToken();  
+// })
+// .then(function(token) {
+//   console.log(token)
+// })
+// .catch(function() {
+//   console.log("error fetching token")
+// })
 
-// // Get registration token. Initially this makes a network call, once retrieved
-// // subsequent calls to getToken will return from cache.
-// messaging.getToken().then((currentToken) => {
-//  if (currentToken) {
-//     //Send the token to your server and update the UI if necessary
-//     //...
-//    console.log("current FCM token", currentToken)
-//  } else {
-//    //Show permission request UI
-//    console.log('No registration token available. Request permission to generate one.');
-//     //...
-//  }
-// }).catch((err) => {
-//  console.log('An error occurred while retrieving token. ', err);
-//   //...
-// });
+// // // Get registration token. Initially this makes a network call, once retrieved
+// // // subsequent calls to getToken will return from cache.
+// // messaging.getToken().then((currentToken) => {
+// //  if (currentToken) {
+// //     //Send the token to your server and update the UI if necessary
+// //     //...
+// //    console.log("current FCM token", currentToken)
+// //  } else {
+// //    //Show permission request UI
+// //    console.log('No registration token available. Request permission to generate one.');
+// //     //...
+// //  }
+// // }).catch((err) => {
+// //  console.log('An error occurred while retrieving token. ', err);
+// //   //...
+// // });
 
 export default firebase;

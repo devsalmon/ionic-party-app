@@ -300,7 +300,6 @@ ion-footer {
 ion-item {
     --background: transparent;
     --ion-text-color: yellow;
-    text-transform: uppercase;
 }
 
 ion-label {
@@ -317,7 +316,7 @@ ion-radio {
 ion-range {
     --bar-background: yellow;
     --knob-background: yellow;
-    --knob-size: 30px;
+    --knob-size: 20px;
     --bar-background-active: yellow;
     --bar-height: 3px;
     --height: 3px;

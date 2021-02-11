@@ -97,7 +97,7 @@ const MyPartyList = () => {
   useEffect(() => {  
     findFriends();  
     // useeffect hook only runs after first render so it only runs once
-    displayParties();
+    displayParties(); 
     //finds the number of friends you have.
     firebase.firestore().collection("friends")
     .doc(currentuser).get().then(function(doc) {
@@ -222,7 +222,7 @@ const MyPartyList = () => {
  const displayParties = () => {          
     // get your parties
     firebase.firestore().collection("users")
-      .doc(currentuser).collection("myParties").get().then(querySnapshot => {
+      .doc(currentuser).collection("myParties").orderBy("date", "desc").get().then(querySnapshot => {
         querySnapshot.forEach(doc => {
           let today = new Date();
           let data = doc.data();          
@@ -252,6 +252,7 @@ const MyPartyList = () => {
                   // if party is in the future and party isn't already in the state 
                   var alreadyInAP = attendedParties.some(item => partydoc.id === item.id);
                   if (moment(today).isAfter(partydoc.data().dateTime) && !alreadyInAP) {
+                    attendedParties.sort((a, b) => a.data.dateTime - b.data.dateTime);   
                     // if party is live
                     setAttendedParties(parties => [
                       ...parties,
@@ -441,6 +442,9 @@ const MyPartyList = () => {
                 <Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>
               )          
             })}
+            <IonItem lines="none">
+            <br/><br/><br/>
+            </IonItem>            
           </IonContent>
           </IonSlide><br/><br/><br/>                
           <IonSlide>
@@ -451,7 +455,10 @@ const MyPartyList = () => {
               return(              
                 <Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>
               )          
-            })}                    
+            })} 
+            <IonItem lines="none">
+            <br/><br/><br/>
+            </IonItem>                   
           </IonContent>
           </IonSlide><br/><br/><br/>
         </IonSlides> 
@@ -534,7 +541,7 @@ const MyPartyList = () => {
           <IonList class="list">
               {friends && friends.map(friend => {
                   return(
-                    <IonItem class="accordion-item" key={friend.id}>
+                    <IonItem lines="none" key={friend.id}>
                         <IonText>{friend.name}</IonText>
                     </IonItem>
                   )

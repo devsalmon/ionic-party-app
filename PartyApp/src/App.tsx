@@ -99,6 +99,8 @@ const Party = ({id, data, live, edit}) => {
   const [showPopover, setShowPopover] = useState(false);
   const [photo, setPhoto] = useState('');
   const [daysUntilParty, setDaysUntilParty] = useState(0);
+  const [hoursUntilParty, setHoursUntilParty] = useState(0);
+  const [minutesUntilParty, setMinutesUntilParty] = useState(0);
   //const {photo, getPhoto} = useCamera(); 
   const { Camera } = Plugins;
   const [isLive, setIsLive] = useState(live);
@@ -139,7 +141,16 @@ const Party = ({id, data, live, edit}) => {
     var now = new Date().getTime();
     var countdownTime = moment(data.dateTime).valueOf();
     var days = Math.floor((countdownTime - now) / (1000 * 60 * 60 * 24));
-    setDaysUntilParty(days);
+    var hours = Math.floor(((countdownTime - now) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var minutes = Math.floor(((countdownTime - now) % (1000 * 60 * 60)) / (1000 * 60));
+    if (days === 0 && hours !== 0) { // if less than a day left until party
+      setHoursUntilParty(hours);
+      setMinutesUntilParty(minutes);
+    } else if (hours === 0) {
+      setMinutesUntilParty(minutes)
+    } else {
+      setDaysUntilParty(days);
+    }    
   }
 
   var today = new Date();
@@ -148,7 +159,20 @@ const Party = ({id, data, live, edit}) => {
     {moment(today).isBetween(moment(data.endTime), moment(data.endTime).add(1, 'days')) ? 
     <><IonCardTitle color="warning">After Party</IonCardTitle><br/></> :
     isLive ? <><IonCardTitle color="danger">Live!</IonCardTitle><br/></> : 
-    <><IonText class="ion-padding">{daysUntilParty}d</IonText><br/></>}
+    <div className="ion-text-center">
+      {hoursUntilParty ? 
+      <IonText className="ion-padding">
+        {hoursUntilParty}hrs {minutesUntilParty}mins
+      </IonText> : 
+      minutesUntilParty ? 
+      <IonText className="ion-padding">
+        {minutesUntilParty}mins
+      </IonText> :       
+      <IonText className="ion-padding"> 
+        {daysUntilParty}days
+      </IonText>
+      }<br/>
+    </div>}
     <IonItem className="accordion-item" lines="none">
       <IonGrid>
         <IonRow>
@@ -261,6 +285,8 @@ const PartyList = ({editParty, stopEditing}) => {
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once    
     displayParties()   
+    upcomingParties.sort((a, b) => b.data.dateTime - a.data.dateTime);
+    liveParties.sort((a, b) => b.data.dateTime - a.data.dateTime);
     // this means display parties only runs once
   },  [refresh]); 
 
@@ -350,7 +376,7 @@ const PartyList = ({editParty, stopEditing}) => {
 
   const displayParties = () => {          
     firebase.firestore().collection("users")
-      .doc(current_user.uid).collection("myParties").get().then(querySnapshot => {
+      .doc(current_user.uid).collection("myParties").orderBy("date", "asc").get().then(querySnapshot => {
         querySnapshot.forEach(doc => {
           let today = new Date();
           let data = doc.data();          
@@ -731,8 +757,8 @@ const Home: React.FC = () => {
   return(
     <IonPage>
       {editing ? null : 
-      <IonToolbar>
-        <IonTitle class="ion-padding-bottom">Upcoming parties</IonTitle>
+      <IonToolbar class="ion-padding">
+        <IonTitle class="ion-padding">Upcoming<br/>parties</IonTitle>
         <IonButtons slot="end">
           <IonButton class="top-icons" href='/users'>
             <IonIcon slot="icon-only" icon={personAddSharp} />
