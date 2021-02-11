@@ -162,14 +162,14 @@ const Party = ({id, data, live, edit}) => {
     <div className="ion-text-center">
       {hoursUntilParty ? 
       <IonText className="ion-padding">
-        {hoursUntilParty}hrs {minutesUntilParty}mins
+        {hoursUntilParty} hrs {minutesUntilParty} mins
       </IonText> : 
       minutesUntilParty ? 
       <IonText className="ion-padding">
-        {minutesUntilParty}mins
+        {minutesUntilParty} mins
       </IonText> :       
       <IonText className="ion-padding"> 
-        {daysUntilParty}days
+        {daysUntilParty} days
       </IonText>
       }<br/>
     </div>}

@@ -334,16 +334,13 @@ const MyPartyList = () => {
   if (inGallery) {
     return(
         <>
-        <IonToolbar>
+        <IonToolbar class="ion-padding">
           <IonButtons slot="start">
             <IonButton color="warning" fill="clear" onClick={() => exitGallery()}>
               <IonIcon icon={chevronBackSharp} />
             </IonButton>
           </IonButtons>
           <IonTitle>My Parties</IonTitle>
-          <IonButtons slot="end">
-            <IonButton disabled></IonButton>
-          </IonButtons>
         </IonToolbar>
         <Gallery hostid={hostID} partyid={partyID} key={partyID}/>
         </>

@@ -4,7 +4,7 @@ http://ionicframework.com/docs/theming/ */
 /** Ionic CSS Variables **/
 @font-face {
   font-family: helvetica;
-  src: url("Audiowide-Regular.ttf")
+  src: url("Roboto-Black.ttf")
 }
 
 :root {  
