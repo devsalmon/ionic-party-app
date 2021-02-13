@@ -14,7 +14,8 @@ import {
   IonCol,
   IonInput,
   IonText,
-  IonItem
+  IonItem,
+  IonTextarea
 } from '@ionic/react';
 import {   
   heartOutline,
@@ -46,6 +47,9 @@ const Gallery = ({hostid, partyid}) => {
     const [date, setDate] = useState('');
     const [title, setTitle] = useState('');
     const [location, setLocation] = useState('');
+    const [message, setMessage] = useState('');
+    const [afterMessage, setAfterMessage] = useState('');
+    const [edit, setEdit] = useState(false);
     const [value, loading, error] = useCollection(
       firebase.firestore().collection('users').doc(hostid).collection('myParties').doc(partyid).collection('pictures'),
     );  
@@ -56,6 +60,7 @@ const Gallery = ({hostid, partyid}) => {
           setLocation(doc.data().location);
           setDate(moment(doc.data().date).format('l'));
           setHost(doc.data().host);
+          setAfterMessage(doc.data().afterMessage)
       } else {
           // doc.data() will be undefined in this case
           console.log("No such document!");
@@ -63,6 +68,14 @@ const Gallery = ({hostid, partyid}) => {
       }).catch(function(error) {
           console.log("Error getting document:", error);
       });
+
+      const uploadMessage = () => {
+        doc.update({
+          afterMessage: message
+        }).then(function(doc){
+          setEdit(false);
+        })
+      }
 
     // in the return function, we loop through each picture in the collection
     // and for each document, we create a picture card, 
@@ -72,13 +85,28 @@ const Gallery = ({hostid, partyid}) => {
           <IonCard class="gallery-card">
             <IonCardContent class="gallery-card-content">
               <IonCardTitle class="gallery-card-title">{title}</IonCardTitle>         
-              <IonCardSubtitle class="gallery-card-subtitle">Hosted on {date} by {host}</IonCardSubtitle>   
-              <IonCardSubtitle class="gallery-card-subtitle">{location}</IonCardSubtitle>              
+              <IonCardSubtitle class="gallery-card-subtitle">Hosted on {date} by {host}</IonCardSubtitle>
+              {firebase.auth().currentUser.displayName === host && edit ?              
+                <IonItem>
+                  <IonTextarea class="create-input" value={message} placeholder="Message" onIonChange={e => setMessage(e.detail.value!)}></IonTextarea>
+                  <IonButton onClick={() => uploadMessage()}>Upload</IonButton>
+                </IonItem>
+             : null
+            }         
+            <IonText>"{afterMessage}"</IonText>
+            {firebase.auth().currentUser.displayName === host && !edit ?              
+              <IonCardSubtitle>
+                <IonItem lines="none">
+                  <IonButton onClick={() => setEdit(true)}>Edit</IonButton>
+                </IonItem>
+              </IonCardSubtitle>
+             : null
+            }                  
             </IonCardContent>
           </IonCard>
-          {value && value.docs.map(doc => {
+          {value && value.docs.map((doc, i) => {
             return( !loading &&
-              <Picture doc={doc} hostid={hostid} partyid={partyid} key={partyid}/> 
+              <Picture doc={doc} hostid={hostid} partyid={partyid} key={i}/> 
             )
           })}         
       </IonContent>
@@ -94,6 +122,7 @@ const Picture = ({doc, hostid, partyid}) => {
   const [numLikes, setNumLikes] = useState(Number); 
   const [ownPicture, setOwnPicture] = useState(Boolean);
   const [comment, setComment] = useState('');
+  const [showComments, setShowComments] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [otherComments, setOtherComments] = useState([]);
   //const [updateComments, setUpdateComments] = useState(false);
@@ -158,9 +187,7 @@ const Picture = ({doc, hostid, partyid}) => {
   collectionRef.doc(doc.id).onSnapshot(function(doc){
     // update like counter on the picture when there's an update in the picture document 
     doc.data() && setNumLikes(doc.data().likeCounter);
-   // if (updateComments == false) {
-    //setUpdateComments(true);
-   // }
+    //doc.data() && displayComments();
   })
 
   const deletePicture = () => {
@@ -189,30 +216,27 @@ const Picture = ({doc, hostid, partyid}) => {
   ) : null 
 
   const writeComments = () => {
-    collectionRef.doc(doc.id).get().then(function(doc){
-      // increase like counter in the picture document, and add current user to the likes array
-      collectionRef.doc(doc.id).update({
-        comments: firebase.firestore.FieldValue.arrayUnion({name: firebase.auth().currentUser.displayName, comment: comment})
-      })
-       .then(function(docRef) {
-        //clear the comment  
+    if (comment != '') {
+    collectionRef.doc(doc.id).collection("Comments").add({
+      username: firebase.auth().currentUser.displayName,
+      comment: comment,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(docRef) {
         setComment('');
-        displayComments()
-        //setRefresh(!refresh);
+        displayComments(); 
+        setShowComments(true);       
         })
-    })          //if successful
+      }
   }
 
   const displayComments = () => {
   // Checks for friend requests
     setOtherComments([])
-    if (doc.exists && doc.data().comments) {
-      for (var i = 0; i < doc.data().comments.length; i++) {
-        console.log("Count: ", i)
-        var commentor = doc.data().comments[i].name
-        var theComment = doc.data().comments[i].comment
+    collectionRef.doc(doc.id).collection("Comments").orderBy("timestamp", "asc").get().then(querySnapshot => {
+      querySnapshot.forEach(doc => {
+        var commentor = doc.data().username
+        var theComment = doc.data().comment
         console.log("Comment: ", theComment)
-        //var alreadyInComments = otherComments.some(item => doc.data().comments[i].comment === item.comment);
           setOtherComments(otherComments => [
             ...otherComments, 
             {
@@ -220,16 +244,9 @@ const Picture = ({doc, hostid, partyid}) => {
               comment: theComment
             }              
           ]);
-        }
-        console.log("Other comments: ", otherComments)
-        //setUpdateComments(false)
-        }
-      }; 
-
-      console.log("Other comments outside: ", otherComments)
-     // if (updateComments == true) {
-       // displayComments()
-      //}
+        })
+      })
+      }
 
   return(
     <IonCard class="picture-card">
@@ -243,21 +260,30 @@ const Picture = ({doc, hostid, partyid}) => {
       <IonImg class="gallery-photo" src={doc.data().picture} />  
       <IonRow>
         {likeButton}    
-        {removePicture}    
+        {removePicture}
+        {showComments ? 
+        <IonButton onClick={()=>setShowComments(false)} fill="clear" color="warning">
+          Hide comments
+        </IonButton>    
+        :
+        <IonButton onClick={()=>setShowComments(true)} fill="clear" color="warning">
+          See comments
+        </IonButton>}
       </IonRow>
-      {otherComments && otherComments.map(comment => {
-          return(<><IonText class="ion-padding-start">{comment.name}: {comment.comment}</IonText><br/></>)
+      {otherComments && showComments && otherComments.map((comment, i) => {
+          return(<div key={i}><IonText class="ion-padding-start">{comment.name}: {comment.comment}</IonText><br/></div>)
       })}
       <IonRow>
       <IonInput 
-        class="create-input" 
+        class="create-input ion-padding-start" 
         value={comment} 
         placeholder="Comment"
         type="text"
         onIonChange={e => setComment(e.detail.value!)}>
-        <IonButton onClick={()=>writeComments()}>
+        {comment ? /*only show send button when there is text in the comment area */
+        <IonButton onClick={writeComments}>
         <IonIcon slot="icon-only" icon={sendOutline} />
-        </IonButton>                  
+        </IonButton> : null} 
       </IonInput>  
       </IonRow>
     </IonCard>  

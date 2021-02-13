@@ -198,10 +198,9 @@ const SignIn: React.FC = () => {
   return (
     <IonPage>
       <IonToolbar>
-        <IonTitle size="large">Sign in</IonTitle>
+        {hasAccount ? <IonTitle>Sign In</IonTitle> : <IonTitle>Sign Up</IonTitle>}
       </IonToolbar>
-      <IonContent>   
-        <IonTitle>MOTIV</IonTitle><br/><br/>      
+      <IonContent class="ion-padding">   
         <IonInput 
         class="create-input"
         value={email} 
@@ -253,13 +252,13 @@ const SignIn: React.FC = () => {
           {hasAccount ? (
             <>
               <IonButton class="signin-button" onClick={() => handleLogin()}>Sign in</IonButton>
-              <p className="errormsg">Don't have an account? <span onClick={() => setHasAccount(!hasAccount)}>Sign up</span></p>
-              <p className="errormsg"><span>Forgot Password?</span></p>
+              <p className="errormsg">Don't have an account? <br/><span className="yellow-text" onClick={() => setHasAccount(!hasAccount)}>Sign up</span></p>
+              <p className="errormsg"><span className="yellow-text">Forgot Password?</span></p>
             </>
           ) : (
             <>
               <IonButton class="signin-button" onClick={() => handleSignUp()}>Sign up</IonButton>
-              <p className="errormsg">Have an account? <span onClick={() => setHasAccount(!hasAccount)}>Sign in</span></p>
+              <p className="errormsg">Have an account? <span className="yellow-text" onClick={() => setHasAccount(!hasAccount)}>Sign in</span></p>
             </>
           )}
           {linkSent ? (

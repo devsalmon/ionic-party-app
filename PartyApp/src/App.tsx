@@ -7,13 +7,6 @@ import MyPartyList from './components/myparties';
 import SignIn from './components/signin';
 import OtherProfile from './components/otherprofile';
 
-import {
-    Accordion,
-    AccordionItem,
-    AccordionItemHeading,
-    AccordionItemButton,
-    AccordionItemPanel,
-} from 'react-accessible-accordion';
 import { Route, Redirect, RouteComponentProps, useLocation, useHistory } from 'react-router-dom';
 import { RefresherEventDetail } from '@ionic/core';
 import {
@@ -140,14 +133,16 @@ const Party = ({id, data, live, edit}) => {
   const getDaysUntilParty = () => {    
     var now = new Date().getTime();
     var countdownTime = moment(data.dateTime).valueOf();
-    var days = Math.floor((countdownTime - now) / (1000 * 60 * 60 * 24));
-    var hours = Math.floor(((countdownTime - now) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    var days = Math.floor((countdownTime - now) / (1000 * 60 * 60 * 24));    
     var minutes = Math.floor(((countdownTime - now) % (1000 * 60 * 60)) / (1000 * 60));
-    if (days === 0 && hours !== 0) { // if less than a day left until party
-      setHoursUntilParty(hours);
-      setMinutesUntilParty(minutes);
-    } else if (hours === 0) {
-      setMinutesUntilParty(minutes)
+    if (days === 0) { // if less than a day left until party
+      var hours = Math.floor(((countdownTime - now) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      if (hours === 0) {
+        setMinutesUntilParty(minutes);
+      } else {
+        setHoursUntilParty(hours);
+        setMinutesUntilParty(minutes);
+      }
     } else {
       setDaysUntilParty(days);
     }    
@@ -157,8 +152,8 @@ const Party = ({id, data, live, edit}) => {
   return(
     <>
     {moment(today).isBetween(moment(data.endTime), moment(data.endTime).add(1, 'days')) ? 
-    <><IonCardTitle color="warning">After Party</IonCardTitle><br/></> :
-    isLive ? <><IonCardTitle color="danger">Live!</IonCardTitle><br/></> : 
+    <><IonCardTitle class="live-title">After Party</IonCardTitle><br/></> :
+    isLive ? <><IonCardTitle class="live-title">Live!</IonCardTitle><br/></> : 
     <div className="ion-text-center">
       {hoursUntilParty ? 
       <IonText className="ion-padding">
@@ -188,14 +183,14 @@ const Party = ({id, data, live, edit}) => {
           </IonCol>      
         </IonRow> 
         <IonRow className="ion-text-center">
-          <IonCol className="ion-align-self-center">
-            {firebase.auth().currentUser.displayName === data.host ?              
+            {firebase.auth().currentUser.displayName === data.host ?  
+              <IonCol className="ion-align-self-center">
               <IonButton color="warning" onClick={edit}>
                 <IonIcon slot="icon-only" icon={createOutline} />
               </IonButton>
+              </IonCol>
              : null
-            }      
-            </IonCol>
+            }                  
           <IonCol className="ion-align-self-center">    
             <IonButton color="warning" onClick={()=> setShowPopover(true)}>
               <IonIcon slot="icon-only" src="assets/icon/balloon-outline.svg"/>
@@ -285,8 +280,8 @@ const PartyList = ({editParty, stopEditing}) => {
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once    
     displayParties()   
-    upcomingParties.sort((a, b) => b.data.dateTime - a.data.dateTime);
-    liveParties.sort((a, b) => b.data.dateTime - a.data.dateTime);
+    // upcomingParties.sort((a, b) => b.data.dateTime - a.data.dateTime);
+    // liveParties.sort((a, b) => b.data.dateTime - a.data.dateTime);
     // this means display parties only runs once
   },  [refresh]); 
 
@@ -409,9 +404,9 @@ const PartyList = ({editParty, stopEditing}) => {
               }   
             }             
           } else if (moment(today).isAfter(endTime)) {
-            for (var i=0; i < liveParties.length; i++) {
-              if (liveParties[i].id === doc.id) {
-                  liveParties.splice(i,1);
+            for (var j=0; j < liveParties.length; j++) {
+              if (liveParties[j].id === doc.id) {
+                  liveParties.splice(j,1);
                   break;
               }   
             }             
@@ -457,9 +452,9 @@ const PartyList = ({editParty, stopEditing}) => {
                       }   
                     }             
                   } else if (moment(today).isAfter(endTime)) {
-                      for (var i=0; i < liveParties.length; i++) {
-                        if (liveParties[i].id === doc.id) {
-                            liveParties.splice(i,1);
+                      for (var j=0; j < liveParties.length; j++) {
+                        if (liveParties[j].id === doc.id) {
+                            liveParties.splice(j,1);
                             break;
                         }   
                       }             
@@ -513,28 +508,28 @@ const PartyList = ({editParty, stopEditing}) => {
         />     
          : null}
       {newNotifications ? <><br/><br/></> : null} 
-      {reqs && reqs.map(req =>        
-        <FriendRequest id={req.name} click={()=>checkForRequests()} key={req.id}/>
+      {reqs && reqs.map((req, i) =>        
+        <FriendRequest id={req.name} click={()=>checkForRequests()} key={i}/>
       )}
-      {partyreqs && partyreqs.map(req => 
-          (<PartyRequest hostid={req.hostid} partyid={req.partyid} click={()=>acceptInvite()} key={req.partyid}/>)
+      {partyreqs && partyreqs.map((req, j) => 
+          (<PartyRequest hostid={req.hostid} partyid={req.partyid} click={()=>acceptInvite()} key={j}/>)
       )}
       { upcomingParties.length > 0 ? null :
         liveParties.length > 0 ? null :
         <><br/><br/><IonText class="ion-padding-start">No upcoming parties...</IonText></>
       }     
-      {liveParties && liveParties.map(party => { 
+      {liveParties && liveParties.sort((a, b) => a.data.dateTime > b.data.dateTime ? 1:-1).map((party, k) => { 
         return(        
           <>
-          <Party key={party.id} id={party.id} data={party.data} live={true} edit={() => setEditingParty(party.data)}/>              
+          <Party key={k} id={party.id} data={party.data} live={true} edit={() => setEditingParty(party.data)}/>              
           <br/>
           </>
         );                    
       })}
-      {upcomingParties && upcomingParties.map(party => {
+      {upcomingParties && upcomingParties.sort((a, b) => a.data.dateTime > b.data.dateTime ? 1: -1).map((party, l) => {
         return( 
           <>
-          <Party key={party.id} id={party.id} data={party.data} live={false} edit={() => setEditingParty(party.data)}/>
+          <Party key={l} id={party.id} data={party.data} live={false} edit={() => setEditingParty(party.data)}/>
           </>
         );                
       })}  
@@ -760,8 +755,8 @@ const Home: React.FC = () => {
       <IonToolbar class="ion-padding">
         <IonTitle class="ion-padding">Upcoming<br/>parties</IonTitle>
         <IonButtons slot="end">
-          <IonButton class="top-icons" href='/users'>
-            <IonIcon slot="icon-only" icon={personAddSharp} />
+          <IonButton href='/users'>
+            <IonIcon class="top-icons" slot="icon-only" icon={personAddSharp} />
           </IonButton>       
         </IonButtons>                     
       </IonToolbar>}

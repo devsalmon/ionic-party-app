@@ -3,7 +3,7 @@ http://ionicframework.com/docs/theming/ */
 
 /** Ionic CSS Variables **/
 @font-face {
-  font-family: helvetica;
+  font-family: helvetica; /* not actually helvetica */ 
   src: url("LexendMega-Regular.ttf")
 }
 
@@ -87,7 +87,206 @@ http://ionicframework.com/docs/theming/ */
   --ion-color-light-tint: #f5f6f9;
 }
 
-@media (prefers-color-scheme: dark) {
+/* adjust style according to device */
+
+@media screen and (max-width: 490px) and (min-width: 350px) { /*for large phones such as iphone x*/
+  .create-card, .rounded-top, .create-button {
+    font-size: 16px;
+  }
+
+  .mid-icon {
+    font-size: 60px;
+  }
+
+  .side-icons {
+    font-size: 40px;
+  }
+
+  .top-icons, .profile-icon {
+    font-size: 55px; 
+    color: yellow
+  }    
+
+  .white-text, black-text {
+    font-size: 12px;
+  }  
+
+  ion-button, .custom-button {
+    font-size: 12px;
+  }
+
+  ion-icon {
+    font-size: 24px;    
+  }
+
+  ion-text {
+    font-size: 14px;
+  }
+
+  ion-title {
+    font-size: 22px;
+  } 
+
+  ion-tab-button {
+    --background: transparent;
+    --color: black;
+    --color-focused: yellow;
+    --color-selected: white;
+    font-weight: bold;
+    font-size: 12px;
+    text-align: center    
+  }  
+}
+
+@media screen and (max-width: 690px) and (min-width: 500px) { /*for medium devices like tablets */
+  .create-card, .rounded-top, .create-button {
+    font-size: 18px;
+  }
+
+  .mid-icon {
+    font-size: 80px;
+  }
+
+  .side-icons {
+    font-size: 50px;
+  }
+
+  .top-icons, .profile-icon {
+    font-size: 65px; 
+    color: yellow
+  }    
+
+  .white-text, black-text {
+    font-size: 16px;
+  }  
+
+  ion-button, .custom-button {
+    font-size: 20px;
+  }
+
+  ion-icon {
+    font-size: 34px;    
+  }
+
+  ion-text {
+    font-size: 20px;
+  }
+
+  ion-title {
+    font-size: 26px;
+  } 
+
+  ion-tab-button {
+    --background: transparent;
+    --color: black;
+    --color-focused: yellow;
+    --color-selected: white;
+    font-weight: bold;
+    font-size: 14px;
+    text-align: center    
+  }  
+}
+
+@media screen and (max-width: 890px) and (min-width: 700px) { /*for quite large screens such as small ipads*/
+  .create-card, .rounded-top, .create-button {
+    font-size: 26px;
+  }
+
+  .mid-icon {
+    font-size: 160px;
+  }
+
+  .side-icons {
+    font-size: 70px;
+  }
+
+  .top-icons, .profile-icon {
+    font-size: 90px; 
+    color: yellow
+  }    
+
+  .white-text, black-text {
+    font-size: 22px;
+  }  
+
+  ion-button, .custom-button {
+    font-size: 25px;
+  }
+
+  ion-icon {
+    font-size: 40px;    
+  }
+
+  ion-text {
+    font-size: 24px;
+  }
+
+  ion-title {
+    font-size: 30px;
+  } 
+
+  ion-tab-button {
+    --background: transparent;
+    --color: black;
+    --color-focused: yellow;
+    --color-selected: white;
+    font-weight: bold;
+    font-size: 18px;
+    text-align: center    
+  }  
+}
+
+@media screen and (max-width: 1028px) and (min-width: 900px) { /*only for very large screens such as ipads*/ 
+
+  .create-card, .rounded-top, .create-button {
+    font-size: 30px;
+  }
+
+  .mid-icon {
+    font-size: 180px;
+  }
+
+  .side-icons {
+    font-size: 70px;
+  }
+
+  .top-icons, .profile-icon {
+    font-size: 90px; 
+    color: yellow
+  }    
+
+  .white-text, black-text {
+    font-size: 26px;
+  }  
+
+  ion-button, .custom-button {
+    font-size: 30px;
+  }
+
+  ion-icon {
+    font-size: 50px;    
+  }
+
+  ion-text {
+    font-size: 28px;
+  }
+
+  ion-title {
+    font-size: 34px;
+  } 
+
+  ion-tab-button {
+    --background: transparent;
+    --color: black;
+    --color-focused: yellow;
+    --color-selected: white;
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center    
+  }  
+}
+
+@media screen and (prefers-color-scheme: dark) {
   /*
    * Dark Colors
    * -------------------------------------------

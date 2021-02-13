@@ -231,8 +231,8 @@ const UserItem = ({hit, username, id}) => {
 
   return(
     <IonRow>
-      <IonCol size="9">
-      <IonItem lines="full" key={id}>    
+      <IonCol size="8">
+      <IonItem lines="none" key={id}>    
         <IonCol size="4">
           <IonIcon icon={personOutline} className="profile-icon" />
         </IonCol>

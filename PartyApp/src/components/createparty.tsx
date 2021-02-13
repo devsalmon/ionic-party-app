@@ -109,6 +109,7 @@ const CreateParty = ({editingParty, displayParties}) => {
     // }        
 
     const [friends, setFriends] = useState([]); // list of people who can be searched for when inviting people
+    const [seeFriends, setSeeFriends] = useState(false); // boolean variable to see friends list or not 
     const [invitedPeople, setInvitedPeople] = useState(editingParty ? editingParty.invited_people : []); // array of invited people
     const [title, setTitle] = useState<string>(editingParty ? editingParty.title : "");
     const [address, setAddress] = useState<string>(editingParty ? editingParty.address : "");
@@ -256,14 +257,15 @@ const CreateParty = ({editingParty, displayParties}) => {
 
     const addInvite = (id, username) => {
       setQuery(''); // reset searchbar when invite button pressed so invite item with the button stops showing
-      setInvitedPeople(invitedPeople => [
-        ...invitedPeople, 
-        {              
-          username: username,
-          id: id
-        }
-      ]);
-      console.log(invitedPeople)
+      if (invitedPeople.some(item => id === item.id) === false) {// if friend isn't already in invitedPeople
+        setInvitedPeople(invitedPeople => [
+          ...invitedPeople, 
+          {              
+            username: username,
+            id: id
+          }
+        ]);
+      }
     }
 
     const removeInvite = (id) => {
@@ -309,8 +311,8 @@ const CreateParty = ({editingParty, displayParties}) => {
               <IonIcon slot="icon-only" icon={chevronBackSharp}></IonIcon>
             </IonButton> 
           </IonButtons> : null}            
-          {editingParty ? <IonTitle color="dark">Editing</IonTitle> : 
-            <IonTitle color="dark">Create</IonTitle>
+          {editingParty ? <IonTitle class="ion-padding" color="dark">Editing</IonTitle> : 
+            <IonTitle class="ion-padding" color="dark">Create</IonTitle>
           }  
         </IonToolbar>
           <IonItem class="rounded-top" lines="none">
@@ -351,9 +353,9 @@ const CreateParty = ({editingParty, displayParties}) => {
           <IonItem class="create-card" lines="none">
             <IonButton class="create-button" expand="block" onClick={e => setShowPeopleSearch(true)}>Invite People</IonButton>
           </IonItem>       
-          {invitedPeople && invitedPeople.map(person => {
+          {invitedPeople && invitedPeople.map((person, i) => {
             return(
-              <IonItem class="create-card" lines="none" key={person.id}>                
+              <IonItem class="create-card" lines="none" key={i}>                
                 <IonText>{person.username}</IonText>
                 <IonButton slot="end" onClick={() => removeInvite(person.id)}>
                   <IonIcon size="large" icon={removeOutline} /> 
@@ -372,57 +374,44 @@ const CreateParty = ({editingParty, displayParties}) => {
             <IonButton color="danger" class="create-button" onClick={() => setShowPopover(true)}>Delete party</IonButton> :
           null}<br/><br/><br/><br/><br/><br/>
              
-      <IonModal swipeToClose={true} isOpen={showPeopleSearch}>
+      <IonModal cssClass="modal" swipeToClose={true} isOpen={showPeopleSearch}>
         <IonHeader>
           <IonToolbar>  
             <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)} placeholder="Search Friends"></IonSearchbar>                            
           </IonToolbar>
         </IonHeader>
         <IonContent class="create-content">
-          {query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map(hit => (
-            hit.objectID === currentuser.uid || !friends.includes(hit.objectID) ? null :
-            <IonItem class="create-input"> 
-              <IonRow key={hit.objectID} class="ion-align-items-center">                   
-                <IonCol size="3">
-                  <IonIcon icon={personOutline} className="profile-icon" />
-                </IonCol>
-                <IonCol size="6" offset="1">
-                  <IonText>{hit.username}</IonText>   
-                </IonCol>                            
-                <IonCol size="2">
-                  <IonButton onClick={() => addInvite(hit.objectID, hit.username)}>
-                    <IonIcon size="large" icon={addOutline} />
-                  </IonButton>
-                </IonCol>
-              </IonRow>
-            </IonItem>            
+          {query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map((hit, j) => (
+            hit.objectID === currentuser.uid || friends.some(item => hit.objectID === item.id) === false ? null :
+            <IonItem class="create-card" lines="none" key={j}>                
+              <IonText>{hit.username}</IonText>
+              <IonButton slot="end" onClick={() => addInvite(hit.objectID, hit.username)}>
+                <IonIcon size="large" icon={addOutline} />  
+              </IonButton>
+            </IonItem>                  
           ))}<br/>    
 
-          <IonText color="dark">Friends:</IonText><br/>
-          
-          {query ? friends.map(friend => ( // show all friends below the searched items
-            <IonItem class="create-input"> 
-              <IonRow class="ion-align-items-center" key={friend.id}>                   
-                <IonCol size="3">
-                  <IonIcon icon={personOutline} className="profile-icon" />
-                </IonCol>
-                <IonCol size="6" offset="1">
-                  <IonText>{friend.name}</IonText>   
-                </IonCol>                            
-                <IonCol size="2">
-                  <IonButton onClick={() => addInvite(friend.id, friend.name)}>
-                    <IonIcon size="large" icon={addOutline} />                    
-                  </IonButton>
-                </IonCol>
-              </IonRow>
-            </IonItem>              
+          {seeFriends ? 
+          <IonButton class="create-button" onClick={()=>setSeeFriends(false)}>
+          Hide Friends
+          </IonButton>
+          :
+          <IonButton class="create-button" onClick={()=>setSeeFriends(true)}>
+          See Friends
+          </IonButton>}
+
+          {seeFriends ? friends.map((friend, k) => ( // show all friends below the searched items
+            <IonItem class="create-card" lines="none" key={k}>                
+              <IonText>{friend.name}</IonText>
+              <IonButton slot="end" onClick={() => addInvite(friend.id, friend.name)}>
+                <IonIcon size="large" icon={addOutline} />  
+              </IonButton>
+            </IonItem>                              
           )) : null}      
-          <IonItem class="create-card" lines="none">
-            <IonText>People invited: </IonText>
-          </IonItem>
-          {invitedPeople && invitedPeople.map(person => {
+          <IonText class="black-text">People invited: </IonText>
+          {invitedPeople && invitedPeople.map((person, l) => {
             return(
-              <IonItem class="create-card" lines="none" key={person.id}>                
+              <IonItem class="create-card" lines="none" key={l}>                
                 <IonText>{person.username}</IonText>
                 <IonButton slot="end" onClick={() => removeInvite(person.id)}>
                   <IonIcon size="large" icon={removeOutline} />  

@@ -8,6 +8,11 @@
     border-bottom: 3px solid yellow;    
 }
 
+.black-text {
+    color: black;
+    font-weight: bold
+}
+
 .custom-button {
     --background: yellow; 
     color: black;
@@ -64,7 +69,7 @@
     --background: red;
     color:yellow;
     font-weight: bold;
-    --backdrop-opacity: 0.9;
+    --backdrop-opacity: 0.9;    
 }
 
 .day-text {
@@ -99,9 +104,9 @@
     --spinner-color: yellow; 
 }
 
-.mid-icon {
-    font-size: 70px;
-    padding-left: 2px;
+.modal {
+    --height: 100%;
+    --width: 100%;
 }
 
 .party-details-popover {
@@ -109,7 +114,7 @@
     color: red;
     --backdrop-opacity: 0.9;
     --height: 70%;
-    --width: 70%
+    --width: 80%
 }
 
 .picker-opt {
@@ -136,10 +141,6 @@
     height: 30px;     
 }
 
-.profile-icon {
-    font-size: 55px;
-}
-
 .profile-item {
     --background: transparent;
     --background-hover-opacity: 0.3;
@@ -157,7 +158,7 @@
     border: solid;
     border-width: 3px;
     border-color: yellow;
-    color: yellow
+    color: yellow;
 }
 
 .refresh-toast {
@@ -181,16 +182,13 @@
 }
 
 .searchbar {
+    margin-top: 4%;
     --background: yellow;
     --border-radius: 10px;
     --cancel-button-color: red;
     --clear-button-color: red;
     --icon-color: black;
     --placeholder-color: black;
-}
-
-.side-icons {
-    font-size: 50px;
 }
 
 .signin-button {
@@ -208,29 +206,18 @@
     text-align: center;    
 }
 
-.slide-text{
-    position: absolute;
-    color: yellow;
-    font-weight: bold;
-    font-size: 14px;
-    top: 5px;
-    left: 5px;
-}
-
 .swiper-pagination {
     position: absolute;
     color: yellow
 }
 
-.top-icons {
-    color: yellow;
-    font-size: 50px; 
-}
-
 .white-text {
     font-weight: bold;
     color: white;
-    font-size: 15px;
+}
+
+.yellow-text {
+    color: yellow
 }
 
 .yellow-date-box {
@@ -275,7 +262,7 @@ ion-card-title {
     font-weight: bold;
     font-size: 30px;
     text-align: center;
-    color: red
+    color: yellow
 }
 
 ion-card-subtitle {
@@ -296,6 +283,10 @@ ion-footer {
     display: none;
 }
 
+ion-input {
+    --padding-start: 10px;
+}
+
 ion-item {
     --background: transparent;
     --ion-text-color: yellow;
@@ -309,7 +300,7 @@ ion-label {
 
 ion-radio {
     --color: yellow;
-    --color-checked: yellow;
+    --color-checked: yellow;    
 }
 
 ion-range {
@@ -328,28 +319,27 @@ ion-refresher-content {
 }
 
 ion-slides {
-    height: 235%;
+    height: 250%;
 }
 
 .swiper-slide {
     display: block;
-    overflow-y: scroll;
+}
+
+ion-text {
+    color: yellow; 
+    font-weight: bold;
 }
 
 ion-tab-button {
     --background: transparent;
     --color: black;
-    --color-focused: white;
+    --color-focused: yellow;
     --color-selected: white;
     font-weight: bold;
+    font-size: 10%;
     text-align: center    
-}
-
-ion-text {
-    color: yellow;    
-    font-size: 18px;
-    font-weight: bold;
-}
+  }  
 
 ion-tab-bar {
     --border: none;
@@ -365,13 +355,15 @@ ion-tab-bar {
     justify-content: center;
 }
 
+.live-title {
+    color: red
+}
+
 ion-title {
     text-align: center;
     font-weight: bold;
-    padding-top: 15px;
-    font-size: 25px;
     --color: yellow;
-    text-transform: uppercase;
+    padding-top: 10px
 }
 
 ion-toolbar {

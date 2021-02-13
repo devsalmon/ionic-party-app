@@ -85,8 +85,7 @@ const MyPartyList = () => {
   const [passwordError, setPasswordError] = useState('');
   const [profilePhoto, setProfilePhoto] = useState('');  
   const [photoPopover, setPhotoPopover] = useState(false); 
-  const [showPhotoSaved, setShowPhotoSaved] = useState(false);
-  const [showPhotoDeleted, setShowPhotoDeleted] = useState(false);
+  const [accountDeleted, setAccountDeleted] = useState(false);
 
   const [friends, setFriends] = useState([]);
   const [refresh, setRefresh] = useState(false);  
@@ -206,7 +205,7 @@ const MyPartyList = () => {
       user.delete();
       setOldPassword('');
       setPasswordError('');
-      return(<Redirect to="/signin" />)
+      setAccountDeleted(true);
     }).catch(error => {
       setPasswordError(error.message)
     })
@@ -340,7 +339,7 @@ const MyPartyList = () => {
               <IonIcon icon={chevronBackSharp} />
             </IonButton>
           </IonButtons>
-          <IonTitle>My Parties</IonTitle>
+          <IonTitle class="ion-padding">My Parties</IonTitle>
         </IonToolbar>
         <Gallery hostid={hostID} partyid={partyID} key={partyID}/>
         </>
@@ -351,7 +350,7 @@ const MyPartyList = () => {
         <IonMenu side="end" type="overlay" contentId="myPartiesPage">
           <IonHeader>
             <IonToolbar>
-              <IonTitle>Settings</IonTitle>
+              <IonTitle class="ion-padding">Settings</IonTitle>
             </IonToolbar>
           </IonHeader>
           <IonContent class="list">
@@ -385,7 +384,7 @@ const MyPartyList = () => {
         <div id="myPartiesPage">
         <IonHeader>
           <IonToolbar>
-            <IonTitle size="large">My Parties</IonTitle>
+            <IonTitle class="ion-padding">My Parties</IonTitle>
           </IonToolbar>
           <IonItem class="accordion-profile" lines="none">
             <IonGrid>
@@ -407,16 +406,16 @@ const MyPartyList = () => {
           </IonItem>
           <IonRadioGroup value={selected} onIonChange={e => setSelected(e.detail.value)}>
           <IonRow>
-            <IonCol>
+            <IonCol size="6">
               <IonItem class="radio-buttons" lines="none">
                 <IonText>Attended</IonText>
                 <IonRadio onIonFocus={(e) => changeSlide("prev")} slot="end" value="attended" />
               </IonItem>
             </IonCol>
-            <IonCol>
+            <IonCol size="6">
               <IonItem class="radio-buttons" lines="none">
                 <IonText>Hosted</IonText>
-                <IonRadio onIonFocus={e => changeSlide("next")} slot="end" value="hosted" />
+                <IonRadio onIonFocus={e => changeSlide("next")} slot="start" value="hosted" />
               </IonItem>
             </IonCol>
           </IonRow>
@@ -434,30 +433,24 @@ const MyPartyList = () => {
           <IonContent fullscreen={true} scroll-y="true">         
             {attendedParties.length === 0 ?
             <IonText class="white-text">No attended parties yet..</IonText> :          
-            attendedParties.map(doc => {
+            attendedParties.sort((a, b) => b.data.dateTime > a.data.dateTime ? 1:-1).map((doc, i) => {
               return(
-                <Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>
+                <Memory id={doc.id} data={doc.data} key={i} click={() => enter(doc.id, doc.data.hostid)}/>
               )          
-            })}
-            <IonItem lines="none">
-            <br/><br/><br/>
-            </IonItem>            
+            })}          
           </IonContent>
-          </IonSlide><br/><br/><br/>                
+          </IonSlide>              
           <IonSlide>
           <IonContent fullscreen={true} scroll-y="true">       
             {yourParties.length === 0 ?
             <IonText class="white-text"> No hosted parties yet..</IonText> : 
-            yourParties.map(doc => {
+            yourParties.sort((a, b) => b.data.dateTime > a.data.dateTime ? 1:-1).map((doc, j) => {
               return(              
-                <Memory id={doc.id} data={doc.data} key={doc.id} click={() => enter(doc.id, doc.data.hostid)}/>
+                <Memory id={doc.id} data={doc.data} key={j} click={() => enter(doc.id, doc.data.hostid)}/>
               )          
-            })} 
-            <IonItem lines="none">
-            <br/><br/><br/>
-            </IonItem>                   
+            })}                                     
           </IonContent>
-          </IonSlide><br/><br/><br/>
+          </IonSlide>
         </IonSlides> 
         </IonContent> 
         <IonPopover
@@ -536,31 +529,23 @@ const MyPartyList = () => {
           onDidDismiss={() => setShowFriends(false)}        
         >
           <IonList class="list">
-              {friends && friends.map(friend => {
+              {friends && friends.map((friend, k) => {
                   return(
-                    <IonItem lines="none" key={friend.id}>
+                    <IonItem lines="none" key={k}>
                         <IonText>{friend.name}</IonText>
                     </IonItem>
                   )
               })}
           </IonList>
         </IonPopover>
-        <IonToast
-          isOpen={showPhotoSaved}
-          cssClass={"refresh-toast"}
-          onDidDismiss={() => setShowPhotoSaved(false)}
-          position = 'bottom'
-          color="danger"
-          duration={2000}
-        />      
-        <IonToast
-          isOpen={showPhotoDeleted}
-          cssClass={"refresh-toast"}
-          onDidDismiss={() => setShowPhotoDeleted(false)}
-          position = 'bottom'
-          color="danger"
-          duration={2000}
-        />           
+        <IonPopover 
+          cssClass="popover"        
+          isOpen={accountDeleted}
+          onDidDismiss={() => setAccountDeleted(false)}        
+        >
+        <IonText>Account Deleted</IonText>
+        <IonButton href='/signin'>Ok</IonButton>
+        </IonPopover>           
         </div>    
       </>
     )
