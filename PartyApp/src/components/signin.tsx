@@ -61,7 +61,7 @@ const SignIn: React.FC = () => {
       bundleId: 'com.partyuptest.ios'
     },
     android: {
-      packageName: 'com.partyuptest.android',
+      packageName: 'io.ionic.starter',
       installApp: true,
       minimumVersion: '12'
     },

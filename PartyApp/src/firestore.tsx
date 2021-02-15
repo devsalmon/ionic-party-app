@@ -17,10 +17,24 @@ firebase.initializeApp(fbConfig);
 
 // const messaging = firebase.messaging();
 
-// messaging.requestPermission().then(function() {
-// // Add the public key generated from the console here.
+// messaging.usePublicVapidKey('BPlMqF9SpSRN2ZK3AKqVZWHpCdv7CCYX97K81gZGSaJVGrowlFGg9jKxlezbOW_CPFt45NQrpA_ycWwouhtUanE')
+
+// messaging.requestPermission().then(function() { 
+//   // Add the public key generated from the console here.
 //   console.log("have persmission")
-//   return messaging.getToken();  
+
+//   // Get registration token. Initially this makes a network call, once retrieved
+//   // subsequent calls to getToken will return from cache.
+//   messaging.getToken().then((currentToken) => {
+//   if (currentToken) {      
+//     console.log("current FCM token", currentToken)
+//   } else {
+//     //Show permission request UI
+//     console.log('No registration token available. Request permission to generate one.');
+//   }
+//   }).catch((err) => {
+//   console.log('An error occurred while retrieving token. ', err);
+//   });
 // })
 // .then(function(token) {
 //   console.log(token)
@@ -28,22 +42,5 @@ firebase.initializeApp(fbConfig);
 // .catch(function() {
 //   console.log("error fetching token")
 // })
-
-// // // Get registration token. Initially this makes a network call, once retrieved
-// // // subsequent calls to getToken will return from cache.
-// // messaging.getToken().then((currentToken) => {
-// //  if (currentToken) {
-// //     //Send the token to your server and update the UI if necessary
-// //     //...
-// //    console.log("current FCM token", currentToken)
-// //  } else {
-// //    //Show permission request UI
-// //    console.log('No registration token available. Request permission to generate one.');
-// //     //...
-// //  }
-// // }).catch((err) => {
-// //  console.log('An error occurred while retrieving token. ', err);
-// //   //...
-// // });
 
 export default firebase;

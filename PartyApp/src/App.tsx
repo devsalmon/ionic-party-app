@@ -61,7 +61,14 @@ import {
   createOutline
 } from 'ionicons/icons';
 import {useCamera} from '@ionic/react-hooks/camera';
-import {CameraResultType, CameraSource, Plugins} from '@capacitor/core';
+import {
+  CameraResultType, 
+  CameraSource, 
+  Plugins, 
+  PushNotification, 
+  PushNotificationToken, 
+  PushNotificationActionPerformed
+} from '@capacitor/core';
 import './App.css';
 import firebase from './firestore';
 import moment from 'moment';
@@ -275,6 +282,7 @@ const PartyList = ({editParty, stopEditing}) => {
   const [refresh, setRefresh] = useState(false);
   const [newNotifications, setNewNotifications] = useState(false);
   const [editingParty, setEditingParty] = useState(""); // holds data of the party being edited
+  const [notifications, setNotifications] = useState([]); // push notifications
   var current_user = firebase.auth().currentUser; 
 
   useEffect(() => {  
@@ -284,6 +292,46 @@ const PartyList = ({editParty, stopEditing}) => {
     // liveParties.sort((a, b) => b.data.dateTime - a.data.dateTime);
     // this means display parties only runs once
   },  [refresh]); 
+
+  const { PushNotifications } = Plugins;
+  PushNotifications.register();
+
+  const push = () => {
+    // Register with Apple / Google to receive push via APNS/FCM
+    PushNotifications.register();
+
+    // On succcess, we should be able to receive notifications
+    PushNotifications.addListener('registration',
+      (token: PushNotificationToken) => {
+        alert('Push registration success, token: ' + token.value);
+      }
+    );
+
+    // Some issue with your setup and push will not work
+    PushNotifications.addListener('registrationError',
+      (error: any) => {
+        alert('Error on registration: ' + JSON.stringify(error));
+      }
+    );
+
+    // Show us the notification payload if the app is open on our device
+    PushNotifications.addListener('pushNotificationReceived',
+      (notification: PushNotification) => {
+        let notif = notifications;
+        notif.push({ id: notification.id, title: notification.title, body: notification.body })
+        setNotifications(notif);
+      }
+    );
+
+    // Method called when tapping on a notification
+    PushNotifications.addListener('pushNotificationActionPerformed',
+      (notification: PushNotificationActionPerformed) => {
+        let notif = notifications;
+        notif.push({ id: notification.notification.data.id, title: notification.notification.data.title, body: notification.notification.data.body })
+        setNotifications(notif);
+      }
+    );
+  }
 
   // Checks for friend requests
   collectionRef.doc(current_user.uid)
@@ -506,8 +554,19 @@ const PartyList = ({editParty, stopEditing}) => {
             }
           ]}
         />     
-         : null}
+         : null}         
       {newNotifications ? <><br/><br/></> : null} 
+      {notifications && notifications.map((notif: any) =>
+        <IonItem key={notif.id}>
+          <IonLabel>
+            <IonText>
+              {notif.title}
+            </IonText>
+            <IonText>{notif.body}</IonText>
+          </IonLabel>
+        </IonItem>
+      )}
+      <IonButton expand="full" class="custom-button" onClick={()=>push()}>Register for Push</IonButton>      
       {reqs && reqs.map((req, i) =>        
         <FriendRequest id={req.name} click={()=>checkForRequests()} key={i}/>
       )}
@@ -748,12 +807,18 @@ const MyParties: React.FC = () => {
 const Home: React.FC = () => {
 
   const [editing, setEditing] = useState(false);
+  const verify = () => {
+    firebase.auth().currentUser.sendEmailVerification()
+  }  
 
   return(
     <IonPage>
       {editing ? null : 
-      <IonToolbar class="ion-padding">
-        <IonTitle class="ion-padding">Upcoming<br/>parties</IonTitle>
+      <IonToolbar class="ion-padding">      
+        <IonTitle class="ion-padding">
+          Upcoming<br/>parties
+          <IonButton onClick={()=> verify()}>Verify</IonButton>
+        </IonTitle>
         <IonButtons slot="end">
           <IonButton href='/users'>
             <IonIcon class="top-icons" slot="icon-only" icon={personAddSharp} />

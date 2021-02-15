@@ -108,7 +108,7 @@ http://ionicframework.com/docs/theming/ */
   }    
 
   .white-text, black-text {
-    font-size: 12px;
+    font-size: 10px;
   }  
 
   ion-button, .custom-button {
@@ -120,7 +120,7 @@ http://ionicframework.com/docs/theming/ */
   }
 
   ion-text {
-    font-size: 14px;
+    font-size: 12px;
   }
 
   ion-title {

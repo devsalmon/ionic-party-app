@@ -50,9 +50,11 @@ const Gallery = ({hostid, partyid}) => {
     const [message, setMessage] = useState('');
     const [afterMessage, setAfterMessage] = useState('');
     const [edit, setEdit] = useState(false);
+
     const [value, loading, error] = useCollection(
       firebase.firestore().collection('users').doc(hostid).collection('myParties').doc(partyid).collection('pictures'),
-    );  
+    );      
+
     const doc = firebase.firestore().collection('users').doc(hostid).collection("myParties").doc(partyid)
     doc.get().then(function(doc) {
       if (doc.exists) {
@@ -186,7 +188,7 @@ const Picture = ({doc, hostid, partyid}) => {
 
   collectionRef.doc(doc.id).onSnapshot(function(doc){
     // update like counter on the picture when there's an update in the picture document 
-    doc.data() && setNumLikes(doc.data().likeCounter);
+    doc.data() && setNumLikes(doc.data().likeCounter);    
     //doc.data() && displayComments();
   })
 
