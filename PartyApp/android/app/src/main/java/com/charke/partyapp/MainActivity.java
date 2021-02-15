@@ -1,4 +1,4 @@
-package io.ionic.starter;
+package com.charke.partyapp;
 
 import android.os.Bundle;
 

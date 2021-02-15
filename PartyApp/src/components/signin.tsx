@@ -61,9 +61,9 @@ const SignIn: React.FC = () => {
       bundleId: 'com.partyuptest.ios'
     },
     android: {
-      packageName: 'io.ionic.starter',
+      packageName: 'com.charke.partyapp',
       installApp: true,
-      minimumVersion: '12'
+      minimumVersion: '1'
     },
     handleCodeInApp: true,
     // When multiple custom dynamic link domains are defined, specify which

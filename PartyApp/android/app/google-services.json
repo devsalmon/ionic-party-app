@@ -8,12 +8,49 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:514271758518:android:9163ed1b8aefcac795be17",
+        "mobilesdk_app_id": "1:514271758518:android:5fa37bcecee15d1095be17",
+        "android_client_info": {
+          "package_name": "com.charke.partyapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "514271758518-3q7djjk7pds53tf689kbjm98ufnpmhji.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfO73iryazUrFmV3BJ7phX53IfU4Og5Ko"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "514271758518-3q7djjk7pds53tf689kbjm98ufnpmhji.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:514271758518:android:6c8788717a1420c595be17",
         "android_client_info": {
           "package_name": "io.ionic.starter"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "514271758518-jiono14d646f1o3ered0mbq5l2ptk585.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.ionic.starter",
+            "certificate_hash": "e16eb67b03201908a481eb319ca1a3c6225e9a59"
+          }
+        },
         {
           "client_id": "514271758518-3q7djjk7pds53tf689kbjm98ufnpmhji.apps.googleusercontent.com",
           "client_type": 3
