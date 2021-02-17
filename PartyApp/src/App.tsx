@@ -44,7 +44,7 @@ import {
   IonCard,
   IonCardHeader,
   IonCardTitle,
-  IonCardContent
+  IonCardContent,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { 
@@ -97,6 +97,7 @@ const Party = ({id, data, live, edit}) => {
 
   const [showToast, setShowToast] = useState(false);
   const [showPopover, setShowPopover] = useState(false);
+  const [pictureUploading, setPictureUploading] = useState(false);
   const [photo, setPhoto] = useState('');
   const [daysUntilParty, setDaysUntilParty] = useState(0);
   const [hoursUntilParty, setHoursUntilParty] = useState(0);
@@ -107,15 +108,17 @@ const Party = ({id, data, live, edit}) => {
   const collectionRef = firebase.firestore().collection("users").doc(data.hostid).collection("myParties");  
 
   const onSave = async() => { 
+    setPictureUploading(true);
     if (photo !== "") {
     await collectionRef.doc(id).collection('pictures').add({
         picture: photo,
-        takenBy: firebase.auth().currentUser.displayName,
+        takenBy: firebase.auth().currentUser.displayName, 
         takenAt: moment(new Date()).format('LT'),
         likeCounter: 0,
         likes: [],
     })
       .then(function() {
+        setPictureUploading(false);
         setShowToast(true)
       })
       .catch(function(error) {
@@ -150,9 +153,11 @@ const Party = ({id, data, live, edit}) => {
         setHoursUntilParty(hours);
         setMinutesUntilParty(minutes);
       }
+    } else if (days < 0) {
+      setDaysUntilParty(0);
     } else {
       setDaysUntilParty(days);
-    }    
+    }
   }
 
   var today = new Date();
@@ -263,6 +268,12 @@ const Party = ({id, data, live, edit}) => {
       message="Picture uploaded!"
       position="bottom"
       />       
+      <IonLoading
+        cssClass='loading'
+        spinner="bubbles"
+        isOpen={pictureUploading}
+        onDidDismiss={() => setPictureUploading(false)}
+      />      
     </IonItem>
     </>
   )
@@ -282,7 +293,6 @@ const PartyList = ({editParty, stopEditing}) => {
   const [refresh, setRefresh] = useState(false);
   const [newNotifications, setNewNotifications] = useState(false);
   const [editingParty, setEditingParty] = useState(""); // holds data of the party being edited
-  const [notifications, setNotifications] = useState([]); // push notifications
   var current_user = firebase.auth().currentUser; 
 
   useEffect(() => {  
@@ -292,46 +302,6 @@ const PartyList = ({editParty, stopEditing}) => {
     // liveParties.sort((a, b) => b.data.dateTime - a.data.dateTime);
     // this means display parties only runs once
   },  [refresh]); 
-
-  const { PushNotifications } = Plugins;
-  PushNotifications.register();
-
-  const push = () => {
-    // Register with Apple / Google to receive push via APNS/FCM
-    PushNotifications.register();
-
-    // On succcess, we should be able to receive notifications
-    PushNotifications.addListener('registration',
-      (token: PushNotificationToken) => {
-        alert('Push registration success, token: ' + token.value);
-      }
-    );
-
-    // Some issue with your setup and push will not work
-    PushNotifications.addListener('registrationError',
-      (error: any) => {
-        alert('Error on registration: ' + JSON.stringify(error));
-      }
-    );
-
-    // Show us the notification payload if the app is open on our device
-    PushNotifications.addListener('pushNotificationReceived',
-      (notification: PushNotification) => {
-        let notif = notifications;
-        notif.push({ id: notification.id, title: notification.title, body: notification.body })
-        setNotifications(notif);
-      }
-    );
-
-    // Method called when tapping on a notification
-    PushNotifications.addListener('pushNotificationActionPerformed',
-      (notification: PushNotificationActionPerformed) => {
-        let notif = notifications;
-        notif.push({ id: notification.notification.data.id, title: notification.notification.data.title, body: notification.notification.data.body })
-        setNotifications(notif);
-      }
-    );
-  }
 
   // Checks for friend requests
   collectionRef.doc(current_user.uid)
@@ -425,7 +395,7 @@ const PartyList = ({editParty, stopEditing}) => {
           let data = doc.data();          
           var alreadyInUP = upcomingParties.some(item => doc.id === item.id);
           var alreadyInLP = liveParties.some(item => doc.id === item.id);
-          var endTime = moment(data.endTime).add(1, 'days')
+          var endTime = moment(data.endTime).add(20, 'hours');
           if (moment(today).isBefore(data.dateTime) && !alreadyInUP) { 
             setUpcomingParties(parties => [
               ...parties, 
@@ -437,6 +407,7 @@ const PartyList = ({editParty, stopEditing}) => {
           } else if
           (moment(today).isBetween(data.dateTime, endTime)  && !alreadyInLP) {
             // if party is live
+            console.log("TODAY ", moment(today), "end ", moment(endTime))
             setLiveParties(parties => [
               ...parties,
               {
@@ -452,8 +423,11 @@ const PartyList = ({editParty, stopEditing}) => {
               }   
             }             
           } else if (moment(today).isAfter(endTime)) {
-            for (var j=0; j < liveParties.length; j++) {
+            console.log("TODAY ", moment(today), "end ", moment(endTime))
+            for (var j=0; j < liveParties.length; j++) { 
+              console.log(liveParties[j].id, doc.id)             
               if (liveParties[j].id === doc.id) {
+                console.log("remove")
                   liveParties.splice(j,1);
                   break;
               }   
@@ -473,7 +447,7 @@ const PartyList = ({editParty, stopEditing}) => {
                   // if party is in the future and party isn't already in the state                   
                   var alreadyInUP = upcomingParties.some(item => partydoc.id === item.id);
                   var alreadyInLP = liveParties.some(item => partydoc.id === item.id);
-                  var endTime = moment(partydoc.data().endTime).add(1, 'days')
+                  var endTime = moment(partydoc.data().endTime).add(20, 'hours');
                   if (moment(today).isBefore(partydoc.data().dateTime) && !alreadyInUP) { 
                     setUpcomingParties(parties => [
                       ...parties, 
@@ -485,6 +459,7 @@ const PartyList = ({editParty, stopEditing}) => {
                   } else if 
                   (moment(today).isBetween(partydoc.data().dateTime, endTime) && !alreadyInLP) {
                     // if party is live
+            console.log("TODAY ", moment(today), "end ", moment(endTime))
                     setLiveParties(parties => [
                       ...parties,
                       {
@@ -556,17 +531,6 @@ const PartyList = ({editParty, stopEditing}) => {
         />     
          : null}         
       {newNotifications ? <><br/><br/></> : null} 
-      {notifications && notifications.map((notif: any) =>
-        <IonItem key={notif.id}>
-          <IonLabel>
-            <IonText>
-              {notif.title}
-            </IonText>
-            <IonText>{notif.body}</IonText>
-          </IonLabel>
-        </IonItem>
-      )}
-      <IonButton expand="full" class="custom-button" onClick={()=>push()}>Register for Push</IonButton>      
       {reqs && reqs.map((req, i) =>        
         <FriendRequest id={req.name} click={()=>checkForRequests()} key={i}/>
       )}
@@ -873,6 +837,9 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [signedIn, setSignedIn] = useState(false);
 
+  const { PushNotifications } = Plugins;
+  PushNotifications.register();
+
   useEffect(() => {
     console.log("app useeffect")
     firebase.auth().onAuthStateChanged(function(user) {      
@@ -880,8 +847,47 @@ const App: React.FC = () => {
         setSignedIn(true)
       } 
       setLoading(false)
-    })
+    })    
   }, [])
+
+
+  const registerNotifications = () => {
+    // Register with Apple / Google to receive push via APNS/FCM
+    PushNotifications.requestPermission().then((permission) => {
+      if (permission.granted) {
+        // Register with Apple / Google to receive push via APNS/FCM
+        PushNotifications.register();
+      } else {
+        // No permission for push granted
+      }
+    });    
+
+    // On succcess, we should be able to receive notifications
+    PushNotifications.addListener('registration',
+      (token: PushNotificationToken) => {
+        console.log('Push registration success, token: ' + token.value);
+      }
+    );
+
+    // Some issue with your setup and push will not work
+    PushNotifications.addListener('registrationError',
+      (error: any) => {
+        console.log('Error on registration: ' + JSON.stringify(error));
+      }
+    );
+
+    // Show us the notification payload if the app is open on our device
+//    PushNotifications.addListener('pushNotificationReceived',
+  //    (notification: PushNotification) => {
+    //  }
+    //);
+
+    // Method called when tapping on a notification
+    //PushNotifications.addListener('pushNotificationActionPerformed',
+      //(notification: PushNotificationActionPerformed) => {
+     // }
+    //);
+  }     
 
   if (loading) {
     return(

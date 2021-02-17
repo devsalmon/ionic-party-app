@@ -383,9 +383,10 @@ const MyPartyList = () => {
 
         <div id="myPartiesPage">
         <IonHeader>
-          <IonToolbar>
-            <IonTitle class="ion-padding">My Parties</IonTitle>
+          <IonToolbar class="ion-padding">
+            <IonTitle >My Parties</IonTitle>
           </IonToolbar>
+          <IonToolbar class="myparties-toolbar">
           <IonItem class="accordion-profile" lines="none">
             <IonGrid>
               <IonRow>
@@ -420,40 +421,42 @@ const MyPartyList = () => {
             </IonCol>
           </IonRow>
           </IonRadioGroup>                                
+          </IonToolbar>0
         </IonHeader>       
-        <IonContent fullscreen={true}>         
-          <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
-            <IonRefresherContent
-              pullingIcon={chevronDownCircleOutline}
-              refreshingSpinner="circles">
-            </IonRefresherContent>
-          </IonRefresher>               
+        <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
+          <IonRefresherContent
+            pullingIcon={chevronDownCircleOutline}
+            refreshingSpinner="circles">
+          </IonRefresherContent>
+        </IonRefresher>               
         <IonSlides ref={slides} onIonSlideDidChange={e => handleSlideChange()}>                   
           <IonSlide>     
-          <IonContent fullscreen={true} scroll-y="true">         
+            <IonContent fullscreen={true} scroll-y={true}>         
             {attendedParties.length === 0 ?
             <IonText class="white-text">No attended parties yet..</IonText> :          
             attendedParties.sort((a, b) => b.data.dateTime > a.data.dateTime ? 1:-1).map((doc, i) => {
               return(
                 <Memory id={doc.id} data={doc.data} key={i} click={() => enter(doc.id, doc.data.hostid)}/>
               )          
-            })}          
-          </IonContent>
+            })}       
+            <br/><br/><br/><br/><br/>
+            </IonContent>    
           </IonSlide>              
           <IonSlide>
-          <IonContent fullscreen={true} scroll-y="true">       
+            <IonContent fullscreen={true} scroll-y={true}>         
             {yourParties.length === 0 ?
             <IonText class="white-text"> No hosted parties yet..</IonText> : 
             yourParties.sort((a, b) => b.data.dateTime > a.data.dateTime ? 1:-1).map((doc, j) => {
               return(              
                 <Memory id={doc.id} data={doc.data} key={j} click={() => enter(doc.id, doc.data.hostid)}/>
               )          
-            })}                                     
-          </IonContent>
-          </IonSlide>
-        </IonSlides> 
-        </IonContent> 
+            })}      
+            <br/><br/><br/><br/><br/>
+            </IonContent>                                
+          </IonSlide>          
+        </IonSlides>         
         <IonPopover
+          id="popover"
           cssClass="popover"        
           isOpen={usernamePopover}
           onDidDismiss={() => setUsernamePopover(false)}
@@ -467,6 +470,7 @@ const MyPartyList = () => {
           <IonButton onClick={() => updateUsername()}>Done</IonButton>             
         </IonPopover>
         {/* <IonPopover
+          id="popover"
           cssClass="popover"        
           isOpen={photoPopover}
           onDidDismiss={() => setPhotoPopover(false)}
@@ -477,6 +481,7 @@ const MyPartyList = () => {
         <IonButton onClick={() => deletePhoto()}>Delete Profile Photo</IonButton>                     
         </IonPopover>         */}
         <IonPopover
+          id="popover"
           cssClass="popover"        
           isOpen={passwordPopover}
           onDidDismiss={() => setPasswordPopover(false)}
@@ -499,10 +504,11 @@ const MyPartyList = () => {
           onIonChange={e => setVerifyNewPassword(e.detail.value!)} 
           placeholder="Re-enter New Password" clearInput>            
           </IonInput>              
-          <IonText>{passwordError}</IonText>                
+          <IonText>{passwordError}</IonText><br/>               
           <IonButton onClick={() => updatePassword()}>Done</IonButton>             
         </IonPopover>    
         <IonPopover
+          id="popover"
           cssClass="popover"        
           isOpen={deleteAccPopover}
           onDidDismiss={() => setDeleteAccPopover(false)}
@@ -515,7 +521,7 @@ const MyPartyList = () => {
           onIonChange={e => setOldPassword(e.detail.value!)} 
           placeholder="Enter password to delete account" clearInput>            
           </IonInput>    
-          <IonText>{passwordError}</IonText>
+          <IonText>{passwordError}</IonText><br/>
           <IonButton onClick={()=>setDeleteAccPopover(false)}>
             Cancel
           </IonButton>            
@@ -523,7 +529,8 @@ const MyPartyList = () => {
             Delete
           </IonButton>   
         </IonPopover>    
-        <IonPopover 
+        <IonPopover
+          id="popover" 
           cssClass="popover"        
           isOpen={showFriends}
           onDidDismiss={() => setShowFriends(false)}        
@@ -538,7 +545,8 @@ const MyPartyList = () => {
               })}
           </IonList>
         </IonPopover>
-        <IonPopover 
+        <IonPopover
+          id="popover" 
           cssClass="popover"        
           isOpen={accountDeleted}
           onDidDismiss={() => setAccountDeleted(false)}        

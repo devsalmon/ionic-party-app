@@ -209,7 +209,7 @@ const SignIn: React.FC = () => {
         onIonChange={e => setEmail(e.detail.value!)}
         >        
         </IonInput>
-        <IonText class="errormsg">{emailError}</IonText>
+        <IonText class="errormsg">{emailError}</IonText><br/>
         {hasAccount ? 
           null : (
             <>
@@ -221,7 +221,7 @@ const SignIn: React.FC = () => {
               onIonChange={e => setFullname(e.detail.value!)}
               >                  
               </IonInput>  
-              <IonText class="errormsg">{fullnameError}</IonText>
+              <IonText class="errormsg">{fullnameError}</IonText><br/>
               <IonInput 
               class="create-input" 
               value={username} 
@@ -230,7 +230,7 @@ const SignIn: React.FC = () => {
               onIonChange={e => setUsername(e.detail.value!)}
               >                
               </IonInput> 
-              <IonText class="errormsg">{usernameError}</IonText>
+              <IonText class="errormsg">{usernameError}</IonText><br/>
             </>
           )
         }
@@ -247,7 +247,7 @@ const SignIn: React.FC = () => {
             <IonIcon slot="icon-only" icon={eyeOutline} />
           </IonButton>                  
         </IonRow>
-        <IonText class="errormsg">{passwordError}</IonText>
+        <IonText class="errormsg">{passwordError}</IonText><br/>
         <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
           {hasAccount ? (
             <>

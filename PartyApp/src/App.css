@@ -129,7 +129,9 @@
 .popover {
     --background: black;
     color: black;
+    text-align: center;
     --backdrop-opacity: 0.9;
+    --width: 90%
 }
 
 .profile-button {
@@ -319,7 +321,7 @@ ion-refresher-content {
 }
 
 ion-slides {
-    height: 250%;
+    height: 200%;
 }
 
 .swiper-slide {
@@ -333,6 +335,7 @@ ion-text {
 
 ion-tab-button {
     --background: transparent;
+    --ripple-color: transparent;
     --color: black;
     --color-focused: yellow;
     --color-selected: white;
@@ -357,6 +360,12 @@ ion-tab-bar {
 
 .live-title {
     color: red
+}
+
+.myparties-toolbar {
+    padding-bottom: 0px;
+    padding-right: 0px;
+    padding-left: 0px;
 }
 
 ion-title {
