@@ -88,7 +88,7 @@ const Gallery = ({hostid, partyid}) => {
             <IonCardContent class="gallery-card-content">
               <IonCardTitle class="gallery-card-title">{title}</IonCardTitle>         
               <IonCardSubtitle class="gallery-card-subtitle">Hosted on {date} by {host}</IonCardSubtitle>
-              {firebase.auth().currentUser.displayName === host && edit ?              
+              {firebase.auth().currentUser.uid === hostid && edit ?              
                 <IonItem>
                   <IonTextarea class="create-input" value={message} placeholder="Message" onIonChange={e => setMessage(e.detail.value!)}></IonTextarea>
                   <IonButton onClick={() => uploadMessage()}>Upload</IonButton>
@@ -96,7 +96,7 @@ const Gallery = ({hostid, partyid}) => {
              : null
             }         
             <IonText>"{afterMessage}"</IonText>
-            {firebase.auth().currentUser.displayName === host && !edit ?              
+            {firebase.auth().currentUser.uid === hostid && !edit ?              
               <IonCardSubtitle>
                 <IonItem lines="none">
                   <IonButton onClick={() => setEdit(true)}>Edit</IonButton>
@@ -128,6 +128,15 @@ const Picture = ({doc, hostid, partyid}) => {
   const [refresh, setRefresh] = useState(false);
   const [otherComments, setOtherComments] = useState([]);
   //const [updateComments, setUpdateComments] = useState(false);
+  const [displayName, setDisplayName] = useState('');
+  // const [userID, setUserID] = useState('');
+
+   async function getDisplayName() {
+     const displayName = await firebase.auth().currentUser.displayName
+     setDisplayName(displayName)
+    //console.log("Test")
+   }
+   getDisplayName()
 
   useEffect(() => {  
     likedPicture();
@@ -139,7 +148,7 @@ const Picture = ({doc, hostid, partyid}) => {
     // function to check if the picture was taken by the current user
     collectionRef.doc(doc.id).get().then(function(doc){
       // if picture was taken by the current user then they can delete it 
-      if (doc.data().takenBy === firebase.auth().currentUser.displayName) {
+      if (doc.data().takenByID === firebase.auth().currentUser.uid) {
         setOwnPicture(true)
       } else {
         setOwnPicture(false)
@@ -150,7 +159,7 @@ const Picture = ({doc, hostid, partyid}) => {
   const likedPicture = () => {
     // set initial likes by fetching data from the picture document 
     collectionRef.doc(doc.id).get().then(function(doc){
-      if (doc.data().likes.includes(firebase.auth().currentUser.displayName)) {
+      if (doc.data().likes.includes(displayName)) {
         // if picture's likes array contains current user, the picture is already liked
         setLiked(true); 
       } else {
@@ -167,7 +176,7 @@ const Picture = ({doc, hostid, partyid}) => {
     collectionRef.doc(doc.id).get().then(function(doc){
       // increase like counter in the picture document, and add current user to the likes array
       collectionRef.doc(doc.id).update({
-        likes: firebase.firestore.FieldValue.arrayUnion(firebase.auth().currentUser.displayName),
+        likes: firebase.firestore.FieldValue.arrayUnion(displayName),
         likeCounter:  firebase.firestore.FieldValue.increment(1)
       })             
     });
@@ -179,7 +188,7 @@ const Picture = ({doc, hostid, partyid}) => {
     collectionRef.doc(doc.id).get().then(function(doc){
       // decrease like counter in the picture document, and remove current user to the likes array
       collectionRef.doc(doc.id).update({
-        likes: firebase.firestore.FieldValue.arrayRemove(firebase.auth().currentUser.displayName),
+        likes: firebase.firestore.FieldValue.arrayRemove(displayName),
         likeCounter:  firebase.firestore.FieldValue.increment(-1)
       })            
     });
@@ -220,7 +229,7 @@ const Picture = ({doc, hostid, partyid}) => {
   const writeComments = () => {
     if (comment != '') {
     collectionRef.doc(doc.id).collection("Comments").add({
-      username: firebase.auth().currentUser.displayName,
+      username: displayName,
       comment: comment,
       timestamp: firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(docRef) {

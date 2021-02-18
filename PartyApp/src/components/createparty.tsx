@@ -59,7 +59,24 @@ import algoliasearch from 'algoliasearch/lite';
 
 const CreateParty = ({editingParty, displayParties}) => {
 
-    var currentuser = firebase.auth().currentUser; 
+    var currentuser = firebase.auth().currentUser
+    const [displayName, setDisplayName] = useState('');
+   // const [userID, setUserID] = useState('');
+
+    async function getDisplayName() {
+      const displayName = await firebase.auth().currentUser.displayName
+      setDisplayName(displayName)
+     //console.log("Test")
+    }
+
+ //   async function getUserID() {
+ //     const userID = await firebase.auth().currentUser.displayName
+ //     setUserID(userID)
+ //   }
+
+    getDisplayName()
+ //   getUserID()
+
     const friendsCollection = firebase.firestore().collection('friends'); 
     const usersCollection = firebase.firestore().collection('users');
 
@@ -141,10 +158,10 @@ const CreateParty = ({editingParty, displayParties}) => {
 
     const onSave = () => {  
       // validate inputs  
-      const inputsFilled = Boolean((title !== "") && (address !== "") && (postcode !== "") && (dateTime !== "") && (endTime !== "") && (dresscode !== "") && (drinksProvided !== ""));
+      const inputsFilled = Boolean((title !== "") && (address !== "") && (dateTime !== "") && (endTime !== "") && (dresscode !== "") && (drinksProvided !== ""));
       const timesValid = Boolean(moment(endTime).isAfter(dateTime));
       const collectionRef = firebase.firestore().collection("users").doc(currentuser.uid).collection("myParties");
-      
+
       if (inputsFilled === false) {
         setFieldsMissing(true)  
       } else if (timesValid === false) {
@@ -172,7 +189,7 @@ const CreateParty = ({editingParty, displayParties}) => {
                 // if people get invited then add them to list below.
                 // A party gets created. A person gets invited, they accept invite.
                 // Then they get access to the document that was originally created.
-                var host_user_id = firebase.auth().currentUser.uid
+                var host_user_id = currentuser.uid
                 invitedPeople && invitedPeople.map(person => {
                   var userDocument = firebase.firestore().collection("users").doc(person.id)
                   userDocument.get().then(doc => {
@@ -183,7 +200,7 @@ const CreateParty = ({editingParty, displayParties}) => {
                     if ((!alreadyInMI && !alreadyInIF) || !doc.data().myInvites) {
                       userDocument.update({
                         // add party id to user documents
-                        myInvites: firebase.firestore.FieldValue.arrayUnion({hostid: host_user_id, partyid: editingParty.id}),                      
+                        myInvites: firebase.firestore.FieldValue.arrayUnion({hostid: host_user_id, partyid: editingParty.id}),
                       }) 
                     }   
                   })
@@ -215,8 +232,8 @@ const CreateParty = ({editingParty, displayParties}) => {
                 details: details ? details : "",
                 endTime: moment(endTime).format('LLL'),
                 dateTime: moment(dateTime).format('LLL'),
-                host: firebase.auth().currentUser.displayName,
-                hostid: firebase.auth().currentUser.uid,
+                host: displayName,
+                hostid: currentuser.uid,
                 invited_people: invitedPeople,             
                 createdOn: moment(new Date()).format('LL'), 
                 }).then(function(docRef) {                  
@@ -228,7 +245,7 @@ const CreateParty = ({editingParty, displayParties}) => {
                   // if people get invited then add them to list below.
                   // A party gets created. A person gets invited, they accept invite.
                   // Then they get access to the document that was originally created.
-                  var host_user_id = firebase.auth().currentUser.uid
+                  var host_user_id = currentuser.uid
                   invitedPeople && invitedPeople.map(person => {
                     firebase.firestore().collection("users").doc(person.id).update({
                       // add party id to user documents

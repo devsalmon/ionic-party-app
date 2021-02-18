@@ -91,6 +91,15 @@ const MyPartyList = () => {
   const [refresh, setRefresh] = useState(false);  
   var user = firebase.auth().currentUser;
   var currentuser = firebase.auth().currentUser.uid;
+  const [displayName, setDisplayName] = useState('');
+  // const [userID, setUserID] = useState('');
+
+   async function getDisplayName() {
+     const displayName = await firebase.auth().currentUser.displayName
+     setDisplayName(displayName)
+    //console.log("Test")
+   }
+   getDisplayName()
 
 
   useEffect(() => {  
@@ -394,7 +403,7 @@ const MyPartyList = () => {
                   <IonIcon className="profile-icon" icon={personOutline}/>                   
                 </IonCol>
                 <IonCol size="6"> 
-                  <IonText>{user.displayName}</IonText><br/>
+                  <IonText>Test: {user.uid} Name: {displayName}</IonText><br/>
                   <p className="white-text"><span onClick={()=>setShowFriends(true)}>{friend_no} FRIENDS</span></p>       
                 </IonCol>      
                 <IonCol size="3">

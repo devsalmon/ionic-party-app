@@ -44,7 +44,7 @@ import {
   IonCard,
   IonCardHeader,
   IonCardTitle,
-  IonCardContent,
+  IonCardContent
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { 
@@ -113,6 +113,7 @@ const Party = ({id, data, live, edit}) => {
     await collectionRef.doc(id).collection('pictures').add({
         picture: photo,
         takenBy: firebase.auth().currentUser.displayName, 
+        takenByID: firebase.auth().currentUser.uid,
         takenAt: moment(new Date()).format('LT'),
         likeCounter: 0,
         likes: [],
@@ -195,7 +196,7 @@ const Party = ({id, data, live, edit}) => {
           </IonCol>      
         </IonRow> 
         <IonRow className="ion-text-center">
-            {firebase.auth().currentUser.displayName === data.host ?  
+            {firebase.auth().currentUser.uid === data.hostid ?  
               <IonCol className="ion-align-self-center">
               <IonButton color="warning" onClick={edit}>
                 <IonIcon slot="icon-only" icon={createOutline} />
