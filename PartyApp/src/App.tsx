@@ -422,7 +422,6 @@ const PartyList = ({editParty, stopEditing}) => {
               }   
             }             
           } else if (moment(today).isAfter(endTime)) {
-            console.log("TODAY ", moment(today), "end ", moment(endTime))
             for (var j=0; j < liveParties.length; j++) { 
               if (liveParties[j].id === doc.id) {
                   liveParties.splice(j,1);
@@ -456,7 +455,6 @@ const PartyList = ({editParty, stopEditing}) => {
                   } else if 
                   (moment(today).isBetween(partydoc.data().dateTime, endTime) && !alreadyInLP) {
                     // if party is live
-            console.log("TODAY ", moment(today), "end ", moment(endTime))
                     setLiveParties(parties => [
                       ...parties,
                       {

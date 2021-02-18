@@ -104,6 +104,16 @@
     --spinner-color: yellow; 
 }
 
+.live-title {
+    color: red
+}
+
+.myparties-toolbar {
+    padding-bottom: 0px;
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
 .modal {
     --height: 100%;
     --width: 100%;
@@ -206,6 +216,16 @@
     width: 90%;
     height: 50px;    
     text-align: center;    
+}
+
+#signin-content .signin-inputs {
+    padding: 10px    
+}
+
+#signin-content{
+    --padding-start: 10px;
+    --padding-top: 120px;
+    --padding-end: 10px;    
 }
 
 .swiper-pagination {
@@ -356,16 +376,6 @@ ion-tab-bar {
     display: flex;
     align-items: flex-end;
     justify-content: center;
-}
-
-.live-title {
-    color: red
-}
-
-.myparties-toolbar {
-    padding-bottom: 0px;
-    padding-right: 0px;
-    padding-left: 0px;
 }
 
 ion-title {

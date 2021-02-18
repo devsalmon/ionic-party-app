@@ -200,7 +200,8 @@ const SignIn: React.FC = () => {
       <IonToolbar>
         {hasAccount ? <IonTitle>Sign In</IonTitle> : <IonTitle>Sign Up</IonTitle>}
       </IonToolbar>
-      <IonContent class="ion-padding">   
+      <IonContent id="signin-content">   
+        <div className="signin-inputs">
         <IonInput 
         class="create-input"
         value={email} 
@@ -264,6 +265,7 @@ const SignIn: React.FC = () => {
           {linkSent ? (
             <IonText class="errormsg">A verification link has been sent to your email, please click it to finish signing up</IonText>
           ) : (null)}       
+        </div>          
       </IonContent>
     </IonPage>
   )
