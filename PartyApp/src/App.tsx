@@ -253,7 +253,7 @@ const Party = ({id, data, live, edit}) => {
           </IonRange>       
         </IonItem> 
         <IonItem lines="none">Starts: {moment(data.dateTime).format('LT')}</IonItem>     
-        <IonItem lines="none">Ends: {moment(data.endTime).format('LT')}</IonItem>
+        <IonItem lines="none">Ends: {moment(data.endTime).format('ddd, LT')}</IonItem>
         {data.invited_people ? <IonItem lines="none">Number of Invites: {data.invited_people.length}</IonItem>  : null}
         {data.details ? 
         <>
@@ -407,7 +407,6 @@ const PartyList = ({editParty, stopEditing}) => {
           } else if
           (moment(today).isBetween(data.dateTime, endTime)  && !alreadyInLP) {
             // if party is live
-            console.log("TODAY ", moment(today), "end ", moment(endTime))
             setLiveParties(parties => [
               ...parties,
               {
@@ -425,9 +424,7 @@ const PartyList = ({editParty, stopEditing}) => {
           } else if (moment(today).isAfter(endTime)) {
             console.log("TODAY ", moment(today), "end ", moment(endTime))
             for (var j=0; j < liveParties.length; j++) { 
-              console.log(liveParties[j].id, doc.id)             
               if (liveParties[j].id === doc.id) {
-                console.log("remove")
                   liveParties.splice(j,1);
                   break;
               }   

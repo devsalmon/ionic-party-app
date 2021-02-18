@@ -422,16 +422,16 @@ const MyPartyList = () => {
           </IonRow>
           </IonRadioGroup>                                
           </IonToolbar>0
-        </IonHeader>       
-        <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
-          <IonRefresherContent
-            pullingIcon={chevronDownCircleOutline}
-            refreshingSpinner="circles">
-          </IonRefresherContent>
-        </IonRefresher>               
+        </IonHeader>                    
         <IonSlides ref={slides} onIonSlideDidChange={e => handleSlideChange()}>                   
           <IonSlide>     
-            <IonContent fullscreen={true} scroll-y={true}>         
+            <IonContent fullscreen={true} scroll-y={true}> 
+              <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
+                <IonRefresherContent
+                  pullingIcon={chevronDownCircleOutline}
+                  refreshingSpinner="circles">
+                </IonRefresherContent>
+              </IonRefresher>                     
             {attendedParties.length === 0 ?
             <IonText class="white-text">No attended parties yet..</IonText> :          
             attendedParties.sort((a, b) => b.data.dateTime > a.data.dateTime ? 1:-1).map((doc, i) => {
@@ -443,7 +443,13 @@ const MyPartyList = () => {
             </IonContent>    
           </IonSlide>              
           <IonSlide>
-            <IonContent fullscreen={true} scroll-y={true}>         
+            <IonContent fullscreen={true} scroll-y={true}>    
+              <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
+                <IonRefresherContent
+                  pullingIcon={chevronDownCircleOutline}
+                  refreshingSpinner="circles">
+                </IonRefresherContent>
+              </IonRefresher>                   
             {yourParties.length === 0 ?
             <IonText class="white-text"> No hosted parties yet..</IonText> : 
             yourParties.sort((a, b) => b.data.dateTime > a.data.dateTime ? 1:-1).map((doc, j) => {
