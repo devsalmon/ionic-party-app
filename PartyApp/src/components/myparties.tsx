@@ -83,6 +83,7 @@ const MyPartyList = () => {
   const [newPassword, setNewPassword] = useState(''); //popover to change username
   const [verifyNewPassword, setVerifyNewPassword] = useState(''); //popover to change username
   const [passwordError, setPasswordError] = useState('');
+  const [usernameError, setUsernameError] = useState('');
   const [profilePhoto, setProfilePhoto] = useState('');  
   const [photoPopover, setPhotoPopover] = useState(false); 
   const [accountDeleted, setAccountDeleted] = useState(false);
@@ -92,17 +93,11 @@ const MyPartyList = () => {
   var user = firebase.auth().currentUser;
   var currentuser = firebase.auth().currentUser.uid;
   const [displayName, setDisplayName] = useState('');
-  // const [userID, setUserID] = useState('');
-
-   async function getDisplayName() {
-     const displayName = await firebase.auth().currentUser.displayName
-     setDisplayName(displayName)
-    //console.log("Test")
-   }
-   getDisplayName()
-
 
   useEffect(() => {  
+    firebase.firestore().collection("users").doc(user.uid).get().then(doc => {
+      setDisplayName(doc.data().username)
+    })
     findFriends();  
     // useeffect hook only runs after first render so it only runs once
     displayParties(); 
@@ -163,19 +158,27 @@ const MyPartyList = () => {
     //alert("YOU JUST SIGNED OUT")
   }
 
-  const updateUsername = () => {
-    setPasswordError('');
-    user = firebase.auth().currentUser
-    user.updateProfile({
-      displayName: newUsername
-    });
-    firebase.firestore().collection('users').doc(user.uid).update({
-      username: newUsername,  
-    }).then(() => {
-      setUsernamePopover(false);
-      setNewUsername('');
-    })    
+  const updateUsername = async() => {    
+    firebase.firestore().collection("users").where("username", "==", newUsername).get().then(snap => {
+      if (snap.empty) { // if no duplicate username
+        user = firebase.auth().currentUser
+        user.updateProfile({
+          displayName: newUsername
+        });
+        firebase.firestore().collection('users').doc(user.uid).update({
+          username: newUsername,  
+        }).then(() => {
+          //setHits([]);
+          setUsernameError('');
+          setUsernamePopover(false);
+          setNewUsername('');
+        })                 
+      } else {
+        setUsernameError("This username is already in use, try another one")        
+      }
+    })       
   }
+
 
   const updatePassword = () => {
     setPasswordError('');
@@ -403,7 +406,7 @@ const MyPartyList = () => {
                   <IonIcon className="profile-icon" icon={personOutline}/>                   
                 </IonCol>
                 <IonCol size="6"> 
-                  <IonText>Test: {user.uid} Name: {displayName}</IonText><br/>
+                  <IonText>{displayName}</IonText><br/>
                   <p className="white-text"><span onClick={()=>setShowFriends(true)}>{friend_no} FRIENDS</span></p>       
                 </IonCol>      
                 <IonCol size="3">
@@ -482,6 +485,7 @@ const MyPartyList = () => {
           onIonChange={e => setNewUsername(e.detail.value!)} 
           placeholder="New Username" clearInput>            
           </IonInput>
+          <IonText>{usernameError}</IonText><br/>
           <IonButton onClick={() => updateUsername()}>Done</IonButton>             
         </IonPopover>
         {/* <IonPopover

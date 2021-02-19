@@ -11,6 +11,7 @@ import {
   IonTitle,
   IonInput, 
   IonText,
+  IonPopover,
   IonLabel,
   IonRow,
   IonCol
@@ -42,6 +43,7 @@ const SignIn: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [signUpSuccess, setSignUpSuccess] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [fullnameError, setFullnameError] = useState('');
   const [usernameError, setUsernameError] = useState('');
@@ -81,19 +83,18 @@ const SignIn: React.FC = () => {
     });   
   }
 
-  const createNewUser = () => {
-    console.log("create user triggered")
+  const createNewUser = () => {    
     firebase.auth().createUserWithEmailAndPassword(email, password)
-    .then(result => {
-      firebase.firestore().collection('users').doc(result.user.uid).set({
-        fullname: fullname,
-        username: username,
-        email: email,      
-        id: result.user.uid ,
-        //mobileNumber: mobileNumber ? mobileNumber : null              
-      })    
-    })
-      //userVerification();
+      .then(result => {     
+        firebase.firestore().collection('users').doc(result.user.uid).set({
+          fullname: fullname,
+          username: username,
+          email: email,      
+          id: result.user.uid,
+          //mobileNumber: mobileNumber ? mobileNumber : null              
+        })
+        setSignUpSuccess(false); // remove popover 
+      })          
       .catch(err => {
         switch(err.code){
           case "auth/email-already-in-use":
@@ -104,7 +105,7 @@ const SignIn: React.FC = () => {
             setPasswordError(err.message);
             break;
         }
-      })  
+      })   
   }
 
   const clearInputs = () => {
@@ -150,7 +151,17 @@ const SignIn: React.FC = () => {
             break;
         }
       })
-  }
+  }  
+
+  const verifyUsername = () => {
+    firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
+      if (snap.empty) { // if no duplicate username
+        setSignUpSuccess(true); // show pop up saying signed up successfully                 
+      } else {
+        setUsernameError("This username is already in use, try another one")        
+      }
+    })     
+  }  
 
   const handleSignUp = () => {
     // sign up function for new users
@@ -160,9 +171,9 @@ const SignIn: React.FC = () => {
       setFieldsMissing(true);
     } else { 
       setFieldsMissing(false);   
-      createNewUser();   
+      verifyUsername();   
     }    
-    }
+  }
 
     // Signs-in Messaging with GOOGLE POP UP
   // const SignInGooglepu = async() => {
@@ -265,6 +276,16 @@ const SignIn: React.FC = () => {
           {linkSent ? (
             <IonText class="errormsg">A verification link has been sent to your email, please click it to finish signing up</IonText>
           ) : (null)}       
+          <IonPopover
+            cssClass="popover"        
+            isOpen={signUpSuccess}
+            onDidDismiss={() => createNewUser()}
+          >
+            <IonText>Sign up successful!</IonText><br/>
+            <IonButton onClick={()=>createNewUser()}>
+              Continue to home
+            </IonButton>   
+          </IonPopover>  
         </div>          
       </IonContent>
     </IonPage>

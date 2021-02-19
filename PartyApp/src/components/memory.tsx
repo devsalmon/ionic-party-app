@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   IonGrid,
   IonRow,
@@ -6,7 +6,6 @@ import {
   IonText,
   IonItem,
 } from '@ionic/react';
-
 import { 
 } from 'ionicons/icons';
 import '../App.css'
@@ -25,9 +24,18 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 /* Theme variables */
 import '../variables.css';
+import firebase from '../firestore'
+
 
 const Memory = ({id, data, click}) => {
   // party card  
+  const [host, setHost] = useState('');
+
+  useEffect(() => {
+    firebase.firestore().collection("users").doc(data.hostid).get().then(doc => {
+      setHost(doc.data().username)
+    })
+  })
   
   return(
     <IonItem button lines="none" onClick={click} class="accordion-item">
@@ -40,7 +48,7 @@ const Memory = ({id, data, click}) => {
       <IonRow>
         <IonCol size="12">
           <IonText class="white-text">{data.date}<br/></IonText> 
-          <IonText class="white-text">Hosted By {data.host}</IonText>
+          <IonText class="white-text">Hosted By {host}</IonText>
         </IonCol>
       </IonRow>
       </IonGrid>

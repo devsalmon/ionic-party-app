@@ -60,23 +60,6 @@ import algoliasearch from 'algoliasearch/lite';
 const CreateParty = ({editingParty, displayParties}) => {
 
     var currentuser = firebase.auth().currentUser
-    const [displayName, setDisplayName] = useState('');
-   // const [userID, setUserID] = useState('');
-
-    async function getDisplayName() {
-      const displayName = await firebase.auth().currentUser.displayName
-      setDisplayName(displayName)
-     //console.log("Test")
-    }
-
- //   async function getUserID() {
- //     const userID = await firebase.auth().currentUser.displayName
- //     setUserID(userID)
- //   }
-
-    getDisplayName()
- //   getUserID()
-
     const friendsCollection = firebase.firestore().collection('friends'); 
     const usersCollection = firebase.firestore().collection('users');
 
@@ -158,7 +141,7 @@ const CreateParty = ({editingParty, displayParties}) => {
 
     const onSave = () => {  
       // validate inputs  
-      const inputsFilled = Boolean((title !== "") && (address !== "") && (dateTime !== "") && (endTime !== "") && (dresscode !== "") && (drinksProvided !== ""));
+      const inputsFilled = Boolean((title.trim() !== "") && (address.trim() !== "") && (dateTime.trim() !== "") && (endTime.trim() !== "") && (dresscode.trim() !== "") && (drinksProvided.trim() !== ""));
       const timesValid = Boolean(moment(endTime).isAfter(dateTime));
       const collectionRef = firebase.firestore().collection("users").doc(currentuser.uid).collection("myParties");
 
@@ -232,7 +215,6 @@ const CreateParty = ({editingParty, displayParties}) => {
                 details: details ? details : "",
                 endTime: moment(endTime).format('LLL'),
                 dateTime: moment(dateTime).format('LLL'),
-                host: displayName,
                 hostid: currentuser.uid,
                 invited_people: invitedPeople,             
                 createdOn: moment(new Date()).format('LL'), 

@@ -55,13 +55,18 @@ const Gallery = ({hostid, partyid}) => {
       firebase.firestore().collection('users').doc(hostid).collection('myParties').doc(partyid).collection('pictures'),
     );      
 
+    useEffect(() => {
+      firebase.firestore().collection("users").doc(hostid).get().then(doc => {
+        setHost(doc.data().username)
+      })
+    })
+
     const doc = firebase.firestore().collection('users').doc(hostid).collection("myParties").doc(partyid)
     doc.get().then(function(doc) {
       if (doc.exists) {
           setTitle(doc.data().title);
           setLocation(doc.data().location);
           setDate(moment(doc.data().date).format('l'));
-          setHost(doc.data().host);
           setAfterMessage(doc.data().afterMessage)
       } else {
           // doc.data() will be undefined in this case
@@ -127,18 +132,18 @@ const Picture = ({doc, hostid, partyid}) => {
   const [showComments, setShowComments] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [otherComments, setOtherComments] = useState([]);
-  //const [updateComments, setUpdateComments] = useState(false);
   const [displayName, setDisplayName] = useState('');
-  // const [userID, setUserID] = useState('');
-
-   async function getDisplayName() {
-     const displayName = await firebase.auth().currentUser.displayName
-     setDisplayName(displayName)
-    //console.log("Test")
-   }
-   getDisplayName()
+  const [takenBy, setTakenBy] = useState('');
+    
+  var currentuser = firebase.auth().currentUser.uid
 
   useEffect(() => {  
+    firebase.firestore().collection("users").doc(currentuser).get().then(doc => {
+      setDisplayName(doc.data().username)
+    })    
+    firebase.firestore().collection("users").doc(doc.data().takenByID).get().then(doc => {
+      setTakenBy(doc.data().username)
+    })        
     likedPicture();
     checkOwnPicture();
     displayComments();
@@ -159,7 +164,7 @@ const Picture = ({doc, hostid, partyid}) => {
   const likedPicture = () => {
     // set initial likes by fetching data from the picture document 
     collectionRef.doc(doc.id).get().then(function(doc){
-      if (doc.data().likes.includes(displayName)) {
+      if (doc.data().likes.includes(currentuser)) {
         // if picture's likes array contains current user, the picture is already liked
         setLiked(true); 
       } else {
@@ -176,7 +181,7 @@ const Picture = ({doc, hostid, partyid}) => {
     collectionRef.doc(doc.id).get().then(function(doc){
       // increase like counter in the picture document, and add current user to the likes array
       collectionRef.doc(doc.id).update({
-        likes: firebase.firestore.FieldValue.arrayUnion(displayName),
+        likes: firebase.firestore.FieldValue.arrayUnion(currentuser),
         likeCounter:  firebase.firestore.FieldValue.increment(1)
       })             
     });
@@ -188,7 +193,7 @@ const Picture = ({doc, hostid, partyid}) => {
     collectionRef.doc(doc.id).get().then(function(doc){
       // decrease like counter in the picture document, and remove current user to the likes array
       collectionRef.doc(doc.id).update({
-        likes: firebase.firestore.FieldValue.arrayRemove(displayName),
+        likes: firebase.firestore.FieldValue.arrayRemove(currentuser),
         likeCounter:  firebase.firestore.FieldValue.increment(-1)
       })            
     });
@@ -247,7 +252,6 @@ const Picture = ({doc, hostid, partyid}) => {
       querySnapshot.forEach(doc => {
         var commentor = doc.data().username
         var theComment = doc.data().comment
-        console.log("Comment: ", theComment)
           setOtherComments(otherComments => [
             ...otherComments, 
             {
@@ -264,7 +268,7 @@ const Picture = ({doc, hostid, partyid}) => {
       <IonCardHeader>
         <IonRow>
         <IonCol>{doc.data().takenAt}</IonCol> 
-        <IonCol size="5">{doc.data().takenBy}</IonCol> 
+        <IonCol size="5">{takenBy}</IonCol> 
         <IonCol>{numLikes} likes</IonCol> 
         </IonRow>
       </IonCardHeader>       

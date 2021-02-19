@@ -91,7 +91,12 @@ import './variables.css';
 const Party = ({id, data, live, edit}) => {
   // party card
 
-  useEffect(()=>{
+  useEffect(()=>{    
+    firebase.firestore().collection("users").doc(data.hostid).get().then(doc => {
+      setHost(doc.data().username);
+    })    
+    var user = firebase.auth().currentUser.uid
+    setCurrentUser(user);
     getDaysUntilParty()
   })
 
@@ -105,6 +110,8 @@ const Party = ({id, data, live, edit}) => {
   //const {photo, getPhoto} = useCamera(); 
   const { Camera } = Plugins;
   const [isLive, setIsLive] = useState(live);
+  const [host, setHost] = useState('');
+  const [currentUser, setCurrentUser] = useState(''); // id of current user
   const collectionRef = firebase.firestore().collection("users").doc(data.hostid).collection("myParties");  
 
   const onSave = async() => { 
@@ -112,8 +119,7 @@ const Party = ({id, data, live, edit}) => {
     if (photo !== "") {
     await collectionRef.doc(id).collection('pictures').add({
         picture: photo,
-        takenBy: firebase.auth().currentUser.displayName, 
-        takenByID: firebase.auth().currentUser.uid,
+        takenByID: currentUser,
         takenAt: moment(new Date()).format('LT'),
         likeCounter: 0,
         likes: [],
@@ -192,11 +198,11 @@ const Party = ({id, data, live, edit}) => {
             <IonText>{data.title} <br/></IonText>  
             <IonText class="white-text">{data.address}</IonText><br/>
             <IonText class="white-text">{data.postcode}</IonText><br/>
-            <IonText class="white-text">By {data.host}</IonText>
+            <IonText class="white-text">By {host}</IonText>
           </IonCol>      
         </IonRow> 
         <IonRow className="ion-text-center">
-            {firebase.auth().currentUser.uid === data.hostid ?  
+            {currentUser === data.hostid ?  
               <IonCol className="ion-align-self-center">
               <IonButton color="warning" onClick={edit}>
                 <IonIcon slot="icon-only" icon={createOutline} />
@@ -437,7 +443,7 @@ const PartyList = ({editParty, stopEditing}) => {
       .doc(current_user.uid).get().then(doc => {
           let today = new Date();
           let data = doc.data();
-          if (data.acceptedInvites) {             
+          if (data && data.acceptedInvites) {             
             for (var i=0; i < data.acceptedInvites.length; i++) {
               firebase.firestore().collection("users")
                 .doc(data.acceptedInvites[i].hostid).collection("myParties").doc(data.acceptedInvites[i].partyid).get().then(partydoc => {
@@ -570,6 +576,14 @@ const Create: React.FC = () => {
 const FriendRequest = ({id, click}) => {
   // notification item
   const [userName, setUserName] = useState(''); // name of person who requested
+  const [currentUser, setCurrentUser] = useState(''); // name of current user
+
+  useEffect(() => {
+    var user = firebase.auth().currentUser.uid
+    firebase.firestore().collection("users").doc(user).get().then(doc => {
+      setCurrentUser(doc.data().username) // set name of person who requested 
+    })
+  })  
 
   const userRef = firebase.firestore().collection("users").doc(id); // get document of person who requested
   userRef.get().then(function(doc) {
@@ -616,13 +630,13 @@ const FriendRequest = ({id, click}) => {
           if (docSnapshot.exists) {
             collectionRef.doc(friend_user_id).onSnapshot((doc) => {
               collectionRef.doc(friend_user_id).update({
-                friends: firebase.firestore.FieldValue.arrayUnion({id: current_user_id, name: firebase.auth().currentUser.displayName})
+                friends: firebase.firestore.FieldValue.arrayUnion({id: current_user_id, name: currentUser})
               })      
             });
           } else {
             collectionRef.doc(friend_user_id).set({
               id: friend_user_id, 
-              friends: [{id: current_user_id, name: firebase.auth().currentUser.displayName}]
+              friends: [{id: current_user_id, name: currentUser}]
             }) // create the document
           }
       })        
@@ -630,7 +644,7 @@ const FriendRequest = ({id, click}) => {
           .then(function(docRef) {
             //HERE IS WHERE YOU SHOULD REMOVE REQUEST from friends_requests collection
             firebase.firestore().collection("friend_requests").doc(friend_user_id).update({
-              request_to: firebase.firestore.FieldValue.arrayRemove({id: current_user_id, name: firebase.auth().currentUser.displayName})
+              request_to: firebase.firestore.FieldValue.arrayRemove({id: current_user_id, name: currentUser})
             })
                 // if requests_to item is removed successfully... then remove item from request_from array
                 .then(function(docRef) {
@@ -659,7 +673,7 @@ const FriendRequest = ({id, click}) => {
     var current_user_id = firebase.auth().currentUser.uid
     //REMOVE REQUEST from friends_requests collection
     collectionRef.doc(friend_user_id).update({
-      request_to: firebase.firestore.FieldValue.arrayRemove({id: current_user_id, name: firebase.auth().currentUser.displayName})
+      request_to: firebase.firestore.FieldValue.arrayRemove({id: current_user_id, name: currentUser})
     })
       // if requests_to item is removed successfully... then remove item from request_from array
       .then(function(docRef) {
@@ -699,11 +713,16 @@ const PartyRequest = ({hostid, partyid, click}) => {
   const [time, setTime] = useState(''); // time of party you've been invited to
   const [endTime, setEndTime] = useState(''); // time of party you've been invited to
 
+  useEffect(() => {
+    firebase.firestore().collection("users").doc(hostid).get().then(doc => {
+      setUserName(doc.data().username) // set name of person who requested 
+    })
+  })
+
   // get party document of the person who requested
   const userRef = firebase.firestore().collection("users").doc(hostid); 
   userRef.collection("myParties").doc(partyid).get().then(function(doc) {
     if (doc.exists) { 
-      setUserName(doc.data().host) // set name to the host name in that document
       var date = moment(doc.data().date).format('LL')
       setDate(date)
       var end = moment(doc.data().endTime).format('LT')
@@ -845,6 +864,8 @@ const App: React.FC = () => {
       setLoading(false)
     })    
   }, [])
+
+  // tbd - check username is not a duplicate
 
 
   const registerNotifications = () => {
