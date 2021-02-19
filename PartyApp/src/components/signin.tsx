@@ -88,8 +88,8 @@ const SignIn: React.FC = () => {
   const createNewUser = async() => {    
     //firebase.auth().createUserWithEmailAndPassword(email, password) 
     //  .then(result => {
-      console.log("CreateNewUser triggered")
-      console.log(email)
+      alert("CreateNewUser triggered")
+      alert(email)
     firebase.auth().sendSignInLinkToEmail(email, actionCodeSettings)
   .then(() => {
     // The link was successfully sent. Inform the user.
@@ -97,7 +97,7 @@ const SignIn: React.FC = () => {
     // if they open the link on the same device.
     //window.localStorage.setItem('emailForSignIn', email);
       //mobileNumber: mobileNumber ? mobileNumber : null     
-      console.log("Email sent")  
+      alert("Email sent")  
       })         
       .catch(err => {
         switch(err.code){
@@ -112,7 +112,9 @@ const SignIn: React.FC = () => {
       })       
   }
 
+ const myCheck = () => {
 // Confirm the link is a sign-in with email link.
+alert(window.location.href)
 if (firebase.auth().isSignInWithEmailLink(window.location.href)) {
   // Additional state parameters can also be passed via URL.
   // This can be used to continue the user's intended action before triggering
@@ -120,9 +122,9 @@ if (firebase.auth().isSignInWithEmailLink(window.location.href)) {
   // Get the email if available. This should be available if the user completes
   // the flow on the same device where they started it.
   //var email = window.localStorage.getItem('emailForSignIn');
-  console.log("yes1")
+  alert("yes1")
   if (!email) {
-    console.log("Yes1.5")
+    alert("Yes1.5")
     // User opened the link on a different device. To prevent session fixation
     // attacks, ask the user to provide the associated email again. For example:
    // email = window.prompt('Please provide your email for confirmation');
@@ -137,7 +139,7 @@ if (firebase.auth().isSignInWithEmailLink(window.location.href)) {
       // result.additionalUserInfo.profile == null
       // You can check if the user is new or existing:
       // result.additionalUserInfo.isNewUser
-      console.log("YES2")
+      alert("YES2")
       firebase.firestore().collection('users').doc(result.user.uid).set({ // create a user document when a new user signs up
         fullname: fullname,
         username: username,
@@ -151,6 +153,10 @@ if (firebase.auth().isSignInWithEmailLink(window.location.href)) {
       // Common errors could be invalid email and invalid or expired OTPs.
     });
 }
+else {
+  alert("not a sign in link")
+}
+ }
 
   const clearInputs = () => {
     setEmail('');
@@ -304,6 +310,7 @@ if (firebase.auth().isSignInWithEmailLink(window.location.href)) {
           ) : (
             <>
               <IonButton class="signin-button" onClick={() => handleSignUp()}>Sign up</IonButton>
+              <IonButton class="signin-button" onClick={() => myCheck()}>Check</IonButton>
               <p className="errormsg">Have an account? <span className="yellow-text" onClick={() => setHasAccount(!hasAccount)}>Sign in</span></p>
             </>
           )}
