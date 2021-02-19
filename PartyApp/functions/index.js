@@ -10,7 +10,7 @@ const ALGOLIA_INDEX_NAME = "Users";
 admin.initializeApp(functions.config().firebase)
 
 // tbd - remember to redeploy at the end
-exports.addUser = functions.firestore
+exports.addAlgoliaUser = functions.firestore
 .document("users/{userId}")
 .onCreate(async (snap, context) => {
   admin.auth()
@@ -19,6 +19,30 @@ exports.addUser = functions.firestore
       email: snap.data().email,
       phoneNumber: snap.data().phone_number,      
     })
+
+  // send sign up notification to new user 
+  admin.firestore().collection("users").doc(snap.id).get().then(doc => {
+    var message = {
+      data: {
+        message: "Welcome to this party app! Thanks for signing up"
+      },
+      token: doc.data().deviceToken
+    };
+    // Send a message to the device corresponding to the provided
+    // registration token.
+    return admin.messaging().send(message)
+      .then((response) => {
+        // Response is a message ID string.      
+        console.log('Successfully sent message:', response);
+        return response
+      })
+      .catch((error) => {
+        console.log('Error sending message:', error);
+      }); 
+  }).catch(err => {
+    console.log("error getting document", err)
+  })
+
 
   // adding index to algolia 
   const newValue = snap.data();
@@ -36,7 +60,7 @@ exports.addUser = functions.firestore
   });
 });
 
-exports.updateUser = functions.firestore
+exports.updateAlgoliaUser = functions.firestore
 .document("users/{userId}")
 .onUpdate(async (snap, context) => {
   const afterUpdate = snap.after.data();
@@ -48,7 +72,7 @@ exports.updateUser = functions.firestore
   index.saveObject(afterUpdate);
 });
 
-exports.deleteUser = functions.firestore
+exports.deleteAlgoliaUser = functions.firestore
 .document("users/{userId}")
 .onDelete(async (snap, context) => {
   const oldID = snap.id;

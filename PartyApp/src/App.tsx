@@ -785,10 +785,32 @@ const MyParties: React.FC = () => {
 }
 const Home: React.FC = () => {
 
-  const [editing, setEditing] = useState(false);
+ const [editing, setEditing] = useState(false);
+  var actionCodeSettings = {
+    url: 'https://www.example.com/finishSignUp?cartId=1234',
+    iOS: {
+      bundleId: 'com.partyuptest.ios'
+    },
+    android: {
+      packageName: 'com.charke.partyapp',
+      installApp: true,
+      minimumVersion: '1'
+   },
+    handleCodeInApp: true,
+   // When multiple custom dynamic link domains are defined, specify which
+    // one to use.
+   dynamicLinkDomain: "test1619.page.link"
+  };  
   const verify = () => {
-    firebase.auth().currentUser.sendEmailVerification()
-  }  
+    firebase.auth().currentUser.sendEmailVerification(actionCodeSettings)
+  } 
+
+  //var user = setInterval(reloadUser, 1000);
+
+  function reloadUser() {
+    firebase.auth().currentUser.reload();
+    console.log(firebase.auth().currentUser.emailVerified)        
+  }
 
   return(
     <IonPage>
@@ -852,59 +874,62 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [signedIn, setSignedIn] = useState(false);
 
-  const { PushNotifications } = Plugins;
-  PushNotifications.register();
-
   useEffect(() => {
     console.log("app useeffect")
     firebase.auth().onAuthStateChanged(function(user) {      
       if (user) { //&& user.emailVerified) { // if new user logs in and is email verified 
-        setSignedIn(true)
+        setSignedIn(true);
+        registerNotifications(user.uid);             
       } 
       setLoading(false)
     })    
-  }, [])
+  }, [])   
 
-  // tbd - check username is not a duplicate
+  const { PushNotifications } = Plugins;
 
+  const registerNotifications = (userid) => {
+  // Register with Apple / Google to receive push via APNS/FCM
+  PushNotifications.requestPermission().then((permission) => {
+    if (permission.granted) {
+      // Register with Apple / Google to receive push via APNS/FCM
+      PushNotifications.register();
+    } else {
+      console.log("permission not granted")
+    }
+  }).catch(error => {
+    console.log("error requesting permission: ", error.message)
+  })
+  ;    
 
-  const registerNotifications = () => {
-    // Register with Apple / Google to receive push via APNS/FCM
-    PushNotifications.requestPermission().then((permission) => {
-      if (permission.granted) {
-        // Register with Apple / Google to receive push via APNS/FCM
-        PushNotifications.register();
-      } else {
-        // No permission for push granted
-      }
-    });    
+  // On succcess, we should be able to receive notifications
+  PushNotifications.addListener('registration',
+    (token: PushNotificationToken) => {
+      console.log('Push registration success, token: ' + token.value);
+      firebase.firestore().collection("users").doc(userid).update({
+        deviceToken: token.value
+      })
+    }
+  );
 
-    // On succcess, we should be able to receive notifications
-    PushNotifications.addListener('registration',
-      (token: PushNotificationToken) => {
-        console.log('Push registration success, token: ' + token.value);
-      }
-    );
+  // Some issue with your setup and push will not work
+  PushNotifications.addListener('registrationError',
+    (error: any) => {
+      console.log('Error on registration: ' + JSON.stringify(error));
+    }
+  );
 
-    // Some issue with your setup and push will not work
-    PushNotifications.addListener('registrationError',
-      (error: any) => {
-        console.log('Error on registration: ' + JSON.stringify(error));
-      }
-    );
-
-    // Show us the notification payload if the app is open on our device
-//    PushNotifications.addListener('pushNotificationReceived',
+  // Show us the notification payload if the app is open on our device
+  //    PushNotifications.addListener('pushNotificationReceived',
   //    (notification: PushNotification) => {
-    //  }
-    //);
+  //  }
+  //);
 
-    // Method called when tapping on a notification
-    //PushNotifications.addListener('pushNotificationActionPerformed',
-      //(notification: PushNotificationActionPerformed) => {
-     // }
-    //);
-  }     
+  // Method called when tapping on a notification
+  //PushNotifications.addListener('pushNotificationActionPerformed',
+    //(notification: PushNotificationActionPerformed) => {
+    // }
+  //);  
+  }
 
   if (loading) {
     return(

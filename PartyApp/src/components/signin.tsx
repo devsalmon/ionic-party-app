@@ -43,7 +43,6 @@ const SignIn: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [signUpSuccess, setSignUpSuccess] = useState(false);
   const [emailError, setEmailError] = useState('');
   const [fullnameError, setFullnameError] = useState('');
   const [usernameError, setUsernameError] = useState('');
@@ -65,7 +64,6 @@ const SignIn: React.FC = () => {
     android: {
       packageName: 'com.charke.partyapp',
       installApp: true,
-      minimumVersion: '1'
     },
     handleCodeInApp: true,
     // When multiple custom dynamic link domains are defined, specify which
@@ -83,18 +81,17 @@ const SignIn: React.FC = () => {
     });   
   }
 
-  const createNewUser = () => {    
-    firebase.auth().createUserWithEmailAndPassword(email, password)
-      .then(result => {     
-        firebase.firestore().collection('users').doc(result.user.uid).set({
+  const createNewUser = async() => {    
+    firebase.auth().createUserWithEmailAndPassword(email, password) 
+      .then(result => {
+        firebase.firestore().collection('users').doc(result.user.uid).set({ // create a user document when a new user signs up
           fullname: fullname,
           username: username,
           email: email,      
           id: result.user.uid,
           //mobileNumber: mobileNumber ? mobileNumber : null              
-        })
-        setSignUpSuccess(false); // remove popover 
-      })          
+        })         
+      })         
       .catch(err => {
         switch(err.code){
           case "auth/email-already-in-use":
@@ -105,7 +102,7 @@ const SignIn: React.FC = () => {
             setPasswordError(err.message);
             break;
         }
-      })   
+      })       
   }
 
   const clearInputs = () => {
@@ -153,16 +150,6 @@ const SignIn: React.FC = () => {
       })
   }  
 
-  const verifyUsername = () => {
-    firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
-      if (snap.empty) { // if no duplicate username
-        setSignUpSuccess(true); // show pop up saying signed up successfully                 
-      } else {
-        setUsernameError("This username is already in use, try another one")        
-      }
-    })     
-  }  
-
   const handleSignUp = () => {
     // sign up function for new users
     clearErrors();
@@ -171,7 +158,7 @@ const SignIn: React.FC = () => {
       setFieldsMissing(true);
     } else { 
       setFieldsMissing(false);   
-      verifyUsername();   
+      createNewUser();   
     }    
   }
 
@@ -275,17 +262,7 @@ const SignIn: React.FC = () => {
           )}
           {linkSent ? (
             <IonText class="errormsg">A verification link has been sent to your email, please click it to finish signing up</IonText>
-          ) : (null)}       
-          <IonPopover
-            cssClass="popover"        
-            isOpen={signUpSuccess}
-            onDidDismiss={() => createNewUser()}
-          >
-            <IonText>Sign up successful!</IonText><br/>
-            <IonButton onClick={()=>createNewUser()}>
-              Continue to home
-            </IonButton>   
-          </IonPopover>  
+          ) : (null)}     
         </div>          
       </IonContent>
     </IonPage>
