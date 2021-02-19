@@ -57,19 +57,23 @@ const SignIn: React.FC = () => {
   }, [hasAccount])
 
   var actionCodeSettings = {
-    url: 'https://partyuptest.page.link/partyuptestlink',
+    url: 'https://www.example.com/finishSignUp?cartId=1234',
     iOS: {
       bundleId: 'com.partyuptest.ios'
     },
     android: {
       packageName: 'com.charke.partyapp',
       installApp: true,
-    },
+      minimumVersion: '1'
+   },
     handleCodeInApp: true,
-    // When multiple custom dynamic link domains are defined, specify which
+   // When multiple custom dynamic link domains are defined, specify which
     // one to use.
-    dynamicLinkDomain: "partyuptest.page.link"
-  };    
+   dynamicLinkDomain: "test1619.page.link"
+  };  
+ // const verify = () => {
+ //   firebase.auth().currentUser.sendEmailVerification(actionCodeSettings)
+//  } 
 
   const userVerification = () => {
     var user = firebase.auth().currentUser;
@@ -82,15 +86,18 @@ const SignIn: React.FC = () => {
   }
 
   const createNewUser = async() => {    
-    firebase.auth().createUserWithEmailAndPassword(email, password) 
-      .then(result => {
-        firebase.firestore().collection('users').doc(result.user.uid).set({ // create a user document when a new user signs up
-          fullname: fullname,
-          username: username,
-          email: email,      
-          id: result.user.uid,
-          //mobileNumber: mobileNumber ? mobileNumber : null              
-        })         
+    //firebase.auth().createUserWithEmailAndPassword(email, password) 
+    //  .then(result => {
+      console.log("CreateNewUser triggered")
+      console.log(email)
+    firebase.auth().sendSignInLinkToEmail(email, actionCodeSettings)
+  .then(() => {
+    // The link was successfully sent. Inform the user.
+    // Save the email locally so you don't need to ask the user for it again
+    // if they open the link on the same device.
+    //window.localStorage.setItem('emailForSignIn', email);
+      //mobileNumber: mobileNumber ? mobileNumber : null     
+      console.log("Email sent")  
       })         
       .catch(err => {
         switch(err.code){
@@ -104,6 +111,46 @@ const SignIn: React.FC = () => {
         }
       })       
   }
+
+// Confirm the link is a sign-in with email link.
+if (firebase.auth().isSignInWithEmailLink(window.location.href)) {
+  // Additional state parameters can also be passed via URL.
+  // This can be used to continue the user's intended action before triggering
+  // the sign-in operation.
+  // Get the email if available. This should be available if the user completes
+  // the flow on the same device where they started it.
+  //var email = window.localStorage.getItem('emailForSignIn');
+  console.log("yes1")
+  if (!email) {
+    console.log("Yes1.5")
+    // User opened the link on a different device. To prevent session fixation
+    // attacks, ask the user to provide the associated email again. For example:
+   // email = window.prompt('Please provide your email for confirmation');
+  }
+  // The client SDK will parse the code from the link for you.
+  firebase.auth().signInWithEmailLink(email, window.location.href)
+    .then((result) => {
+      // Clear email from storage.
+      //window.localStorage.removeItem('emailForSignIn');
+      // You can access the new user via result.user
+      // Additional user info profile not available via:
+      // result.additionalUserInfo.profile == null
+      // You can check if the user is new or existing:
+      // result.additionalUserInfo.isNewUser
+      console.log("YES2")
+      firebase.firestore().collection('users').doc(result.user.uid).set({ // create a user document when a new user signs up
+        fullname: fullname,
+        username: username,
+        email: email,      
+        id: result.user.uid,
+        //mobileNumber: mobileNumber ? mobileNumber : null       
+        })         
+    })
+    .catch((error) => {
+      // Some error occurred, you can inspect the code: error.code
+      // Common errors could be invalid email and invalid or expired OTPs.
+    });
+}
 
   const clearInputs = () => {
     setEmail('');
