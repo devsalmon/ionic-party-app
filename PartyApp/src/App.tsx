@@ -805,7 +805,7 @@ const Home: React.FC = () => {
     firebase.auth().currentUser.sendEmailVerification(actionCodeSettings)
   } 
 
-  //var user = setInterval(reloadUser, 1000);
+  var user = setInterval(reloadUser, 10000);
 
   function reloadUser() {
     firebase.auth().currentUser.reload();

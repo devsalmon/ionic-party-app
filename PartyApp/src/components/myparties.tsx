@@ -154,6 +154,7 @@ const MyPartyList = () => {
   // Signs out of Party app.
   const signOut = async() => {
     // Sign out of Firebase.
+    window.localStorage.clear();    
     firebase.auth().signOut();
     //alert("YOU JUST SIGNED OUT")
   }

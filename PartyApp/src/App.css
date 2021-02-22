@@ -377,13 +377,14 @@ ion-tab-bar {
     align-items: flex-end;
     justify-content: center;
 }
-
 ion-title {
     text-align: center;
     font-weight: bold;
     --color: yellow;
-    padding-top: 10px
-}
+    padding-top: 10px;
+  }
+  
+  
 
 ion-toolbar {
     padding: 20px;

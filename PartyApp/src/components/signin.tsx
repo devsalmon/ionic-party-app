@@ -1,4 +1,5 @@
 import React, { useState, useEffect} from 'react';
+import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 import firebase from '../firestore';
 import {
   IonItem,
@@ -37,7 +38,10 @@ import '../variables.css';
 
 const SignIn: React.FC = () => {
 
-  const [email, setEmail] = useState('');
+  // Will try to use previously entered email, defaults to an empty string
+  const [email, setEmail] = useState(
+    window.localStorage.getItem("emailForSignIn") || ""
+  );
   const [mobileNumber, setMobileNumber] = useState('');
   const [fullname, setFullname] = useState('');
   const [username, setUsername] = useState('');
@@ -50,11 +54,33 @@ const SignIn: React.FC = () => {
   const [googleError, setGoogleError] = useState('');
   const [fieldsMissing, setFieldsMissing] = useState(false);
   const [hasAccount, setHasAccount] = useState(true);
-  const [linkSent, setLinkSent] = useState(false);
+  const [linkSent, setLinkSent] = useState(false);  
 
+  // When this component renders
   useEffect(() => {
-    clearInputs(); // clear all inputs when a user has signed in            
-  }, [hasAccount])
+    // Get the saved email
+    const saved_email = window.localStorage.getItem("emailForSignIn");
+
+    // Verify the user went through an email link and the saved email is not null
+    if (firebase.auth().isSignInWithEmailLink(window.location.href) && !!saved_email) {
+      // Sign the user in
+      firebase.auth().signInWithEmailLink(saved_email, window.location.href)
+        .then((result) => {
+          // You can check if the user is new or existing:
+          // result.additionalUserInfo.isNewUser
+          firebase.firestore().collection('users').doc(result.user.uid).set({ // create a user document when a new user signs up
+            fullname: fullname,
+            username: username,
+            email: email,      
+            id: result.user.uid,
+            //mobileNumber: mobileNumber ? mobileNumber : null       
+            })         
+        })
+        .catch(error => {
+          console.log(error.message)
+        });
+    }
+  }, [hasAccount]);  
 
   var actionCodeSettings = {
     url: 'https://www.example.com/finishSignUp?cartId=1234',
@@ -71,9 +97,6 @@ const SignIn: React.FC = () => {
     // one to use.
    dynamicLinkDomain: "test1619.page.link"
   };  
- // const verify = () => {
- //   firebase.auth().currentUser.sendEmailVerification(actionCodeSettings)
-//  } 
 
   const userVerification = () => {
     var user = firebase.auth().currentUser;
@@ -84,79 +107,6 @@ const SignIn: React.FC = () => {
       console.log(error.code)
     });   
   }
-
-  const createNewUser = async() => {    
-    //firebase.auth().createUserWithEmailAndPassword(email, password) 
-    //  .then(result => {
-      alert("CreateNewUser triggered")
-      alert(email)
-    firebase.auth().sendSignInLinkToEmail(email, actionCodeSettings)
-  .then(() => {
-    // The link was successfully sent. Inform the user.
-    // Save the email locally so you don't need to ask the user for it again
-    // if they open the link on the same device.
-    //window.localStorage.setItem('emailForSignIn', email);
-      //mobileNumber: mobileNumber ? mobileNumber : null     
-      alert("Email sent")  
-      })         
-      .catch(err => {
-        switch(err.code){
-          case "auth/email-already-in-use":
-          case "auth/invalid-email":
-            setEmailError(err.message);
-            break;
-          case "auth/weak-password":
-            setPasswordError(err.message);
-            break;
-        }
-      })       
-  }
-
- const myCheck = () => {
-// Confirm the link is a sign-in with email link.
-alert(window.location.href)
-if (firebase.auth().isSignInWithEmailLink(window.location.href)) {
-  // Additional state parameters can also be passed via URL.
-  // This can be used to continue the user's intended action before triggering
-  // the sign-in operation.
-  // Get the email if available. This should be available if the user completes
-  // the flow on the same device where they started it.
-  //var email = window.localStorage.getItem('emailForSignIn');
-  alert("yes1")
-  if (!email) {
-    alert("Yes1.5")
-    // User opened the link on a different device. To prevent session fixation
-    // attacks, ask the user to provide the associated email again. For example:
-   // email = window.prompt('Please provide your email for confirmation');
-  }
-  // The client SDK will parse the code from the link for you.
-  firebase.auth().signInWithEmailLink(email, window.location.href)
-    .then((result) => {
-      // Clear email from storage.
-      //window.localStorage.removeItem('emailForSignIn');
-      // You can access the new user via result.user
-      // Additional user info profile not available via:
-      // result.additionalUserInfo.profile == null
-      // You can check if the user is new or existing:
-      // result.additionalUserInfo.isNewUser
-      alert("YES2")
-      firebase.firestore().collection('users').doc(result.user.uid).set({ // create a user document when a new user signs up
-        fullname: fullname,
-        username: username,
-        email: email,      
-        id: result.user.uid,
-        //mobileNumber: mobileNumber ? mobileNumber : null       
-        })         
-    })
-    .catch((error) => {
-      // Some error occurred, you can inspect the code: error.code
-      // Common errors could be invalid email and invalid or expired OTPs.
-    });
-}
-else {
-  alert("not a sign in link")
-}
- }
 
   const clearInputs = () => {
     setEmail('');
@@ -203,17 +153,59 @@ else {
       })
   }  
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     // sign up function for new users
-    clearErrors();
-    // check all fields have a value
-    if (email === "" || fullname === "" || username === "" || password === "") {
-      setFieldsMissing(true);
-    } else { 
-      setFieldsMissing(false);   
-      createNewUser();   
-    }    
-  }
+    clearErrors();  
+    // If the user is re-entering their email address but already has a code
+    if (firebase.auth().isSignInWithEmailLink(window.location.href) && !!email) {
+      // check all fields have a value
+      if (email === "" || fullname === "" || username === "" || password === "") {
+        setFieldsMissing(true);
+      } else { 
+        setFieldsMissing(false);   
+        // Sign the user in
+        firebase.auth().signInWithEmailLink(email, window.location.href)
+        .then((result) => {
+          firebase.firestore().collection('users').doc(result.user.uid).set({ // create a user document when a new user signs up
+            fullname: fullname,
+            username: username,
+            email: email,      
+            id: result.user.uid,
+            //mobileNumber: mobileNumber ? mobileNumber : null       
+            })   
+        }).catch((err) => {
+          switch (err.code) {
+            default:
+              setEmailError("An unknown error has occured");
+          }
+        });        
+      }         
+    } else {
+      if (email === "" || fullname === "" || username === "" || password === "") {
+        setFieldsMissing(true);
+      } else { 
+        setFieldsMissing(false);      
+        firebase.auth()
+          .sendSignInLinkToEmail(email, actionCodeSettings)
+          .then(() => {
+            // Save the users email to verify it after they access their email
+            window.localStorage.setItem("emailForSignIn", email);
+            alert("an email has been sent, click the link to verify")
+          })
+          .catch(err => {
+            switch(err.code){
+              case "auth/email-already-in-use":
+              case "auth/invalid-email":
+                setEmailError(err.message);
+                break;
+              case "auth/weak-password":
+                setPasswordError(err.message);
+                break;
+            }
+          });
+      }
+    }
+  };  
 
     // Signs-in Messaging with GOOGLE POP UP
   // const SignInGooglepu = async() => {
@@ -244,7 +236,7 @@ else {
   //   // Set the user's profile pic and name.
   //   //document.getElementById('user-pic').style.backgroundImage = 'url(' + addSizeToGoogleProfilePic(profilePicUrl) + ')';
   //   //document.getElementById('user-name').textContent = userName;
-  // }
+  // }  
 
   return (
     <IonPage>
@@ -310,7 +302,6 @@ else {
           ) : (
             <>
               <IonButton class="signin-button" onClick={() => handleSignUp()}>Sign up</IonButton>
-              <IonButton class="signin-button" onClick={() => myCheck()}>Check</IonButton>
               <p className="errormsg">Have an account? <span className="yellow-text" onClick={() => setHasAccount(!hasAccount)}>Sign in</span></p>
             </>
           )}

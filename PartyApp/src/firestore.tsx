@@ -17,6 +17,7 @@ firebase.initializeApp(fbConfig);
 
 // const messaging = firebase.messaging();
 
+// everything below probably not needed
 // messaging.usePublicVapidKey('BPlMqF9SpSRN2ZK3AKqVZWHpCdv7CCYX97K81gZGSaJVGrowlFGg9jKxlezbOW_CPFt45NQrpA_ycWwouhtUanE')
 
 // messaging.requestPermission().then(function() { 
