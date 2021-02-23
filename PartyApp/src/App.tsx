@@ -5,7 +5,6 @@ import MapContainer from './components/mapcontainer';
 import Gallery from './components/gallery';
 import MyPartyList from './components/myparties';
 import SignIn from './components/signin';
-import SignUp from './components/signup';
 import OtherProfile from './components/otherprofile';
 
 import { Route, Redirect, RouteComponentProps, useLocation, useHistory } from 'react-router-dom';
@@ -840,13 +839,12 @@ const SignedInRoutes: React.FC = () => {
         <IonRouterOutlet>    
           <Route path='/googlemap' component={MapContainer} />   
           <Route path='/signin' component={SignIn} />
-          <Route path='/signup' component={SignUp} />
           <Route path='/create' component={Create} />
           <Route path='/users' component={Users} />
           <Route path='/gallery' component={Gallery} />
           <Route path='/myparties' component={MyParties} />
           <Route exact path='/home' component={Home} />      
-          <Route exact path={["/signin", "/signup", "/"]} render={() => <Redirect to="/home" />} />
+          <Route exact path={["/signin", "/"]} render={() => <Redirect to="/home" />} />
         </IonRouterOutlet> 
         
         <IonTabBar slot="bottom" id="appTabBar">
@@ -879,7 +877,7 @@ const App: React.FC = () => {
   useEffect(() => {
     console.log("app useeffect")
     firebase.auth().onAuthStateChanged(function(user) {      
-      if (user && user.emailVerified && user.displayName !== null) { // if new user logs in, is email verified and has a display name
+      if (user) { //&& user.emailVerified) { // if new user logs in and is email verified 
         setSignedIn(true);
         registerNotifications(user.uid);             
       } 
@@ -952,7 +950,6 @@ const App: React.FC = () => {
           <IonReactRouter>
             <IonRouterOutlet>
               <Route path='/signin' component={SignIn} />
-              <Route path='/signup' component={SignUp} />
               <Route exact path="/" render={() => <Redirect to="/signin" />} />
             </IonRouterOutlet>    
           </IonReactRouter>     
