@@ -8,7 +8,7 @@ import SignIn from './components/signin';
 import SignUp from './components/signup';
 import OtherProfile from './components/otherprofile';
 
-import { Route, Redirect, RouteComponentProps, useLocation, useHistory } from 'react-router-dom';
+import { Route, Redirect, RouteComponentProps, useLocation } from 'react-router-dom';
 import { RefresherEventDetail } from '@ionic/core';
 import {
   IonApp,
@@ -496,8 +496,6 @@ const PartyList = ({editParty, stopEditing}) => {
     displayParties();    
   }
 
-  var history = useHistory();
-
   const location = useLocation();
 
   if (editingParty) {
@@ -802,24 +800,13 @@ const Home: React.FC = () => {
     // one to use.
    dynamicLinkDomain: "test1619.page.link"
   };  
-  const verify = () => {
-    firebase.auth().currentUser.sendEmailVerification(actionCodeSettings)
-  } 
-
-  var user = setInterval(reloadUser, 10000);
-
-  function reloadUser() {
-    firebase.auth().currentUser.reload();
-    console.log(firebase.auth().currentUser.emailVerified)        
-  }
-
+  
   return(
     <IonPage>
       {editing ? null : 
       <IonToolbar class="ion-padding">      
         <IonTitle class="ion-padding">
           Upcoming<br/>parties
-          <IonButton onClick={()=> verify()}>Verify</IonButton>
         </IonTitle>
         <IonButtons slot="end">
           <IonButton href='/users'>
@@ -846,7 +833,7 @@ const SignedInRoutes: React.FC = () => {
           <Route path='/gallery' component={Gallery} />
           <Route path='/myparties' component={MyParties} />
           <Route exact path='/home' component={Home} />      
-          <Route exact path={["/signin", "/signup", "/"]} render={() => <Redirect to="/home" />} />
+          <Route exact path={["/signin", "/signup", "/"]} render={() => <Redirect to="/home" />} /> 
         </IonRouterOutlet> 
         
         <IonTabBar slot="bottom" id="appTabBar">
@@ -879,11 +866,18 @@ const App: React.FC = () => {
   useEffect(() => {
     console.log("app useeffect")
     firebase.auth().onAuthStateChanged(function(user) {      
-      if (user && user.emailVerified && user.displayName !== null) { // if new user logs in, is email verified and has a display name
-        setSignedIn(true);
-        registerNotifications(user.uid);             
-      } 
-      setLoading(false)
+      user && firebase.firestore().collection("users").where("id", "==", user.uid).get().then(snap => {
+        setLoading(false);
+        if (!snap.empty) {
+          if (user && user.emailVerified) { // if new user logs in, is email verified and has a document
+            setSignedIn(true);
+            registerNotifications(user.uid);             
+          } 
+        }
+      }).catch(() => {
+        setLoading(false);
+      })
+      setLoading(false);
     })    
   }, [])   
 

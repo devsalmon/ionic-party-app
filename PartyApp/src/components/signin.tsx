@@ -46,6 +46,24 @@ const SignIn: React.FC = () => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [fieldsMissing, setFieldsMissing] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [forgotPassword, setForgotPassword] = useState(false);
+
+  var actionCodeSettings = {
+    url: 'http://localhost:8100/signup',
+    iOS: {
+      bundleId: 'com.partyuptest.ios'
+    },
+    android: {
+      packageName: 'com.charke.partyapp',
+      installApp: true,
+      minimumVersion: '1'
+   },
+    handleCodeInApp: true,
+    // When multiple custom dynamic link domains are defined, specify which
+    // one to use.
+   dynamicLinkDomain: "test1619.page.link"
+  };  
 
   const clearInputs = () => {
     setEmail('');
@@ -58,6 +76,20 @@ const SignIn: React.FC = () => {
     setFieldsMissing(false);  
   }
 
+  const resetPassword = () => {
+    setForgotPassword(false); // remove popover
+    if (!email) { // ask user to provide an email address
+      setEmailError("Please provide an email before resetting your password")
+    } else {
+      setEmailError("")
+      firebase.auth().sendPasswordResetEmail(email, actionCodeSettings).then(() => {
+        setEmailSent(true);
+      }).catch(function(error) {
+        setPasswordError(error.message);
+      });          
+    }
+  }
+
   const handleLogin = () => {
     // normal login function 
     clearErrors();   
@@ -65,30 +97,30 @@ const SignIn: React.FC = () => {
     if (email === "" || password === "") {
       setFieldsMissing(true);
     } else { 
-      setFieldsMissing(false);
-    }     
-    firebase.auth().signInWithEmailAndPassword(email, password)
-      .then(result => {
-        console.log("signed in with email and password")      
-      })
-      .catch(err => {
-        switch(err.code){
-          case "auth/invalid-email":
-          case "auth/user-disabled":
-          case "auth/user-not-found":
-            setEmailError(err.message);
-            break;
-          case "auth/wrong-password":
-            setPasswordError(err.message);
-            break;
-        }
-      })
+      setFieldsMissing(false);     
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(result => {
+          console.log("signed in with email and password")      
+        })
+        .catch(err => {
+          switch(err.code){
+            case "auth/invalid-email":
+            case "auth/user-disabled":
+            case "auth/user-not-found":
+              setEmailError(err.message);
+              break;
+            case "auth/wrong-password":
+              setPasswordError(err.message);
+              break;
+          }
+        })
+    }
   }  
 
   return (
     <IonPage>
-      <IonToolbar>
-        <IonTitle>Sign In</IonTitle>
+      <IonToolbar class="ion-padding">
+        <IonTitle class="ion-padding">Sign In</IonTitle>
       </IonToolbar>
       <IonContent id="signin-content">   
         <div className="signin-inputs">
@@ -118,7 +150,17 @@ const SignIn: React.FC = () => {
           <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
           <IonButton class="signin-button" onClick={() => handleLogin()}>Sign in</IonButton>
           <p className="errormsg">Don't have an account? <br/><IonButton className="yellow-text" href="/signup">Sign up</IonButton></p>
-          <p className="errormsg"><IonButton className="yellow-text">Forgot Password?</IonButton></p>  
+          <p className="errormsg"><IonButton className="yellow-text" onClick={() => setForgotPassword(true)}>Forgot Password?</IonButton></p>  
+          {emailSent ? <IonText class="errormsg">Email sent, click the link to reset your password</IonText> : null}
+          <IonPopover
+            cssClass="popover"        
+            isOpen={forgotPassword}
+            onDidDismiss={() => setForgotPassword(false)}
+          > 
+          <IonText className="ion-padding">Reset password?</IonText><br/>
+          <IonButton onClick={() => setForgotPassword(false)}>No</IonButton>
+          <IonButton onClick={() => resetPassword()}>Yes</IonButton>
+          </IonPopover>         
         </div>          
       </IonContent>
     </IonPage>

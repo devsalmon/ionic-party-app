@@ -162,6 +162,7 @@ const MyPartyList = () => {
   const updateUsername = async() => {    
     firebase.firestore().collection("users").where("username", "==", newUsername).get().then(snap => {
       if (snap.empty) { // if no duplicate username
+        setUsernameError("");
         user = firebase.auth().currentUser
         user.updateProfile({
           displayName: newUsername
