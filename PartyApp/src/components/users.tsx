@@ -60,9 +60,9 @@ const Users: React.FC = () => {
           <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)}></IonSearchbar>
         </IonToolbar>
         <IonContent>    
-            {hits && query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map(hit => 
+            {hits && query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map((hit, i) => 
               hit.objectID === firebase.auth().currentUser.uid ? null :
-              <UserItem hit={hit} username={hit.username} id={hit.objectID}/>
+              <UserItem hit={hit} username={hit.username} id={hit.objectID} key={i}/>
             )}
         </IonContent>
       </IonPage>    
@@ -80,6 +80,7 @@ const UserItem = ({hit, username, id}) => {
 
 
   useEffect(() => {
+    let isMounted = true;
     var receiver_user_id = id;
     var sender_user_id = firebase.auth().currentUser.uid;    
     friendRequestsRef.doc(sender_user_id).get() // check the current user hasn't already send a request
@@ -114,7 +115,7 @@ const UserItem = ({hit, username, id}) => {
           }
         }
       })
-
+    return () => { isMounted = false};
   })
 
   const requestFriend = () => {
