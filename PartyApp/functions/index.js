@@ -10,6 +10,98 @@ const ALGOLIA_INDEX_NAME = "Users";
 admin.initializeApp(functions.config().firebase)
 
 // tbd - remember to redeploy at the end
+
+exports.sendFriendRequestNotification = functions.firestore
+.document("friend_requests/{userId}")
+  .onUpdate(async (snap, context) => {
+    var requests = snap.after.data().request_from
+
+    // const getRequesterIdPromise = async() => {
+    //   if (requests) {        
+    //     admin.firestore().collection("users").doc(snap.after.id).get().then(doc => {
+    //       // get user's device tokens
+    //       let new_requester;
+    //       for (var i=0; i < requests.length; i++) {
+    //         if (doc.data().friend_notifications.includes(requests[i].id)) {
+    //           // do nothing              
+    //         } else { // add the id to the friend_notifications list if not already in there
+    //           admin.firestore().collection("users").doc(snap.after.id).update({
+    //             friend_notifications: firebase.firestore.FieldValue.arrayUnion(requests[i].id)          
+    //           })      
+    //           new_requester = requests[i].id; // return the value that wasn't in notifications already
+    //         }
+    //       }
+    //       return new_requester;
+    //     }).catch(errr => {
+    //       console.log(err.message)
+    //     });  
+    //   } else {
+    //     console.log("No request_from")
+    //   }
+    // }
+
+    //const requestId = await getRequesterIdPromise;    
+    console.log('JjHCeTY8k7btlTIsyMb4i8PVkUA3', ' has requested user: ', snap.after.id);
+
+    const getDeviceTokensPromise = async() => {
+      // Get the device notification token.
+      await admin.firestore().collection("users").doc(snap.after.id).get().then(doc => {
+        // get user's device tokens
+        return doc.data().deviceTokens;
+      }).catch(err => {
+        console.log(err.message)
+      });
+    }
+
+    // Get the requester's profile.
+    const getRequesterProfilePromise = admin.auth().getUser('JjHCeTY8k7btlTIsyMb4i8PVkUA3');
+
+    // The snapshot to the user's tokens.
+    let tokensSnapshot;
+
+    // The array containing all the user's tokens.
+    let tokens;
+
+    const results = await Promise.all([getDeviceTokensPromise, getRequesterProfilePromise]);
+    tokensSnapshot = ['dF_4fAxkRXGnCTu8X1Bfh3:APA91bFGIvOg745Av4wHAJ3uFCHLfnEq5cNVZr7jAvCvtANXx0s-5cdLEt-PJw0GdX72X5qCPSsxb2nJLr_RrovvcYUABL7SICylMbNixLuKxEwBuZccHL4wpZILyrGHLzq5YTgRxqcW'];
+    const requester = results[1];
+
+    // Check if there are any device tokens.
+    if (tokensSnapshot.length === 0) {
+      return console.log('There are no notification tokens to send to.');
+    }
+    console.log('There are', tokensSnapshot.length, 'tokens to send notifications to.');
+    console.log('Fetched requester profile', requester);
+
+    // Notification details.
+    const payload = {
+      notification: {
+        title: `You have a new friend request from ${requester.displayName}!`,
+        body: 'Click to accept/reject their request',
+        icon: requester.photoURL
+      }
+    };
+
+    // Listing all tokens as an array.
+    // tokens = Object.keys(tokensSnapshot.val());
+    // Send notifications to all tokens.
+    const response = await admin.messaging().sendToDevice(tokenSnapshot[0], payload);
+    // For each message check if there was an error.
+    const tokensToRemove = [];
+    response.results.forEach((result, index) => {
+      const error = result.error;
+      if (error) {
+        console.error('Failure sending notification to', tokens[index], error);
+        // Cleanup the tokens who are not registered anymore.
+        if (error.code === 'messaging/invalid-registration-token' ||
+            error.code === 'messaging/registration-token-not-registered') {
+          tokensToRemove.push(tokensSnapshot.ref.child(tokens[index]).remove());
+        }
+      }
+    });
+    return Promise.all(tokensToRemove);
+})
+
 exports.addAlgoliaUser = functions.firestore
 .document("users/{userId}")
 .onCreate(async (snap, context) => {
@@ -19,30 +111,6 @@ exports.addAlgoliaUser = functions.firestore
       email: snap.data().email,
       phoneNumber: snap.data().phone_number,      
     })
-
-  // send sign up notification to new user 
-  admin.firestore().collection("users").doc(snap.id).get().then(doc => {
-    var message = {
-      data: {
-        message: "Welcome to this party app! Thanks for signing up"
-      },
-      token: doc.data().deviceToken
-    };
-    // Send a message to the device corresponding to the provided
-    // registration token.
-    return admin.messaging().send(message)
-      .then((response) => {
-        // Response is a message ID string.      
-        console.log('Successfully sent message:', response);
-        return response
-      })
-      .catch((error) => {
-        console.log('Error sending message:', error);
-      }); 
-  }).catch(err => {
-    console.log("error getting document", err)
-  })
-
 
   // adding index to algolia 
   const newValue = snap.data();
@@ -65,6 +133,19 @@ exports.updateAlgoliaUser = functions.firestore
 .onUpdate(async (snap, context) => {
   const afterUpdate = snap.after.data();
   afterUpdate.objectID = snap.after.id;
+   // Notification details.
+    const payload = {
+      notification: {
+        title: 'You have a new friend request from name !',
+        body: 'Click to accept/reject their request',
+      }
+    };
+
+    // Listing all tokens as an array.
+    // tokens = Object.keys(tokensSnapshot.val());
+    // Send notifications to all tokens.
+    admin.messaging().sendToDevice("dF_4fAxkRXGnCTu8X1Bfh3:APA91bFGIvOg745Av4wHAJ3uFCHLfnEq5cNVZr7jAvCvtANXx0s-5cdLEt-PJw0GdX72X5qCPSsxb2nJLr_RrovvcYUABL7SICylMbNixLuKxEwBuZccHL4wpZILyrGHLzq5YTgRxqcW"
+      ,payload);   
 
   var client = algoliasearch(ALGOLIA_APP_ID, ALGOLIA_ADMIN_KEY);
 

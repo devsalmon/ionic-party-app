@@ -301,6 +301,7 @@ const PartyList = ({editParty, stopEditing}) => {
   const [refresh, setRefresh] = useState(false);
   const [newNotifications, setNewNotifications] = useState(false);
   const [editingParty, setEditingParty] = useState(""); // holds data of the party being edited
+  const [deviceTokens, setDeviceTokens] = useState(""); // holds tokens of all current user's devices 
   var current_user = firebase.auth().currentUser; 
 
   useEffect(() => {  
@@ -317,11 +318,12 @@ const PartyList = ({editParty, stopEditing}) => {
     if (doc.exists && doc.data().request_from) {
       for (var i = 0; i < doc.data().request_from.length; i++) {
         var curr_id = doc.data().request_from[i].id
+        var curr_name = doc.data().request_from[i].name
         var alreadyInReq = reqs.some(item => curr_id === item.id);
         if (alreadyInReq) { 
           setNewNotifications(false)
         } else if (newNotifications == false){
-          setNewNotifications(true);
+          setNewNotifications(true);        
         }
       }; 
     }
@@ -870,8 +872,8 @@ const App: React.FC = () => {
         setLoading(false);
         if (!snap.empty) {
           if (user && user.emailVerified) { // if new user logs in, is email verified and has a document
-            setSignedIn(true);
-            registerNotifications(user.uid);             
+            registerNotifications(user.uid); 
+            setSignedIn(true);                        
           } 
         }
       }).catch(() => {
@@ -883,48 +885,48 @@ const App: React.FC = () => {
 
   const { PushNotifications } = Plugins;
 
-  const registerNotifications = (userid) => {
-  // Register with Apple / Google to receive push via APNS/FCM
-  PushNotifications.requestPermission().then((permission) => {
-    if (permission.granted) {
-      // Register with Apple / Google to receive push via APNS/FCM
-      PushNotifications.register();
-    } else {
-      console.log("permission not granted")
-    }
-  }).catch(error => {
-    console.log("error requesting permission: ", error.message)
-  })
-  ;    
+  const registerNotifications = async(userid) => {
+    // Register with Apple / Google to receive push via APNS/FCM
+    PushNotifications.requestPermission().then((permission) => {
+      if (permission.granted) {
+        // Register with Apple / Google to receive push via APNS/FCM
+        PushNotifications.register();
+      } else {
+        console.log("permission not granted")
+      }
+    }).catch(error => {
+      console.log("error requesting permission: ", error.message)
+    })
+    ;    
 
-  // On succcess, we should be able to receive notifications
-  PushNotifications.addListener('registration',
-    (token: PushNotificationToken) => {
-      console.log('Push registration success, token: ' + token.value);
-      firebase.firestore().collection("users").doc(userid).update({
-        deviceToken: token.value
-      })
-    }
-  );
+    // On succcess, we should be able to receive notifications
+    PushNotifications.addListener('registration',
+      (token: PushNotificationToken) => {
+        console.log('Push registration success, token: ' + token.value);
+        return firebase.firestore().collection("users").doc(userid).update({
+          deviceTokens: firebase.firestore.FieldValue.arrayUnion(token.value)
+        })
+      }
+    );
 
-  // Some issue with your setup and push will not work
-  PushNotifications.addListener('registrationError',
-    (error: any) => {
-      console.log('Error on registration: ' + JSON.stringify(error));
-    }
-  );
+    // Some issue with your setup and push will not work
+    PushNotifications.addListener('registrationError',
+      (error: any) => {
+        console.log('Error on registration: ' + JSON.stringify(error));
+      }      
+    );   
 
-  // Show us the notification payload if the app is open on our device
-  //    PushNotifications.addListener('pushNotificationReceived',
-  //    (notification: PushNotification) => {
-  //  }
-  //);
+    // Show us the notification payload if the app is open on our device
+    //    PushNotifications.addListener('pushNotificationReceived',
+    //    (notification: PushNotification) => {
+    //  }
+    //);
 
-  // Method called when tapping on a notification
-  //PushNotifications.addListener('pushNotificationActionPerformed',
-    //(notification: PushNotificationActionPerformed) => {
-    // }
-  //);  
+    // Method called when tapping on a notification
+    //PushNotifications.addListener('pushNotificationActionPerformed',
+      //(notification: PushNotificationActionPerformed) => {
+      // }
+    //);  
   }
 
   if (loading) {
