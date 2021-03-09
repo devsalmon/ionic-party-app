@@ -36,6 +36,12 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import '../variables.css';
 
+// declare global {
+//   interface Window {
+//       snapKitInit:any;
+//   }
+// }
+
 const SignUp: React.FC = () => {
 
   // Will try to use previously entered email, defaults to an empty string
@@ -62,6 +68,12 @@ const SignUp: React.FC = () => {
 
   // When this component renders
   useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://sdk.snapkit.com/js/v1/login.js";
+    script.async = true;
+    script.onload = () => scriptLoaded();
+  
+    document.body.appendChild(script);
     var url_string = window.location.href;
     var url = new URL(url_string);
     // Get the action to complete.    
@@ -168,6 +180,54 @@ const SignUp: React.FC = () => {
           });
     }
   };  
+
+
+  const scriptLoaded = () => {
+    alert("done")
+  }
+  //const window = any;
+//  window.snapKitInit = function () {
+  window.snapKitInit = () => {
+    //  const snapKitInit = () => {
+        var loginButtonIconId = 'my-login-button-target';
+        // Mount Login Button
+        snap.loginkit.mountButton(loginButtonIconId, {
+          clientId: 'da4cfce9-4a5c-4892-af98-7db4ff1720d6',
+          redirectURI: 'http://localhost:1800/signup',
+          scopeList: [
+            'user.display_name',
+            'user.bitmoji.avatar',
+            'user.external_id'
+          ], handleResponseCallback: function() {
+          snap.loginkit.fetchUserInfo().then(
+            function (result) {
+              console.log("User info:", result.data.me);
+              document.getElementById("display_name").innerHTML =
+                result.data.me.displayName;
+              document.getElementById("bitmoji").src =
+                result.data.me.bitmoji.avatar;
+              document.getElementById("external_id").src =
+                result.data.me.externalId;
+            },
+            function (err) {
+              console.log(err); // Error
+            }
+          );
+        },
+      });
+    };
+    
+    (function (d, s, id) {
+      var js,
+      sjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s);
+      js.id = id;
+      js.src = "https://sdk.snapkit.com/js/v1/login.js";
+      alert("TEST")
+      sjs.parentNode.insertBefore(js, sjs);
+    })(document, "script", "loginkit-sdk"); 
+
 
   const completeUserInfo = async () => {
     setLoading(true);
@@ -401,7 +461,11 @@ const SignUp: React.FC = () => {
           {linkSent ? (
           <IonText class="errormsg">A link has been sent to your email, please click it to verify your email</IonText>
           ) : (null)}     
-          </div>          
+          </div>       
+          <div id="my-login-button-target"></div>
+          <div id="display_name"></div>
+          <img id="bitmoji"/>
+          <div id="external_id"></div>
         </IonContent>
         <IonLoading 
         cssClass="loading"
