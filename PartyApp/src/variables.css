@@ -4,7 +4,7 @@ http://ionicframework.com/docs/theming/ */
 /** Ionic CSS Variables **/
 @font-face {
   font-family: helvetica; /* not actually helvetica */ 
-  src: url("LexendMega-Regular.ttf")
+  src: url("font/Zurich BT.ttf")
 }
 
 :root {  

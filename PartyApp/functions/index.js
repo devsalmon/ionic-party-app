@@ -1,4 +1,5 @@
 const functions = require('firebase-functions');
+const fetch = require("node-fetch");
 
 const algoliasearch = require('algoliasearch');
 const admin = require('firebase-admin');
@@ -14,93 +15,210 @@ admin.initializeApp(functions.config().firebase)
 exports.sendFriendRequestNotification = functions.firestore
 .document("friend_requests/{userId}")
   .onUpdate(async (snap, context) => {
-    var requests = snap.after.data().request_from
+    const afterdata = snap.after.data()
+    const beforedata = snap.before.data()    
+    var newrequests = afterdata.request_from ? afterdata.request_from : []
+    var oldrequests = beforedata.request_from ? beforedata.request_from : []
 
-    // const getRequesterIdPromise = async() => {
-    //   if (requests) {        
-    //     admin.firestore().collection("users").doc(snap.after.id).get().then(doc => {
-    //       // get user's device tokens
-    //       let new_requester;
-    //       for (var i=0; i < requests.length; i++) {
-    //         if (doc.data().friend_notifications.includes(requests[i].id)) {
-    //           // do nothing              
-    //         } else { // add the id to the friend_notifications list if not already in there
-    //           admin.firestore().collection("users").doc(snap.after.id).update({
-    //             friend_notifications: firebase.firestore.FieldValue.arrayUnion(requests[i].id)          
-    //           })      
-    //           new_requester = requests[i].id; // return the value that wasn't in notifications already
-    //         }
-    //       }
-    //       return new_requester;
-    //     }).catch(errr => {
-    //       console.log(err.message)
-    //     });  
-    //   } else {
-    //     console.log("No request_from")
-    //   }
-    // }
+    if (newrequests.length > oldrequests.length) { // check a new request was added to request_from
+      var lastitem = newrequests.length - 1
+      const requestId = newrequests[lastitem].id; // get newest request id     
+      const requestName = newrequests[lastitem].name; // get newest request name
 
-    //const requestId = await getRequesterIdPromise;    
-    console.log('JjHCeTY8k7btlTIsyMb4i8PVkUA3', ' has requested user: ', snap.after.id);
-
-    const getDeviceTokensPromise = async() => {
-      // Get the device notification token.
-      await admin.firestore().collection("users").doc(snap.after.id).get().then(doc => {
-        // get user's device tokens
-        return doc.data().deviceTokens;
+      admin.firestore().collection("users").doc(snap.after.id).get().then(doc => {
+        // get user's device token      
+        const token = doc.data().deviceToken;
+        fetch('https://fcm.googleapis.com/fcm/send', {
+          method: "POST", 
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization':'key=AAAAd7z8SLY:APA91bGDcq_D1ik3ppwxuQgp3d66IBusm8TICa04QC5nKDujDFWiLxAU0toYYgsMr9Kmz33femjOkTnl-EU6YZu_q55LQ8Vc0VA5wZNplCainzzdpyaFfSU0pLArv0HDlmvZ4-ydnO-C'
+          },
+          body: JSON.stringify({
+            "priority": "high",
+            "to": token,             
+            "notification": {"title":"New Friend Request!","body": `${requestName} has sent a friend request`}
+          })          
+        }).then(res => {
+          console.log("Request complete!");
+          console.log("Token: ", token)
+          return
+        }).catch(err => {
+          console.log(err.message)
+          return
+        });
+        return
       }).catch(err => {
         console.log(err.message)
       });
     }
-
-    // Get the requester's profile.
-    const getRequesterProfilePromise = admin.auth().getUser('JjHCeTY8k7btlTIsyMb4i8PVkUA3');
-
-    // The snapshot to the user's tokens.
-    let tokensSnapshot;
-
-    // The array containing all the user's tokens.
-    let tokens;
-
-    const results = await Promise.all([getDeviceTokensPromise, getRequesterProfilePromise]);
-    tokensSnapshot = ['dF_4fAxkRXGnCTu8X1Bfh3:APA91bFGIvOg745Av4wHAJ3uFCHLfnEq5cNVZr7jAvCvtANXx0s-5cdLEt-PJw0GdX72X5qCPSsxb2nJLr_RrovvcYUABL7SICylMbNixLuKxEwBuZccHL4wpZILyrGHLzq5YTgRxqcW'];
-    const requester = results[1];
-
-    // Check if there are any device tokens.
-    if (tokensSnapshot.length === 0) {
-      return console.log('There are no notification tokens to send to.');
-    }
-    console.log('There are', tokensSnapshot.length, 'tokens to send notifications to.');
-    console.log('Fetched requester profile', requester);
-
-    // Notification details.
-    const payload = {
-      notification: {
-        title: `You have a new friend request from ${requester.displayName}!`,
-        body: 'Click to accept/reject their request',
-        icon: requester.photoURL
-      }
-    };
-
-    // Listing all tokens as an array.
-    // tokens = Object.keys(tokensSnapshot.val());
-    // Send notifications to all tokens.
-    const response = await admin.messaging().sendToDevice(tokenSnapshot[0], payload);
-    // For each message check if there was an error.
-    const tokensToRemove = [];
-    response.results.forEach((result, index) => {
-      const error = result.error;
-      if (error) {
-        console.error('Failure sending notification to', tokens[index], error);
-        // Cleanup the tokens who are not registered anymore.
-        if (error.code === 'messaging/invalid-registration-token' ||
-            error.code === 'messaging/registration-token-not-registered') {
-          tokensToRemove.push(tokensSnapshot.ref.child(tokens[index]).remove());
-        }
-      }
-    });
-    return Promise.all(tokensToRemove);
 })
+
+exports.subscribeToPartyTopic = functions.firestore
+.document("users/{userId}")
+  .onUpdate(async (snap, context) => {
+    const afterdata = snap.after.data()
+    const beforedata = snap.before.data()    
+    var newInvites = afterdata.myInvites ? afterdata.myInvites : []
+    var oldInvites = beforedata.myInvites ? beforedata.myInvites : []
+    var newDeclinedInvites = afterdata.declinedInvites ? afterdata.declinedInvites : []
+    var oldDeclinedInvites = beforedata.declinedInvites ? beforedata.declinedInvites : []
+    const topic1 = newInvites.length > 0 && newInvites[newInvites.length-1].partyid // get last item
+    const inviterId = newInvites.length > 0 && newInvites[newInvites.length-1].hostid // get last item
+    const topic2 = newDeclinedInvites.length > 0 && newDeclinedInvites[newDeclinedInvites.length-1].partyid // get last item
+  
+    if (newInvites.length > oldInvites.length) { // check new invites have been received
+      admin.messaging().subscribeToTopic(afterdata.deviceToken, topic1)
+        .then(function(response) {
+          admin.firestore().collection("users").doc(inviterId)
+            .collection("myParties").doc(topic1).update({
+              topicCreated: true
+            })
+          console.log('Successfully subscribed to topic');
+          return
+        })
+        .catch(function(error) {
+          console.log('Error subscribing to topic:', error.message);
+          return
+        }); 
+    } else if (newDecliendInvites.length > oldDeclinedInvites.length) { // user has declined an invite
+      admin.messaging().unsubscribeToTopic(afterdata.deviceToken, topic2)
+        .then(function(response) {
+          console.log('Successfully unsubscribed from topic');
+          return
+        })
+        .catch(function(error) {
+          console.log('Error subscribing to topic:', error.message);
+          return
+        }); 
+    }
+  })
+
+
+exports.sendPartyNotification = functions.firestore
+.document("users/{userId}/myParties/{partyId}")
+  .onUpdate(async (snap, context) => {
+    if (snap.before.data().topicCreated === false && snap.after.data().topicCreated === true) {
+      fetch('https://fcm.googleapis.com/fcm/send', {
+        method: "POST", 
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization':'key=AAAAd7z8SLY:APA91bGDcq_D1ik3ppwxuQgp3d66IBusm8TICa04QC5nKDujDFWiLxAU0toYYgsMr9Kmz33femjOkTnl-EU6YZu_q55LQ8Vc0VA5wZNplCainzzdpyaFfSU0pLArv0HDlmvZ4-ydnO-C'
+        },
+        body: JSON.stringify({
+          "priority": "high",
+          "to": `/topics/${snap.after.id}`,
+          "notification": {"title":"New Party Invite!","body": `${snap.after.data().hostname} has invited you to a party`}
+        })          
+      }).then(res => {
+        console.log("Request complete! ", res.registration_ids);
+        return
+      }).catch(err => {
+        console.log(err.message)
+        return
+      });
+    } else if (snap.after.data().topicCreated === true) {
+      fetch('https://fcm.googleapis.com/fcm/send', {
+        method: "POST", 
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization':'key=AAAAd7z8SLY:APA91bGDcq_D1ik3ppwxuQgp3d66IBusm8TICa04QC5nKDujDFWiLxAU0toYYgsMr9Kmz33femjOkTnl-EU6YZu_q55LQ8Vc0VA5wZNplCainzzdpyaFfSU0pLArv0HDlmvZ4-ydnO-C'
+        },
+        body: JSON.stringify({
+          "priority": "high",
+          "to": `/topics/${snap.after.id}`,
+          "notification": {"title":"Party Details Updated!","body": `${snap.after.data().hostname} has updated their party`}
+        })          
+      }).then(res => {
+        console.log("Request complete! ", res.registration_ids);
+        return
+      }).catch(err => {
+        console.log(err.message)
+        return
+      });
+    }    
+})
+
+exports.sendLikeNotification = functions.firestore 
+.document("users/{userId}/myParties/{partyId}/pictures/{pictureId}")
+  .onUpdate(async (snap, context) => {
+    let newLikeCounter = snap.after.data().likeCounter ? snap.after.data().likeCounter : 0;
+    let oldLikeCounter = snap.before.data().likeCounter ? snap.before.data().likeCounter : 0;
+    let newLikes = snap.after.data().likes ? snap.after.data().likes : [];
+    let userId = snap.after.data().takenByID; // user who took the picture 
+
+    if (newLikeCounter > oldLikeCounter) { // new like
+      let likerId = newLikes[newLikeCounter-1];
+      admin.firestore().collection("users").doc(userId).get().then(doc1 => {
+        let token = doc1.data().deviceToken;
+        admin.firestore().collection("users").doc(likerId).get().then(doc2 => {
+          let likerName = doc2.data().username
+          fetch('https://fcm.googleapis.com/fcm/send', {
+            method: "POST", 
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'Authorization':'key=AAAAd7z8SLY:APA91bGDcq_D1ik3ppwxuQgp3d66IBusm8TICa04QC5nKDujDFWiLxAU0toYYgsMr9Kmz33femjOkTnl-EU6YZu_q55LQ8Vc0VA5wZNplCainzzdpyaFfSU0pLArv0HDlmvZ4-ydnO-C'
+            },
+            body: JSON.stringify({
+              "priority": "high",
+              "to": token,
+              "notification": {"title":`${likerName} liked your picture`}
+            })                   
+          }).then(res => {
+            console.log("Request complete! ", token);
+            return
+          }).catch(err => {
+            console.log(err.message)
+            return
+          });    
+          return    
+        }).catch(err => {
+          return console.log(err.message)
+        })
+        return
+      }).catch(err => {
+        return console.log(err.message)
+      })
+    }
+  })
+
+exports.sendCommentNotification = functions.firestore 
+.document("users/{userId}/myParties/{partyId}/pictures/{pictureId}/Comments/{commentId}")
+  .onCreate(async (snap, context) => {
+    let comment = snap.data().comment
+    let commenter = snap.data().username // person who commented
+    let currentuser = snap.data().pictureOwner
+
+    admin.firestore().collection("users").doc(currentuser).get().then(doc1 => {
+      let token = doc1.data().deviceToken;
+      fetch('https://fcm.googleapis.com/fcm/send', {
+        method: "POST", 
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'Authorization':'key=AAAAd7z8SLY:APA91bGDcq_D1ik3ppwxuQgp3d66IBusm8TICa04QC5nKDujDFWiLxAU0toYYgsMr9Kmz33femjOkTnl-EU6YZu_q55LQ8Vc0VA5wZNplCainzzdpyaFfSU0pLArv0HDlmvZ4-ydnO-C'
+        },
+        body: JSON.stringify({
+          "priority": "high",
+          "to": token,
+          "notification": {"title":`${commenter} commented on your picture:`, "body": `${comment}`}
+        })                   
+      }).then(res => {
+        console.log("Request complete! ", token);
+        return
+      }).catch(err => {
+        console.log(err.message)
+        return
+      });    
+      return
+    }).catch(err => {
+      return console.log(err.message)
+    })
+  })
 
 exports.addAlgoliaUser = functions.firestore
 .document("users/{userId}")

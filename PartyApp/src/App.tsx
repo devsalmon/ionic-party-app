@@ -251,15 +251,15 @@ const Party = ({id, data, live, edit}) => {
         <IonItem lines="none">Postcode: {data.postcode} </IonItem>     
         <IonItem lines="none">Dress Code: {data.dresscode} </IonItem>             
         <IonItem lines="none">Drinks Provided: {data.drinksProvided} </IonItem> 
-        <IonItem lines="none">
+        {/* <IonItem lines="none">
         Male:Female Ratio<br/>
-        </IonItem>
-        <IonItem lines="none">          
+        </IonItem> */}
+        {/* <IonItem lines="none">          
           <IonRange color="yellow" value={data.malesToFemales} disabled={true}>
             <IonIcon slot="start" icon={manOutline} />
             <IonIcon slot="end" icon={womanOutline} />
           </IonRange>       
-        </IonItem> 
+        </IonItem>  */}
         <IonItem lines="none">Starts: {moment(data.dateTime).format('LT')}</IonItem>     
         <IonItem lines="none">Ends: {moment(data.endTime).format('ddd, LT')}</IonItem>
         {data.invited_people ? <IonItem lines="none">Number of Invites: {data.invited_people.length}</IonItem>  : null}
@@ -787,22 +787,7 @@ const MyParties: React.FC = () => {
 const Home: React.FC = () => {
 
  const [editing, setEditing] = useState(false);
-  var actionCodeSettings = {
-    url: 'https://www.example.com/finishSignUp?cartId=1234',
-    iOS: {
-      bundleId: 'com.partyuptest.ios'
-    },
-    android: {
-      packageName: 'com.charke.partyapp',
-      installApp: true,
-      minimumVersion: '1'
-   },
-    handleCodeInApp: true,
-   // When multiple custom dynamic link domains are defined, specify which
-    // one to use.
-   dynamicLinkDomain: "test1619.page.link"
-  };  
-  
+ 
   return(
     <IonPage>
       {editing ? null : 
@@ -867,18 +852,15 @@ const App: React.FC = () => {
 
   useEffect(() => {
     console.log("app useeffect")
-    firebase.auth().onAuthStateChanged(function(user) {      
-      user && firebase.firestore().collection("users").where("id", "==", user.uid).get().then(snap => {
-        setLoading(false);
-        if (!snap.empty) {
-          if (user && user.emailVerified) { // if new user logs in, is email verified and has a document
-            registerNotifications(user.uid); 
-            setSignedIn(true);                        
-          } 
+    firebase.auth().onAuthStateChanged(function(user) {   
+      if (user && user.emailVerified) { // if new user logs in, is email verified and has a document
+        registerNotifications(user.uid); 
+        setSignedIn(true);                        
+        while (user.displayName === "") {
+          setLoading(true);
         }
-      }).catch(() => {
         setLoading(false);
-      })
+      }  
       setLoading(false);
     })    
   }, [])   
@@ -904,7 +886,7 @@ const App: React.FC = () => {
       (token: PushNotificationToken) => {
         console.log('Push registration success, token: ' + token.value);
         return firebase.firestore().collection("users").doc(userid).update({
-          deviceTokens: firebase.firestore.FieldValue.arrayUnion(token.value)
+          deviceToken: token.value
         })
       }
     );
@@ -949,7 +931,7 @@ const App: React.FC = () => {
             <IonRouterOutlet>
               <Route path='/signin' component={SignIn} />
               <Route path='/signup' component={SignUp} />
-              <Route exact path="/" render={() => <Redirect to="/signin" />} />
+              <Route exact path="/" render={() => <Redirect to="/signup" />} />
             </IonRouterOutlet>    
           </IonReactRouter>     
         )}

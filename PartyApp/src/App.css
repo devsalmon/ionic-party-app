@@ -102,6 +102,7 @@
 .loading {
     --background: none;
     --spinner-color: yellow; 
+    color: yellow;
 }
 
 .live-title {
@@ -224,7 +225,7 @@
 
 #signin-content{
     --padding-start: 10px;
-    --padding-top: 140px;
+    --padding-top: 0px;
     --padding-end: 10px;    
 }
 
@@ -282,7 +283,7 @@ ion-card-content {
 ion-card-title {
     color: yellow;
     font-weight: bold;
-    font-size: 30px;
+    font-size: 20px;
     text-align: center;
     color: yellow
 }

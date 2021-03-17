@@ -236,13 +236,14 @@ const Picture = ({doc, hostid, partyid}) => {
     collectionRef.doc(doc.id).collection("Comments").add({
       username: displayName,
       comment: comment,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      pictureOwner: doc.data().takenByID
     }).then(function(docRef) {
         setComment('');
         displayComments(); 
         setShowComments(true);       
         })
-      }
+    }
   }
 
   const displayComments = () => {

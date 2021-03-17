@@ -37,9 +37,9 @@ import {
   manOutline,
   womanOutline
 } from 'ionicons/icons';
-import '../App.css'
-import firebase from '../firestore'
-import moment from 'moment'
+import '../App.css';
+import firebase from '../firestore';
+import moment from 'moment';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */
@@ -119,7 +119,7 @@ const CreateParty = ({editingParty, displayParties}) => {
     const [endTime, setEndTime] = useState<string>(editingParty ? editingParty.endTime : "");
     const [dateTime, setDateTime] = useState<string>(editingParty ? editingParty.dateTime : ""); 
     const [drinksProvided, setDrinksProvided] = useState(editingParty ? editingParty.drinksProvided : "");
-    const [malesToFemales, setMalesToFemales] = useState(editingParty ? editingParty.malesToFemales : 50);
+    //const [malesToFemales, setMalesToFemales] = useState(editingParty ? editingParty.malesToFemales : 50);
     const [showPeopleSearch, setShowPeopleSearch] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [fieldsMissing, setFieldsMissing] = useState(false);
@@ -159,13 +159,13 @@ const CreateParty = ({editingParty, displayParties}) => {
               postcode: postcode,
               dresscode: dresscode,
               drinksProvided: drinksProvided,
-              malesToFemales: malesToFemales,
+              //malesToFemales: malesToFemales,
               date: moment(dateTime).format('LL'), 
               day: moment(dateTime).format('D'), 
               month: moment(dateTime).format('MMM'),
               details: details ? details : "",
               endTime: moment(endTime).format('LLL'),
-              dateTime: moment(dateTime).format('LLL'),
+              dateTime: moment(dateTime).format('LLL'),              
               invited_people: invitedPeople,             
               }).then(function() {
                 setShowToast(true);
@@ -178,9 +178,9 @@ const CreateParty = ({editingParty, displayParties}) => {
                   userDocument.get().then(doc => {
                     if (doc.data().myInvites) {
                       var alreadyInMI = doc.data().myInvites.some(item => editingParty.id === item);
-                      var alreadyInIF = doc.data().inviteFrom.some(item => host_user_id === item);                    
+                      //var alreadyInIF = doc.data().inviteFrom.some(item => host_user_id === item);                    
                     }
-                    if ((!alreadyInMI && !alreadyInIF) || !doc.data().myInvites) {
+                    if ((!alreadyInMI) || !doc.data().myInvites) {
                       userDocument.update({
                         // add party id to user documents
                         myInvites: firebase.firestore.FieldValue.arrayUnion({hostid: host_user_id, partyid: editingParty.id}),
@@ -197,7 +197,7 @@ const CreateParty = ({editingParty, displayParties}) => {
               setDateTime("");
               setDresscode("");
               setDrinksProvided("");
-              setMalesToFemales(0);
+              //setMalesToFemales(0);
               setInvitedPeople([]);                               
               })  
             } else {
@@ -208,7 +208,7 @@ const CreateParty = ({editingParty, displayParties}) => {
                 postcode: postcode,
                 dresscode: dresscode,
                 drinksProvided: drinksProvided,
-                malesToFemales: malesToFemales,
+                //malesToFemales: malesToFemales,
                 date: moment(dateTime).format('LL'), 
                 day: moment(dateTime).format('D'), 
                 month: moment(dateTime).format('MMM'),
@@ -216,7 +216,9 @@ const CreateParty = ({editingParty, displayParties}) => {
                 endTime: moment(endTime).format('LLL'),
                 dateTime: moment(dateTime).format('LLL'),
                 hostid: currentuser.uid,
-                invited_people: invitedPeople,             
+                hostname: currentuser.displayName,
+                invited_people: invitedPeople,        
+                topicCreated: false, // for FCM     
                 createdOn: moment(new Date()).format('LL'), 
                 }).then(function(docRef) {                  
                   console.log(docRef.id)
@@ -246,7 +248,7 @@ const CreateParty = ({editingParty, displayParties}) => {
                   setDateTime("");
                   setDresscode("");
                   setDrinksProvided("");
-                  setMalesToFemales(0);
+                  //setMalesToFemales(0);
                   setInvitedPeople([]);                
               })  
             }     
@@ -340,12 +342,12 @@ const CreateParty = ({editingParty, displayParties}) => {
           <IonItem class="create-card" lines="none">
             <IonLabel color="warning">Male:Female ratio</IonLabel>
           </IonItem>
-          <IonItem class="create-card" lines="none">            
+          {/* <IonItem class="create-card" lines="none">            
             <IonRange value={malesToFemales}  onIonChange={e => setMalesToFemales(e.detail.value!)}>
               <IonIcon slot="start" icon={manOutline} />
               <IonIcon slot="end" icon={womanOutline} />
             </IonRange>
-          </IonItem>
+          </IonItem> */}
           <IonItem class="create-card" lines="none">
             <IonTextarea maxlength={150} class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
           </IonItem>

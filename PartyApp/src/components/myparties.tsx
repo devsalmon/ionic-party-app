@@ -156,7 +156,6 @@ const MyPartyList = () => {
     // Sign out of Firebase.
     window.localStorage.clear();    
     firebase.auth().signOut();
-    //alert("YOU JUST SIGNED OUT")
   }
 
   const updateUsername = async() => {    

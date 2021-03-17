@@ -39,7 +39,7 @@ const SignIn: React.FC = () => {
 
   // Will try to use previously entered email, defaults to an empty string
   const [email, setEmail] = useState(
-    window.localStorage.getItem("emailForSignIn") || ""
+    window.localStorage.getItem("email") || ""
   );
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -49,20 +49,26 @@ const SignIn: React.FC = () => {
   const [emailSent, setEmailSent] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
 
+  const script = document.createElement("script");
+  script.src = "https://sdk.snapkit.com/js/v1/login.js"; //Try change this url
+  script.async = true;
+  //script.onload = () => scriptLoaded();
+  document.body.appendChild(script);
+
   var actionCodeSettings = {
     url: 'http://localhost:8100/signup',
     iOS: {
-      bundleId: 'com.partyuptest.ios'
+      bundleId: 'com.partyuptest.partyapp'
     },
     android: {
       packageName: 'com.charke.partyapp',
       installApp: true,
-      minimumVersion: '1'
+      minimumVersion: '12'
    },
-    handleCodeInApp: true,
+    handleCodeInApp: false,
     // When multiple custom dynamic link domains are defined, specify which
     // one to use.
-   dynamicLinkDomain: "test1619.page.link"
+   //dynamicLinkDomain: "test1619.page.link"
   };  
 
   const clearInputs = () => {
@@ -96,29 +102,44 @@ const SignIn: React.FC = () => {
     // check all fields have a value 
     if (email === "" || password === "") {
       setFieldsMissing(true);
+    } else if (firebase.auth().currentUser && firebase.auth().currentUser.email !== email) {
+      firebase.auth().signOut().then(function() {
+        signIn();        
+      });    
+    } else if (firebase.auth().currentUser && !firebase.auth().currentUser.emailVerified) {
+      setPasswordError("Not verified, please click the link in your email to verify your account");      
     } else { 
-      setFieldsMissing(false);     
-      firebase.auth().signInWithEmailAndPassword(email, password)
-        .then(result => {
-          console.log("signed in with email and password")      
-        })
-        .catch(err => {
-          switch(err.code){
-            case "auth/invalid-email":
-            case "auth/user-disabled":
-            case "auth/user-not-found":
-              setEmailError(err.message);
-              break;
-            case "auth/wrong-password":
-              setPasswordError(err.message);
-              break;
-          }
-        })
+      signIn();
     }
   }  
 
+  const signIn = () => {
+    setFieldsMissing(false);     
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      .then(result => {
+        console.log("signed in with email and password")      
+      })
+      .catch(err => {
+        switch(err.code){
+          case "auth/invalid-email":
+          case "auth/user-disabled":
+          case "auth/user-not-found":
+            setEmailError(err.message);
+            break;
+          case "auth/wrong-password":
+            setPasswordError(err.message);
+            break;
+        }
+      })    
+  }
+
   return (
     <IonPage>
+    <div id="my-login-button-target"></div>
+    <div id="display_name"></div>
+    <img id="bitmoji"/>
+    <div id="external_id"></div>
+
       <IonToolbar class="ion-padding">
         <IonTitle class="ion-padding">Sign In</IonTitle>
       </IonToolbar>

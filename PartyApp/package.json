@@ -1,6 +1,6 @@
 {
   "name": "partyapp",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "dependencies": {
     "@capacitor/android": "^2.1.1",
@@ -29,12 +29,14 @@
     "http2": "^3.3.7",
     "ionicons": "^5.1.2",
     "moment": "^2.27.0",
+    "node-fetch": "^2.6.1",
     "react": "^16.13.0",
     "react-accessible-accordion": "^3.3.0",
     "react-dom": "^16.13.0",
     "react-firebase-hooks": "^2.2.0",
     "react-firebaseui": "^4.1.0",
     "react-hook-form": "^5.7.2",
+    "react-load-script": "0.0.6",
     "react-redux": "^7.2.0",
     "react-redux-firebase": "^3.6.0",
     "react-router": "^5.1.2",
