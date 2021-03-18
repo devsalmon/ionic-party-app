@@ -135,10 +135,10 @@ const SignIn: React.FC = () => {
 
   return (
     <IonPage>
-    <div id="my-login-button-target"></div>
+    {/* <div id="my-login-button-target"></div>
     <div id="display_name"></div>
     <img id="bitmoji"/>
-    <div id="external_id"></div>
+    <div id="external_id"></div> */}
 
       <IonToolbar class="ion-padding">
         <IonTitle class="ion-padding">Sign In</IonTitle>
