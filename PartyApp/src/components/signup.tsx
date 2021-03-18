@@ -144,20 +144,13 @@ const SignUp: React.FC = () => {
     swiper.slideTo(index)    
   }
 
-  const clearInputs = () => {
-    setEmail('');
-    setPhoneNumber('');
-    setFullname('');
-    setUsername('');
-    setPassword('');
-    setLinkSent(false);
-  }
-
   const clearErrors = () => {
     setEmailError('');
     setFullnameError('');
     setUsernameError('');
     setPasswordError('');  
+    setDobError('');
+    setPhoneError('');
     setFieldsMissing(false);  
   }
 
@@ -297,6 +290,8 @@ const SignUp: React.FC = () => {
     if (user) {
       firebase.firestore().collection("users").doc(user.uid).delete().then(function() {
         user.delete().then(function() {      
+          window.localStorage.setItem("signUpStage", "second");
+          window.localStorage.setItem("email", "");          
           window.location.reload(false);
         }).catch(err => {
           console.log(err.message)
@@ -463,7 +458,6 @@ const SignUp: React.FC = () => {
               {linkSent ?
               <><IonButton className="yellow-text" onClick={() => signUpWithNewEmail()} >Sign up with new email</IonButton><br/></>
               : null}    
-              {signUpMethod === "email" ? <IonButton className="yellow-text" onClick={() => resendEmail()} >Resend verification email</IonButton>:null}             
               <br/>
               {linkSent ? (
               <IonText class="errormsg">A link has been sent to your email, please click it to verify your email</IonText>
@@ -509,8 +503,9 @@ const SignUp: React.FC = () => {
               {linkSent ? 
               <IonButton class="signin-button" onClick={()=>window.location.reload(false)}>Complete sign up</IonButton>       
               :
-              <IonButton className="signin-button" onClick={()=>completeUserInfo()}>Continue</IonButton>
+              <IonButton className="signin-button" onClick={()=>completeUserInfo()}>Continue</IonButton>              
               }
+              {signUpMethod === "email" ? <IonButton className="yellow-text" onClick={() => resendEmail()} >Resend verification email</IonButton>:null}             
               </div>      
           </IonSlide>                  
         </IonSlides>    

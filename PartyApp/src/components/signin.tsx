@@ -44,6 +44,8 @@ const SignIn: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [phoneError, setPhoneError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [fieldsMissing, setFieldsMissing] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
@@ -85,7 +87,7 @@ const SignIn: React.FC = () => {
   const resetPassword = () => {
     setForgotPassword(false); // remove popover
     if (!email) { // ask user to provide an email address
-      setEmailError("Please provide an email before resetting your password")
+      setEmailError("Please provide an email or phone number before resetting your password")
     } else {
       setEmailError("")
       firebase.auth().sendPasswordResetEmail(email, actionCodeSettings).then(() => {
@@ -148,7 +150,7 @@ const SignIn: React.FC = () => {
           <IonInput 
           class="create-input"
           value={email} 
-          placeholder="Email"
+          placeholder="Email / Phone Number"
           type="email"
           onIonChange={e => setEmail(e.detail.value!)}
           >        
