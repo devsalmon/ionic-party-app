@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Script from 'react-load-script'
+//import Script from 'react-load-script'
 import firebase from '../firestore';
 import {
   IonItem,
