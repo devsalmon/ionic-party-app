@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 //import Script from 'react-load-script'
 import firebase from '../firestore';
 import {
@@ -17,6 +17,8 @@ import {
   IonRow,
   IonCol,
   IonLoading,
+  IonSlides,
+  IonSlide
 } from '@ionic/react';
 import { 
   eyeOutline,
@@ -78,6 +80,7 @@ const SignUp: React.FC = () => {
   const [signIn, setSignIn] = useState(false);  
   const [loading, setLoading] = useState(false);
   const [code, setCode] = useState('');
+  const slides = useRef(null);
 
   // When this component renders
   useEffect(() => {  
@@ -333,12 +336,42 @@ const SignUp: React.FC = () => {
     });
   }
 
+  const handleSlideChange = async() => {
+    const swiper = await slides.current.getSwiper();
+    if (swiper.activeIndex === 0) {
+     // setSelected("attended")
+    } else {
+     // setSelected("hosted")
+    }
+  }
+
+  const changeSlide = async(direction) => {
+    const swiper = await slides.current.getSwiper();
+    if (direction === "next") {
+      swiper.slideNext()
+    } else if (direction === "prev") {
+      swiper.slidePrev()
+    }
+  }
+
   return (
     <IonPage>
       <IonToolbar class="ion-padding">
         <IonTitle class="ion-padding">Sign Up</IonTitle>
       </IonToolbar>
       <IonContent id="signin-content">      
+      <IonSlides ref={slides} onIonSlideDidChange={e => handleSlideChange()}>                   
+          <IonSlide>     
+            <IonContent fullscreen={true} scroll-y={true}>                    
+
+            </IonContent>    
+          </IonSlide>              
+          <IonSlide>
+            <IonContent fullscreen={true} scroll-y={true}>    
+             
+            </IonContent>                                
+          </IonSlide>          
+        </IonSlides>    
         <div className="signin-inputs">
         <IonInput 
         class="create-input"
