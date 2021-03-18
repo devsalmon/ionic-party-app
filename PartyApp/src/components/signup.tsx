@@ -89,6 +89,15 @@ const SignUp: React.FC = () => {
   // When this component renders
   useEffect(() => {  
     clearErrors(); 
+    var signUpStage = window.localStorage.getItem("signUpStage");
+    if (signUpStage === "second") {
+      goToSlide(1)
+    } else if (signUpStage === "third") {
+      goToSlide(2)
+    } else {
+      goToSlide(0)
+    }
+
     const script = document.createElement("script");
     script.src = "https://sdk.snapkit.com/js/v1/login.js"; //Try change this url
     script.async = true;
@@ -129,6 +138,11 @@ const SignUp: React.FC = () => {
       installApp: true,
     }
   };  
+
+  const goToSlide = async(index) => {
+    let swiper = await slides.current.getSwiper();    
+    swiper.slideTo(index)    
+  }
 
   const clearInputs = () => {
     setEmail('');
@@ -222,6 +236,7 @@ const SignUp: React.FC = () => {
         firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
           setLoading(false);
           changeSlide("userinfo");  
+          window.localStorage.setItem("signUpStage", "third");
         }).catch(err => {
           console.log(err.message);
           setLoading(false);
@@ -343,7 +358,8 @@ const SignUp: React.FC = () => {
     window.confirmationResult.confirm(code).then((result) => {
       // User signed in successfully.
       setLoading(false);
-      changeSlide("userinfo");            
+      changeSlide("userinfo"); 
+      window.localStorage.setItem("signUpStage", "third");           
     }).catch((error) => {
       // User couldn't sign in (bad verification code?)
       setLoading(false);
@@ -356,10 +372,12 @@ const SignUp: React.FC = () => {
     if (method === "email") {
       setSignUpMethod('email');
       window.localStorage.setItem("signUpMethod", "email");
+      window.localStorage.setItem("signUpStage", "second");
       swiper.slideNext()
     } else if (method === "phone") {
       setSignUpMethod('phone');
       window.localStorage.setItem("signUpMethod", "phone");
+      window.localStorage.setItem("signUpStage", "second");
       swiper.slideNext()
     } else if (method === "userinfo") {
       swiper.slideNext()

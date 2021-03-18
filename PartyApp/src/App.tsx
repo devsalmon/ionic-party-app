@@ -806,6 +806,7 @@ const Home: React.FC = () => {
     </IonPage>
   )
 }
+
 const SignedInRoutes: React.FC = () => {
 
   return(  
@@ -825,7 +826,7 @@ const SignedInRoutes: React.FC = () => {
         
         <IonTabBar slot="bottom" id="appTabBar">
           <IonTabButton tab="home" href="/home">
-            <IonIcon class="side-icons" icon={home} />
+            <IonIcon class="side-icons" src="assets/icon/HOME.svg" />
             Home
             <IonRippleEffect></IonRippleEffect>
           </IonTabButton>
@@ -835,7 +836,7 @@ const SignedInRoutes: React.FC = () => {
             <IonRippleEffect></IonRippleEffect>
           </IonTabButton>              
           <IonTabButton tab="myparties" href="/myparties">
-            <IonIcon class="side-icons" src="assets/icon/Memories.svg" />
+            <IonIcon class="side-icons" src="assets/icon/MY_PARTIES.svg" />
             MyParties
             <IonRippleEffect></IonRippleEffect>
           </IonTabButton>                         
@@ -855,7 +856,8 @@ const App: React.FC = () => {
     firebase.auth().onAuthStateChanged(function(user) {   
       if (user && user.emailVerified) { // if new user logs in, is email verified and has a document
         registerNotifications(user.uid); 
-        setSignedIn(true);                        
+        setSignedIn(true);                
+        window.localStorage.clear()        
         while (user.displayName === "") {
           setLoading(true);
         }
