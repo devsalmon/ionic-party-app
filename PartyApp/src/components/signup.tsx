@@ -104,25 +104,25 @@ const SignUp: React.FC = () => {
     //script.onload = () => scriptLoaded();
     document.body.appendChild(script);
  
-      //window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container');
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container');
     //console.log("recaptcha...")
-    // window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
-    //   'size': 'invisible',
-    //   'callback': (response) => {
-    //     // reCAPTCHA solved, allow signInWithPhoneNumber.
-    //     // ...
+     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
+       'size': 'invisible',
+       'callback': (response) => {
+         // reCAPTCHA solved, allow signInWithPhoneNumber.
+         // ...
     //     console.log(response)
-    //     //phoneNumberAuth()
-    //   },
-    //   'expired-callback': () => {
-    //     // Response expired. Ask user to solve reCAPTCHA again.
-    //     // ...
+         //phoneNumberAuth()
+       },
+       'expired-callback': () => {
+         // Response expired. Ask user to solve reCAPTCHA again.
+         // ...
     //     console.log("expired")
-    //   }
-    // });
-    // window.recaptchaVerifier.render().then(function (widgetId) {
-    //   window.recaptchaWidgetId = widgetId;   
-    // }); 
+       }
+     });
+     window.recaptchaVerifier.render().then(function (widgetId) {
+       window.recaptchaWidgetId = widgetId;   
+     }); 
   }, []);  
 
   var actionCodeSettings = {
@@ -343,7 +343,7 @@ const SignUp: React.FC = () => {
         setLoading(false);
         setPhoneError(error.message)
         // ...
-      });
+      }); 
   
   }
   
@@ -354,7 +354,22 @@ const SignUp: React.FC = () => {
       // User signed in successfully.
       setLoading(false);
       changeSlide("userinfo"); 
-      window.localStorage.setItem("signUpStage", "third");           
+      window.localStorage.setItem("signUpStage", "third");  
+      
+      //link with fake email
+      var phoneEmail = phoneNumber + '@partyemail.com'
+      var credential = firebase.auth.EmailAuthProvider.credential(phoneEmail, password);
+      var user = result.user
+      user.linkWithCredential(credential)
+  .then((usercred) => {
+    var user = usercred.user;
+    console.log("Account linking success", user);
+  }).catch((error) => {
+    console.log("Account linking error", error);
+  });
+
+
+
     }).catch((error) => {
       // User couldn't sign in (bad verification code?)
       setLoading(false);
@@ -399,6 +414,7 @@ const SignUp: React.FC = () => {
           </IonSlide>              
           <IonSlide>
             <div className="signin-inputs">
+              {/* if sign up method is email... */}
              {signUpMethod === 'email' ? 
               <>
               <IonInput 
@@ -411,6 +427,7 @@ const SignUp: React.FC = () => {
               </IonInput> 
               {emailError ? <><IonText class="errormsg">{emailError}</IonText><br/></>:null}
               </>
+              // else sign up method is phone...
              : 
               <>
               <IonInput 
@@ -454,7 +471,16 @@ const SignUp: React.FC = () => {
               </IonRow>     
               {passwordError ? <><IonText class="errormsg">{passwordError}</IonText><br/></>:null}               
               <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>              
-              <IonButton class="signin-button" onClick={() => handleSignUp()}>Continue</IonButton> 
+              
+              {/* {signUpMethod === 'email' ?
+              <>
+              <IonButton class="signin-button" onClick={() => handleSignUp()}>Continue</IonButton>
+              </>
+              :
+              <> */}
+              <IonButton class="signin-button" id = 'sign-in-button' onClick={() => handleSignUp()}>Continue</IonButton>  
+              <div id="recaptcha-container"></div>
+
               {linkSent ?
               <><IonButton className="yellow-text" onClick={() => signUpWithNewEmail()} >Sign up with new email</IonButton><br/></>
               : null}    
@@ -462,8 +488,6 @@ const SignUp: React.FC = () => {
               {linkSent ? (
               <IonText class="errormsg">A link has been sent to your email, please click it to verify your email</IonText>
               ) : (null)}    
-              {/* <div id="recaptcha-container"></div>
-              <div id="my-login-button-target"></div>  */}
             </div>                    
           </IonSlide>   
           <IonSlide>               
@@ -507,6 +531,11 @@ const SignUp: React.FC = () => {
               }
               {signUpMethod === "email" ? <IonButton className="yellow-text" onClick={() => resendEmail()} >Resend verification email</IonButton>:null}             
               </div>      
+              <>
+              <IonButton className="signin-button" onClick={()=>completeUserInfo()}>Continue</IonButton>
+              <div id="my-login-button-target"></div></>
+              }
+              </div>
           </IonSlide>                  
         </IonSlides>    
       </IonContent>      
