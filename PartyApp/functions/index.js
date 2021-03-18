@@ -227,8 +227,15 @@ exports.addAlgoliaUser = functions.firestore
     .updateUser(snap.id, {
       displayName: snap.data().username,
       email: snap.data().email,
-      phoneNumber: snap.data().phone_number,      
+      phoneNumber: snap.data().phone_number, 
     })
+
+  if (snap.data().phoneVerified === true) {
+    admin.auth()
+      .updateUser(snap.id, {
+        emailVerified: true
+      })    
+  }
 
   // adding index to algolia 
   const newValue = snap.data();

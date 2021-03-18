@@ -75,7 +75,7 @@
       //  const snapKitInit = () => {
         var loginButtonIconId = 'my-login-button-target';
         // Mount Login Button
-        snap.loginkit.mountButton(loginButtonIconId, {
+        snap.loginkit.mountButton('loginButtonIconId', {
           clientId: 'f1a81f8c-e8e7-4b47-b43b-1ee06951ac03',
           redirectURI: 'http://localhost:8100/signin', //'https://test1619.page.link/DSF9',
           scopeList: [
@@ -101,6 +101,10 @@
         },
       });
     };
+
+    const element = <div id="my-login-button-target"></div>
+
+    ReactDOM.render(element, document.getElementById('root'));    
 
   //   (function (d, s, id) {
   //   var js,

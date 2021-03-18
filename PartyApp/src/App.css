@@ -211,8 +211,7 @@
     font-weight: bold;
     font-size: 18px;
     --background-hover-opacity: 0.3;
-    --border-radius: 0px;
-    margin-left: 19px;
+    --border-radius: 0px;    
     --background-activated: transparent;
     width: 90%;
     height: 50px;    
@@ -225,7 +224,7 @@
 
 #signin-content{
     --padding-start: 10px;
-    --padding-top: 0px;
+    --padding-top: 120px;
     --padding-end: 10px;    
 }
 
@@ -308,6 +307,7 @@ ion-footer {
 
 ion-input {
     --padding-start: 10px;
+    text-align: left
 }
 
 ion-item {

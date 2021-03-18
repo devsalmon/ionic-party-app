@@ -67,6 +67,9 @@ const SignUp: React.FC = () => {
   const [username, setUsername] = useState(
     window.localStorage.getItem("username") || ""
   );
+  const [signUpMethod, setSignUpMethod] = useState(
+    window.localStorage.getItem("signUpMethod") || ""
+  );  
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
@@ -79,15 +82,13 @@ const SignUp: React.FC = () => {
   const [linkSent, setLinkSent] = useState(false); 
   const [signIn, setSignIn] = useState(false);  
   const [loading, setLoading] = useState(false);
+  const [showCodeInput, setShowCodeInput] = useState(false);
   const [code, setCode] = useState('');
   const slides = useRef(null);
 
   // When this component renders
   useEffect(() => {  
-    clearErrors();   
-    if (firebase.auth().currentUser && firebase.auth().currentUser.emailVerified === false) {
-      setLinkSent(true);
-    }
+    clearErrors(); 
     const script = document.createElement("script");
     script.src = "https://sdk.snapkit.com/js/v1/login.js"; //Try change this url
     script.async = true;
@@ -96,24 +97,24 @@ const SignUp: React.FC = () => {
  
       //window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container');
     //console.log("recaptcha...")
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
-      'size': 'invisible',
-      'callback': (response) => {
-        // reCAPTCHA solved, allow signInWithPhoneNumber.
-        // ...
-        console.log(response)
-        //phoneNumberAuth()
-      },
-      'expired-callback': () => {
-        // Response expired. Ask user to solve reCAPTCHA again.
-        // ...
-        console.log("expired")
-      }
-    });
-    window.recaptchaVerifier.render().then(function (widgetId) {
-      window.recaptchaWidgetId = widgetId;   
-    }); 
-  }, [signIn]);  
+    // window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
+    //   'size': 'invisible',
+    //   'callback': (response) => {
+    //     // reCAPTCHA solved, allow signInWithPhoneNumber.
+    //     // ...
+    //     console.log(response)
+    //     //phoneNumberAuth()
+    //   },
+    //   'expired-callback': () => {
+    //     // Response expired. Ask user to solve reCAPTCHA again.
+    //     // ...
+    //     console.log("expired")
+    //   }
+    // });
+    // window.recaptchaVerifier.render().then(function (widgetId) {
+    //   window.recaptchaWidgetId = widgetId;   
+    // }); 
+  }, []);  
 
   var actionCodeSettings = {
     url: "http://localhost:8100/signup",
@@ -146,91 +147,103 @@ const SignUp: React.FC = () => {
     setFieldsMissing(false);  
   }
 
-  const handleSignUp = async () => {
-    clearErrors();
-    // check which sign up method to use
-    if (email.trim() !== "" && phoneNumber.trim() !== "") {
-      setPasswordError("Enter either phone number or email, not both")
-    } else if (email.trim() !== "") { // they want email sign up
-      emailSignUp();
-    } else if (phoneNumber.trim() !== "") { // they want phone sign up
-      phoneSignUp();
-    } else {   // they didn't enter either
-      setPasswordError("Enter email or phone number")
-    }
-  }; 
-
-  const emailSignUp = async() => {
+  const handleSignUp = async() => {
     // sign up function for new users
     clearErrors();  
     setLoading(true);
-    setLinkSent(false);      
-    if (email.trim() !== "" && fullname.trim() !== "" && username.trim() !== "" && password.trim() !== "") {
+    if ((email.trim() !== "" || phoneNumber.trim() !== "") && password.trim() !== "") {
       setFieldsMissing(false);
       setPasswordError("");      
       window.localStorage.setItem("email", email);
       window.localStorage.setItem("phoneNumber", phoneNumber);
-      window.localStorage.setItem("fullname", fullname);
-      window.localStorage.setItem("username", username);
-      window.localStorage.setItem("dob", dob);
-      if (moment(dob.trim(), 'DD/MM/YYYY', true).isValid() && moment(dob.trim()).isBefore(new Date())) { // check dob format is valid
-        firebase.auth().createUserWithEmailAndPassword(email, password).then(user => {
-          firebase.auth().signInWithEmailAndPassword(email, password).then(res => {
-            firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
-              if (snap.empty) { // if no duplicate username
-                setLoading(false);
-                completeUserInfo(); // create user document
-                sendVerificationEmail();           
-              } else {
-                setLoading(false);
-                setUsernameError("This username is already in use, try another one")        
-              }
-            }).catch(err => {
-              console.log(err.message);
-              setLoading(false);
-            })             
-          }).catch(err => {
-            setPasswordError(err.message);
-            setLoading(false);
-          })   
-        }).catch(err => {
-          setLoading(false);
-          switch(err.code){
-            case "auth/invalid-email":
-            case "auth/email-already-exists":
-            case "auth/email-already-in-use":
-              setEmailError(err.message);
-              break;
-            case "auth/invalid-password":
-              setPasswordError(err.message);
-              break;
-          }              
-        });        
-      } else {
-        setLoading(false);
-        setDobError("Wrong format for date of birth")
-      }                       
+      // check which sign up method to use
+      if (signUpMethod === "email") { // they want email sign up
+        emailSignUp();
+      } else if (signUpMethod === "phone") { // they want phone sign up
+        phoneSignUp();
+      } else {   // they didn't enter either
+        setPasswordError("Enter email or phone number")
+      }        
     } else {
       setLoading(false);
-      setPasswordError('')
+      setPasswordError('');
       setFieldsMissing(true);        
     }
-  } 
+  }   
 
   const completeUserInfo = () => {
     clearErrors();
-    const userid = firebase.auth().currentUser.uid
-    firebase.firestore().collection('users').doc(userid).set({ // create a user document when a new user signs up
-      fullname: fullname,
-      username: username,
-      email: email,      
-      id: userid,
-      phoneNumber: phoneNumber,
-      dateOfBirth: dob,
-    }).catch(err => {
-      setPasswordError(err.message);
-    })  
+    setLoading(true);
+    const user = firebase.auth().currentUser;
+    const userid = user ? user.uid : "";      
+    var phoneVerified = signUpMethod === "phone" ? true : false;
+    window.localStorage.setItem("fullname", fullname);
+    window.localStorage.setItem("username", username);
+    window.localStorage.setItem("dob", dob);    
+    // check user has signed in with email or phone number
+    if (userid !== "") { 
+      if (fullname.trim() !== "" && email.trim() !== "" && dob.trim() !== "") {
+        if (moment(dob.trim(), 'DD/MM/YYYY', true).isValid() && moment(dob.trim()).isBefore(new Date())) { // check dob format is valid
+          firebase.firestore().collection('users').doc(userid).set({ // create a user document when a new user signs up
+            fullname: fullname,
+            username: username,
+            email: email,      
+            id: userid,
+            phoneNumber: phoneNumber,
+            dateOfBirth: dob,
+          }).then(()=>{
+            signUpMethod === "email" ? 
+            sendVerificationEmail() 
+            :
+            firebase.firestore().collection('users').doc(userid).update({ // create a user document when a new user signs up
+              phoneVerified: true
+            })
+          }).catch(err => {
+            setPasswordError(err.message);
+          })         
+        } else {
+          setLoading(false);
+          setDobError("Wrong format for date of birth")
+        }
+      } else {
+        setLoading(false);
+        setFieldsMissing(true);
+      } 
+    } else {
+      setLoading(false);
+      setDobError("Please go back and enter your email/phone number, and password to continue")
+    }
   }
+
+  const emailSignUp = async () => {
+    clearErrors();
+    firebase.auth().createUserWithEmailAndPassword(email, password).then(user => {
+      firebase.auth().signInWithEmailAndPassword(email, password).then(res => {
+        firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
+          setLoading(false);
+          changeSlide("userinfo");  
+        }).catch(err => {
+          console.log(err.message);
+          setLoading(false);
+        })             
+      }).catch(err => {
+        setPasswordError(err.message);
+        setLoading(false);
+      })   
+    }).catch(err => {
+      setLoading(false);
+      switch(err.code){
+        case "auth/invalid-email":
+        case "auth/email-already-exists":
+        case "auth/email-already-in-use":
+          setEmailError(err.message);
+          break;
+        case "auth/invalid-password":
+          setPasswordError(err.message);
+          break;
+      }              
+    });
+  };   
 
   const sendVerificationEmail = () => {
     firebase.auth().currentUser.sendEmailVerification(actionCodeSettings).then(function() {                  
@@ -286,8 +299,7 @@ const SignUp: React.FC = () => {
     //const re = new RegExp('\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$')
     //\+(9[976]\d|8[987530]\d|6[987]\d|5[90]\d|42\d|3[875]\d|2[98654321]\d|9[8543210]|8[6421]|6[6543210]|5[87654321]|4[987654310]|3[9643210]|2[70]|7|1)\d{1,14}$"
     const re = new RegExp('[^\+(?:[0-9]●?){6,14}[0-9]$]')
-    alert(re.test(phoneNumber))    
-    return true
+    return re.test(phoneNumber)
   } 
 
   const phoneSignUp = () => {
@@ -312,45 +324,45 @@ const SignUp: React.FC = () => {
     firebase.auth().signInWithPhoneNumber(phoneNumber, appVerifier)
       .then((confirmationResult) => {
         // SMS sent. Prompt user to type the code from the message, then sign the
-        // user in with confirmationResult.confirm(code).
-        //window.confirmationResult = confirmationResult;
+        // user in with confirmationResult.confirm(code).        
         window.confirmationResult = confirmationResult;
-        // ...
+        setLoading(false);
+        setShowCodeInput(true);
       }).catch((error) => {
         // Error; SMS not sent
+        setLoading(false);
+        setPhoneError(error.message)
         // ...
       });
   
   }
   
-  // to check if it's a phone number or email
   const verifyCode = () => {
+    setLoading(true);
+    clearErrors();
     window.confirmationResult.confirm(code).then((result) => {
       // User signed in successfully.
-      const user = result.user;
-      console.log("DONE ", user)
-      // ...
+      setLoading(false);
+      changeSlide("userinfo");            
     }).catch((error) => {
       // User couldn't sign in (bad verification code?)
-      // ...
+      setLoading(false);
+      setPhoneError(error.message)      
     });
   }
 
-  const handleSlideChange = async() => {
-    const swiper = await slides.current.getSwiper();
-    if (swiper.activeIndex === 0) {
-     // setSelected("attended")
-    } else {
-     // setSelected("hosted")
-    }
-  }
-
-  const changeSlide = async(direction) => {
-    const swiper = await slides.current.getSwiper();
-    if (direction === "next") {
+  const changeSlide = async(method) => {
+    const swiper = await slides.current.getSwiper();    
+    if (method === "email") {
+      setSignUpMethod('email');
+      window.localStorage.setItem("signUpMethod", "email");
       swiper.slideNext()
-    } else if (direction === "prev") {
-      swiper.slidePrev()
+    } else if (method === "phone") {
+      setSignUpMethod('phone');
+      window.localStorage.setItem("signUpMethod", "phone");
+      swiper.slideNext()
+    } else if (method === "userinfo") {
+      swiper.slideNext()
     }
   }
 
@@ -360,101 +372,131 @@ const SignUp: React.FC = () => {
         <IonTitle class="ion-padding">Sign Up</IonTitle>
       </IonToolbar>
       <IonContent id="signin-content">      
-      <IonSlides ref={slides} onIonSlideDidChange={e => handleSlideChange()}>                   
-          <IonSlide>     
-            <IonContent fullscreen={true} scroll-y={true}>                    
-
-            </IonContent>    
+      <IonSlides ref={slides}>                   
+          <IonSlide>               
+            <div className="signin-inputs">
+              <IonButton class="custom-button" onClick={() => changeSlide('email')}>Sign up with email</IonButton><br/>
+              <IonText class="errormsg">OR</IonText><br/>
+              <IonButton class="custom-button" onClick={() => changeSlide('phone')}>Sign up with phone</IonButton>
+              <p className="errormsg">
+              Have an account?<br/> 
+              <IonButton className="yellow-text" href="/signin" >Sign in</IonButton><br/>            
+              </p>
+            </div>
           </IonSlide>              
           <IonSlide>
-            <IonContent fullscreen={true} scroll-y={true}>    
-             
-            </IonContent>                                
-          </IonSlide>          
+            <div className="signin-inputs">
+             {signUpMethod === 'email' ? 
+              <>
+              <IonInput 
+              class="create-input"
+              value={email} 
+              placeholder="Email"
+              type="email"
+              onIonChange={e => setEmail(e.detail.value!)}
+              >        
+              </IonInput> 
+              {emailError ? <><IonText class="errormsg">{emailError}</IonText><br/></>:null}
+              </>
+             : 
+              <>
+              <IonInput 
+              class="create-input"
+              value={phoneNumber} 
+              placeholder="Phone Number"
+              type="email"
+              onIonChange={e => setPhoneNumber(e.detail.value!)}
+              >        
+              </IonInput>                        
+              {phoneError ? <><IonText class="errormsg">{phoneError}</IonText><br/></>:null}
+              </>
+             }
+             {showCodeInput ? 
+              <IonRow class="ion-align-items-center">
+              <IonInput 
+              class="create-input" 
+              value={code} 
+              placeholder="SMS verification code"
+              onIonChange={e => setCode(e.detail.value!)}
+              >
+              </IonInput>   
+              <IonButton class="yellow-text" onClick={()=>verifyCode()}>
+                Verify
+              </IonButton>                  
+              </IonRow>
+              :
+              null}
+              <IonRow class="ion-align-items-center">
+              <IonInput 
+              class="create-input" 
+              value={password} 
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              onIonChange={e => setPassword(e.detail.value!)}
+              >
+              </IonInput>   
+              <IonButton onClick={()=>setShowPassword(!showPassword)}>
+                <IonIcon slot="icon-only" icon={eyeOutline} />
+              </IonButton>                  
+              </IonRow>     
+              {passwordError ? <><IonText class="errormsg">{passwordError}</IonText><br/></>:null}               
+              <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>              
+              <IonButton class="signin-button" onClick={() => handleSignUp()}>Continue</IonButton> 
+              {linkSent ?
+              <><IonButton className="yellow-text" onClick={() => signUpWithNewEmail()} >Sign up with new email</IonButton><br/></>
+              : null}    
+              {signUpMethod === "email" ? <IonButton className="yellow-text" onClick={() => resendEmail()} >Resend verification email</IonButton>:null}             
+              <br/>
+              {linkSent ? (
+              <IonText class="errormsg">A link has been sent to your email, please click it to verify your email</IonText>
+              ) : (null)}    
+              {/* <div id="recaptcha-container"></div>
+              <div id="my-login-button-target"></div>  */}
+            </div>                    
+          </IonSlide>   
+          <IonSlide>               
+              <div className="signin-inputs">
+              <IonInput 
+              class="create-input" 
+              value={fullname} 
+              placeholder="Full name"
+              type="text"
+              onIonChange={e => setFullname(e.detail.value!)}
+              >                  
+              </IonInput>  
+              {fullnameError ? <><IonText class="errormsg">{fullnameError}</IonText><br/></>:null}
+              <IonInput 
+              class="create-input" 
+              value={username} 
+              placeholder="Username"
+              type="text"
+              onIonChange={e => setUsername(e.detail.value!)}
+              >                
+              </IonInput> 
+              {usernameError ? <><IonText class="errormsg">{usernameError}</IonText><br/></>:null}
+              <IonInput 
+              class="create-input" 
+              value={dob} 
+              placeholder="Date of birth (dd/mm/yyyy)"
+              type="text"
+              onIonChange={e => setDob(e.detail.value!)}
+              >                
+              </IonInput>         
+              {dobError ? <><IonText class="errormsg">{dobError}</IonText><br/></>:null}
+              {passwordError ? <><IonText class="errormsg">{passwordError}</IonText><br/></>:null}
+              <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
+              {linkSent ? (
+              <IonText class="errormsg">A link has been sent to your email, please click it to verify your email</IonText>
+              ) : (null)}                
+              {linkSent ? 
+              <IonButton class="signin-button" onClick={()=>window.location.reload(false)}>Complete sign up</IonButton>       
+              :
+              <IonButton className="signin-button" onClick={()=>completeUserInfo()}>Continue</IonButton>
+              }
+              </div>      
+          </IonSlide>                  
         </IonSlides>    
-        <div className="signin-inputs">
-        <IonInput 
-        class="create-input"
-        value={email} 
-        placeholder="Email"
-        type="email"
-        onIonChange={e => setEmail(e.detail.value!)}
-        >        
-        </IonInput> 
-        {emailError ? <><IonText class="errormsg">{emailError}</IonText><br/></>:null}
-        <IonText class="errormsg">OR</IonText><br/>
-        <IonInput 
-        class="create-input"
-        value={phoneNumber} 
-        placeholder="Phone Number"
-        type="email"
-        onIonChange={e => setPhoneNumber(e.detail.value!)}
-        >        
-        </IonInput>                        
-        {phoneError ? <><IonText class="errormsg">{phoneError}</IonText><br/></>:null}
-        <IonInput 
-        class="create-input" 
-        value={fullname} 
-        placeholder="Full name"
-        type="text"
-        onIonChange={e => setFullname(e.detail.value!)}
-        >                  
-        </IonInput>  
-        {fullnameError ? <><IonText class="errormsg">{fullnameError}</IonText><br/></>:null}
-        <IonInput 
-        class="create-input" 
-        value={username} 
-        placeholder="Username"
-        type="text"
-        onIonChange={e => setUsername(e.detail.value!)}
-        >                
-        </IonInput> 
-        {usernameError ? <><IonText class="errormsg">{usernameError}</IonText><br/></>:null}
-        <IonInput 
-        class="create-input" 
-        value={dob} 
-        placeholder="Date of birth (dd/mm/yyyy)"
-        type="text"
-        onIonChange={e => setDob(e.detail.value!)}
-        >                
-        </IonInput>         
-        {dobError ? <><IonText class="errormsg">{dobError}</IonText><br/></>:null}
-        <IonRow class="ion-align-items-center">
-        <IonInput 
-        class="create-input" 
-        value={password} 
-        type={showPassword ? "text" : "password"}
-        placeholder="Password"
-        onIonChange={e => setPassword(e.detail.value!)}
-        >
-        </IonInput>   
-        <IonButton onClick={()=>setShowPassword(!showPassword)}>
-          <IonIcon slot="icon-only" icon={eyeOutline} />
-        </IonButton>                  
-        </IonRow>
-        {passwordError ? <><IonText class="errormsg">{passwordError}</IonText><br/></>:null}
-        <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
-        {!linkSent ? <IonButton class="signin-button" id="sign-in-button" onClick={() => handleSignUp()}>Sign up</IonButton> 
-        :
-        <IonButton class="signin-button" onClick={() => window.location.reload(false)}>Continue</IonButton>}
-        {linkSent ? 
-        <div className="ion-text-center">
-        <IonButton className="yellow-text" onClick={() => signUpWithNewEmail()} >Sign up with new email</IonButton><br/>
-        </div>
-        : null}         
-        <p className="errormsg">
-        Have an account?<br/> 
-        <IonButton className="yellow-text" href="/signin" >Sign in</IonButton><br/>
-        <IonText class="errormsg">OR</IonText><br/>
-        <IonButton className="yellow-text" onClick={() => resendEmail()} >Resend verification email</IonButton>
-        </p>
-        {linkSent ? (
-        <IonText class="errormsg">A link has been sent to your email, please click it to verify your email</IonText>
-        ) : (null)}    
-        </div>     
-        <div id="recaptcha-container"></div>
-        <div id="my-login-button-target"></div>        
-      </IonContent>
+      </IonContent>      
       <IonLoading 
       cssClass="loading"
       spinner="bubbles"
