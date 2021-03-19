@@ -63,7 +63,7 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import '../variables.css';
 
-const MyPartyList = () => {
+const MyPartyList = (props: {newNotifs: any, deleteNotifs: any}) => {
 
   const slides = useRef(null);
   const [yourParties, setYourParties] = useState([]);  

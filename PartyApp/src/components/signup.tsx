@@ -110,7 +110,6 @@ const SignUp: React.FC = () => {
        'size': 'invisible',
        'callback': (response) => {
          // reCAPTCHA solved, allow signInWithPhoneNumber.
-         // ...
     //     console.log(response)
          //phoneNumberAuth()
        },
@@ -118,7 +117,7 @@ const SignUp: React.FC = () => {
          // Response expired. Ask user to solve reCAPTCHA again.
        }
      });
-     
+
      window.recaptchaVerifier.render().then(function (widgetId) {
        window.recaptchaWidgetId = widgetId;   
      }); 
@@ -141,15 +140,6 @@ const SignUp: React.FC = () => {
   const goToSlide = async(index) => {
     let swiper = await slides.current.getSwiper();    
     swiper.slideTo(index)    
-  }
-
-  const clearInputs = () => {
-    setEmail('');
-    setPhoneNumber('');
-    setFullname('');
-    setUsername('');
-    setPassword('');
-    setLinkSent(false);
   }
 
   const clearErrors = () => {
@@ -372,8 +362,6 @@ const SignUp: React.FC = () => {
     console.log("Account linking error", error);
   });
 
-
-
     }).catch((error) => {
       // User couldn't sign in (bad verification code?)
       setLoading(false);
@@ -527,9 +515,9 @@ const SignUp: React.FC = () => {
               </IonInput>         
               {dobError ? <><IonText class="errormsg">{dobError}</IonText><br/></>:null}
               {passwordError ? <><IonText class="errormsg">{passwordError}</IonText><br/></>:null}
-              <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
+              <><IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText><br/></>
               {linkSent ? (
-              <IonText class="errormsg">A link has been sent to your email, please click it to verify your email</IonText>
+              <><IonText class="errormsg">A link has been sent to your email, please click it to verify your email</IonText><br/></>
               ) : (null)}                
               {linkSent ? 
               <IonButton class="signin-button" onClick={()=>window.location.reload(false)}>Complete sign up</IonButton>       
