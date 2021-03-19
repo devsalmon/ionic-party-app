@@ -116,10 +116,9 @@ const SignUp: React.FC = () => {
        },
        'expired-callback': () => {
          // Response expired. Ask user to solve reCAPTCHA again.
-         // ...
-    //     console.log("expired")
        }
      });
+     
      window.recaptchaVerifier.render().then(function (widgetId) {
        window.recaptchaWidgetId = widgetId;   
      }); 
