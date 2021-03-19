@@ -3,7 +3,7 @@ import Users from './components/users';
 import CreateParty from './components/createparty';
 import MapContainer from './components/mapcontainer';
 import Gallery from './components/gallery';
-import MyPartyList from './components/mypartylist';
+import MyPartyList from './components/myparties';
 import SignIn from './components/signin';
 import SignUp from './components/signup';
 import OtherProfile from './components/otherprofile';
@@ -290,7 +290,7 @@ const Party = ({id, data, live, edit}) => {
 // when party is created and invites are sent, each user invited gets the party id added to their document.
 // Each user then checks their document for parties and then if there is a new party id, this is then checked
 // against the same id in the parties collection in order to display all the details.
-const PartyList = ({newNotifs, deleteNotifs, editParty, stopEditing}) => {
+const PartyList = ({editParty, stopEditing}) => {
 
   // for friend request bit.
   const collectionRef = firebase.firestore().collection("friend_requests"); 
@@ -322,10 +322,8 @@ const PartyList = ({newNotifs, deleteNotifs, editParty, stopEditing}) => {
         var alreadyInReq = reqs.some(item => curr_id === item.id);
         if (alreadyInReq) { 
           setNewNotifications(false)
-          deleteNotifs();
         } else if (newNotifications == false){
-          setNewNotifications(true); 
-          newNotifs();       
+          setNewNotifications(true);        
         }
       }; 
     }
@@ -340,10 +338,8 @@ const PartyList = ({newNotifs, deleteNotifs, editParty, stopEditing}) => {
         var alreadyInInv = partyreqs.some(item => curr_id === item.partyid);
         if (alreadyInInv) { 
           setNewNotifications(false);
-          deleteNotifs();
         } else if (newNotifications == false) {
           setNewNotifications(true);
-          newNotifs();
         }
       };
     }
@@ -357,7 +353,6 @@ const PartyList = ({newNotifs, deleteNotifs, editParty, stopEditing}) => {
     checkForRequests();
     setRefresh(!refresh);                
     setNewNotifications(false);
-    deleteNotifs();
     setTimeout(() => {
       event.detail.complete();
     }, 2000);
@@ -400,7 +395,6 @@ const PartyList = ({newNotifs, deleteNotifs, editParty, stopEditing}) => {
           console.log("Error getting document:", error);
       });
       setNewNotifications(false);
-      deleteNotifs();
   }
 
   const displayParties = () => {          
@@ -525,13 +519,13 @@ const PartyList = ({newNotifs, deleteNotifs, editParty, stopEditing}) => {
         <IonToast
           isOpen={newNotifications}
           cssClass={"refresh-toast"}
-          onDidDismiss={() => {setNewNotifications(false); deleteNotifs();}}
+          onDidDismiss={() => setNewNotifications(false)}
           position = 'top'
           color="danger"
           buttons={[
             {
               side: 'start',
-              text: 'New Notifications',
+              text: 'new notifications',
               handler: () => {
                 checkForRequests();
               }
@@ -780,17 +774,17 @@ const PartyRequest = ({hostid, partyid, click}) => {
   )
 }
 
-const MyParties = (props: {newNotifs: any, deleteNotifs: any}) => {
+const MyParties: React.FC = () => {
 
   return(
     <IonPage>
-      <MyPartyList newNotifs={() => props.newNotifs()} deleteNotifs={() => props.deleteNotifs()}/>
+      <MyPartyList/>
         {/* to allow for last item in list to be clicked (otherwise it's covered by tabbar) */}
         <br/> <br/> <br/> <br/> <br/> <br/>
     </IonPage>
   )
 }
-const Home = (props: {newNotifs: any, deleteNotifs: any}) => {
+const Home: React.FC = () => {
 
  const [editing, setEditing] = useState(false);
  
@@ -807,15 +801,13 @@ const Home = (props: {newNotifs: any, deleteNotifs: any}) => {
           </IonButton>       
         </IonButtons>                     
       </IonToolbar>}
-      <PartyList newNotifs={() => props.newNotifs()} deleteNotifs={() => props.deleteNotifs()} editParty={() => setEditing(true)} stopEditing={()=>setEditing(false)}/>
+      <PartyList editParty={() => setEditing(true)} stopEditing={()=>setEditing(false)}/>
       <br/> <br/> <br/> <br/> <br/> <br/>
     </IonPage>
   )
 }
 
 const SignedInRoutes: React.FC = () => {
-  const [homeNotifications, setHomeNotifications] = useState(false);
-  const [mpNotifications, setMPNotifications] = useState(false);
 
   return(  
     <IonReactRouter>
@@ -827,14 +819,14 @@ const SignedInRoutes: React.FC = () => {
           <Route path='/create' component={Create} />
           <Route path='/users' component={Users} />
           <Route path='/gallery' component={Gallery} />
-          <Route exact path='/myparties' render={props => <MyParties newNotifs={() => setMPNotifications(true)} deleteNotifs={() => setMPNotifications(false)} />} />      
-          <Route exact path='/home' render={props => <Home newNotifs={() => setHomeNotifications(true)} deleteNotifs={() => setHomeNotifications(false)} />} />      
+          <Route path='/myparties' component={MyParties} />
+          <Route exact path='/home' component={Home} />      
           <Route exact path={["/signin", "/signup", "/"]} render={() => <Redirect to="/home" />} /> 
         </IonRouterOutlet> 
         
         <IonTabBar slot="bottom" id="appTabBar">
           <IonTabButton tab="home" href="/home">
-            <IonIcon class="side-icons" src={homeNotifications ? "assets/icon/HOME_NOTIF.svg" : "assets/icon/HOME.svg"} />
+            <IonIcon class="side-icons" src="assets/icon/HOME.svg" />
             Home
             <IonRippleEffect></IonRippleEffect>
           </IonTabButton>
@@ -844,7 +836,7 @@ const SignedInRoutes: React.FC = () => {
             <IonRippleEffect></IonRippleEffect>
           </IonTabButton>              
           <IonTabButton tab="myparties" href="/myparties">
-            <IonIcon class="side-icons" src={mpNotifications ? "assets/icon/MY_PARTIES_NOTIF.svg" : "assets/icon/MY_PARTIES.svg"} />
+            <IonIcon class="side-icons" src="assets/icon/MY_PARTIES.svg" />
             MyParties
             <IonRippleEffect></IonRippleEffect>
           </IonTabButton>                         
