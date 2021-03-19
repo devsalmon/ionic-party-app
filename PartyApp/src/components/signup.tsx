@@ -146,7 +146,9 @@ const SignUp: React.FC = () => {
     setEmailError('');
     setFullnameError('');
     setUsernameError('');
-    setPasswordError('');  
+    setPasswordError('');
+    setDobError('');
+    setPhoneError('');      
     setFieldsMissing(false);  
   }
 
@@ -285,7 +287,9 @@ const SignUp: React.FC = () => {
     var user = firebase.auth().currentUser;
     if (user) {
       firebase.firestore().collection("users").doc(user.uid).delete().then(function() {
-        user.delete().then(function() {      
+        user.delete().then(function() {     
+          window.localStorage.setItem("signUpStage", "second");
+          window.localStorage.setItem("email", "");              
           window.location.reload(false);
         }).catch(err => {
           console.log(err.message)
@@ -476,7 +480,6 @@ const SignUp: React.FC = () => {
               {linkSent ?
               <><IonButton className="yellow-text" onClick={() => signUpWithNewEmail()} >Sign up with new email</IonButton><br/></>
               : null}    
-              {signUpMethod === "email" ? <IonButton className="yellow-text" onClick={() => resendEmail()} >Resend verification email</IonButton>:null}             
               <br/>
               {linkSent ? (
               <IonText class="errormsg">A link has been sent to your email, please click it to verify your email</IonText>
@@ -524,6 +527,8 @@ const SignUp: React.FC = () => {
               :
               <IonButton className="signin-button" onClick={()=>completeUserInfo()}>Continue</IonButton>
               }
+              <br/>
+              {signUpMethod === "email" ? <IonButton className="yellow-text" onClick={() => resendEmail()} >Resend verification email</IonButton>:null}                
               </div>
           </IonSlide>                  
         </IonSlides>    
