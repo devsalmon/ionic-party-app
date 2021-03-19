@@ -364,8 +364,8 @@ const SignUp: React.FC = () => {
       //link with fake email
       var phoneEmail = phoneNumber + '@partyemail.com'
       var credential = firebase.auth.EmailAuthProvider.credential(phoneEmail, password);
-      var user = result.user
-      user.linkWithCredential(credential)
+      //var user = result.user
+      result.user.linkWithCredential(credential)
   .then((usercred) => {
     var user = usercred.user;
     console.log("Account linking success", user);
@@ -496,7 +496,9 @@ const SignUp: React.FC = () => {
               ) : (null)}    
             </div>                    
           </IonSlide>   
-          <IonSlide>               
+          <IonSlide>     
+              <div id="my-login-button-target"></div>
+              <IonText>OR</IonText>      
               <div className="signin-inputs">
               <IonInput 
               class="create-input" 
@@ -533,9 +535,7 @@ const SignUp: React.FC = () => {
               {linkSent ? 
               <IonButton class="signin-button" onClick={()=>window.location.reload(false)}>Complete sign up</IonButton>       
               :
-              <>
               <IonButton className="signin-button" onClick={()=>completeUserInfo()}>Continue</IonButton>
-              <div id="my-login-button-target"></div></>
               }
               </div>
           </IonSlide>                  
