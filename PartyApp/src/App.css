@@ -385,9 +385,21 @@ ion-title {
     padding-top: 10px;
   }
   
-  
-
 ion-toolbar {
     padding: 20px;
     --background: black;
 }
+
+.PhoneInputInput {
+    background-color: black;
+    color: yellow;
+    border: none;
+}
+
+.PhoneInputCountry {
+    background-color: white;
+    padding: 5px;
+}
+
+
+

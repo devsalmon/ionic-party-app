@@ -290,7 +290,7 @@ const Party = ({id, data, live, edit}) => {
 // when party is created and invites are sent, each user invited gets the party id added to their document.
 // Each user then checks their document for parties and then if there is a new party id, this is then checked
 // against the same id in the parties collection in order to display all the details.
-const PartyList = ({newNotifs, deleteNotifs, editParty, stopEditing}) => {
+const PartyList = ({editParty, stopEditing}) => {
 
   // for friend request bit.
   const collectionRef = firebase.firestore().collection("friend_requests"); 
@@ -321,11 +321,9 @@ const PartyList = ({newNotifs, deleteNotifs, editParty, stopEditing}) => {
         var curr_name = doc.data().request_from[i].name
         var alreadyInReq = reqs.some(item => curr_id === item.id);
         if (alreadyInReq) { 
-          setNewNotifications(false)
-          deleteNotifs();
+          setNewNotifications(false);
         } else if (newNotifications == false){
           setNewNotifications(true); 
-          newNotifs();       
         }
       }; 
     }
@@ -340,10 +338,8 @@ const PartyList = ({newNotifs, deleteNotifs, editParty, stopEditing}) => {
         var alreadyInInv = partyreqs.some(item => curr_id === item.partyid);
         if (alreadyInInv) { 
           setNewNotifications(false);
-          deleteNotifs();
         } else if (newNotifications == false) {
           setNewNotifications(true);
-          newNotifs();
         }
       };
     }
@@ -357,7 +353,6 @@ const PartyList = ({newNotifs, deleteNotifs, editParty, stopEditing}) => {
     checkForRequests();
     setRefresh(!refresh);                
     setNewNotifications(false);
-    deleteNotifs();
     setTimeout(() => {
       event.detail.complete();
     }, 2000);
@@ -400,7 +395,6 @@ const PartyList = ({newNotifs, deleteNotifs, editParty, stopEditing}) => {
           console.log("Error getting document:", error);
       });
       setNewNotifications(false);
-      deleteNotifs();
   }
 
   const displayParties = () => {          
@@ -525,7 +519,7 @@ const PartyList = ({newNotifs, deleteNotifs, editParty, stopEditing}) => {
         <IonToast
           isOpen={newNotifications}
           cssClass={"refresh-toast"}
-          onDidDismiss={() => {setNewNotifications(false); deleteNotifs();}}
+          onDidDismiss={() => setNewNotifications(false)}
           position = 'top'
           color="danger"
           buttons={[
@@ -750,7 +744,7 @@ const PartyRequest = ({hostid, partyid, click}) => {
     // remove party from myinvites so the notification disappears, add to accepted invites
     firebase.firestore().collection("users").doc(current_user_id).update({
         myInvites: firebase.firestore.FieldValue.arrayRemove({hostid, partyid}),
-        acceptedInvites: firebase.firestore.FieldValue.arrayUnion({hostid: hostid, partyid: partyid}),
+        acceptedInvites: firebase.firestore.FieldValue.arrayUnion({hostid: hostid, partyid: partyid}),        
       }).then(() => click());
   }
 
@@ -780,17 +774,17 @@ const PartyRequest = ({hostid, partyid, click}) => {
   )
 }
 
-const MyParties = (props: {newNotifs: any, deleteNotifs: any}) => {
+const MyParties: React.FC = () => {
 
   return(
     <IonPage>
-      <MyPartyList newNotifs={() => props.newNotifs()} deleteNotifs={() => props.deleteNotifs()}/>
+      <MyPartyList />
         {/* to allow for last item in list to be clicked (otherwise it's covered by tabbar) */}
         <br/> <br/> <br/> <br/> <br/> <br/>
     </IonPage>
   )
 }
-const Home = (props: {newNotifs: any, deleteNotifs: any}) => {
+const Home: React.FC = () => {
 
  const [editing, setEditing] = useState(false);
  
@@ -807,7 +801,7 @@ const Home = (props: {newNotifs: any, deleteNotifs: any}) => {
           </IonButton>       
         </IonButtons>                     
       </IonToolbar>}
-      <PartyList newNotifs={() => props.newNotifs()} deleteNotifs={() => props.deleteNotifs()} editParty={() => setEditing(true)} stopEditing={()=>setEditing(false)}/>
+      <PartyList editParty={() => setEditing(true)} stopEditing={()=>setEditing(false)}/>
       <br/> <br/> <br/> <br/> <br/> <br/>
     </IonPage>
   )
@@ -816,6 +810,22 @@ const Home = (props: {newNotifs: any, deleteNotifs: any}) => {
 const SignedInRoutes: React.FC = () => {
   const [homeNotifications, setHomeNotifications] = useState(false);
   const [mpNotifications, setMPNotifications] = useState(false);
+  var user = firebase.auth().currentUser
+
+  useEffect(() => {
+    if (user.uid !== null) {
+      firebase.firestore().collection("users").doc(user.uid).get().then(doc => {
+        var data = doc.data();
+        var partyNotifs = data.partyNotifications ? data.partyNotifications : false; // false if it doesn't exist
+        var friendNotifs = data.friendNotifications ? data.friendNotifications : false; // false if it doesn't exist
+        if (partyNotifs === false && friendNotifs === false) {
+          setHomeNotifications(false);
+        } else if (partyNotifs === true || friendNotifs === true) {
+          setHomeNotifications(true);
+        }
+      })
+    }    
+  })
 
   return(  
     <IonReactRouter>
@@ -827,8 +837,8 @@ const SignedInRoutes: React.FC = () => {
           <Route path='/create' component={Create} />
           <Route path='/users' component={Users} />
           <Route path='/gallery' component={Gallery} />
-          <Route exact path='/myparties' render={props => <MyParties newNotifs={() => setMPNotifications(true)} deleteNotifs={() => setMPNotifications(false)} />} />      
-          <Route exact path='/home' render={props => <Home newNotifs={() => setHomeNotifications(true)} deleteNotifs={() => setHomeNotifications(false)} />} />      
+          <Route exact path='/myparties' component={MyParties} />      
+          <Route exact path='/home' component={Home} />      
           <Route exact path={["/signin", "/signup", "/"]} render={() => <Redirect to="/home" />} /> 
         </IonRouterOutlet> 
         

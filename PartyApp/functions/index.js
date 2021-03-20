@@ -25,6 +25,13 @@ exports.sendFriendRequestNotification = functions.firestore
       const requestId = newrequests[lastitem].id; // get newest request id     
       const requestName = newrequests[lastitem].name; // get newest request name
 
+      admin.firestore().collection("users").doc(snap.after.id).update({
+        friendNotifications: true;
+      }).catch(error => {
+        console.log("Error collecting document ", error.message)
+        return 
+      })      
+
       admin.firestore().collection("users").doc(snap.after.id).get().then(doc => {
         // get user's device token      
         const token = doc.data().deviceToken;
@@ -52,6 +59,10 @@ exports.sendFriendRequestNotification = functions.firestore
       }).catch(err => {
         console.log(err.message)
       });
+    } else if (newRequests.length === 0) {
+      admin.firestore().collection("users").doc(snap.after.id).update({
+        friendNotifications: true 
+      });            
     }
 })
 
@@ -69,6 +80,12 @@ exports.subscribeToPartyTopic = functions.firestore
     const topic2 = newDeclinedInvites.length > 0 && newDeclinedInvites[newDeclinedInvites.length-1].partyid // get last item
   
     if (newInvites.length > oldInvites.length) { // check new invites have been received
+      admin.firestore().collection("users").doc(snap.after.id).update({
+        partyNotifications: true;
+      }).catch(error => {
+        console.log("Error collecting document ", error.message)
+        return 
+      });    
       admin.messaging().subscribeToTopic(afterdata.deviceToken, topic1)
         .then(function(response) {
           admin.firestore().collection("users").doc(inviterId)
@@ -82,7 +99,7 @@ exports.subscribeToPartyTopic = functions.firestore
           console.log('Error subscribing to topic:', error.message);
           return
         }); 
-    } else if (newDecliendInvites.length > oldDeclinedInvites.length) { // user has declined an invite
+    } else if (newDecliendInvites.length > oldDeclinedInvites.length) { // user has declined an invite    
       admin.messaging().unsubscribeToTopic(afterdata.deviceToken, topic2)
         .then(function(response) {
           console.log('Successfully unsubscribed from topic');
@@ -92,6 +109,10 @@ exports.subscribeToPartyTopic = functions.firestore
           console.log('Error subscribing to topic:', error.message);
           return
         }); 
+    } else if (myInvites.length === 0) {
+      admin.firestore().collection("users").doc(snap.after.id).update({
+        partyNotifications: false 
+      });            
     }
   })
 
@@ -99,6 +120,7 @@ exports.subscribeToPartyTopic = functions.firestore
 exports.sendPartyNotification = functions.firestore
 .document("users/{userId}/myParties/{partyId}")
   .onUpdate(async (snap, context) => {
+    var invitedPeople = snap.after.data().invited_people
     if (snap.before.data().topicCreated === false && snap.after.data().topicCreated === true) {
       fetch('https://fcm.googleapis.com/fcm/send', {
         method: "POST", 
@@ -152,6 +174,9 @@ exports.sendLikeNotification = functions.firestore
 
     if (newLikeCounter > oldLikeCounter) { // new like
       let likerId = newLikes[newLikeCounter-1];
+      admin.collection("users").doc(userId).update({
+        myPartiesNotifications: true 
+      });      
       admin.firestore().collection("users").doc(userId).get().then(doc1 => {
         let token = doc1.data().deviceToken;
         admin.firestore().collection("users").doc(likerId).get().then(doc2 => {
@@ -192,7 +217,9 @@ exports.sendCommentNotification = functions.firestore
     let comment = snap.data().comment
     let commenter = snap.data().username // person who commented
     let currentuser = snap.data().pictureOwner
-
+    admin.firestore().collection("users").doc(currentuser).update({ // for myparties notification icon
+      myPartiesNotifications: true 
+    });      
     admin.firestore().collection("users").doc(currentuser).get().then(doc1 => {
       let token = doc1.data().deviceToken;
       fetch('https://fcm.googleapis.com/fcm/send', {

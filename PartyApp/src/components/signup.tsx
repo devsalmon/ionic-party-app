@@ -352,8 +352,7 @@ const SignUp: React.FC = () => {
       // User signed in successfully.
       setLoading(false);
       changeSlide("userinfo"); 
-      window.localStorage.setItem("signUpStage", "third");  
-      
+      window.localStorage.setItem("signUpStage", "third");        
       //link with fake email
       var phoneEmail = phoneNumber + '@partyemail.com'
       var credential = firebase.auth.EmailAuthProvider.credential(phoneEmail, password);
