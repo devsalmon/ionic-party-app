@@ -120,11 +120,18 @@
     --width: 100%;
 }
 
+.notification-dot {
+    height: 12px;
+    width: 12px;
+    background-color: red;
+    border-radius: 50%;
+    display: inline-block;          
+}
+
 .party-details-popover {
     --background: red;
     color: red;
     --backdrop-opacity: 0.9;
-    --height: 70%;
     --width: 80%
 }
 
@@ -142,7 +149,10 @@
     color: black;
     text-align: center;
     --backdrop-opacity: 0.9;
-    --width: 90%;
+}
+
+.popover-viewport {
+    border:  3px solid yellow;
 }
 
 .profile-button {
@@ -269,9 +279,6 @@ ion-card {
 }
 
 ion-card-header {
-    font-size: 15px;
-    font-weight: bold;
-    color: yellow;
     text-align: center
 }
 
@@ -281,15 +288,11 @@ ion-card-content {
 
 ion-card-title {
     color: yellow;
-    font-weight: bold;
-    font-size: 20px;
     text-align: center;
-    color: yellow
 }
 
 ion-card-subtitle {
     color: yellow;
-    font-size: 20px;
 }
 
 ion-content {

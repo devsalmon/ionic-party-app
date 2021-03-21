@@ -85,14 +85,15 @@
           ], handleResponseCallback: function() {
           snap.loginkit.fetchUserInfo().then(
             function (result) {
-              console.log("User info:", result.data.me);
-              document.getElementById("display_name").innerHTML =
-                result.data.me.displayName;
-            // Save to firebase here?
-              document.getElementById("bitmoji").src =
-                result.data.me.bitmoji.avatar;
-              document.getElementById("external_id").src =
-                result.data.me.externalId;
+              //document.getElementById("display_name").innerHTML =
+              var snap_fullname = result.data.me.displayName;
+              window.localStorage.setItem("snap_fullname", snap_fullname);
+              // console.log("index snap storage: " + snap_fullname)
+              //document.getElementById("bitmoji").src =
+              var bitmoji_avatar = result.data.me.bitmoji.avatar;
+              window.localStorage.setItem("bitmoji_avatar", bitmoji_avatar);
+              //document.getElementById("external_id").src =
+              //  result.data.me.externalId;              
             },
             function (err) {
               console.log(err); // Error

@@ -546,17 +546,12 @@ const PartyList = ({editParty, stopEditing}) => {
       }     
       {liveParties && liveParties.sort((a, b) => a.data.dateTime > b.data.dateTime ? 1:-1).map((party, k) => { 
         return(        
-          <>
           <Party key={k} id={party.id} data={party.data} live={true} edit={() => setEditingParty(party.data)}/>              
-          <br/>
-          </>
         );                    
       })}
       {upcomingParties && upcomingParties.sort((a, b) => a.data.dateTime > b.data.dateTime ? 1: -1).map((party, l) => {
         return( 
-          <>
           <Party key={l} id={party.id} data={party.data} live={false} edit={() => setEditingParty(party.data)}/>
-          </>
         );                
       })}  
     </IonContent>   
@@ -796,7 +791,7 @@ const Home: React.FC = () => {
           Upcoming<br/>parties
         </IonTitle>
         <IonButtons slot="end">
-          <IonButton href='/users'>
+          <IonButton color="warning" href='/users'>
             <IonIcon class="top-icons" slot="icon-only" icon={personAddSharp} />
           </IonButton>       
         </IonButtons>                     
@@ -812,19 +807,21 @@ const SignedInRoutes: React.FC = () => {
   const [mpNotifications, setMPNotifications] = useState(false);
   var user = firebase.auth().currentUser
 
-  useEffect(() => {
-    if (user.uid !== null) {
-      firebase.firestore().collection("users").doc(user.uid).get().then(doc => {
-        var data = doc.data();
-        var partyNotifs = data.partyNotifications ? data.partyNotifications : false; // false if it doesn't exist
-        var friendNotifs = data.friendNotifications ? data.friendNotifications : false; // false if it doesn't exist
-        if (partyNotifs === false && friendNotifs === false) {
-          setHomeNotifications(false);
-        } else if (partyNotifs === true || friendNotifs === true) {
-          setHomeNotifications(true);
-        }
-      })
-    }    
+  firebase.firestore().collection("users").doc(user.uid).onSnapshot(doc => {
+    var data = doc.data();
+    var partyNotifs = data.partyNotifications ? data.partyNotifications : false; // false if it doesn't exist
+    var friendNotifs = data.friendNotifications ? data.friendNotifications : false; // false if it doesn't exist
+    var mpNotifs = data.myPartiesNotifications ? data.myPartiesNotifications : false; // false if it doesn't exist
+    if (partyNotifs === false && friendNotifs === false) {
+      setHomeNotifications(false);
+    } else if (partyNotifs === true || friendNotifs === true) {
+      setHomeNotifications(true);
+    }
+    if (mpNotifs === true) {
+      setMPNotifications(true);
+    } else {
+      setMPNotifications(false);
+    }
   })
 
   return(  
@@ -875,7 +872,7 @@ const App: React.FC = () => {
       if (user && user.emailVerified) { // if new user logs in, is email verified and has a document
         registerNotifications(user.uid); 
         setSignedIn(true);                
-        window.localStorage.clear()        
+        window.localStorage.clear();        
         while (user.displayName === "") {
           setLoading(true);
         }

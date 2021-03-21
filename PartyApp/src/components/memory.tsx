@@ -27,7 +27,7 @@ import '../variables.css';
 import firebase from '../firestore'
 
 
-const Memory = ({id, data, click}) => {
+const Memory = ({notifications, id, data, click}) => {
   // party card  
   const [host, setHost] = useState('');
 
@@ -46,10 +46,15 @@ const Memory = ({id, data, click}) => {
         </IonCol>
       </IonRow>               
       <IonRow>
-        <IonCol size="12">
+        <IonCol size="11">
           <IonText class="white-text">{data.date}<br/></IonText> 
           <IonText class="white-text">Hosted By {host}</IonText>
         </IonCol>
+        {notifications === true ? 
+        <IonCol>
+        <div className="notification-dot"></div>
+        </IonCol>
+        : null}        
       </IonRow>
       </IonGrid>
     </IonItem>        

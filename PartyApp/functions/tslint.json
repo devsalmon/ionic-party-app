@@ -54,11 +54,6 @@
 
     
     "deprecation": {"severity": "warning"},
-
-    
-    
-    
-
     
     
     "prefer-for-of": {"severity": "warning"},

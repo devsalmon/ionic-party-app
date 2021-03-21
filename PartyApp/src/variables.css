@@ -92,7 +92,7 @@ http://ionicframework.com/docs/theming/ */
 @media screen and (max-width: 490px) and (min-width: 350px) { /*for large phones such as iphone x*/
   #popover .create-input {
     font-size: 12px;
-  }  
+  }    
 
   .create-card, .rounded-top, .create-button {
     font-size: 16px;
@@ -118,6 +118,14 @@ http://ionicframework.com/docs/theming/ */
   ion-button, .custom-button {
     font-size: 12px;
   }
+
+  ion-card-title {
+    font-size: 22px
+  }
+
+  ion-card-subtitle {
+    font-size: 14px;
+  }  
 
   ion-icon {
     font-size: 24px;    
@@ -172,6 +180,14 @@ http://ionicframework.com/docs/theming/ */
     font-size: 20px;
   }
 
+  ion-card-title {
+    font-size: 26px
+  }
+
+  ion-card-subtitle {
+    font-size: 16px;
+  }    
+
   ion-icon {
     font-size: 34px;    
   }
@@ -224,6 +240,14 @@ http://ionicframework.com/docs/theming/ */
   ion-button, .custom-button {
     font-size: 25px;
   }
+
+  ion-card-title {
+    font-size: 30px
+  }
+
+  ion-card-subtitle {
+    font-size: 20px;
+  }    
 
   ion-icon {
     font-size: 40px;    
@@ -281,6 +305,14 @@ http://ionicframework.com/docs/theming/ */
   ion-button, .custom-button {
     font-size: 30px;
   }
+
+  ion-card-title {
+    font-size: 34px
+  }
+
+  ion-card-subtitle {
+    font-size: 24px;
+  }    
 
   ion-icon {
     font-size: 50px;    

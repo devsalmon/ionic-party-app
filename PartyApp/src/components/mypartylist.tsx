@@ -96,20 +96,28 @@ const MyPartyList = () => {
 
   useEffect(() => {  
     firebase.firestore().collection("users").doc(user.uid).get().then(doc => {
-      setDisplayName(doc.data().username)
+      if (doc.data().partiesWithNotifications.length === 0) {
+        firebase.firestore().collection("users").doc(user.uid).update({
+          myPartiesNotifications: false
+        }).catch(err => {
+          console.log(err.message)
+        });
+      }
+      setDisplayName(doc.data().username);
+      var pwn = doc.data().partiesWithNotifications ? doc.data().partiesWithNotifications : [];
+      displayParties(pwn); 
     })
     findFriends();  
-    // useeffect hook only runs after first render so it only runs once
-    displayParties(); 
+    // useeffect hook only runs after first render so it only runs once    
     //finds the number of friends you have.
     firebase.firestore().collection("friends")
     .doc(currentuser).get().then(function(doc) {
         if (doc.exists) {
-          setFriend_no(doc.data().friends.length)
+          setFriend_no(doc.data().friends.length);
         }
       })    
     // useeffect makes display parties only runs once
-  }, [refresh]);  
+  }, [refresh, inGallery]);  
 
   var user = firebase.auth().currentUser;  
   const friendsCollection = firebase.firestore().collection('friends');
@@ -117,8 +125,7 @@ const MyPartyList = () => {
   var tempFriends = []; // list for friend id's
 
   function doRefresh(event) {
-    // toggle new parties so displayParties runs and it checks for new parties
-    displayParties();
+    // toggle new parties so displayParties runs and it checks for new parties    
     setRefresh(!refresh);         
     setTimeout(() => {
       event.detail.complete();
@@ -138,10 +145,12 @@ const MyPartyList = () => {
           tempFriends && tempFriends.map(friend => {
               usersCollection.doc(friend.id).get().then(doc => {
                   let data = doc.data();
-                  data && setFriends(friends => [
+                  var alreadyInFriends = friends.some(item => data.id === item.id);
+                  data && !alreadyInFriends && setFriends(friends => [
                       ...friends, 
                       {
-                          name: data.username,
+                          username: data.username,
+                          fullname: data.fullname,
                           id: doc.id
                       }
                   ]);  
@@ -226,26 +235,42 @@ const MyPartyList = () => {
 
   // if memory card clicked, go to gallery
   const enter = (partyid, hostid) => {
-    setPartyID(partyid)
-    setHostID(hostid)    
-    setInGallery(true)
+    // when user clicks on a party card, set my party notifications to false
+    firebase.firestore().collection("users").doc(user.uid).get().then(doc => {
+      if (doc.data().partiesWithNotifications) {
+        if (doc.data().partiesWithNotifications.some(item => partyid === item)) {          
+          // user has clicked on a party with a notification so dismiss the notification
+          firebase.firestore().collection("users").doc(user.uid).update({
+            partiesWithNotifications: firebase.firestore.FieldValue.arrayRemove(partyid)
+          }).catch(err => {
+            console.log(err.message)
+          });
+        }
+      }
+    }).catch(err => {
+      console.log(err.message)
+    })
+    setPartyID(partyid);
+    setHostID(hostid);    
+    setInGallery(true);
   }  
 
- const displayParties = () => {          
-    // get your parties
+ const displayParties = (pwn) => {          
+    // get your parties    
     firebase.firestore().collection("users")
       .doc(currentuser).collection("myParties").orderBy("date", "desc").get().then(querySnapshot => {
+        setYourParties([]);
         querySnapshot.forEach(doc => {
           let today = new Date();
-          let data = doc.data();          
-          // if party is in the future and party isn't already in the state 
-          var alreadyInYP = yourParties.some(item => doc.id === item.id);
-          if (moment(today).isAfter(data.dateTime) && !alreadyInYP) { 
+          let data = doc.data();         
+          var hasNotifications = pwn.some(item => doc.id === item);
+          if (moment(today).isAfter(data.dateTime)) { 
             setYourParties(parties => [
               ...parties, 
               {
                 id: doc.id,
-                data: doc.data()
+                data: doc.data(),
+                notifications: hasNotifications
               }              
             ]);
           } 
@@ -255,22 +280,23 @@ const MyPartyList = () => {
     // get attended parties
     firebase.firestore().collection("users")
       .doc(currentuser).get().then(doc => {
+          setAttendedParties([]);
           let today = new Date();
           let data = doc.data();
           if (data.acceptedInvites) {
             for (var i=0; i < data.acceptedInvites.length; i++) {
               firebase.firestore().collection("users")
                 .doc(data.acceptedInvites[i].hostid).collection("myParties").doc(data.acceptedInvites[i].partyid).get().then(partydoc => {
-                  // if party is in the future and party isn't already in the state 
-                  var alreadyInAP = attendedParties.some(item => partydoc.id === item.id);
-                  if (moment(today).isAfter(partydoc.data().dateTime) && !alreadyInAP) {
+                  var hasNotifications = pwn.some(item => partydoc.id === item);
+                  if (moment(today).isAfter(partydoc.data().dateTime)) {
                     attendedParties.sort((a, b) => a.data.dateTime - b.data.dateTime);   
                     // if party is live
                     setAttendedParties(parties => [
                       ...parties,
                       {
                         id: partydoc.id,
-                        data: partydoc.data()
+                        data: partydoc.data(),
+                        notifications: hasNotifications
                       }
                     ])            
                   }
@@ -447,9 +473,9 @@ const MyPartyList = () => {
               </IonRefresher>                     
             {attendedParties.length === 0 ?
             <IonText class="white-text">No attended parties yet..</IonText> :          
-            attendedParties.sort((a, b) => b.data.dateTime > a.data.dateTime ? 1:-1).map((doc, i) => {
+            attendedParties.sort((a, b) => b.data.dateTime > a.data.dateTime ? 1:-1).map((party, i) => {
               return(
-                <Memory id={doc.id} data={doc.data} key={i} click={() => enter(doc.id, doc.data.hostid)}/>
+                <Memory notifications={party.notifications} id={party.id} data={party.data} key={i} click={() => enter(party.id, party.data.hostid)}/>
               )          
             })}       
             <br/><br/><br/><br/><br/>
@@ -465,9 +491,9 @@ const MyPartyList = () => {
               </IonRefresher>                   
             {yourParties.length === 0 ?
             <IonText class="white-text"> No hosted parties yet..</IonText> : 
-            yourParties.sort((a, b) => b.data.dateTime > a.data.dateTime ? 1:-1).map((doc, j) => {
+            yourParties.sort((a, b) => b.data.dateTime > a.data.dateTime ? 1:-1).map((party, j) => {
               return(              
-                <Memory id={doc.id} data={doc.data} key={j} click={() => enter(doc.id, doc.data.hostid)}/>
+                <Memory notifications={party.notifications} id={party.id} data={party.data} key={j} click={() => enter(party.id, party.data.hostid)}/>
               )          
             })}      
             <br/><br/><br/><br/><br/>
@@ -559,7 +585,14 @@ const MyPartyList = () => {
               {friends && friends.map((friend, k) => {
                   return(
                     <IonItem lines="none" key={k}>
-                        <IonText>{friend.name}</IonText>
+                      <IonCol>
+                      <IonRow>
+                        <IonText>{friend.username}</IonText>   
+                      </IonRow>
+                      <IonRow>
+                        <IonText class="white-text">{friend.fullname}</IonText>   
+                      </IonRow>        
+                      </IonCol>               
                     </IonItem>
                   )
               })}

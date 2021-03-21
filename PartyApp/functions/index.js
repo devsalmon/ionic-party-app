@@ -14,25 +14,25 @@ admin.initializeApp(functions.config().firebase)
 
 exports.sendFriendRequestNotification = functions.firestore
 .document("friend_requests/{userId}")
-  .onUpdate(async (snap, context) => {
-    const afterdata = snap.after.data()
-    const beforedata = snap.before.data()    
+  .onWrite(async (change, context) => {
+    const afterdata = change.after.data()
+    const beforedata = change.before.data()    
     var newrequests = afterdata.request_from ? afterdata.request_from : []
     var oldrequests = beforedata.request_from ? beforedata.request_from : []
 
     if (newrequests.length > oldrequests.length) { // check a new request was added to request_from
       var lastitem = newrequests.length - 1
-      const requestId = newrequests[lastitem].id; // get newest request id     
+      //const requestId = newrequests[lastitem].id; // get newest request id     
       const requestName = newrequests[lastitem].name; // get newest request name
 
-      admin.firestore().collection("users").doc(snap.after.id).update({
-        friendNotifications: true;
+      admin.firestore().collection("users").doc(change.after.id).update({
+        friendNotifications: true
       }).catch(error => {
-        console.log("Error collecting document ", error.message)
+        console.log("Error collecting document ", error.message);
         return 
       })      
 
-      admin.firestore().collection("users").doc(snap.after.id).get().then(doc => {
+      admin.firestore().collection("users").doc(change.after.id).get().then(doc => {
         // get user's device token      
         const token = doc.data().deviceToken;
         fetch('https://fcm.googleapis.com/fcm/send', {
@@ -59,18 +59,21 @@ exports.sendFriendRequestNotification = functions.firestore
       }).catch(err => {
         console.log(err.message)
       });
-    } else if (newRequests.length === 0) {
-      admin.firestore().collection("users").doc(snap.after.id).update({
+    } else if (newrequests.length === 0) {
+      admin.firestore().collection("users").doc(change.after.id).update({
         friendNotifications: true 
+      }).catch(err => {
+        console.log(err.message);
+        return
       });            
     }
 })
 
 exports.subscribeToPartyTopic = functions.firestore
 .document("users/{userId}")
-  .onUpdate(async (snap, context) => {
-    const afterdata = snap.after.data()
-    const beforedata = snap.before.data()    
+  .onWrite(async (change, context) => {
+    const afterdata = change.after.data()
+    const beforedata = change.before.data()    
     var newInvites = afterdata.myInvites ? afterdata.myInvites : []
     var oldInvites = beforedata.myInvites ? beforedata.myInvites : []
     var newDeclinedInvites = afterdata.declinedInvites ? afterdata.declinedInvites : []
@@ -80,8 +83,8 @@ exports.subscribeToPartyTopic = functions.firestore
     const topic2 = newDeclinedInvites.length > 0 && newDeclinedInvites[newDeclinedInvites.length-1].partyid // get last item
   
     if (newInvites.length > oldInvites.length) { // check new invites have been received
-      admin.firestore().collection("users").doc(snap.after.id).update({
-        partyNotifications: true;
+      admin.firestore().collection("users").doc(change.after.id).update({
+        partyNotifications: true
       }).catch(error => {
         console.log("Error collecting document ", error.message)
         return 
@@ -99,7 +102,7 @@ exports.subscribeToPartyTopic = functions.firestore
           console.log('Error subscribing to topic:', error.message);
           return
         }); 
-    } else if (newDecliendInvites.length > oldDeclinedInvites.length) { // user has declined an invite    
+    } else if (newDeclinedInvites.length > oldDeclinedInvites.length) { // user has declined an invite    
       admin.messaging().unsubscribeToTopic(afterdata.deviceToken, topic2)
         .then(function(response) {
           console.log('Successfully unsubscribed from topic');
@@ -109,19 +112,22 @@ exports.subscribeToPartyTopic = functions.firestore
           console.log('Error subscribing to topic:', error.message);
           return
         }); 
-    } else if (myInvites.length === 0) {
-      admin.firestore().collection("users").doc(snap.after.id).update({
+    } else if (newInvites.length === 0) {
+      admin.firestore().collection("users").doc(change.after.id).update({
         partyNotifications: false 
+      }).catch(err => {
+        console.log(err.message);
+        return
       });            
     }
   })
 
 
 exports.sendPartyNotification = functions.firestore
-.document("users/{userId}/myParties/{partyId}")
-  .onUpdate(async (snap, context) => {
-    var invitedPeople = snap.after.data().invited_people
-    if (snap.before.data().topicCreated === false && snap.after.data().topicCreated === true) {
+.document("users/{userId}/{myPartiesId}/{partyId}")
+  .onWrite(async (change, context) => {
+    var invitedPeople = change.after.data().invited_people
+    if (change.before.data().topicCreated === false && change.after.data().topicCreated === true) {
       fetch('https://fcm.googleapis.com/fcm/send', {
         method: "POST", 
         headers: {
@@ -131,8 +137,8 @@ exports.sendPartyNotification = functions.firestore
         },
         body: JSON.stringify({
           "priority": "high",
-          "to": `/topics/${snap.after.id}`,
-          "notification": {"title":"New Party Invite!","body": `${snap.after.data().hostname} has invited you to a party`}
+          "to": `/topics/${change.after.id}`,
+          "notification": {"title":"New Party Invite!","body": `${change.after.data().hostname} has invited you to a party`}
         })          
       }).then(res => {
         console.log("Request complete! ", res.registration_ids);
@@ -141,7 +147,7 @@ exports.sendPartyNotification = functions.firestore
         console.log(err.message)
         return
       });
-    } else if (snap.after.data().topicCreated === true) {
+    } else if (change.after.data().topicCreated === true) {
       fetch('https://fcm.googleapis.com/fcm/send', {
         method: "POST", 
         headers: {
@@ -151,8 +157,8 @@ exports.sendPartyNotification = functions.firestore
         },
         body: JSON.stringify({
           "priority": "high",
-          "to": `/topics/${snap.after.id}`,
-          "notification": {"title":"Party Details Updated!","body": `${snap.after.data().hostname} has updated their party`}
+          "to": `/topics/${change.after.id}`,
+          "notification": {"title":"Party Details Updated!","body": `${change.after.data().hostname} has updated their party`}
         })          
       }).then(res => {
         console.log("Request complete! ", res.registration_ids);
@@ -165,17 +171,22 @@ exports.sendPartyNotification = functions.firestore
 })
 
 exports.sendLikeNotification = functions.firestore 
-.document("users/{userId}/myParties/{partyId}/pictures/{pictureId}")
-  .onUpdate(async (snap, context) => {
-    let newLikeCounter = snap.after.data().likeCounter ? snap.after.data().likeCounter : 0;
-    let oldLikeCounter = snap.before.data().likeCounter ? snap.before.data().likeCounter : 0;
-    let newLikes = snap.after.data().likes ? snap.after.data().likes : [];
-    let userId = snap.after.data().takenByID; // user who took the picture 
+.document("users/{userId}/{myPartiesId}/{partyId}/{picturesId}/{pictureId}")
+  .onWrite(async (change, context) => {
+    let newLikeCounter = change.after.data().likeCounter ? change.after.data().likeCounter : 0;
+    let oldLikeCounter = change.before.data().likeCounter ? change.before.data().likeCounter : 0;
+    let newLikes = change.after.data().likes ? change.after.data().likes : [];
+    let userId = change.after.data().takenByID; // user who took the picture 
+    let partyId = context.params.partyId; // for red notification button to know which party has a notification
 
     if (newLikeCounter > oldLikeCounter) { // new like
       let likerId = newLikes[newLikeCounter-1];
-      admin.collection("users").doc(userId).update({
-        myPartiesNotifications: true 
+      admin.firestore().collection("users").doc(userId).update({
+        myPartiesNotifications: true,
+        partiesWithNotifications: admin.firestore.FieldValue.arrayUnion(partyId)
+      }).catch(err => {
+        console.log(err.message)
+        return
       });      
       admin.firestore().collection("users").doc(userId).get().then(doc1 => {
         let token = doc1.data().deviceToken;
@@ -212,16 +223,21 @@ exports.sendLikeNotification = functions.firestore
   })
 
 exports.sendCommentNotification = functions.firestore 
-.document("users/{userId}/myParties/{partyId}/pictures/{pictureId}/Comments/{commentId}")
+.document("users/{userId}/{myPartiesId}/{partyId}/{picturesId}/{pictureId}/{CommentsId}/{commentId}")
   .onCreate(async (snap, context) => {
     let comment = snap.data().comment
     let commenter = snap.data().username // person who commented
-    let currentuser = snap.data().pictureOwner
-    admin.firestore().collection("users").doc(currentuser).update({ // for myparties notification icon
-      myPartiesNotifications: true 
+    let pictureOwner = snap.data().pictureOwner
+    let partyId = context.params.partyId // id of party to show the red notification button on that party
+    admin.firestore().collection("users").doc(pictureOwner).update({ // for myparties notification icon
+      myPartiesNotifications: true,
+      partiesWithNotifications: admin.firestore.FieldValue.arrayUnion(partyId)
+    }).catch(err => {
+      console.log(err.message)
+      return
     });      
-    admin.firestore().collection("users").doc(currentuser).get().then(doc1 => {
-      let token = doc1.data().deviceToken;
+    admin.firestore().collection("users").doc(pictureOwner).get().then(doc => {
+      let token = doc.data().deviceToken;
       fetch('https://fcm.googleapis.com/fcm/send', {
         method: "POST", 
         headers: {

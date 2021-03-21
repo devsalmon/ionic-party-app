@@ -15,12 +15,15 @@ import {
   IonInput,
   IonText,
   IonItem,
-  IonTextarea
+  IonTextarea,
+  IonPopover,
+  IonTitle
 } from '@ionic/react';
 import {   
   heartOutline,
   heart,
-  sendOutline
+  sendOutline,
+  trashBinSharp
 } from 'ionicons/icons';
 import '../App.css'
 import firebase from '../firestore'
@@ -90,9 +93,11 @@ const Gallery = ({hostid, partyid}) => {
     return(   
       <IonContent fullscreen={true}>
           <IonCard class="gallery-card">
-            <IonCardContent class="gallery-card-content">
-              <IonCardTitle class="gallery-card-title">{title}</IonCardTitle>         
-              <IonCardSubtitle class="gallery-card-subtitle">Hosted on {date} by {host}</IonCardSubtitle>
+            <IonCardHeader>
+              <IonCardTitle>{title}</IonCardTitle><br/>         
+              <IonCardSubtitle>Hosted on {date} by {host}</IonCardSubtitle>            
+            </IonCardHeader>
+            <IonCardContent>
               {firebase.auth().currentUser.uid === hostid && edit ?              
                 <IonItem>
                   <IonTextarea class="create-input" value={message} placeholder="Message" onIonChange={e => setMessage(e.detail.value!)}></IonTextarea>
@@ -100,13 +105,11 @@ const Gallery = ({hostid, partyid}) => {
                 </IonItem>
              : null
             }         
-            <IonText>"{afterMessage}"</IonText>
+            {afterMessage === '' ? <IonText>"Thanks for coming!"</IonText> : <IonText>"{afterMessage}"</IonText>}
             {firebase.auth().currentUser.uid === hostid && !edit ?              
-              <IonCardSubtitle>
-                <IonItem lines="none">
-                  <IonButton onClick={() => setEdit(true)}>Edit</IonButton>
-                </IonItem>
-              </IonCardSubtitle>
+              <IonItem lines="none">
+                <IonButton onClick={() => setEdit(true)}>Edit</IonButton>
+              </IonItem>
              : null
             }                  
             </IonCardContent>
@@ -134,6 +137,7 @@ const Picture = ({doc, hostid, partyid}) => {
   const [otherComments, setOtherComments] = useState([]);
   const [displayName, setDisplayName] = useState('');
   const [takenBy, setTakenBy] = useState('');
+  const [deletePhotoPopover, setDeletePhotoPopover] = useState(false);
     
   var currentuser = firebase.auth().currentUser.uid
 
@@ -226,7 +230,7 @@ const Picture = ({doc, hostid, partyid}) => {
   )
 
   const removePicture = ownPicture ? (
-    <IonButton onClick={deletePicture} fill="clear" color="warning">
+    <IonButton onClick={() => setDeletePhotoPopover(true)} fill="clear" color="warning">
       Remove
     </IonButton>
   ) : null 
@@ -246,8 +250,13 @@ const Picture = ({doc, hostid, partyid}) => {
     }
   }
 
+  const deleteComment = (id) => {
+    collectionRef.doc(doc.id).collection("Comments").doc(id).delete().then(function() {
+        displayComments(); 
+      })
+  }  
+
   const displayComments = () => {
-  // Checks for friend requests
     setOtherComments([])
     collectionRef.doc(doc.id).collection("Comments").orderBy("timestamp", "asc").get().then(querySnapshot => {
       querySnapshot.forEach(doc => {
@@ -257,7 +266,8 @@ const Picture = ({doc, hostid, partyid}) => {
             ...otherComments, 
             {
               name: commentor,
-              comment: theComment
+              comment: theComment,
+              id: doc.id
             }              
           ]);
         })
@@ -268,9 +278,9 @@ const Picture = ({doc, hostid, partyid}) => {
     <IonCard class="picture-card">
       <IonCardHeader>
         <IonRow>
-        <IonCol>{doc.data().takenAt}</IonCol> 
-        <IonCol size="5">{takenBy}</IonCol> 
-        <IonCol>{numLikes} likes</IonCol> 
+        <IonCol><IonText>{doc.data().takenAt}</IonText></IonCol> 
+        <IonCol size="5"><IonText>{takenBy}</IonText></IonCol> 
+        <IonCol><IonText>{numLikes} likes</IonText></IonCol> 
         </IonRow>
       </IonCardHeader>       
       <IonImg class="gallery-photo" src={doc.data().picture} />  
@@ -287,7 +297,14 @@ const Picture = ({doc, hostid, partyid}) => {
         </IonButton>}
       </IonRow>
       {otherComments && showComments && otherComments.map((comment, i) => {
-          return(<div key={i}><IonText class="ion-padding-start">{comment.name}: {comment.comment}</IonText><br/></div>)
+          return(
+            <>
+            <IonText class="ion-padding-start">{comment.name}: {comment.comment}</IonText>
+            <IonButton class="yellow-text" onClick={()=>deleteComment(comment.id)}>
+              <IonIcon icon={trashBinSharp} />
+            </IonButton><br/>
+            </>            
+          )
       })}
       <IonRow>
       <IonInput 
@@ -302,6 +319,15 @@ const Picture = ({doc, hostid, partyid}) => {
         </IonButton> : null} 
       </IonInput>  
       </IonRow>
+      <IonPopover
+        cssClass="popover"        
+        isOpen={deletePhotoPopover}
+        onDidDismiss={() => setDeletePhotoPopover(false)}
+      >      
+      <IonText>Delete this photo?</IonText><br/>
+      <IonButton class="yellow-text" onClick={() => deletePicture()}>YES</IonButton>
+      <IonButton class="yellow-text" onClick={() => setDeletePhotoPopover(false)}>No</IonButton>
+      </IonPopover>
     </IonCard>  
   )
 }

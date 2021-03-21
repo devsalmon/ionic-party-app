@@ -62,14 +62,14 @@ const Users: React.FC = () => {
         <IonContent>    
             {hits && query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map((hit, i) => 
               hit.objectID === firebase.auth().currentUser.uid ? null :
-              <UserItem hit={hit} username={hit.username} id={hit.objectID} key={i}/>
+              <UserItem hit={hit} username={hit.username} fullname={hit.fullname} id={hit.objectID} key={i}/>
             )}
         </IonContent>
       </IonPage>    
     )
   } 
 
-const UserItem = ({hit, username, id}) => {
+const UserItem = ({hit, username, fullname, id}) => {
 
   const [addDisabled, setAddDisabled] = useState(false);
   const [cancelDisabled, setCancelDisabled] = useState(true);
@@ -238,7 +238,12 @@ const UserItem = ({hit, username, id}) => {
           <IonIcon icon={personOutline} className="profile-icon" />
         </IonCol>
         <IonCol offset="1" size="7">
-          <IonText>{username}</IonText>   
+          <IonRow>
+            <IonText>{username}</IonText>   
+          </IonRow>
+          <IonRow>
+            <IonText class="white-text">{fullname}</IonText>   
+          </IonRow>          
         </IonCol>
       </IonItem>
       </IonCol>

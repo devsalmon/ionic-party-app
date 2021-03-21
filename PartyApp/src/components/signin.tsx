@@ -1,7 +1,7 @@
 import React, { useState, useEffect} from 'react';
 import firebase from '../firestore';
 import 'react-phone-number-input/style.css';
-import PhoneInput from 'react-phone-number-input';
+// import PhoneInput from 'react-phone-number-input';
 import {
   IonItem,
   IonButton,
@@ -50,12 +50,6 @@ const SignIn: React.FC = () => {
   const [fieldsMissing, setFieldsMissing] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
-
-  const script = document.createElement("script");
-  script.src = "https://sdk.snapkit.com/js/v1/login.js"; //Try change this url
-  script.async = true;
-  //script.onload = () => scriptLoaded();
-  document.body.appendChild(script);
 
   useEffect(() => {
     clearErrors();
@@ -110,10 +104,12 @@ const SignIn: React.FC = () => {
     } else if (firebase.auth().currentUser && !firebase.auth().currentUser.emailVerified) {
       setPasswordError("Not verified, please click the link in your email to verify your account");      
     } else { 
-      var re = new RegExp('^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$')
-      if (re.test(emailorphone) === true) { // it's a phone number
+      var re = new RegExp(/^[+]*[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\./0-9]*$/g)
+      if (re.test(emailorphone)) { // it's a phone number
+        console.log("phone number")
         phoneSignIn()
       } else {
+        console.log("email")
         emailSignIn()
       }
     }
@@ -136,6 +132,7 @@ const SignIn: React.FC = () => {
             setPasswordError(err.message);
             break;
         }
+        console.log(err.message)
       })    
   }
 
@@ -173,15 +170,15 @@ const SignIn: React.FC = () => {
       </IonToolbar>
       <IonContent id="signin-content">   
         <div className="signin-inputs">
-          <PhoneInput
+          {/* <PhoneInput
             defaultCountry="GB"
             placeholder="Enter phone number"
             value={emailorphone}
-            onChange={setEmailorphone}/>        
+            onChange={setEmailorphone}/>         */}
           <IonInput 
           class="create-input"
           value={emailorphone} 
-          placeholder="Email / Phone Number"
+          placeholder="Mobile Number or Email"
           type="text"
           onIonChange={e => setEmailorphone(e.detail.value!)}
           >        
