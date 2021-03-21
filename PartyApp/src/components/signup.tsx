@@ -200,24 +200,27 @@ const SignUp: React.FC = () => {
     clearErrors();  
     setLoading(true);
     if (email_or_phone.trim() !== "" && username.trim() && password.trim() !== "") {
-      setFieldsMissing(false);
-      setPasswordError("");
-      // check which sign up method to use
-      var re = new RegExp(/^[+]*[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\./0-9]*$/g)
-      if (re.test(email_or_phone) === true) { 
-        // it's a phone number
-        setSignUpMethod('phone')
-        goToSlide(1)
-        setLoading(false); //move this
+      setFieldsMissing(false);    
+      if (password.trim().length < 6) { // password too short
+        setPasswordError("Password too short")
+        setLoading(false);
       } else {
-        // it's an email
-        setSignUpMethod('email')
-        goToSlide(1)
-        setLoading(false); //move this
+        // check which sign up method to use
+        var re = new RegExp(/^[+]*[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\./0-9]*$/g)
+        if (re.test(email_or_phone) === true) { 
+          // it's a phone number
+          setSignUpMethod('phone')
+          goToSlide(1)
+          setLoading(false); //move this
+        } else {
+          // it's an email
+          setSignUpMethod('email')
+          goToSlide(1)
+          setLoading(false); //move this
+        }
       }
     } else {
       setLoading(false);
-      setPasswordError('');
       setFieldsMissing(true);        
     }
   }
@@ -240,31 +243,29 @@ const SignUp: React.FC = () => {
     }
   }
 
-const checkSnap = () => {
-  console.log("Snap Name: " + window.localStorage.getItem("snap_fullname"))
-  console.log("Bitmo: " + window.localStorage.getItem("bitmoji_avatar"))
-}
+  const checkSnap = () => {
+    console.log("Snap Name: " + window.localStorage.getItem("snap_fullname"))
+    console.log("Bitmo: " + window.localStorage.getItem("bitmoji_avatar"))
+  }
 
-    // enter DOB.
-    const slide2SignUp = async() => {
-      clearErrors();  
-      setLoading(true);
-      if (dob.trim() !== "") {
-        setFieldsMissing(false);
-        setPasswordError("");
-        console.log(dob)
-        //go to next slide (DOB)
-        //goToSlide(3)
-        signUpEmailorPhoneandVerify()
-        setLoading(false); //move this
-      } else {
-        setLoading(false);
-        setPasswordError('');
-        setFieldsMissing(true);        
-      }
+  // enter DOB.
+  const slide2SignUp = async() => {
+    clearErrors();  
+    setLoading(true);
+    if (dob.trim() !== "") { // dob is not empty
+      setFieldsMissing(false);
+      setPasswordError("");
+      console.log(dob)
+      //go to next slide (DOB)
+      signUpEmailorPhoneandVerify()
+    } else {
+      setLoading(false);
+      setFieldsMissing(true);        
     }
+  }
 
   const signUpEmailorPhoneandVerify = () => {
+    setLoading(true)
     if (signUpMethod === "email") { // they want email sign up
       emailSignUp();
       //triggered 1
@@ -272,7 +273,9 @@ const checkSnap = () => {
       console.log("Triggered 1")
       phoneSignUp();
     } else {   // they didn't enter either
-      setPasswordError("Enter email or phone number")
+      goToSlide(0);
+      setPasswordError("Enter email or phone number");
+      setLoading(false);
     }
   }
 
@@ -325,25 +328,28 @@ const checkSnap = () => {
     console.log("Triggered 2")
     console.log("Email: " + email_or_phone)
     firebase.auth().createUserWithEmailAndPassword(email_or_phone, password).then(user => {
-      // firebase.auth().signInWithEmailAndPassword(email, password).then(res => {
-      //   firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
-      //     setLoading(false);
-      //     //changeSlide("userinfo");  
-      //     //window.localStorage.setItem("signUpStage", "third");
-      //     //does this mean there exists a username that's the same?
-      //   }).catch(err => {
-      //     console.log(err.message);
-      //     setLoading(false);
-      //   })            
-      //   //go to slide 3
-      // }).catch(err => {
-      //   setPasswordError(err.message);
-      //   setLoading(false);
-      // })   
-      console.log("Triggered 3")
-      sendVerificationEmail()
+      firebase.auth().signInWithEmailAndPassword(email_or_phone, password).then(res => {
+        firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
+          if (snap.empty) { // no duplicate username
+            sendVerificationEmail();            
+          } else {
+            setUsernameError("Username is taken, please try another one");
+            goToSlide(0);
+            setLoading(false);
+          }          
+        }).catch(err => {
+          console.log(err.message);
+          setLoading(false);
+        })            
+        //go to slide 3
+      }).catch(err => {
+        goToSlide(0);
+        setPasswordError(err.message);
+        setLoading(false);
+      })   
     }).catch(err => {
       setLoading(false);
+      goToSlide(0);
       switch(err.code){
         case "auth/invalid-email":
         case "auth/email-already-exists":
@@ -389,11 +395,12 @@ const checkSnap = () => {
   }
 
 const checkIfVerifiedandSignIn = () => {
+  clearErrors()
   firebase.auth().currentUser.reload()
   if (!firebase.auth().currentUser.emailVerified) { 
     console.log("not verified")
     // if user has signed in by pressing a button in sign up, but isn't verified    
-    setPasswordError("Not verified, please click the link in your email to verify your account");           
+    setEmailError("Not verified, please click the link in your email to verify your account");           
   } else {
     console.log("Email verified")
     // if verified...
@@ -406,30 +413,19 @@ const checkIfVerifiedandSignIn = () => {
       phoneNumber: email_or_phone,
       dateOfBirth: dob,
     }).then(()=>{
-      if (signUpMethod === "phone")
-       firebase.firestore().collection('users').doc(userid).update({ // create a user document when a new user signs up
-         phoneVerified: true
-       })
+      if (signUpMethod === "phone") {
+        firebase.firestore().collection('users').doc(userid).update({ // create a user document when a new user signs up
+          phoneVerified: true
+        }).then(() => {
+          window.location.reload(false)
+        })
+      } else {
+        window.location.reload(false)
+      }
     }).catch(err => {
       setPasswordError(err.message);
     })       
-     firebase.auth().signInWithEmailAndPassword(email_or_phone, password).then(res => {
-      //   firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
-      //     setLoading(false);
-      //     //changeSlide("userinfo");  
-      //     //window.localStorage.setItem("signUpStage", "third");
-      //     //does this mean there exists a username that's the same?
-      //   }).catch(err => {
-      //     console.log(err.message);
-      //     setLoading(false);
-      //   })            
-      //   //go to slide 3
-      console.log("signed in")
-       }).catch(err => {
-         setPasswordError(err.message);
-         setLoading(false);
-       })   
-}
+  }
 }
 
   // const signUpWithNewEmail = () => {
@@ -547,11 +543,13 @@ const checkIfVerifiedandSignIn = () => {
   return (
     <IonPage>
       <IonToolbar class="ion-padding">
-        <IonButton slot="start" onClick={() => prevSlide()}>Back</IonButton>
+        <IonButtons slot="start">
+          <IonButton slot="start" onClick={() => prevSlide()}>Back</IonButton>
+        </IonButtons>
         <IonTitle class="ion-padding">Sign Up</IonTitle>     
       </IonToolbar>
       <IonContent id="signin-content">      
-      <IonSlides ref={slides} options={slideOpts}> 
+      <IonSlides class="sign-up-slides" ref={slides} options={slideOpts}> 
 
           {/* Slide 0: Email/Phone, username and password.               */}
           <IonSlide>               
@@ -635,10 +633,10 @@ const checkIfVerifiedandSignIn = () => {
               {dobError ? <><IonText class="errormsg">{dobError}</IonText><br/></>:null}
               <IonButton className="signin-button" onClick={()=>slide2SignUp()}>Next</IonButton>
               <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
-              <IonButton class="signin-button" id = 'sign-in-button' onClick={()=>signUpEmailorPhoneandVerify()}>Continue</IonButton>  
+              <IonButton class="signin-button" id='sign-in-button' onClick={()=>signUpEmailorPhoneandVerify()}>Continue</IonButton>  
               <div id="recaptcha-container"></div>
               </div>
-              <IonButton onClick={()=>signUpEmailorPhoneandVerify()}>Skip</IonButton>
+              <IonButton onClick={()=>signUpEmailorPhoneandVerify()}>Skip</IonButton><br/>
           </IonSlide>     
 
           {/* Slide 3: Confirm email or phone number */}
@@ -649,6 +647,7 @@ const checkIfVerifiedandSignIn = () => {
               <> 
               <IonText>We have sent you an email...</IonText>
               <IonButton className="signin-button" onClick={()=>checkIfVerifiedandSignIn()}>Next</IonButton>
+              {<IonText>{emailError}</IonText>}
               </>
               // else sign up method is phone...
              : 

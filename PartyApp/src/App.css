@@ -271,6 +271,7 @@ ion-button {
 ion-buttons {
     --background: yellow;
     --background-hover-opacity: 0.3;
+    color: yellow
 } 
 
 ion-card {
@@ -346,6 +347,10 @@ ion-refresher-content {
 
 ion-slides {
     height: 200%;
+}
+
+.sign-up-slides {
+    height: 100%
 }
 
 .swiper-slide {

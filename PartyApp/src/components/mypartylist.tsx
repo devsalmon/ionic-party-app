@@ -460,7 +460,7 @@ const MyPartyList = () => {
             </IonCol>
           </IonRow>
           </IonRadioGroup>                                
-          </IonToolbar>0
+          </IonToolbar>
         </IonHeader>                    
         <IonSlides ref={slides} onIonSlideDidChange={e => handleSlideChange()}>                   
           <IonSlide>     
