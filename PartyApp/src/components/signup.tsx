@@ -92,11 +92,13 @@ const SignUp: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showCodeInput, setShowCodeInput] = useState(false);
   const [code, setCode] = useState('');
+  const [slide0, setSlide0] = useState(true);
   const slides = useRef(null);
 
   // When this component renders
   useEffect(() => {  
     clearErrors(); 
+    hideBackButton();
     // var signUpStage = window.localStorage.getItem("signUpStage");
     // if (signUpStage === "second") {
     //   goToSlide(1)
@@ -146,14 +148,25 @@ const SignUp: React.FC = () => {
     }
   };  
 
+  const hideBackButton = async() => {
+    let swiper = await slides.current.getSwiper(); 
+    if (swiper && swiper.isBeginning) {
+      setSlide0(true)
+    } else {
+      setSlide0(false)
+    }
+  }
+
   const goToSlide = async(index) => {
     let swiper = await slides.current.getSwiper();    
     swiper.slideTo(index)    
+    hideBackButton();
   }
 
   const prevSlide = async() => {
     let swiper = await slides.current.getSwiper();
     swiper.slidePrev()
+    hideBackButton();
   }
 
   const slideOpts = {
@@ -210,7 +223,7 @@ const SignUp: React.FC = () => {
         if (re.test(email_or_phone) === true) { 
           // it's a phone number
           setSignUpMethod('phone')
-          goToSlide(1)
+          goToSlide(1);
           setLoading(false); //move this
         } else {
           // it's an email
@@ -543,9 +556,9 @@ const checkIfVerifiedandSignIn = () => {
   return (
     <IonPage>
       <IonToolbar class="ion-padding">
-        <IonButtons slot="start">
+        {slide0 ? null :<IonButtons slot="start">
           <IonButton slot="start" onClick={() => prevSlide()}>Back</IonButton>
-        </IonButtons>
+        </IonButtons>}
         <IonTitle class="ion-padding">Sign Up</IonTitle>     
       </IonToolbar>
       <IonContent id="signin-content">      
