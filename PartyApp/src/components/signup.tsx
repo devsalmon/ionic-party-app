@@ -114,13 +114,15 @@ const SignUp: React.FC = () => {
     //script.onload = () => scriptLoaded();
     document.body.appendChild(script);
  
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container');
+    //window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container');
     //console.log("recaptcha...")
      window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
        'size': 'invisible',
        'callback': (response) => {
          // reCAPTCHA solved, allow signInWithPhoneNumber.
-    //     console.log(response)
+         console.log("Response: " + response)
+         signUpEmailorPhoneandVerify()
+         //phoneSignUp()
          //phoneNumberAuth()
        },
        'expired-callback': () => {
@@ -132,7 +134,6 @@ const SignUp: React.FC = () => {
        window.recaptchaWidgetId = widgetId;   
      }); 
   }, []);  
-
 
   var actionCodeSettings = {
     url: "http://localhost:8100/signup",
@@ -170,7 +171,7 @@ const SignUp: React.FC = () => {
   }
 
   const slideOpts = {
-    allowTouchMove: false
+    //allowTouchMove: false
   };
 
   const clearErrors = () => {
@@ -225,11 +226,13 @@ const SignUp: React.FC = () => {
           setSignUpMethod('phone')
           goToSlide(1);
           setLoading(false); //move this
+          console.log("Sign up method (phone): " + signUpMethod)
         } else {
           // it's an email
           setSignUpMethod('email')
           goToSlide(1)
           setLoading(false); //move this
+          console.log("Sign up method (email): " + signUpMethod)
         }
       }
     } else {
@@ -288,6 +291,8 @@ const SignUp: React.FC = () => {
     } else {   // they didn't enter either
       goToSlide(0);
       setPasswordError("Enter email or phone number");
+      //We should check this field before?
+      console.log("signupmethod is neither phone or email")
       setLoading(false);
     }
   }
@@ -646,11 +651,20 @@ const checkIfVerifiedandSignIn = () => {
               {dobError ? <><IonText class="errormsg">{dobError}</IonText><br/></>:null}
               <IonButton className="signin-button" onClick={()=>slide2SignUp()}>Next</IonButton>
               <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
-              <IonButton class="signin-button" id='sign-in-button' onClick={()=>signUpEmailorPhoneandVerify()}>Continue</IonButton>  
-              <div id="recaptcha-container"></div>
+              {/* <div id='sign-in-button'>
+              <button>Test</button>
+              </div> */}
+              {/* <div id='sign-in-button'></div> */}
+              {/* <IonButton class="signin-button" id='sign-in-button' onClick={()=>signUpEmailorPhoneandVerify()}>Continue</IonButton> */}
+              {/* <div id="recaptcha-container"></div> */}
               </div>
-              <IonButton onClick={()=>signUpEmailorPhoneandVerify()}>Skip</IonButton><br/>
-          </IonSlide>     
+              {/* <button className="signin-button" id='sign-in-button'>Skip</button> */}
+              <div id='sign-in-button'></div>
+              <IonButton onClick={()=>signUpEmailorPhoneandVerify()}>Skip</IonButton>
+              <IonText>This site is protected by reCAPTCHA and the Google
+              <a href="https://policies.google.com/privacy">Privacy Policy</a> and
+              <a href="https://policies.google.com/terms">Terms of Service</a> apply</IonText>
+          </IonSlide>
 
           {/* Slide 3: Confirm email or phone number */}
           <IonSlide>
@@ -660,7 +674,7 @@ const checkIfVerifiedandSignIn = () => {
               <> 
               <IonText>We have sent you an email...</IonText>
               <IonButton className="signin-button" onClick={()=>checkIfVerifiedandSignIn()}>Next</IonButton>
-              {<IonText>{emailError}</IonText>}
+              <IonText>{emailError}</IonText>
               </>
               // else sign up method is phone...
              : 

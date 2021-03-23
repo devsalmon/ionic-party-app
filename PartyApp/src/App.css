@@ -228,6 +228,11 @@
     text-align: center;    
 }
 
+/* //hides recapthca badge */
+.grecaptcha-badge { 
+    visibility: hidden;
+}
+
 #signin-content .signin-inputs {
     padding: 10px    
 }
