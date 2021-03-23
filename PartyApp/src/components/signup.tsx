@@ -440,15 +440,7 @@ const checkIfVerifiedandSignIn = () => {
       phoneNumber: email_or_phone,
       dateOfBirth: dob,
     }, {merge: true}).then(()=>{
-      if (signUpMethod === "phone") {
-        firebase.firestore().collection('users').doc(user.uid).update({ // create a user document when a new user signs up
-          phoneVerified: true
-        }).then(() => {
-          window.location.reload(false)
-        })
-      } else {
-        window.location.reload(false)
-      }
+      window.location.reload(false)
     }).catch(err => {
       setPasswordError(err.message);
     })       
@@ -535,13 +527,26 @@ const checkIfVerifiedandSignIn = () => {
       var phoneEmail = email_or_phone + '@partyemail.com'
       var credential = firebase.auth.EmailAuthProvider.credential(phoneEmail, password);
       //var user = result.user
-      result.user.linkWithCredential(credential)
-  .then((usercred) => {
-    var user = usercred.user;
-    console.log("Account linking success", user);
-  }).catch((error) => {
-    console.log("Account linking error", error);
-  });
+      result.user.linkWithCredential(credential)      
+      .then((usercred) => {
+        var user = usercred.user;
+        console.log("Account linking success", user);
+        firebase.firestore().collection('users').doc(user.uid).set({ // create a user document when a new user signs up
+          fullname: fullname,
+          username: username,
+          email: email_or_phone + "@partyemail.com",      
+          id: user.uid,
+          phoneNumber: email_or_phone,
+          dateOfBirth: dob,
+          phoneVerified: true
+        }, {merge: true}).then(() => {
+          window.location.reload(false);
+        }).catch(err => {
+          console.log(err.message);
+        })
+      }).catch((error) => {
+        console.log("Account linking error", error);
+      });
 
     }).catch((error) => {
       // User couldn't sign in (bad verification code?)
@@ -669,7 +674,7 @@ const checkIfVerifiedandSignIn = () => {
               </div>
               {/* <button className="signin-button" id='sign-in-button'>Skip</button> */}
               <div id='sign-in-button'></div>
-              <IonButton onClick={()=>signUpEmailorPhoneandVerify()}>Skip</IonButton>
+              <IonButton onClick={()=>signUpEmailorPhoneandVerify()}>Skip</IonButton><br/>
               <IonText>This site is protected by reCAPTCHA and the Google
               <a href="https://policies.google.com/privacy">Privacy Policy</a> and
               <a href="https://policies.google.com/terms">Terms of Service</a> apply</IonText>

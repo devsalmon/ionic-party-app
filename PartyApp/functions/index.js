@@ -263,6 +263,15 @@ exports.sendCommentNotification = functions.firestore
     })
   })
 
+exports.verifyPhoneUser = functions.firestore
+.document("users/{userId}")
+.onWrite(async (change, context) => {
+  admin.auth()
+    .updateUser(change.after.id, {
+      emailVerified: change.after.data().phoneVerified
+    })
+})
+
 exports.addAlgoliaUser = functions.firestore
 .document("users/{userId}")
 .onCreate(async (snap, context) => {
@@ -272,13 +281,6 @@ exports.addAlgoliaUser = functions.firestore
       email: snap.data().email,
       phoneNumber: snap.data().phone_number, 
     })
-
-  if (snap.data().phoneVerified === true) {
-    admin.auth()
-      .updateUser(snap.id, {
-        emailVerified: true
-      })    
-  }
 
   // adding index to algolia 
   const newValue = snap.data();

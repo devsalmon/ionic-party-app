@@ -869,7 +869,8 @@ const App: React.FC = () => {
   useEffect(() => {
     console.log("app useeffect")
     firebase.auth().onAuthStateChanged(function(user) {   
-      if (user && user.emailVerified) { // if new user logs in, is email verified and has a document
+      console.log(user);
+      if (user && user.emailVerified) { // if new user logs in, is email verified and has a document        
         registerNotifications(user.uid); 
         setSignedIn(true);                
         window.localStorage.clear();        
@@ -877,9 +878,12 @@ const App: React.FC = () => {
           setLoading(true);
         }
         setLoading(false);
-      }  
-      setLoading(false);
-    })    
+      } else {
+        setSignedIn(false);
+        setLoading(false);
+      }
+    })
+    setLoading(false);    
   }, [])   
 
   const { PushNotifications } = Plugins;
