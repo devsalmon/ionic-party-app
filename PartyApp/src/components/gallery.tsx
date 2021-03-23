@@ -23,7 +23,7 @@ import {
   heartOutline,
   heart,
   sendOutline,
-  trashBinSharp
+  closeSharp
 } from 'ionicons/icons';
 import '../App.css'
 import firebase from '../firestore'
@@ -250,12 +250,6 @@ const Picture = ({doc, hostid, partyid}) => {
     }
   }
 
-  const deleteComment = (id) => {
-    collectionRef.doc(doc.id).collection("Comments").doc(id).delete().then(function() {
-        displayComments(); 
-      })
-  }  
-
   const displayComments = () => {
     setOtherComments([])
     collectionRef.doc(doc.id).collection("Comments").orderBy("timestamp", "asc").get().then(querySnapshot => {
@@ -297,14 +291,7 @@ const Picture = ({doc, hostid, partyid}) => {
         </IonButton>}
       </IonRow>
       {otherComments && showComments && otherComments.map((comment, i) => {
-          return(
-            <>
-            <IonText class="ion-padding-start">{comment.name}: {comment.comment}</IonText>
-            <IonButton class="yellow-text" onClick={()=>deleteComment(comment.id)}>
-              <IonIcon icon={trashBinSharp} />
-            </IonButton><br/>
-            </>            
-          )
+        return(<Comment key={i} name={comment.name} comment={comment.comment} comid={comment.id} ref={collectionRef} picid={doc.id}/>)
       })}
       <IonRow>
       <IonInput 
@@ -330,6 +317,47 @@ const Picture = ({doc, hostid, partyid}) => {
       </IonPopover>
     </IonCard>  
   )
+}
+
+const Comment = (props: {name, comment, comid, ref, picid}) => {
+  const [ownComment, setOwnComment] = useState(false);
+
+  useEffect(() => {
+    checkOwnComment(props.comid);
+  })
+
+  const checkOwnComment = (commentid) => {
+    props.ref.doc(props.picid).collection("Comments").doc(commentid).get().then(function(doc){
+      // if picture was taken by the current user then they can delete it 
+      if (doc.data().commenterId === firebase.auth().currentUser.uid) {
+        setOwnComment(true)
+      } else {
+        setOwnComment(false)
+      } 
+    }).catch((err) => {
+      setOwnComment(false)
+    })       
+  }
+
+  const deleteComment = (commentid) => {
+    props.ref.doc(props.picid).collection("Comments").doc(commentid).delete()
+  }    
+
+  return(
+    <IonItem lines="none">
+    <IonRow>
+      <IonCol size="9">
+        <IonText class="ion-padding-start">{props.name}: {props.comment}</IonText>
+      </IonCol>
+      {ownComment === true ? 
+      <IonCol size="3">
+        <IonButton class="yellow-text" onClick={()=>deleteComment(props.comid)}>
+          <IonIcon icon={closeSharp} />
+        </IonButton>
+      </IonCol> : null}
+    </IonRow>
+    </IonItem>            
+  )  
 }
 
 export default Gallery;

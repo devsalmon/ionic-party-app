@@ -413,26 +413,35 @@ const SignUp: React.FC = () => {
   }
 
 const checkIfVerifiedandSignIn = () => {
-  clearErrors()
-  firebase.auth().currentUser.reload()
-  if (!firebase.auth().currentUser.emailVerified) { 
-    console.log("not verified")
-    // if user has signed in by pressing a button in sign up, but isn't verified    
-    setEmailError("Not verified, please click the link in your email to verify your account");           
-  } else {
-    console.log("Email verified")
-    // if verified...
-    const userid = firebase.auth().currentUser.uid
-    firebase.firestore().collection('users').doc(userid).set({ // create a user document when a new user signs up
+  clearErrors();  
+  const user = firebase.auth().currentUser;
+  user.reload();
+  if (!user.emailVerified) { // if user has signed in by pressing a button in sign up, but isn't verified  
+    firebase.firestore().collection('users').doc(user.uid).set({ // create a user document when a new user signs up
       fullname: fullname,
       username: username,
       email: email_or_phone,      
-      id: userid,
+      id: user.uid,
       phoneNumber: email_or_phone,
       dateOfBirth: dob,
-    }).then(()=>{
+    }, {merge: true}).then(() => {
+      setEmailError(email + " is not verified, please click the link in your email to verify your account");
+    }).catch(err => {
+      setEmailError(err.message)
+    })                         
+  } else {
+    console.log("Email verified")
+    // if verified...
+    firebase.firestore().collection('users').doc(user.uid).set({ // create a user document when a new user signs up
+      fullname: fullname,
+      username: username,
+      email: email_or_phone,      
+      id: user.uid,
+      phoneNumber: email_or_phone,
+      dateOfBirth: dob,
+    }, {merge: true}).then(()=>{
       if (signUpMethod === "phone") {
-        firebase.firestore().collection('users').doc(userid).update({ // create a user document when a new user signs up
+        firebase.firestore().collection('users').doc(user.uid).update({ // create a user document when a new user signs up
           phoneVerified: true
         }).then(() => {
           window.location.reload(false)
@@ -672,7 +681,7 @@ const checkIfVerifiedandSignIn = () => {
             {/* if sign up method is email... */}
              {signUpMethod === 'email' ? 
               <> 
-              <IonText>We have sent you an email...</IonText>
+              <IonText>We have sent you an email, please click the link in the email to verify it before continuing</IonText>
               <IonButton className="signin-button" onClick={()=>checkIfVerifiedandSignIn()}>Next</IonButton>
               <IonText>{emailError}</IonText>
               </>
