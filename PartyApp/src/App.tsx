@@ -870,13 +870,10 @@ const App: React.FC = () => {
     console.log("app useeffect")
     firebase.auth().onAuthStateChanged(function(user) {   
       console.log(user);
-      if (user && user.emailVerified) { // if new user logs in, is email verified and has a document        
+      if (user && user.emailVerified && user.displayName !== null) { // if new user logs in, is email verified and has a document        
         registerNotifications(user.uid); 
         setSignedIn(true);                
-        window.localStorage.clear();        
-        while (user.displayName === "") {
-          setLoading(true);
-        }
+        window.localStorage.clear();    
         setLoading(false);
       } else {
         setSignedIn(false);

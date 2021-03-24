@@ -96,15 +96,18 @@ const MyPartyList = () => {
 
   useEffect(() => {  
     firebase.firestore().collection("users").doc(user.uid).get().then(doc => {
-      if (doc.data().partiesWithNotifications.length === 0) {
-        firebase.firestore().collection("users").doc(user.uid).update({
-          myPartiesNotifications: false
-        }).catch(err => {
-          console.log(err.message)
-        });
+      let data = doc.data()
+      if (data.partiesWithNotifications) {
+        if (data.partiesWithNotifications.length === 0) {
+          firebase.firestore().collection("users").doc(user.uid).update({
+            myPartiesNotifications: false
+          }).catch(err => {
+            console.log(err.message)
+          });
+        }
       }
-      setDisplayName(doc.data().username);
-      var pwn = doc.data().partiesWithNotifications ? doc.data().partiesWithNotifications : [];
+      setDisplayName(data.username);
+      var pwn = data.partiesWithNotifications ? data.partiesWithNotifications : [];
       displayParties(pwn); 
     })
     findFriends();  

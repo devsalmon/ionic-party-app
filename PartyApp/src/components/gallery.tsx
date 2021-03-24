@@ -241,7 +241,8 @@ const Picture = ({doc, hostid, partyid}) => {
       username: displayName,
       comment: comment,
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      pictureOwner: doc.data().takenByID
+      pictureOwner: doc.data().takenByID,
+      commenterId: currentuser
     }).then(function(docRef) {
         setComment('');
         displayComments(); 
@@ -268,6 +269,13 @@ const Picture = ({doc, hostid, partyid}) => {
       })
       }
 
+  const deleteComment = (commentid) => {
+    collectionRef.doc(doc.id).collection("Comments").doc(commentid).delete().then(() => {
+      displayComments()
+    })
+  }    
+
+
   return(
     <IonCard class="picture-card">
       <IonCardHeader>
@@ -291,7 +299,7 @@ const Picture = ({doc, hostid, partyid}) => {
         </IonButton>}
       </IonRow>
       {otherComments && showComments && otherComments.map((comment, i) => {
-        return(<Comment key={i} name={comment.name} comment={comment.comment} comid={comment.id} ref={collectionRef} picid={doc.id}/>)
+        return(<Comment key={i} name={comment.name} comment={comment.comment} comid={comment.id} colref={collectionRef} picid={doc.id} deleteComment={() => deleteComment(comment.id)}/>)
       })}
       <IonRow>
       <IonInput 
@@ -319,45 +327,48 @@ const Picture = ({doc, hostid, partyid}) => {
   )
 }
 
-const Comment = (props: {name, comment, comid, ref, picid}) => {
+const Comment = (props: {name, comment, comid, colref, picid, deleteComment}) => {
   const [ownComment, setOwnComment] = useState(false);
+  const [timestamp, setTimestamp] = useState('');
 
   useEffect(() => {
     checkOwnComment(props.comid);
   })
 
   const checkOwnComment = (commentid) => {
-    props.ref.doc(props.picid).collection("Comments").doc(commentid).get().then(function(doc){
+    props.colref.doc(props.picid).collection("Comments").doc(commentid).get().then(function(doc){
       // if picture was taken by the current user then they can delete it 
       if (doc.data().commenterId === firebase.auth().currentUser.uid) {
         setOwnComment(true)
       } else {
         setOwnComment(false)
-      } 
+      }
+      var now = new Date().getTime();
+      var commentTime = doc.data().timestamp.toDate();
+      var days = Math.floor((now - commentTime) / (1000 * 60 * 60 * 24));    
+      var minutes = Math.floor(((now - commentTime) % (1000 * 60 * 60)) / (1000 * 60));
+      var hours = Math.floor(((now - commentTime) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));      
+      var time = null;
+      time = moment(minutes).format('DD-MM')
+      setTimestamp(time);
     }).catch((err) => {
       setOwnComment(false)
     })       
   }
 
-  const deleteComment = (commentid) => {
-    props.ref.doc(props.picid).collection("Comments").doc(commentid).delete()
-  }    
-
-  return(
-    <IonItem lines="none">
-    <IonRow>
-      <IonCol size="9">
-        <IonText class="ion-padding-start">{props.name}: {props.comment}</IonText>
-      </IonCol>
-      {ownComment === true ? 
-      <IonCol size="3">
-        <IonButton class="yellow-text" onClick={()=>deleteComment(props.comid)}>
-          <IonIcon icon={closeSharp} />
-        </IonButton>
-      </IonCol> : null}
-    </IonRow>
-    </IonItem>            
-  )  
+  if (ownComment === true) { 
+    return(
+      <IonItem lines="none" button onClick={props.deleteComment} detail-icon={closeSharp}>
+        <IonText>{props.name}: {props.comment} <IonText class="white-text">{timestamp}</IonText></IonText>
+      </IonItem>            
+    ) 
+  } else {
+    return(
+      <IonItem lines="none">
+        <IonText>{props.name}: {props.comment} <IonText class="white-text">{timestamp}</IonText></IonText>        
+      </IonItem>            
+    ) 
+  }   
 }
 
 export default Gallery;
