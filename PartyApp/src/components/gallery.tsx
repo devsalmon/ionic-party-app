@@ -339,20 +339,15 @@ const Comment = (props: {name, comment, comid, colref, picid, deleteComment}) =>
     props.colref.doc(props.picid).collection("Comments").doc(commentid).get().then(function(doc){
       // if picture was taken by the current user then they can delete it 
       if (doc.data().commenterId === firebase.auth().currentUser.uid) {
-        setOwnComment(true)
+        setOwnComment(true);
       } else {
-        setOwnComment(false)
+        setOwnComment(false);
       }
-      var now = new Date().getTime();
       var commentTime = doc.data().timestamp.toDate();
-      var days = Math.floor((now - commentTime) / (1000 * 60 * 60 * 24));    
-      var minutes = Math.floor(((now - commentTime) % (1000 * 60 * 60)) / (1000 * 60));
-      var hours = Math.floor(((now - commentTime) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));      
-      var time = null;
-      time = moment(minutes).format('DD-MM')
+      var time = moment(commentTime).format('DD-MM');
       setTimestamp(time);
     }).catch((err) => {
-      setOwnComment(false)
+      setOwnComment(false);
     })       
   }
 

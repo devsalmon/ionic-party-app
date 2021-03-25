@@ -199,17 +199,17 @@ const SignUp: React.FC = () => {
         window.localStorage.setItem("username", username);
         // check which sign up method to use        
         if (validatePhone(email_or_phone)) { 
-          // it's a phone number
-          setSignUpMethod('phone')
+          // it's a phone number          
           goToSlide(1);
+          setSignUpMethod('phone')
           window.localStorage.setItem("signUpMethod", "phone")
           window.localStorage.setItem("signUpStage", "second")
           setLoading(false); //move this
           console.log("Sign up method (phone): " + signUpMethod)
         } else if (validateEmail(email_or_phone)) {
-          // it's an email
-          setSignUpMethod('email')
+          // it's an email          
           goToSlide(1)
+          setSignUpMethod('email')
           window.localStorage.setItem("signUpMethod", "email")
           window.localStorage.setItem("signUpStage", "second")
           setLoading(false); //move this
@@ -233,12 +233,12 @@ const SignUp: React.FC = () => {
     clearErrors();  
     setLoading(true);
     if (fullname.trim() !== "") {
-      setFieldsMissing(false);
-      setPasswordError("");
       console.log(fullname)
       window.localStorage.setItem("fullname", fullname);      
       //go to next slide (DOB)
       goToSlide(2)
+      setFieldsMissing(false);
+      setPasswordError("");      
       window.localStorage.setItem("signUpStage", "third")
       setLoading(false); //move this
     } else {
@@ -270,7 +270,7 @@ const SignUp: React.FC = () => {
     }
   }
 
-  const signUpEmailorPhoneandVerify = () => {
+  const signUpEmailorPhoneandVerify = async() => {
     setLoading(true)
     if (signUpMethod === "email") { // they want email sign up
       emailSignUp();
@@ -340,9 +340,9 @@ const SignUp: React.FC = () => {
         firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
           if (snap.empty) { // no duplicate username
             sendVerificationEmail();            
-          } else {
-            setUsernameError("Username is taken, please try another one");
+          } else {            
             goToSlide(0);
+            setUsernameError("Username is taken, please try another one");            
             setLoading(false);
           }          
         }).catch(err => {
@@ -355,9 +355,9 @@ const SignUp: React.FC = () => {
         setPasswordError(err.message);
         setLoading(false);
       })   
-    }).catch(err => {
-      setLoading(false);
+    }).catch(err => {      
       goToSlide(0);
+      setLoading(false);
       switch(err.code){
         case "auth/invalid-email":
         case "auth/email-already-exists":
@@ -373,9 +373,9 @@ const SignUp: React.FC = () => {
 
   const sendVerificationEmail = () => {
     firebase.auth().currentUser.sendEmailVerification(actionCodeSettings).then(function() {
+      goToSlide(3);
       setLinkSent(true);
-      setLoading(false);
-      goToSlide(3)
+      setLoading(false);      
       window.localStorage.setItem("signUpStage", "fourth")
     }).catch(function(error) {
       // An error happened.
@@ -403,42 +403,42 @@ const SignUp: React.FC = () => {
   //   }
   // }
 
-const checkIfVerifiedandSignIn = () => {
-  clearErrors();  
-  const user = firebase.auth().currentUser;
-  user.reload();
-  if (!user.emailVerified) { // if user has signed in by pressing a button in sign up, but isn't verified  
-    firebase.firestore().collection('users').doc(user.uid).set({ // create a user document when a new user signs up
-      fullname: fullname,
-      username: username,
-      email: validateEmail(email_or_phone) ? email_or_phone : "",      
-      id: user.uid,
-      phoneNumber: validatePhone(email_or_phone) ? email_or_phone : "",
-      dateOfBirth: dob,
-    }, {merge: true}).then(() => {
-      setEmailError(email_or_phone + " is not verified, please click the link in your email to verify your account");
-    }).catch(err => {
-      setEmailError(err.message)
-    })                         
-  } else {
-    console.log("Email verified")
-    // if verified...
-    firebase.firestore().collection('users').doc(user.uid).set({ // create a user document when a new user signs up
-      fullname: fullname,
-      username: username,
-      email: validateEmail(email_or_phone) ? email_or_phone : "",      
-      id: user.uid,
-      phoneNumber: validatePhone(email_or_phone) ? email_or_phone : "",
-      dateOfBirth: dob,
-    }, {merge: true}).then(()=>{
-      window.location.reload(false)
-    }).catch(err => {
-      setPasswordError(err.message);
-    })       
+  const checkIfVerifiedandSignIn = () => {
+    clearErrors();  
+    const user = firebase.auth().currentUser;
+    user.reload();
+    if (!user.emailVerified) { // if user has signed in by pressing a button in sign up, but isn't verified  
+      firebase.firestore().collection('users').doc(user.uid).set({ // create a user document when a new user signs up
+        fullname: fullname,
+        username: username,
+        email: validateEmail(email_or_phone) ? email_or_phone : "",      
+        id: user.uid,
+        phoneNumber: validatePhone(email_or_phone) ? email_or_phone : "",
+        dateOfBirth: dob,
+      }, {merge: true}).then(() => {
+        setEmailError(email_or_phone + " is not verified, please click the link in your email to verify your account");
+      }).catch(err => {
+        setEmailError(err.message)
+      })                         
+    } else {
+      console.log("Email verified")
+      // if verified...
+      firebase.firestore().collection('users').doc(user.uid).set({ // create a user document when a new user signs up
+        fullname: fullname,
+        username: username,
+        email: validateEmail(email_or_phone) ? email_or_phone : "",      
+        id: user.uid,
+        phoneNumber: validatePhone(email_or_phone) ? email_or_phone : "",
+        dateOfBirth: dob,
+      }, {merge: true}).then(()=>{
+        window.location.reload(false)
+      }).catch(err => {
+        setPasswordError(err.message);
+      })       
+    }
   }
-}
 
-  const phoneSignUp = () => {
+  const phoneSignUp = async() => {
     console.log("Triggered 2")
     clearErrors();
     setLoading(true);
@@ -464,24 +464,31 @@ const checkIfVerifiedandSignIn = () => {
         // SMS sent. Prompt user to type the code from the message, then sign the
         // user in with confirmationResult.confirm(code).        
         window.confirmationResult = confirmationResult;
-        setLoading(false);
-        goToSlide(3);
         window.localStorage.setItem("signUpStage", "fourth")
+        goToSlide(3);   
+        setLoading(false);
         console.log("Phone signed in: " + confirmationResult)
       }).catch((error) => {
         // Error SMS not sent phone number may be wrong
         setLoading(false);
-        setPhoneError(error.message);
-        goToSlide(0);
+        if (error.code === "auth/invalid-phone-number") {
+          goToSlide(0);
+          setPhoneError(
+            "Invalid format for email or phone number. " +
+            "Please enter phone numbers in the form +447123456789 (for UK)"
+          )
+        } else {    
+          goToSlide(0);
+          setPhoneError(error.message);
+        }            
       });
+    }  
   
-  }
-  
-  const verifyCode = () => {
+  const verifyCode = async() => {
     setLoading(true);
     clearErrors();
     if (window.confirmationResult) {
-      window.confirmationResult.confirm(code).then((result) => {
+      await window.confirmationResult.confirm(code).then((result) => {
         // User signed in successfully.
         //changeSlide("userinfo"); 
       //window.localStorage.setItem("signUpStage", "third");        
@@ -492,25 +499,33 @@ const checkIfVerifiedandSignIn = () => {
         result.user.linkWithCredential(credential)      
         .then((usercred) => {
           var user = usercred.user;
-          console.log("Account linking success", user);
-          firebase.firestore().collection('users').doc(user.uid).set({ // create a user document when a new user signs up
-            fullname: fullname,
-            username: username,
-            email: email_or_phone + "@partyemail.com",      
-            id: user.uid,
-            phoneNumber: email_or_phone,
-            dateOfBirth: dob,
-            phoneVerified: true
-          }, {merge: true}).then(() => {
-            //while (user.emailVerified === false) {
-              //setLoading(true);
-            //}
-            setLoading(false);
-            window.location.reload(false);
+          console.log("Account linking success", user);      
+          firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
+            if (snap.empty) { // no duplicate username
+              firebase.firestore().collection('users').doc(user.uid).set({ // create a user document when a new user signs up
+                fullname: fullname,
+                username: username,
+                email: email_or_phone + "@partyemail.com",      
+                id: user.uid,
+                phoneNumber: email_or_phone,
+                dateOfBirth: dob,
+                phoneVerified: true
+              }, {merge: true}).then(() => {
+                setInterval(checkPhoneVerified, 3000);         
+                //setLoading(false);
+              }).catch(err => {
+                setLoading(false);
+                console.log(err.message);
+              }) 
+            } else {
+              goToSlide(0);
+              setUsernameError("Username is taken, please try another one");              
+              setLoading(false);
+            }          
           }).catch(err => {
-            setLoading(false);
             console.log(err.message);
-          })
+            setLoading(false);
+          })              
         }).catch((error) => {
           setLoading(false);
           console.log("Account linking error", error);
@@ -526,6 +541,17 @@ const checkIfVerifiedandSignIn = () => {
         phoneSignUp();
         setPhoneError("Page refreshed, please try again")
       })      
+    }
+  }
+
+  const checkPhoneVerified = async() => {
+    var user = firebase.auth().currentUser;
+    user.reload();
+    var ver = await user.emailVerified;
+    if (ver === true) {
+      window.location.reload(false);
+    } else {
+      console.log("not verified yet")
     }
   }
 

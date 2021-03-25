@@ -92,11 +92,11 @@ import './variables.css';
 const Party = ({id, data, live, edit}) => {
   // party card
 
+  var user = firebase.auth().currentUser.uid
   useEffect(()=>{    
     firebase.firestore().collection("users").doc(data.hostid).get().then(doc => {
       setHost(doc.data().username);
-    })    
-    var user = firebase.auth().currentUser.uid
+    })        
     setCurrentUser(user);
     getDaysUntilParty()
   })
@@ -112,27 +112,33 @@ const Party = ({id, data, live, edit}) => {
   const { Camera } = Plugins;
   const [isLive, setIsLive] = useState(live);
   const [host, setHost] = useState('');
+  const [pictureError, setPictureError] = useState('');
   const [currentUser, setCurrentUser] = useState(''); // id of current user
   const collectionRef = firebase.firestore().collection("users").doc(data.hostid).collection("myParties");  
 
   const onSave = async() => { 
     setPictureUploading(true);
+    setPictureError("");
     if (photo !== "") {
-    await collectionRef.doc(id).collection('pictures').add({
+    collectionRef.doc(id).collection('pictures').add({
         picture: photo,
-        takenByID: currentUser,
+        takenByID: user,
         takenAt: moment(new Date()).format('LT'),
         likeCounter: 0,
         likes: [],
     })
-      .then(function() {
+      .then(() => {
         setPictureUploading(false);
-        setShowToast(true)
+        setShowToast(true);
+        setPhoto('');
       })
-      .catch(function(error) {
-        console.log(error)
+      .catch((error) => {
+        setPictureUploading(false);
+        setPictureError(error.message);
+        setPhoto('');
       });
-      setPhoto('');
+    } else {
+      setPictureUploading(false);
     }
   }  
 
@@ -240,7 +246,11 @@ const Party = ({id, data, live, edit}) => {
             Cancel
           </IonButton> 
           </IonCol>           
-        </IonRow></> : null}                             
+        </IonRow>
+        <IonRow>
+          <IonText>{pictureError}</IonText>
+        </IonRow>
+        </> : null}                             
       </IonGrid>   
       <IonPopover
         cssClass="party-details-popover"        
@@ -864,10 +874,11 @@ const SignedInRoutes: React.FC = () => {
 const App: React.FC = () => {
   // Triggers when the auth state change for instance when the user signs-in or signs-out.
   const [loading, setLoading] = useState(true);
-  const [signedIn, setSignedIn] = useState(false);
+  const [signedIn, setSignedIn] = useState(Boolean);
 
   useEffect(() => {
     console.log("app useeffect")
+    setLoading(true);
     firebase.auth().onAuthStateChanged(function(user) {   
       console.log(user);
       if (user && user.emailVerified && user.displayName !== null) { // if new user logs in, is email verified and has a document        
@@ -879,8 +890,7 @@ const App: React.FC = () => {
         setSignedIn(false);
         setLoading(false);
       }
-    })
-    setLoading(false);    
+    })    
   }, [])   
 
   const { PushNotifications } = Plugins;
@@ -942,16 +952,16 @@ const App: React.FC = () => {
   } else {
     return( 
     <IonApp>
-        { signedIn ? (         
-          <SignedInRoutes />
-        ) : (     
+        { signedIn === false ? (   
           <IonReactRouter>
             <IonRouterOutlet>
               <Route path='/signin' component={SignIn} />
               <Route path='/signup' component={SignUp} />
               <Route exact path="/" render={() => <Redirect to="/signup" />} />
             </IonRouterOutlet>    
-          </IonReactRouter>     
+          </IonReactRouter>                             
+        ) : (       
+          <SignedInRoutes />
         )}
     </IonApp>
   )
