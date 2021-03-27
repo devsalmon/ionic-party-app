@@ -63,6 +63,7 @@ const Users: React.FC = () => {
               hit.objectID === firebase.auth().currentUser.uid ? null :
               <UserItem bitmoji={hit.bitmoji ? hit.bitmoji : null} username={hit.username} fullname={hit.fullname} id={hit.objectID} key={i}/>
             )}
+            <br/><br/><br/><br/><br/>
         </IonContent>
       </IonPage>    
     )

@@ -237,6 +237,10 @@
     text-align: center;    
 }
 
+.signup-toolbar {
+    margin-right: 25%;
+}
+
 /* //hides recapthca badge */
 .grecaptcha-badge { 
     visibility: hidden;
@@ -249,7 +253,7 @@
 
 #signin-content{
     --padding-start: 10px;
-    --padding-top: 120px;
+    --padding-top: 80px;
     --padding-end: 10px;    
 }
 

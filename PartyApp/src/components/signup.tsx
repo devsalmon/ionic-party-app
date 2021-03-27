@@ -299,49 +299,6 @@ const SignUp: React.FC = () => {
     }
   }
 
-  // const completeUserInfo = () => {
-  //   clearErrors();
-  //   setLoading(true);
-  //   const user = firebase.auth().currentUser;
-  //   const userid = user ? user.uid : "";      
-  //   var phoneVerified = signUpMethod === "phone" ? true : false;
-  //   window.localStorage.setItem("fullname", fullname);
-  //   window.localStorage.setItem("username", username);
-  //   window.localStorage.setItem("dob", dob);    
-  //   // check user has signed in with email or phone number
-  //   if (userid !== "") { 
-  //     if (fullname.trim() !== "" && email.trim() !== "" && dob.trim() !== "") {
-  //       if (moment(dob.trim(), 'DD/MM/YYYY', true).isValid() && moment(dob.trim()).isBefore(new Date())) { // check dob format is valid
-  //         firebase.firestore().collection('users').doc(userid).set({ // create a user document when a new user signs up
-  //           fullname: fullname,
-  //           username: username,
-  //           email: email,      
-  //           id: userid,
-  //           phoneNumber: phoneNumber,
-  //           dateOfBirth: dob,
-  //         }).then(()=>{
-  //           signUpMethod === "email" ? 
-  //           sendVerificationEmail() 
-  //           :
-  //           firebase.firestore().collection('users').doc(userid).update({ // create a user document when a new user signs up
-  //             phoneVerified: true
-  //           })
-  //         }).catch(err => {
-  //           setPasswordError(err.message);
-  //         })         
-  //       } else {
-  //         setLoading(false);
-  //         setDobError("Wrong format for date of birth")
-  //       }
-  //     } else {
-  //       setLoading(false);
-  //       setFieldsMissing(true);
-  //     } 
-  //   } else {
-  //     setLoading(false);
-  //     setDobError("Please go back and enter your email/phone number, and password to continue")
-  //   }
-  // }
 
   const emailSignUp = async () => {
     clearErrors();
@@ -640,7 +597,7 @@ const SignUp: React.FC = () => {
         {slide0 ? null :<IonButtons slot="start">
           <IonButton slot="start" onClick={() => prevSlide()}>Back</IonButton>
         </IonButtons>}
-        <IonTitle class="ion-padding">Sign Up</IonTitle>     
+        <IonTitle class="ion-padding signup-toolbar">Sign Up</IonTitle>     
       </IonToolbar>
       <IonContent id="signin-content">      
       <IonSlides class="sign-up-slides" ref={slides} options={slideOpts}> 
