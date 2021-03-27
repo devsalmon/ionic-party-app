@@ -61,7 +61,7 @@ exports.sendFriendRequestNotification = functions.firestore
       });
     } else if (newrequests.length === 0) {
       admin.firestore().collection("users").doc(change.after.id).update({
-        friendNotifications: true 
+        friendNotifications: false 
       }).catch(err => {
         console.log(err.message);
         return

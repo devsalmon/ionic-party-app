@@ -591,7 +591,7 @@ const PartyList = ({editParty, stopEditing}) => {
       )}
       { upcomingParties.length > 0 ? null :
         liveParties.length > 0 ? null :
-        <><br/><br/><IonText class="ion-padding-start">No upcoming parties...</IonText></>
+        <div className="ion-text-center"><br/><br/><IonText>No upcoming parties, organize some parties with friends on the create page!</IonText></div>
       }     
       {liveParties && liveParties.sort((a, b) => a.data.dateTime > b.data.dateTime ? 1:-1).map((party, k) => { 
         return(        

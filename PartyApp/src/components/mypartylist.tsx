@@ -87,6 +87,7 @@ const MyPartyList = () => {
   const [profilePhoto, setProfilePhoto] = useState('');  
   const [photoPopover, setPhotoPopover] = useState(false); 
   const [accountDeleted, setAccountDeleted] = useState(false);
+  const [continuedWithSnap, setContinuedWithSnap] = useState(false);
 
   const [friends, setFriends] = useState([]);
   const [refresh, setRefresh] = useState(false);  
@@ -107,7 +108,7 @@ const MyPartyList = () => {
           });
         }
       }
-      setDisplayName(data.username);
+      setDisplayName(data.fullname);
       if (data.bitmoji) {
         setBitmoji(data.bitmoji);
       }
@@ -123,8 +124,32 @@ const MyPartyList = () => {
           setFriend_no(doc.data().friends.length);
         }
       })    
+    const script = document.createElement("script");
+    script.src = "https://sdk.snapkit.com/js/v1/login.js"; //Try change this url
+    script.async = true;
+    //script.onload = () => scriptLoaded();
+    document.body.appendChild(script);      
     // useeffect makes display parties only runs once
-  }, [refresh, inGallery]);  
+  }, [refresh, inGallery]); 
+
+  window.onstorage = () => {
+    // When local storage changes, dump the list to
+    // the console.
+    console.log("Change in storage");
+    console.log("Snap name: " + window.localStorage.getItem("snap_fullname"))
+    if (window.localStorage.getItem("snap_fullname") !== null) {
+      var fullname = window.localStorage.getItem("snap_fullname");
+      var bitmoji = window.localStorage.getItem("bitmoji_avatar");
+      firebase.firestore().collection("users").doc(currentuser).update({
+        fullname: fullname,
+        bitmoji: bitmoji
+      }).then(() => {
+        setContinuedWithSnap(true);
+      }).catch(err => {
+        console.log(err.message)
+      })
+    }
+  };   
 
   var user = firebase.auth().currentUser;  
   const friendsCollection = firebase.firestore().collection('friends');
@@ -158,6 +183,7 @@ const MyPartyList = () => {
                       {
                           username: data.username,
                           fullname: data.fullname,
+                          bitmoji: data.bitmoji,
                           id: doc.id
                       }
                   ]);  
@@ -421,7 +447,8 @@ const MyPartyList = () => {
               </IonButton><br/>          
               <IonButton>
                 Help
-              </IonButton>                 
+              </IonButton><br/><br/>
+              <div id="my-login-button-target"></div>                              
             </IonList>
           </IonContent>
         </IonMenu>
@@ -584,6 +611,17 @@ const MyPartyList = () => {
           </IonButton>   
         </IonPopover>    
         <IonPopover
+          id="popover"
+          cssClass="popover"        
+          isOpen={continuedWithSnap}
+          onDidDismiss={() => {setContinuedWithSnap(false);setRefresh(!refresh)}}
+        >
+          <IonText className="ion-padding">Successfully linked snapchat details!</IonText><br/>
+          <IonButton onClick={()=>{setContinuedWithSnap(false);setRefresh(!refresh)}}>
+            Ok
+          </IonButton>        
+        </IonPopover>            
+        <IonPopover
           id="popover" 
           cssClass="popover"        
           isOpen={showFriends}
@@ -594,12 +632,16 @@ const MyPartyList = () => {
                   return(
                     <IonItem lines="none" key={k}>
                       <IonCol>
-                      <IonRow>
-                        <IonText>{friend.username}</IonText>   
-                      </IonRow>
-                      <IonRow>
-                        <IonText class="white-text">{friend.fullname}</IonText>   
-                      </IonRow>        
+                        {friend.bitmoji !== "" ? <IonImg src={friend.bitmoji}></IonImg> :
+                        <IonIcon className="profile-icon" icon={personOutline}/>}
+                      </IonCol>
+                      <IonCol>
+                        <IonRow>
+                          <IonText>{friend.username}</IonText>   
+                        </IonRow>
+                        <IonRow>
+                          <IonText class="white-text">{friend.fullname}</IonText>   
+                        </IonRow>        
                       </IonCol>               
                     </IonItem>
                   )

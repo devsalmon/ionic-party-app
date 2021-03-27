@@ -130,7 +130,7 @@ const SignUp: React.FC = () => {
     // the console.
     console.log("Change in storage");
     console.log("Snap name: " + window.localStorage.getItem("snap_fullname"))
-    if (window.localStorage.getItem("snap_fullname") != null) {
+    if (window.localStorage.getItem("snap_fullname") !== null) {
       setFullname(window.localStorage.getItem("snap_fullname"));
       goToSlide(2);
       console.log("went to appropriate slide")
