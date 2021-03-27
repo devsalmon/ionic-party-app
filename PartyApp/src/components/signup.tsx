@@ -211,20 +211,20 @@ const SignUp: React.FC = () => {
         window.localStorage.setItem("username", username);
         // check which sign up method to use        
         if (validatePhone(email_or_phone)) { 
-          // it's a phone number          
-          goToSlide(1);
+          // it's a phone number                    
           setSignUpMethod('phone')
           window.localStorage.setItem("signUpMethod", "phone")
           window.localStorage.setItem("signUpStage", "second")
-          setLoading(false); //move this
+          setLoading(false);
+          goToSlide(1);
           console.log("Sign up method (phone): " + signUpMethod)
         } else if (validateEmail(email_or_phone)) {
-          // it's an email          
-          goToSlide(1)
+          // it's an email
           setSignUpMethod('email')
           window.localStorage.setItem("signUpMethod", "email")
           window.localStorage.setItem("signUpStage", "second")
-          setLoading(false); //move this
+          setLoading(false); 
+          goToSlide(1);
           console.log("Sign up method (email): " + signUpMethod)
         } else {
           setEmailError(
@@ -247,12 +247,12 @@ const SignUp: React.FC = () => {
     if (fullname.trim() !== "") {
       console.log(fullname)
       window.localStorage.setItem("fullname", fullname);      
-      //go to next slide (DOB)
-      goToSlide(2)
+      //go to next slide (DOB)      
       setFieldsMissing(false);
       setPasswordError("");      
       window.localStorage.setItem("signUpStage", "third")
-      setLoading(false); //move this
+      setLoading(false);
+      goToSlide(2)
     } else {
       setLoading(false);
       setPasswordError('');
@@ -291,11 +291,11 @@ const SignUp: React.FC = () => {
       console.log("Triggered 1")
       phoneSignUp();
     } else {   // they didn't enter either
-      goToSlide(0);
       setPasswordError("Enter email or phone number");
       //We should check this field before?
       console.log("signupmethod is neither phone or email")
       setLoading(false);
+      goToSlide(0);
     }
   }
 
@@ -347,48 +347,63 @@ const SignUp: React.FC = () => {
     clearErrors();
     console.log("Triggered 2")
     console.log("Email: " + email_or_phone)
-    firebase.auth().createUserWithEmailAndPassword(email_or_phone, password).then(user => {
-      firebase.auth().signInWithEmailAndPassword(email_or_phone, password).then(res => {
-        firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
-          if (snap.empty) { // no duplicate username
-            sendVerificationEmail();            
-          } else {            
-            goToSlide(0);
-            setUsernameError("Username is taken, please try another one");            
-            setLoading(false);
-          }          
-        }).catch(err => {
-          console.log(err.message);
+    if (firebase.auth().currentUser) {
+      firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
+        if (snap.empty) { // no duplicate username
+          sendVerificationEmail();            
+        } else {                      
+          setUsernameError("Username is taken, please try another one");            
           setLoading(false);
-        })            
-        //go to slide 3
+          goToSlide(0);
+        }          
       }).catch(err => {
-        goToSlide(0);
-        setPasswordError(err.message);
+        console.log(err.message);
         setLoading(false);
-      })   
-    }).catch(err => {      
-      goToSlide(0);
-      setLoading(false);
-      switch(err.code){
-        case "auth/invalid-email":
-        case "auth/email-already-exists":
-        case "auth/email-already-in-use":
-          setEmailError(err.message);
-          break;
-        case "auth/invalid-password":
+      }) 
+    } else {
+      firebase.auth().createUserWithEmailAndPassword(email_or_phone, password).then(user => {
+        firebase.auth().signInWithEmailAndPassword(email_or_phone, password).then(res => {
+          firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
+            if (snap.empty) { // no duplicate username
+              sendVerificationEmail();            
+            } else {                          
+              setUsernameError("Username is taken, please try another one");            
+              setLoading(false);
+              goToSlide(0);
+            }          
+          }).catch(err => {
+            console.log(err.message);
+            setLoading(false);
+          })            
+          //go to slide 3
+        }).catch(err => {          
           setPasswordError(err.message);
-          break;
-      }              
-    });
+          setLoading(false);
+          goToSlide(0);
+        })   
+      }).catch(err => {              
+        setLoading(false);
+        switch(err.code){
+          case "auth/invalid-email":
+          case "auth/email-already-exists":
+          case "auth/email-already-in-use":
+            setEmailError(err.message);
+            break;
+          case "auth/invalid-password":
+            setPasswordError(err.message);
+            break;
+        }              
+        goToSlide(0);
+      });
+    }
   };   
 
   const sendVerificationEmail = () => {
-    firebase.auth().currentUser.sendEmailVerification(actionCodeSettings).then(function() {
-      goToSlide(3);
+    firebase.auth().currentUser.sendEmailVerification(actionCodeSettings).then(function() {      
       setLinkSent(true);
-      setLoading(false);      
-      window.localStorage.setItem("signUpStage", "fourth")
+      setLoading(false);            
+      window.localStorage.setItem("signUpStage", "fourth");
+      goToSlide(3);
     }).catch(function(error) {
       // An error happened.
       setLoading(false);
@@ -460,30 +475,59 @@ const SignUp: React.FC = () => {
     //   }
     // });      
     const appVerifier = window.recaptchaVerifier;
-    firebase.auth().signInWithPhoneNumber(email_or_phone, appVerifier)
-      .then((confirmationResult) => {
-        console.log("Triggered 3")
-        // SMS sent. Prompt user to type the code from the message, then sign the
-        // user in with confirmationResult.confirm(code).        
-        window.confirmationResult = confirmationResult;
-        window.localStorage.setItem("signUpStage", "fourth")
-        goToSlide(3);   
-        setLoading(false);
-        console.log("Phone signed in: " + confirmationResult)
-      }).catch((error) => {
-        // Error SMS not sent phone number may be wrong
-        setLoading(false);
-        if (error.code === "auth/invalid-phone-number") {
-          goToSlide(0);
-          setPhoneError(
-            "Invalid format for email or phone number. " +
-            "Please enter phone numbers in the form +447123456789 (for UK)"
-          )
-        } else {    
-          goToSlide(0);
-          setPhoneError(error.message);
-        }            
-      });
+    if (firebase.auth().currentUser) {
+      firebase.auth().signOut().then(() => {
+        firebase.auth().signInWithPhoneNumber(email_or_phone, appVerifier)
+          .then((confirmationResult) => {
+            console.log("Triggered 3")
+            // SMS sent. Prompt user to type the code from the message, then sign the
+            // user in with confirmationResult.confirm(code).        
+            window.confirmationResult = confirmationResult;
+            window.localStorage.setItem("signUpStage", "fourth")            
+            setLoading(false);
+            goToSlide(3);   
+            console.log("Phone signed in: " + confirmationResult)
+          }).catch((error) => {
+            // Error SMS not sent phone number may be wrong
+            setLoading(false);
+            if (error.code === "auth/invalid-phone-number") {              
+              setPhoneError(
+                "Invalid format for email or phone number. " +
+                "Please enter phone numbers in the form +447123456789 (for UK)"
+              )
+              goToSlide(0);
+            } else {                  
+              setPhoneError(error.message);
+              goToSlide(0);
+            }            
+          });
+      })
+    } else {
+      firebase.auth().signInWithPhoneNumber(email_or_phone, appVerifier)
+        .then((confirmationResult) => {
+          console.log("Triggered 3")
+          // SMS sent. Prompt user to type the code from the message, then sign the
+          // user in with confirmationResult.confirm(code).        
+          window.confirmationResult = confirmationResult;
+          window.localStorage.setItem("signUpStage", "fourth")          
+          setLoading(false);
+          goToSlide(3);   
+          console.log("Phone signed in: " + confirmationResult)
+        }).catch((error) => {
+          // Error SMS not sent phone number may be wrong
+          setLoading(false);
+          if (error.code === "auth/invalid-phone-number") {            
+            setPhoneError(
+              "Invalid format for email or phone number. " +
+              "Please enter phone numbers in the form +447123456789 (for UK)"
+            )
+            goToSlide(0);
+          } else {                
+            setPhoneError(error.message);
+            goToSlide(0);
+          }            
+        });
+      }
     }  
   
   const verifyCode = async() => {
@@ -492,8 +536,6 @@ const SignUp: React.FC = () => {
     if (window.confirmationResult) {
       await window.confirmationResult.confirm(code).then((result) => {
         // User signed in successfully.
-        //changeSlide("userinfo"); 
-      //window.localStorage.setItem("signUpStage", "third");        
         //link with fake email
         var phoneEmail = email_or_phone + '@partyemail.com'
         var credential = firebase.auth.EmailAuthProvider.credential(phoneEmail, password);
@@ -504,32 +546,31 @@ const SignUp: React.FC = () => {
           console.log("Account linking success", user);      
           firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
             if (snap.empty) { // no duplicate username
-              firebase.firestore().collection('users').doc(user.uid).set({ // create a user document when a new user signs up
-                fullname: fullname,
-                username: username,
-                email: email_or_phone + "@partyemail.com",      
-                id: user.uid,
-                phoneNumber: email_or_phone,
-                dateOfBirth: dob,
-                phoneVerified: true,
-                bitmoji: window.localStorage.getItem("bitmoji_avatar")
-              }, {merge: true}).then(() => {
-                setInterval(checkPhoneVerified, 3000);         
-                //setLoading(false);
-              }).catch(err => {
-                setLoading(false);
-                console.log(err.message);
-              }) 
-            } else {
-              goToSlide(0);
+              addUserInfo();
+            } else {              
               setUsernameError("Username is taken, please try another one");              
               setLoading(false);
+              goToSlide(0);
             }          
           }).catch(err => {
             console.log(err.message);
             setLoading(false);
           })              
         }).catch((error) => {
+          if (error.code === "auth/provider-already-linked") {
+            firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
+              if (snap.empty) { // no duplicate username
+                addUserInfo();
+              } else {              
+                setUsernameError("Username is taken, please try another one");              
+                setLoading(false);
+                goToSlide(0);
+              }          
+            }).catch(err => {
+              console.log(err.message);
+              setLoading(false);
+            })              
+          }
           setLoading(false);
           console.log("Account linking error", error);
         });
@@ -556,6 +597,24 @@ const SignUp: React.FC = () => {
     } else {
       console.log("not verified yet")
     }
+  }
+
+  const addUserInfo = () => {
+    firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid).set({ // create a user document when a new user signs up
+      fullname: fullname,
+      username: username,
+      email: email_or_phone + "@partyemail.com",      
+      id: firebase.auth().currentUser.uid,
+      phoneNumber: email_or_phone,
+      dateOfBirth: dob,
+      phoneVerified: true,
+      bitmoji: window.localStorage.getItem("bitmoji_avatar")
+    }, {merge: true}).then(() => {
+      setInterval(checkPhoneVerified, 3000);         
+    }).catch(err => {
+      setLoading(false);
+      console.log(err.message);
+    }) 
   }
 
   // const changeSlide = async(method) => {

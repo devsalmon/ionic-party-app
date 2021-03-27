@@ -108,7 +108,7 @@ const Gallery = ({hostid, partyid}) => {
                 </IonItem>
              : null
             }         
-            {afterMessage === '' ? <IonText>"Thanks for coming!"</IonText> : <IonText>"{afterMessage}"</IonText>}
+            {afterMessage === "" ? <IonText>"Thanks for coming!"</IonText> : <IonText>"{afterMessage}"</IonText>}
             {firebase.auth().currentUser.uid === hostid && !edit ?              
               <IonItem lines="none">
                 <IonButton onClick={() => setEdit(true)}>Edit</IonButton>
@@ -234,7 +234,7 @@ const Picture = ({doc, hostid, partyid}) => {
 
   const removePicture = ownPicture ? (
     <IonButton onClick={() => setDeletePhotoPopover(true)} fill="clear" color="warning">
-      Remove
+      <IonIcon icon={closeSharp}/>
     </IonButton>
   ) : null 
 
@@ -296,10 +296,10 @@ const Picture = ({doc, hostid, partyid}) => {
         <IonButton onClick={()=>setShowComments(false)} fill="clear" color="warning">
           Hide comments
         </IonButton>    
-        :
+        : otherComments.length > 0 ?
         <IonButton onClick={()=>setShowComments(true)} fill="clear" color="warning">
           See comments
-        </IonButton>}
+        </IonButton> : null}
       </IonRow>
       {otherComments && showComments && otherComments.map((comment, i) => {
         return(<Comment key={i} name={comment.name} comment={comment.comment} comid={comment.id} colref={collectionRef} picid={doc.id} deleteComment={() => deleteComment(comment.id)}/>)
@@ -358,7 +358,7 @@ const Comment = (props: {name, comment, comid, colref, picid, deleteComment}) =>
     return(
       <IonItemSliding>
         <IonItem lines="none">
-          <IonText>{props.name}: {props.comment}<IonText class="white-text">{timestamp}</IonText></IonText>
+          <IonText>{props.name}: {props.comment} <IonText class="white-text">{timestamp}</IonText></IonText>
         </IonItem>
         <IonItemOptions side="end">
           <IonItemOption onClick={props.deleteComment}>
