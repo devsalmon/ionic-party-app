@@ -62,7 +62,7 @@ const Users: React.FC = () => {
         <IonContent>    
             {hits && query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map((hit, i) => 
               hit.objectID === firebase.auth().currentUser.uid ? null :
-              <UserItem bitmoji={hit.bitmoji} username={hit.username} fullname={hit.fullname} id={hit.objectID} key={i}/>
+              <UserItem bitmoji={hit.bitmoji ? hit.bitmoji : null} username={hit.username} fullname={hit.fullname} id={hit.objectID} key={i}/>
             )}
         </IonContent>
       </IonPage>    
