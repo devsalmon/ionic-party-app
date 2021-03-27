@@ -295,6 +295,7 @@ exports.addAlgoliaUser = functions.firestore
     fullname: newValue.fullname,    
     id: newValue.id,    
     username: newValue.username,
+    bitmoji: newValue.bitmoji
   });
 });
 
@@ -303,19 +304,6 @@ exports.updateAlgoliaUser = functions.firestore
 .onUpdate(async (snap, context) => {
   const afterUpdate = snap.after.data();
   afterUpdate.objectID = snap.after.id;
-   // Notification details.
-    const payload = {
-      notification: {
-        title: 'You have a new friend request from name !',
-        body: 'Click to accept/reject their request',
-      }
-    };
-
-    // Listing all tokens as an array.
-    // tokens = Object.keys(tokensSnapshot.val());
-    // Send notifications to all tokens.
-    admin.messaging().sendToDevice("dF_4fAxkRXGnCTu8X1Bfh3:APA91bFGIvOg745Av4wHAJ3uFCHLfnEq5cNVZr7jAvCvtANXx0s-5cdLEt-PJw0GdX72X5qCPSsxb2nJLr_RrovvcYUABL7SICylMbNixLuKxEwBuZccHL4wpZILyrGHLzq5YTgRxqcW"
-      ,payload);   
 
   var client = algoliasearch(ALGOLIA_APP_ID, ALGOLIA_ADMIN_KEY);
 

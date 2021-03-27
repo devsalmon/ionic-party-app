@@ -131,7 +131,8 @@ const SignUp: React.FC = () => {
     console.log("Change in storage");
     console.log("Snap name: " + window.localStorage.getItem("snap_fullname"))
     if (window.localStorage.getItem("snap_fullname") != null) {
-      goToSlide(2)
+      setFullname(window.localStorage.getItem("snap_fullname"));
+      goToSlide(2);
       console.log("went to appropriate slide")
     }
   };
@@ -423,9 +424,8 @@ const SignUp: React.FC = () => {
     } else {
       console.log("Email verified")
       // if verified...
-      var snapName = window.localStorage.getItem("snap_fullname");
       firebase.firestore().collection('users').doc(user.uid).set({ // create a user document when a new user signs up
-        fullname: snapName ? snapName : fullname,
+        fullname: fullname,
         username: username,
         email: validateEmail(email_or_phone) ? email_or_phone : "",      
         id: user.uid,
@@ -512,7 +512,6 @@ const SignUp: React.FC = () => {
                 phoneNumber: email_or_phone,
                 dateOfBirth: dob,
                 phoneVerified: true,
-                snapName: window.localStorage.getItem("snap_fullname"),
                 bitmoji: window.localStorage.getItem("bitmoji_avatar")
               }, {merge: true}).then(() => {
                 setInterval(checkPhoneVerified, 3000);         

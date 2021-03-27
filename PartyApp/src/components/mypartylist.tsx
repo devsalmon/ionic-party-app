@@ -93,6 +93,7 @@ const MyPartyList = () => {
   var user = firebase.auth().currentUser;
   var currentuser = firebase.auth().currentUser.uid;
   const [displayName, setDisplayName] = useState('');
+  const [bitmoji, setBitmoji] = useState('');
 
   useEffect(() => {  
     firebase.firestore().collection("users").doc(user.uid).get().then(doc => {
@@ -107,6 +108,9 @@ const MyPartyList = () => {
         }
       }
       setDisplayName(data.username);
+      if (data.bitmoji) {
+        setBitmoji(data.bitmoji);
+      }
       var pwn = data.partiesWithNotifications ? data.partiesWithNotifications : [];
       displayParties(pwn); 
     })
@@ -433,8 +437,8 @@ const MyPartyList = () => {
             <IonGrid>
               <IonRow>
                 <IonCol size="3">
-                <IonImg src={'https://sdk.bitmoji.com/render/panel/96cf4a14-b91d-4b75-a613-55ba66f80126-AW95dWxPW2zVM5EO0BkgssrnNf9JdA-v1.png?transparent=1&palette=1'}></IonImg>
-                  {/* <IonIcon className="profile-icon" icon={personOutline}/>                    */}
+                  {bitmoji !== "" ? <IonImg src={bitmoji}></IonImg> :
+                  <IonIcon className="profile-icon" icon={personOutline}/>}
                 </IonCol>
                 <IonCol size="6"> 
                   <IonText>{displayName}</IonText><br/>
