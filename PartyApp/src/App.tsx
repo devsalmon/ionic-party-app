@@ -62,11 +62,11 @@ import {
   createOutline
 } from 'ionicons/icons';
 import {useCamera} from '@ionic/react-hooks/camera';
-import {
-  MediaFile,
-  VideoCapturePlusOptions,
-  VideoCapturePlus,
-} from "@ionic-native/video-capture-plus";
+// import {
+//   MediaFile,
+//   VideoCapturePlusOptions,
+//   VideoCapturePlus,
+// } from "@ionic-native/video-capture-plus";
 import {
   CameraResultType, 
   CameraSource, 
@@ -162,26 +162,26 @@ const Party = ({id, data, live, edit}) => {
     console.log(photo)
   }    
 
-  const takeVideo = async () => {
-    let options: VideoCapturePlusOptions = { limit: 1, duration: 30, highquality: true };
-    let capture:any = await VideoCapturePlus.captureVideo(options);
-    let media = capture[0] as MediaFile;
-    setVideoUrls(videos => [...videos, Capacitor.convertFileSrc(media.fullPath)]);
-    setPictureError(Capacitor.convertFileSrc(media.fullPath));
-    // const blob = await fetch(
-    //     Capacitor.convertFileSrc(media.fullPath)
-    // ).then(r => r.blob());
-    // var fd = new FormData();
-    // fd.append('file', blob);
-    // axios.post('upload/video', fd, {
-    //     headers: {
-    //         'content-type': 'multipart/form-data'
-    //     }
-    // })
-    // .then(res => {
-    //     console.log(res);
-    // });
-  };
+  // const takeVideo = async () => {
+  //   let options: VideoCapturePlusOptions = { limit: 1, duration: 30, highquality: true };
+  //   let capture:any = await VideoCapturePlus.captureVideo(options);
+  //   let media = capture[0] as MediaFile;
+  //   setVideoUrls(videos => [...videos, Capacitor.convertFileSrc(media.fullPath)]);
+  //   setPictureError(Capacitor.convertFileSrc(media.fullPath));
+  //   // const blob = await fetch(
+  //   //     Capacitor.convertFileSrc(media.fullPath)
+  //   // ).then(r => r.blob());
+  //   // var fd = new FormData();
+  //   // fd.append('file', blob);
+  //   // axios.post('upload/video', fd, {
+  //   //     headers: {
+  //   //         'content-type': 'multipart/form-data'
+  //   //     }
+  //   // })
+  //   // .then(res => {
+  //   //     console.log(res);
+  //   // });
+  // };
 
   const getDaysUntilParty = () => {    
     var now = new Date().getTime();
@@ -258,11 +258,11 @@ const Party = ({id, data, live, edit}) => {
               <IonIcon slot="icon-only" icon={cameraOutline} />      
             </IonButton>  
           </IonCol>         
-          <IonCol className="ion-self-align-center"> 
+          {/* <IonCol className="ion-self-align-center"> 
             <IonButton class="yellow-text" onClick={() => takeVideo()}>
               Video    
             </IonButton>  
-          </IonCol>
+          </IonCol> */}
           </>                     
           : null}
         </IonRow> 

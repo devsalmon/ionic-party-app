@@ -97,6 +97,11 @@ const MyPartyList = () => {
   const [bitmoji, setBitmoji] = useState('');
 
   useEffect(() => {  
+    const script = document.createElement("script");
+    script.src = "https://sdk.snapkit.com/js/v1/login.js"; //Try change this url
+    //script.async = true;
+    //script.onload = () => scriptLoaded();
+    document.body.appendChild(script); 
     firebase.firestore().collection("users").doc(user.uid).get().then(doc => {
       let data = doc.data()
       if (data.partiesWithNotifications) {
@@ -123,28 +128,27 @@ const MyPartyList = () => {
         if (doc.exists) {
           setFriend_no(doc.data().friends.length);
         }
-      })    
-    const script = document.createElement("script");
-    script.src = "https://sdk.snapkit.com/js/v1/login.js"; //Try change this url
-    script.async = true;
-    //script.onload = () => scriptLoaded();
-    document.body.appendChild(script);      
+      })         
     // useeffect makes display parties only runs once
   }, [refresh, inGallery]); 
 
   window.onstorage = () => {
+    setContinuedWithSnap(true)
+  }
+
+  const displayNewBitmo = () => {
     // When local storage changes, dump the list to
     // the console.
-    console.log("Change in storage");
-    console.log("Snap name: " + window.localStorage.getItem("snap_fullname"))
+    //console.log("Change in storage");
+    //console.log("Snap name: " + window.localStorage.getItem("snap_fullname"))
     if (window.localStorage.getItem("snap_fullname") !== null) {
       var fullname = window.localStorage.getItem("snap_fullname");
       var bitmoji = window.localStorage.getItem("bitmoji_avatar");
       firebase.firestore().collection("users").doc(currentuser).update({
         fullname: fullname,
         bitmoji: bitmoji
-      }).then(() => {
-        setContinuedWithSnap(true);
+     // }).then(() => {
+      //  setContinuedWithSnap(true);
       }).catch(err => {
         console.log(err.message)
       })
@@ -357,6 +361,11 @@ const MyPartyList = () => {
     }
   }
 
+  const CheckSnapInfo = () => {
+    console.log("Snap Name: " + window.localStorage.getItem("snap_fullname"))
+    console.log("Bitmo: " + window.localStorage.getItem("bitmoji_avatar"))
+  }
+
   // const { Camera } = Plugins;
   // const updatePhoto = async() => {
   //   const cameraPhoto = await Camera.getPhoto({
@@ -448,7 +457,8 @@ const MyPartyList = () => {
               <IonButton>
                 Help
               </IonButton><br/><br/>
-              <div id="my-login-button-target"></div>                              
+              <div id="my-login-button-target"></div> 
+              <IonButton onClick={() => CheckSnapInfo()}>Check Snap info</IonButton>                             
             </IonList>
           </IonContent>
         </IonMenu>
@@ -614,10 +624,10 @@ const MyPartyList = () => {
           id="popover"
           cssClass="popover"        
           isOpen={continuedWithSnap}
-          onDidDismiss={() => {setContinuedWithSnap(false);setRefresh(!refresh)}}
+          onDidDismiss={() => {displayNewBitmo();setContinuedWithSnap(false);setRefresh(!refresh)}}
         >
           <IonText className="ion-padding">Successfully linked snapchat details!</IonText><br/>
-          <IonButton onClick={()=>{setContinuedWithSnap(false);setRefresh(!refresh)}}>
+          <IonButton onClick={()=>{displayNewBitmo();setContinuedWithSnap(false);setRefresh(!refresh)}}>
             Ok
           </IonButton>        
         </IonPopover>            

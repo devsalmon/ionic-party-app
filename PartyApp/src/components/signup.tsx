@@ -261,8 +261,8 @@ const SignUp: React.FC = () => {
   }
 
   const checkSnap = () => {
-    console.log("Snap Name: " + window.localStorage.getItem("snap_fullname"))
-    console.log("Bitmo: " + window.localStorage.getItem("bitmoji_avatar"))
+    alert("Snap Name: " + window.localStorage.getItem("snap_fullname"))
+    alert("Bitmo: " + window.localStorage.getItem("bitmoji_avatar"))
   }
 
   // enter DOB.
