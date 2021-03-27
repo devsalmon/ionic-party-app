@@ -433,7 +433,8 @@ const MyPartyList = () => {
             <IonGrid>
               <IonRow>
                 <IonCol size="3">
-                  <IonIcon className="profile-icon" icon={personOutline}/>                   
+                <IonImg src={'https://sdk.bitmoji.com/render/panel/96cf4a14-b91d-4b75-a613-55ba66f80126-AW95dWxPW2zVM5EO0BkgssrnNf9JdA-v1.png?transparent=1&palette=1'}></IonImg>
+                  {/* <IonIcon className="profile-icon" icon={personOutline}/>                    */}
                 </IonCol>
                 <IonCol size="6"> 
                   <IonText>{displayName}</IonText><br/>

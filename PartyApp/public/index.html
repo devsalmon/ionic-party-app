@@ -77,7 +77,7 @@
         // Mount Login Button
         snap.loginkit.mountButton(loginButtonIconId, {
           clientId: 'f1a81f8c-e8e7-4b47-b43b-1ee06951ac03',
-          redirectURI: 'http://localhost:8100/signin', //'https://test1619.page.link/DSF9',
+          redirectURI: 'http://localhost:8100/signup', //'https://test1619.page.link/DSF9',
           scopeList: [
             'user.display_name',
             'user.bitmoji.avatar',
@@ -92,8 +92,10 @@
               //document.getElementById("bitmoji").src =
               var bitmoji_avatar = result.data.me.bitmoji.avatar;
               window.localStorage.setItem("bitmoji_avatar", bitmoji_avatar);
+              window.localStorage.setItem("signUpStage", "third")
               //document.getElementById("external_id").src =
-              //  result.data.me.externalId;              
+              //  result.data.me.externalId;       
+              console.log("Snap done: " + window.localStorage.getItem("snap_fullname"))       
             },
             function (err) {
               console.log(err); // Error

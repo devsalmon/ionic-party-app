@@ -125,6 +125,17 @@ const SignUp: React.FC = () => {
      }); 
   }, []);  
 
+  window.onstorage = () => {
+    // When local storage changes, dump the list to
+    // the console.
+    console.log("Change in storage");
+    console.log("Snap name: " + window.localStorage.getItem("snap_fullname"))
+    if (window.localStorage.getItem("snap_fullname") != null) {
+      goToSlide(2)
+      console.log("went to appropriate slide")
+    }
+  };
+
   var actionCodeSettings = {
     url: "http://localhost:8100/signup",
     dynamicLinkDomain: "test1619.page.link",
@@ -415,6 +426,8 @@ const SignUp: React.FC = () => {
         id: user.uid,
         phoneNumber: validatePhone(email_or_phone) ? email_or_phone : "",
         dateOfBirth: dob,
+        snapName: window.localStorage.getItem("snap_fullname"),
+        bitmoji: window.localStorage.getItem("bitmoji_avatar")
       }, {merge: true}).then(() => {
         setEmailError(email_or_phone + " is not verified, please click the link in your email to verify your account");
       }).catch(err => {
@@ -430,6 +443,8 @@ const SignUp: React.FC = () => {
         id: user.uid,
         phoneNumber: validatePhone(email_or_phone) ? email_or_phone : "",
         dateOfBirth: dob,
+        snapName: window.localStorage.getItem("snap_fullname"),
+        bitmoji: window.localStorage.getItem("bitmoji_avatar")
       }, {merge: true}).then(()=>{
         window.location.reload(false)
       }).catch(err => {
@@ -509,7 +524,9 @@ const SignUp: React.FC = () => {
                 id: user.uid,
                 phoneNumber: email_or_phone,
                 dateOfBirth: dob,
-                phoneVerified: true
+                phoneVerified: true,
+                snapName: window.localStorage.getItem("snap_fullname"),
+                bitmoji: window.localStorage.getItem("bitmoji_avatar")
               }, {merge: true}).then(() => {
                 setInterval(checkPhoneVerified, 3000);         
                 //setLoading(false);
