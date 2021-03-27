@@ -419,31 +419,18 @@ const SignUp: React.FC = () => {
     const user = firebase.auth().currentUser;
     user.reload();
     if (!user.emailVerified) { // if user has signed in by pressing a button in sign up, but isn't verified  
-      firebase.firestore().collection('users').doc(user.uid).set({ // create a user document when a new user signs up
-        fullname: fullname,
-        username: username,
-        email: validateEmail(email_or_phone) ? email_or_phone : "",      
-        id: user.uid,
-        phoneNumber: validatePhone(email_or_phone) ? email_or_phone : "",
-        dateOfBirth: dob,
-        snapName: window.localStorage.getItem("snap_fullname"),
-        bitmoji: window.localStorage.getItem("bitmoji_avatar")
-      }, {merge: true}).then(() => {
-        setEmailError(email_or_phone + " is not verified, please click the link in your email to verify your account");
-      }).catch(err => {
-        setEmailError(err.message)
-      })                         
+      setEmailError(email_or_phone + " is not verified, please click the link in your email to verify your account");                           
     } else {
       console.log("Email verified")
       // if verified...
+      var snapName = window.localStorage.getItem("snap_fullname");
       firebase.firestore().collection('users').doc(user.uid).set({ // create a user document when a new user signs up
-        fullname: fullname,
+        fullname: snapName ? snapName : fullname,
         username: username,
         email: validateEmail(email_or_phone) ? email_or_phone : "",      
         id: user.uid,
         phoneNumber: validatePhone(email_or_phone) ? email_or_phone : "",
         dateOfBirth: dob,
-        snapName: window.localStorage.getItem("snap_fullname"),
         bitmoji: window.localStorage.getItem("bitmoji_avatar")
       }, {merge: true}).then(()=>{
         window.location.reload(false)

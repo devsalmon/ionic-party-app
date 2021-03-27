@@ -6,6 +6,7 @@
 .accordion-profile {
     border-top: 3px solid yellow;
     border-bottom: 3px solid yellow;    
+    background-color: red
 }
 
 .black-text {
@@ -125,8 +126,16 @@
     width: 12px;
     background-color: red;
     border-radius: 50%;
-    display: inline-block;          
+    animation: blinker 3s linear infinite; 
+    margin-bottom: 3px;
 }
+  
+  @keyframes blinker {
+    50% {
+      opacity: 0;
+    }
+  }
+  
 
 .party-details-popover {
     --background: red;

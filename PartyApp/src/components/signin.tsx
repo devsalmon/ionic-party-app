@@ -1,6 +1,5 @@
 import React, { useState, useEffect} from 'react';
 import firebase from '../firestore';
-import 'react-phone-number-input/style.css';
 // import PhoneInput from 'react-phone-number-input';
 import {
   IonItem,

@@ -63,12 +63,18 @@ import {
 } from 'ionicons/icons';
 import {useCamera} from '@ionic/react-hooks/camera';
 import {
+  MediaFile,
+  VideoCapturePlusOptions,
+  VideoCapturePlus,
+} from "@ionic-native/video-capture-plus";
+import {
   CameraResultType, 
   CameraSource, 
   Plugins, 
   PushNotification, 
   PushNotificationToken, 
-  PushNotificationActionPerformed
+  PushNotificationActionPerformed,
+  Capacitor
 } from '@capacitor/core';
 import './App.css';
 import firebase from './firestore';
@@ -105,6 +111,7 @@ const Party = ({id, data, live, edit}) => {
   const [showPopover, setShowPopover] = useState(false);
   const [pictureUploading, setPictureUploading] = useState(false);
   const [photo, setPhoto] = useState('');
+  const [videoUrls, setVideoUrls] = useState<any[]>([]);
   const [daysUntilParty, setDaysUntilParty] = useState(0);
   const [hoursUntilParty, setHoursUntilParty] = useState(0);
   const [minutesUntilParty, setMinutesUntilParty] = useState(0);
@@ -135,7 +142,6 @@ const Party = ({id, data, live, edit}) => {
       .catch((error) => {
         setPictureUploading(false);
         setPictureError(error.message);
-        setPhoto('');
       });
     } else {
       setPictureUploading(false);
@@ -146,13 +152,36 @@ const Party = ({id, data, live, edit}) => {
   const takePhoto = async() => {
     const cameraPhoto = await Camera.getPhoto({
       resultType: CameraResultType.Base64,
-      source: CameraSource.Prompt,
-      quality: 100,
+      source: CameraSource.Camera,
+      quality: 50,
+      correctOrientation: true,
       saveToGallery: true
     });
     var photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`;
     setPhoto(photo);  
+    console.log(photo)
   }    
+
+  const takeVideo = async () => {
+    let options: VideoCapturePlusOptions = { limit: 1, duration: 30, highquality: true };
+    let capture:any = await VideoCapturePlus.captureVideo(options);
+    let media = capture[0] as MediaFile;
+    setVideoUrls(videos => [...videos, Capacitor.convertFileSrc(media.fullPath)]);
+    setPictureError(Capacitor.convertFileSrc(media.fullPath));
+    // const blob = await fetch(
+    //     Capacitor.convertFileSrc(media.fullPath)
+    // ).then(r => r.blob());
+    // var fd = new FormData();
+    // fd.append('file', blob);
+    // axios.post('upload/video', fd, {
+    //     headers: {
+    //         'content-type': 'multipart/form-data'
+    //     }
+    // })
+    // .then(res => {
+    //     console.log(res);
+    // });
+  };
 
   const getDaysUntilParty = () => {    
     var now = new Date().getTime();
@@ -223,11 +252,18 @@ const Party = ({id, data, live, edit}) => {
             </IonButton>
           </IonCol>
           {isLive ? 
+          <>
           <IonCol className="ion-self-align-center"> 
-            <IonButton color="warning" onClick={takePhoto}>
+            <IonButton color="warning" onClick={() => takePhoto()}>
               <IonIcon slot="icon-only" icon={cameraOutline} />      
             </IonButton>  
-          </IonCol>           
+          </IonCol>         
+          <IonCol className="ion-self-align-center"> 
+            <IonButton class="yellow-text" onClick={() => takeVideo()}>
+              Video    
+            </IonButton>  
+          </IonCol>
+          </>                     
           : null}
         </IonRow> 
         {photo ?
@@ -237,7 +273,7 @@ const Party = ({id, data, live, edit}) => {
         </IonRow>     
         <IonRow  className="ion-text-center">
           <IonCol>
-          <IonButton color="warning" onClick={onSave}>
+          <IonButton color="warning" onClick={() => onSave()}>
             Share      
           </IonButton>
           </IonCol>
@@ -250,7 +286,10 @@ const Party = ({id, data, live, edit}) => {
         <IonRow>
           <IonText>{pictureError}</IonText>
         </IonRow>
-        </> : null}                             
+        </> : null}  
+        {videoUrls.map((video: any, key: any) => (
+          <video controls key={key} width="100%" height="150px" src={video}></video>
+        ))}
       </IonGrid>   
       <IonPopover
         cssClass="party-details-popover"        
@@ -798,7 +837,7 @@ const Home: React.FC = () => {
       {editing ? null : 
       <IonToolbar class="ion-padding">      
         <IonTitle class="ion-padding">
-          Upcoming<br/>parties
+          Upcoming parties
         </IonTitle>
         <IonButtons slot="end">
           <IonButton color="warning" href='/users'>
