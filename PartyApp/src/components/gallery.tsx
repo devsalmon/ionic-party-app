@@ -15,6 +15,9 @@ import {
   IonInput,
   IonText,
   IonItem,
+  IonItemSliding,
+  IonItemOptions,
+  IonItemOption,
   IonTextarea,
   IonPopover,
   IonTitle
@@ -353,9 +356,16 @@ const Comment = (props: {name, comment, comid, colref, picid, deleteComment}) =>
 
   if (ownComment === true) { 
     return(
-      <IonItem lines="none" button onClick={props.deleteComment} detail-icon={closeSharp}>
-        <IonText>{props.name}: {props.comment} <IonText class="white-text">{timestamp}</IonText></IonText>
-      </IonItem>            
+      <IonItemSliding>
+        <IonItem lines="none">
+          <IonText>{props.name}: {props.comment}<IonText class="white-text">{timestamp}</IonText></IonText>
+        </IonItem>
+        <IonItemOptions side="end">
+          <IonItemOption onClick={props.deleteComment}>
+            <IonIcon icon={closeSharp}></IonIcon>
+          </IonItemOption>
+        </IonItemOptions>
+      </IonItemSliding>
     ) 
   } else {
     return(
