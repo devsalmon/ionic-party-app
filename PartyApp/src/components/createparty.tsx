@@ -1,20 +1,14 @@
 import React, { useState, useEffect} from 'react';
-import { useHistory } from 'react-router-dom';
-import MapContainer from './mapcontainer';
-import App from '../App';
 import {
   IonLabel,
   IonFooter,
   IonItem,
   IonButton,
   IonButtons,
-  IonBackButton,
-  IonCol,
-  IonGrid,
-  IonRow,
   IonHeader, 
   IonContent, 
   IonToolbar, 
+  IonCard,
   IonTitle,
   IonSearchbar,
   IonPopover,
@@ -25,17 +19,12 @@ import {
   IonToast,
   IonAlert,
   IonIcon,
-  IonList,
   IonText,
-  IonRange,
 } from '@ionic/react';
 import { 
   chevronBackSharp,  
-  personOutline,
   addOutline,
   removeOutline,
-  manOutline,
-  womanOutline
 } from 'ionicons/icons';
 import '../App.css';
 import firebase from '../firestore';
@@ -63,9 +52,9 @@ const CreateParty = ({editingParty, displayParties}) => {
     const friendsCollection = firebase.firestore().collection('friends'); 
     const usersCollection = firebase.firestore().collection('users');
 
-    useEffect(() => {
-      findFriends()
-    }, [])
+  useEffect(() => {
+    findFriends()
+  }, [])
   
   const findFriends = () => {
     var tempFriends = []; // list for friend id's
@@ -93,8 +82,6 @@ const CreateParty = ({editingParty, displayParties}) => {
       }              
     })
   }    
-
-    var history = useHistory();
 
     // function to hide tabs when in the create page
     // function hideTab() {
@@ -124,7 +111,6 @@ const CreateParty = ({editingParty, displayParties}) => {
     const [showToast, setShowToast] = useState(false);
     const [fieldsMissing, setFieldsMissing] = useState(false);
     const [timeError, setTimeError] = useState(false);
-    const [refresh, setRefresh] = useState(false);
     const [showPopover, setShowPopover] = useState(false);
     const [partyDeletedToast, setPartyDeletedToast] = useState(false);    
 
@@ -270,12 +256,10 @@ const CreateParty = ({editingParty, displayParties}) => {
     }
 
     const removeInvite = (id) => {
-      setRefresh(false);
       setQuery(''); // reset searchbar when invite button pressed so invite item with the button stops showing
       for (var i=0; i < invitedPeople.length; i++) {
         if (invitedPeople[i].id === id) {
             invitedPeople.splice(i,1);
-            setRefresh(true);
             break;
         }   
       }      
@@ -316,47 +300,48 @@ const CreateParty = ({editingParty, displayParties}) => {
             <IonTitle class="ion-padding" color="dark">Create</IonTitle>
           }  
         </IonToolbar>
+        <IonCard class="create-card">
           <IonItem class="rounded-top" lines="none">
             <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>
           </IonItem>
-          <IonItem class="create-card" lines="none">   
+          <IonItem class="create-card-input" lines="none">   
             <IonInput class="create-input" value={address}  onIonChange={e => setAddress(e.detail.value!)} placeholder="Address" clearInput></IonInput>                               
           </IonItem>
-          <IonItem class="create-card" lines="none">   
+          <IonItem class="create-card-input" lines="none">   
             <IonInput class="create-input" value={postcode}  onIonChange={e => setPostcode(e.detail.value!)} placeholder="Postcode/Zipcode" clearInput></IonInput>                               
           </IonItem>
-          <IonItem class="create-card" lines="none">
+          <IonItem class="create-card-input" lines="none">
             <IonInput class="create-input" value={dresscode}  onIonChange={e => setDresscode(e.detail.value!)} placeholder="Dress Code" clearInput></IonInput>  
           </IonItem>
-          <IonItem class="create-card" lines="none">
+          <IonItem class="create-card-input" lines="none">
             <IonInput class="create-input" value={drinksProvided}  onIonChange={e => setDrinksProvided(e.detail.value!)} placeholder="Drinks Provided" clearInput></IonInput>  
           </IonItem>         
-          <IonItem class="create-card" lines="none">
+          <IonItem class="create-card-input" lines="none">
             <IonLabel color="warning">Starts</IonLabel>
             <IonDatetime class="create-datetime" value={dateTime} onIonChange={e => setDateTime(e.detail.value!)} displayFormat="DD-MMM-YY HH:mm" placeholder="select"></IonDatetime>
           </IonItem>
-          <IonItem class="create-card" lines="none">
+          <IonItem class="create-card-input" lines="none">
             <IonLabel color="warning">Ends</IonLabel>
             <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} displayFormat="DD-MMM-YY HH:mm" placeholder="select"></IonDatetime>
           </IonItem>        
-          {/* <IonItem class="create-card" lines="none">
+          {/* <IonItem class="create-card-input" lines="none">
             <IonLabel color="warning">Male:Female ratio</IonLabel>
           </IonItem> */}
-          {/* <IonItem class="create-card" lines="none">            
+          {/* <IonItem class="create-card-input" lines="none">            
             <IonRange value={malesToFemales}  onIonChange={e => setMalesToFemales(e.detail.value!)}>
               <IonIcon slot="start" icon={manOutline} />
               <IonIcon slot="end" icon={womanOutline} />
             </IonRange>
           </IonItem> */}
-          <IonItem class="create-card" lines="none">
+          <IonItem class="create-card-input" lines="none">
             <IonTextarea maxlength={150} class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
           </IonItem>
-          <IonItem class="create-card" lines="none">
+          <IonItem class="create-card-input" lines="none">
             <IonButton class="create-button" expand="block" onClick={e => setShowPeopleSearch(true)}>Invite People</IonButton>
           </IonItem>       
           {invitedPeople && invitedPeople.map((person, i) => {
             return(
-              <IonItem class="create-card" lines="none" key={i}>                
+              <IonItem class="create-card-input" lines="none" key={i}>                
                 <IonText>{person.username}</IonText>
                 <IonButton slot="end" onClick={() => removeInvite(person.id)}>
                   <IonIcon size="large" icon={removeOutline} /> 
@@ -372,8 +357,10 @@ const CreateParty = ({editingParty, displayParties}) => {
             >{editingParty ? "Update!" : "Create!"}</IonButton>        
           </IonItem>
           {editingParty ? 
-            <IonButton color="danger" class="create-button" onClick={() => setShowPopover(true)}>Delete party</IonButton> :
-          null}<br/><br/><br/><br/><br/><br/>
+            <IonButton class="delete-button" onClick={() => setShowPopover(true)}>Delete party</IonButton> :
+          null}
+          </IonCard>
+          <br/><br/><br/><br/><br/>
              
       <IonModal cssClass="modal" swipeToClose={true} isOpen={showPeopleSearch}>
         <IonHeader>
@@ -384,7 +371,7 @@ const CreateParty = ({editingParty, displayParties}) => {
         <IonContent class="create-content">
           {query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map((hit, j) => (
             hit.objectID === currentuser.uid || friends.some(item => hit.objectID === item.id) === false ? null :
-            <IonItem class="create-card" lines="none" key={j}>                
+            <IonItem class="create-card-input" lines="none" key={j}>                
               <IonText>{hit.username}</IonText>
               <IonButton slot="end" onClick={() => addInvite(hit.objectID, hit.username)}>
                 <IonIcon size="large" icon={addOutline} />  
@@ -402,7 +389,7 @@ const CreateParty = ({editingParty, displayParties}) => {
           </IonButton>}
 
           {seeFriends ? friends.map((friend, k) => ( // show all friends below the searched items
-            <IonItem class="create-card" lines="none" key={k}>                
+            <IonItem class="create-card-input" lines="none" key={k}>                
               <IonText>{friend.name}</IonText>
               <IonButton slot="end" onClick={() => addInvite(friend.id, friend.name)}>
                 <IonIcon size="large" icon={addOutline} />  
@@ -412,7 +399,7 @@ const CreateParty = ({editingParty, displayParties}) => {
           <IonText class="black-text">People invited: </IonText>
           {invitedPeople && invitedPeople.map((person, l) => {
             return(
-              <IonItem class="create-card" lines="none" key={l}>                
+              <IonItem class="create-card-input" lines="none" key={l}>                
                 <IonText>{person.username}</IonText>
                 <IonButton slot="end" onClick={() => removeInvite(person.id)}>
                   <IonIcon size="large" icon={removeOutline} />  
@@ -425,6 +412,7 @@ const CreateParty = ({editingParty, displayParties}) => {
           <IonButton class="custom-button" onClick={e => setShowPeopleSearch(false)}>Done</IonButton>
         </IonFooter>        
       </IonModal>  
+
       <IonPopover
         cssClass="create-popover"        
         isOpen={showToast}

@@ -94,7 +94,7 @@ http://ionicframework.com/docs/theming/ */
     font-size: 12px;
   }    
 
-  .create-card, .rounded-top, .create-button {
+  .create-card, .rounded-top, .create-button .delete-button {
     font-size: 16px;
   }
 
@@ -155,7 +155,7 @@ http://ionicframework.com/docs/theming/ */
     font-size: 18px;
   }  
 
-  .create-card, .rounded-top, .create-button {
+  .create-card, .rounded-top, .create-button .delete-button {
     font-size: 18px;
   }
 
@@ -216,7 +216,7 @@ http://ionicframework.com/docs/theming/ */
     font-size: 20px;
   }  
   
-  .create-card, .rounded-top, .create-button {
+  .create-card, .rounded-top, .create-button .delete-button {
     font-size: 26px;
   }
 
@@ -281,7 +281,7 @@ http://ionicframework.com/docs/theming/ */
     font-size: 22px;
   }  
 
-  .create-card, .rounded-top, .create-button {
+  .create-card, .rounded-top, .create-button .delete-button {
     font-size: 30px;
   }
 

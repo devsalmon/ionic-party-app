@@ -18,11 +18,11 @@ import {
   IonCol,
   IonLoading,
   IonSlides,
-  IonSlide
+  IonSlide,
 } from '@ionic/react';
 import { 
   eyeOutline,
-  chevronDownCircleOutline
+  chevronBackSharp
 } from 'ionicons/icons';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -89,15 +89,7 @@ const SignUp: React.FC = () => {
     clearErrors(); 
     hideBackButton();
     var signUpStage = window.localStorage.getItem("signUpStage");
-    if (signUpStage === "second") {
-      goToSlide(1)
-    } else if (signUpStage === "third") {
-      goToSlide(2)
-    } else if (signUpStage === "fourth") {
-      goToSlide(3)
-    } else {
-      goToSlide(0)
-    }
+    goToSlide(signUpStage)
 
     const script = document.createElement("script");
     script.src = "https://sdk.snapkit.com/js/v1/login.js"; //Try change this url
@@ -152,22 +144,25 @@ const SignUp: React.FC = () => {
   };  
 
   const hideBackButton = async() => {
-    let swiper = await slides.current.getSwiper(); 
+    let swiper = await slides.current.getSwiper()
     if (swiper && swiper.isBeginning) {
       setSlide0(true)
     } else {
       setSlide0(false)
     }
+    setLoading(false);            
   }
 
-  const goToSlide = async(index) => {
-    let swiper = await slides.current.getSwiper();    
-    swiper.slideTo(index)    
+  const goToSlide = async(index) => { 
+    window.localStorage.setItem("signUpStage", index)
+    await slides.current.getSwiper().then(swiper => {
+      swiper.slideTo(index, 1500, false)
+    })       
     hideBackButton();
   }
 
-  const prevSlide = async() => {
-    let swiper = await slides.current.getSwiper();
+  const prevSlide = async() => {    
+    let swiper = await slides.current.getSwiper()
     swiper.slidePrev()
     hideBackButton();
   }
@@ -214,16 +209,12 @@ const SignUp: React.FC = () => {
           // it's a phone number                    
           setSignUpMethod('phone')
           window.localStorage.setItem("signUpMethod", "phone")
-          window.localStorage.setItem("signUpStage", "second")
-          setLoading(false);
           goToSlide(1);
           console.log("Sign up method (phone): " + signUpMethod)
         } else if (validateEmail(email_or_phone)) {
           // it's an email
           setSignUpMethod('email')
           window.localStorage.setItem("signUpMethod", "email")
-          window.localStorage.setItem("signUpStage", "second")
-          setLoading(false); 
           goToSlide(1);
           console.log("Sign up method (email): " + signUpMethod)
         } else {
@@ -250,8 +241,6 @@ const SignUp: React.FC = () => {
       //go to next slide (DOB)      
       setFieldsMissing(false);
       setPasswordError("");      
-      window.localStorage.setItem("signUpStage", "third")
-      setLoading(false);
       goToSlide(2)
     } else {
       setLoading(false);
@@ -294,7 +283,6 @@ const SignUp: React.FC = () => {
       setPasswordError("Enter email or phone number");
       //We should check this field before?
       console.log("signupmethod is neither phone or email")
-      setLoading(false);
       goToSlide(0);
     }
   }
@@ -310,7 +298,6 @@ const SignUp: React.FC = () => {
           sendVerificationEmail();            
         } else {                      
           setUsernameError("Username is taken, please try another one");            
-          setLoading(false);
           goToSlide(0);
         }          
       }).catch(err => {
@@ -325,21 +312,17 @@ const SignUp: React.FC = () => {
               sendVerificationEmail();            
             } else {                          
               setUsernameError("Username is taken, please try another one");            
-              setLoading(false);
               goToSlide(0);
             }          
           }).catch(err => {
             console.log(err.message);
             setLoading(false);
           })            
-          //go to slide 3
         }).catch(err => {          
           setPasswordError(err.message);
-          setLoading(false);
           goToSlide(0);
         })   
       }).catch(err => {              
-        setLoading(false);
         switch(err.code){
           case "auth/invalid-email":
           case "auth/email-already-exists":
@@ -358,8 +341,6 @@ const SignUp: React.FC = () => {
   const sendVerificationEmail = () => {
     firebase.auth().currentUser.sendEmailVerification(actionCodeSettings).then(function() {      
       setLinkSent(true);
-      setLoading(false);            
-      window.localStorage.setItem("signUpStage", "fourth");
       goToSlide(3);
     }).catch(function(error) {
       // An error happened.
@@ -404,8 +385,9 @@ const SignUp: React.FC = () => {
         phoneNumber: validatePhone(email_or_phone) ? email_or_phone : "",
         dateOfBirth: dob,
         bitmoji: window.localStorage.getItem("bitmoji_avatar")
-      }, {merge: true}).then(()=>{
-        window.location.reload(false)
+      }, {merge: true}).then(()=>{ // redirect user to the home page
+        setLoading(true);
+        window.location.reload(false);
       }).catch(err => {
         setPasswordError(err.message);
       })       
@@ -440,13 +422,10 @@ const SignUp: React.FC = () => {
             // SMS sent. Prompt user to type the code from the message, then sign the
             // user in with confirmationResult.confirm(code).        
             window.confirmationResult = confirmationResult;
-            window.localStorage.setItem("signUpStage", "fourth")            
-            setLoading(false);
             goToSlide(3);   
             console.log("Phone signed in: " + confirmationResult)
           }).catch((error) => {
             // Error SMS not sent phone number may be wrong
-            setLoading(false);
             if (error.code === "auth/invalid-phone-number") {              
               setPhoneError(
                 "Invalid format for email or phone number. " +
@@ -466,13 +445,10 @@ const SignUp: React.FC = () => {
           // SMS sent. Prompt user to type the code from the message, then sign the
           // user in with confirmationResult.confirm(code).        
           window.confirmationResult = confirmationResult;
-          window.localStorage.setItem("signUpStage", "fourth")          
-          setLoading(false);
           goToSlide(3);   
           console.log("Phone signed in: " + confirmationResult)
         }).catch((error) => {
           // Error SMS not sent phone number may be wrong
-          setLoading(false);
           if (error.code === "auth/invalid-phone-number") {            
             setPhoneError(
               "Invalid format for email or phone number. " +
@@ -506,7 +482,6 @@ const SignUp: React.FC = () => {
               addUserInfo();
             } else {              
               setUsernameError("Username is taken, please try another one");              
-              setLoading(false);
               goToSlide(0);
             }          
           }).catch(err => {
@@ -520,7 +495,6 @@ const SignUp: React.FC = () => {
                 addUserInfo();
               } else {              
                 setUsernameError("Username is taken, please try another one");              
-                setLoading(false);
                 goToSlide(0);
               }          
             }).catch(err => {
@@ -550,6 +524,7 @@ const SignUp: React.FC = () => {
     user.reload();
     var ver = await user.emailVerified;
     if (ver === true) {
+      setLoading(true);
       window.location.reload(false);
     } else {
       console.log("not verified yet")
@@ -595,9 +570,16 @@ const SignUp: React.FC = () => {
     <IonPage>
       <IonToolbar class="ion-padding">
         {slide0 ? null :<IonButtons slot="start">
-          <IonButton slot="start" onClick={() => prevSlide()}>Back</IonButton>
+          <IonButton slot="start" onClick={() => prevSlide()}>
+            <IonIcon icon={chevronBackSharp} /> 
+          </IonButton>
         </IonButtons>}
         <IonTitle class="ion-padding signup-toolbar">Sign Up</IonTitle>     
+        {slide0 ? null : <IonButtons slot="end">
+          <IonButton slot="end">
+            <IonIcon /> 
+          </IonButton>
+        </IonButtons>}        
       </IonToolbar>
       <IonContent id="signin-content">      
       <IonSlides class="sign-up-slides" ref={slides} options={slideOpts}> 
@@ -641,7 +623,7 @@ const SignUp: React.FC = () => {
               </IonRow>     
               {passwordError ? <><IonText class="errormsg">{passwordError}</IonText><br/></>:null}               
               <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
-              <IonButton className="signin-button" onClick={()=>slide0SignUp()}>Next</IonButton>
+              <IonButton className="signin-button" onClick={()=>slide0SignUp()}>Next</IonButton><br/>
 
               <p className="errormsg">
               Have an account?<br/> 
@@ -665,7 +647,7 @@ const SignUp: React.FC = () => {
               </IonInput>  
               {fullnameError ? <><IonText class="errormsg">{fullnameError}</IonText><br/></>:null}                
               <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
-              <IonButton className="signin-button" onClick={()=>slide1SignUp()}>Next</IonButton>
+              <IonButton className="signin-button" onClick={()=>slide1SignUp()}>Next</IonButton><br/>
               <IonButton className="signin-button" onClick={()=>checkSnap()}>Log Snap info</IonButton>
               </div>
           </IonSlide>   
@@ -706,7 +688,7 @@ const SignUp: React.FC = () => {
              {signUpMethod === 'email' ? 
               <> 
               <IonText>We have sent you an email, please click the link in the email to verify it before continuing</IonText>
-              <IonButton className="signin-button" onClick={()=>checkIfVerifiedandSignIn()}>Next</IonButton>
+              <IonButton className="signin-button" onClick={()=>checkIfVerifiedandSignIn()}>Next</IonButton><br/>
               <IonText>{emailError}</IonText>
               </>
               // else sign up method is phone...

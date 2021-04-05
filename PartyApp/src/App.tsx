@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Users from './components/users';
 import CreateParty from './components/createparty';
 import MapContainer from './components/mapcontainer';
@@ -6,24 +6,19 @@ import Gallery from './components/gallery';
 import MyPartyList from './components/mypartylist';
 import SignIn from './components/signin';
 import SignUp from './components/signup';
-import OtherProfile from './components/otherprofile';
+import AppUrlListener from './components/AppUrlListener';
 
-import { Route, Redirect, RouteComponentProps, useLocation } from 'react-router-dom';
+import { Route, Redirect, useLocation, useHistory } from 'react-router-dom';
 import { RefresherEventDetail } from '@ionic/core';
 import {
   IonApp,
   IonIcon,
-  IonLabel,
   IonRefresher, 
   IonRefresherContent,
   IonRouterOutlet,
   IonTabBar,
   IonTabButton,
   IonTabs, 
-  IonSlides,
-  IonSlide,
-  IonRadio,
-  IonRadioGroup,
   IonItem,
   IonButton,
   IonPage,
@@ -36,9 +31,7 @@ import {
   IonGrid,
   IonPopover,
   IonImg,
-  IonInput, 
   IonText,
-  IonRange,
   IonToast,
   IonRippleEffect,
   IonLoading,
@@ -49,19 +42,13 @@ import {
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { 
-  home, 
   personAddSharp,   
   cameraOutline,
   chevronDownCircleOutline,
-  cloudUploadOutline,
-  chevronBackSharp,  
   thumbsUpOutline,
   thumbsDownOutline,
-  manOutline,
-  womanOutline,
   createOutline
 } from 'ionicons/icons';
-import {useCamera} from '@ionic/react-hooks/camera';
 // import {
 //   MediaFile,
 //   VideoCapturePlusOptions,
@@ -71,9 +58,7 @@ import {
   CameraResultType, 
   CameraSource, 
   Plugins, 
-  PushNotification, 
   PushNotificationToken, 
-  PushNotificationActionPerformed,
   Capacitor
 } from '@capacitor/core';
 import './App.css';
@@ -99,29 +84,27 @@ const Party = ({id, data, live, edit}) => {
   // party card
 
   var user = firebase.auth().currentUser.uid
-  useEffect(()=>{    
-    firebase.firestore().collection("users").doc(data.hostid).get().then(doc => {
-      setHost(doc.data().username);
-    })        
-    setCurrentUser(user);
-    getDaysUntilParty()
-  })
 
   const [showToast, setShowToast] = useState(false);
   const [showPopover, setShowPopover] = useState(false);
   const [pictureUploading, setPictureUploading] = useState(false);
   const [photo, setPhoto] = useState('');
   const [videoUrls, setVideoUrls] = useState<any[]>([]);
-  const [daysUntilParty, setDaysUntilParty] = useState(0);
-  const [hoursUntilParty, setHoursUntilParty] = useState(0);
-  const [minutesUntilParty, setMinutesUntilParty] = useState(0);
+  const [timeUntil, setTimeUntil] = useState("");
   //const {photo, getPhoto} = useCamera(); 
   const { Camera } = Plugins;
-  const [isLive, setIsLive] = useState(live);
   const [host, setHost] = useState('');
   const [pictureError, setPictureError] = useState('');
   const [currentUser, setCurrentUser] = useState(''); // id of current user
   const collectionRef = firebase.firestore().collection("users").doc(data.hostid).collection("myParties");  
+
+  useEffect(()=>{        
+    firebase.firestore().collection("users").doc(data.hostid).get().then(doc => {
+      setHost(doc.data().username);
+    })        
+    setCurrentUser(user);
+    getDaysUntilParty();
+  }, [])
 
   const onSave = async() => { 
     setPictureUploading(true);
@@ -153,7 +136,7 @@ const Party = ({id, data, live, edit}) => {
     const cameraPhoto = await Camera.getPhoto({
       resultType: CameraResultType.Base64,
       source: CameraSource.Camera,
-      quality: 50,
+      quality: 30,
       correctOrientation: true,
       saveToGallery: true
     });
@@ -184,33 +167,18 @@ const Party = ({id, data, live, edit}) => {
   // };
 
   const getDaysUntilParty = () => {    
-    var now = new Date().getTime();
-    var countdownTime = moment(data.dateTime).valueOf();
-    var days = Math.floor((countdownTime - now) / (1000 * 60 * 60 * 24));    
-    var minutes = Math.floor(((countdownTime - now) % (1000 * 60 * 60)) / (1000 * 60));
-    if (days === 0) { // if less than a day left until party
-      var hours = Math.floor(((countdownTime - now) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      if (hours === 0) {
-        setMinutesUntilParty(minutes);
-      } else {
-        setHoursUntilParty(hours);
-        setMinutesUntilParty(minutes);
-      }
-    } else if (days < 0) {
-      setDaysUntilParty(0);
-    } else {
-      setDaysUntilParty(days);
-    }
+    var now = moment();
+    var timeUntilParty = now.to(data.dateTime);
+    setTimeUntil(timeUntilParty);        
   }
 
-  var today = new Date();
   return(
     <>
-    {moment(today).isBetween(moment(data.endTime), moment(data.endTime).add(1, 'days')) ? 
+    {moment().isBetween(moment(data.endTime), moment(data.endTime).add(20, 'hours')) ? 
     <><IonCardTitle class="live-title">After Party</IonCardTitle><br/></> :
-    isLive ? <><IonCardTitle class="live-title">Live!</IonCardTitle><br/></> : 
+    live ? <><IonCardTitle class="live-title">Live!</IonCardTitle><br/></> : 
     <div className="ion-text-center">
-      {hoursUntilParty ? 
+      {/*hoursUntilParty ? 
       <IonText className="ion-padding">
         {hoursUntilParty} hrs {minutesUntilParty} mins
       </IonText> : 
@@ -221,9 +189,10 @@ const Party = ({id, data, live, edit}) => {
       <IonText className="ion-padding"> 
         {daysUntilParty} days
       </IonText>
-      }<br/>
+      */}
+      <IonText>{timeUntil}</IonText><br/>
     </div>}
-    <IonItem className="accordion-item" lines="none">
+    <IonItem className={!live ? "accordion-item" :"accordion-live-item"} lines="none">
       <IonGrid>
         <IonRow>
           <IonCol size="2.5" class={live ? "red-date-box" : "yellow-date-box"}>
@@ -251,7 +220,7 @@ const Party = ({id, data, live, edit}) => {
               <IonIcon slot="icon-only" src="assets/icon/balloon-outline.svg"/>
             </IonButton>
           </IonCol>
-          {isLive ? 
+          {live ? 
           <>
           <IonCol className="ion-self-align-center"> 
             <IonButton color="warning" onClick={() => takePhoto()}>
@@ -347,7 +316,6 @@ const PartyList = ({editParty, stopEditing}) => {
   const [partyreqs, setPartyReqs] = useState([]);
   const [upcomingParties, setUpcomingParties] = useState([]);
   const [liveParties, setLiveParties] = useState([]);
-  const [refresh, setRefresh] = useState(false);
   const [newNotifications, setNewNotifications] = useState(false);
   const [editingParty, setEditingParty] = useState(""); // holds data of the party being edited
   const [deviceTokens, setDeviceTokens] = useState(""); // holds tokens of all current user's devices 
@@ -355,11 +323,9 @@ const PartyList = ({editParty, stopEditing}) => {
 
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once    
-    displayParties()   
-    // upcomingParties.sort((a, b) => b.data.dateTime - a.data.dateTime);
-    // liveParties.sort((a, b) => b.data.dateTime - a.data.dateTime);
+    displayParties();   
     // this means display parties only runs once
-  },  [refresh]); 
+  },  []); 
 
   // Checks for friend requests
   collectionRef.doc(current_user.uid)
@@ -400,7 +366,7 @@ const PartyList = ({editParty, stopEditing}) => {
   function doRefresh(event: CustomEvent<RefresherEventDetail>) {
     // toggle new parties so displayParties runs and it checks for new parties
     checkForRequests();
-    setRefresh(!refresh);                
+    displayParties();               
     setNewNotifications(false);
     setTimeout(() => {
       event.detail.complete();
@@ -446,100 +412,82 @@ const PartyList = ({editParty, stopEditing}) => {
       setNewNotifications(false);
   }
 
-  const displayParties = () => {          
+  const displayParties = () => {       
+    setUpcomingParties([]);
+    setLiveParties([]);   
+    var up = [];
+    var lp = [];
+
     firebase.firestore().collection("users")
-      .doc(current_user.uid).collection("myParties").orderBy("date", "asc").get().then(querySnapshot => {
-        querySnapshot.forEach(doc => {
-          let today = new Date();
-          let data = doc.data();          
-          var alreadyInUP = upcomingParties.some(item => doc.id === item.id);
-          var alreadyInLP = liveParties.some(item => doc.id === item.id);
+      .doc(current_user.uid).collection("myParties").get().then(querySnapshot => {
+        querySnapshot.forEach(doc => {          
+          let data = doc.data();      
           var endTime = moment(data.endTime).add(20, 'hours');
-          if (moment(today).isBefore(data.dateTime) && !alreadyInUP) { 
-            setUpcomingParties(parties => [
-              ...parties, 
-              {
-                id: doc.id,
-                data: data
-              }              
-            ]);
+          if (moment().isBefore(data.dateTime)) { 
+            up.push({id: doc.id, data: data});
           } else if
-          (moment(today).isBetween(data.dateTime, endTime)  && !alreadyInLP) {
+          (moment().isBetween(data.dateTime, endTime)) {
             // if party is live
-            setLiveParties(parties => [
-              ...parties,
-              {
-                id: doc.id,
-                data: data
-              }
-            ])
+            lp.push({id: doc.id, data: data});
             // remove the party from upcomingParties array if party turns live
             for (var i=0; i < upcomingParties.length; i++) {
-              if (upcomingParties[i].id === doc.id) {
-                  upcomingParties.splice(i,1);
+              if (up[i].id === doc.id) {
+                  up.splice(i,1);
                   break;
               }   
             }             
-          } else if (moment(today).isAfter(endTime)) {
-            for (var j=0; j < liveParties.length; j++) { 
-              if (liveParties[j].id === doc.id) {
-                  liveParties.splice(j,1);
+          } else if (moment().isAfter(endTime)) {
+            for (var j=0; j < lp.length; j++) { 
+              if (lp[j].id === doc.id) {
+                  lp.splice(j,1);
                   break;
               }   
             }             
           }
         })
-      })
+        up.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);
+        lp.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);      
+        setUpcomingParties(up);
+        setLiveParties(lp);  
+      });
 
     firebase.firestore().collection("users")
       .doc(current_user.uid).get().then(doc => {
-          let today = new Date();
           let data = doc.data();
           if (data && data.acceptedInvites) {             
             for (var i=0; i < data.acceptedInvites.length; i++) {
               firebase.firestore().collection("users")
                 .doc(data.acceptedInvites[i].hostid).collection("myParties").doc(data.acceptedInvites[i].partyid).get().then(partydoc => {
-                  // if party is in the future and party isn't already in the state                   
-                  var alreadyInUP = upcomingParties.some(item => partydoc.id === item.id);
-                  var alreadyInLP = liveParties.some(item => partydoc.id === item.id);
                   var endTime = moment(partydoc.data().endTime).add(20, 'hours');
-                  if (moment(today).isBefore(partydoc.data().dateTime) && !alreadyInUP) { 
-                    setUpcomingParties(parties => [
-                      ...parties, 
-                      {
-                        id: partydoc.id,
-                        data: partydoc.data()
-                      }              
-                    ]);
+                  if (moment().isBefore(partydoc.data().dateTime)) { 
+                    up.push({id: partydoc.id, data: partydoc.data()});
                   } else if 
-                  (moment(today).isBetween(partydoc.data().dateTime, endTime) && !alreadyInLP) {
+                  (moment().isBetween(partydoc.data().dateTime, endTime)) {
                     // if party is live
-                    setLiveParties(parties => [
-                      ...parties,
-                      {
-                        id: partydoc.id,
-                        data: partydoc.data()
-                      }
-                    ]) 
+                    lp.push({id: partydoc.id, data: partydoc.data()});
                     // remove the party from upcomingParties array 
-                    for (var i=0; i < upcomingParties.length; i++) {
-                      if (upcomingParties[i].id === partydoc.id) {
-                          upcomingParties.splice(i,1);
+                    for (var i=0; i < up.length; i++) {
+                      if (up[i].id === partydoc.id) {
+                          up.splice(i,1);
                           break;
                       }   
                     }             
-                  } else if (moment(today).isAfter(endTime)) {
-                      for (var j=0; j < liveParties.length; j++) {
-                        if (liveParties[j].id === doc.id) {
-                            liveParties.splice(j,1);
+                  } else if (moment().isAfter(endTime)) {
+                      for (var j=0; j < lp.length; j++) {
+                        if (lp[j].id === doc.id) {
+                            lp.splice(j,1);
                             break;
                         }   
                       }             
                     }
               })
             } 
-          }                 
-    });      
+            up.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);
+            lp.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);
+            setUpcomingParties(up);        
+            setLiveParties(lp);            
+          }                           
+    });       
   }
 
   const acceptInvite = () => {
@@ -552,7 +500,7 @@ const PartyList = ({editParty, stopEditing}) => {
   if (editingParty) {
     editParty();
     return(
-      <CreateParty editingParty={editingParty} displayParties={() => setRefresh(!refresh)}/>
+      <CreateParty editingParty={editingParty} displayParties={() => displayParties()}/>
     )
   } else {
   stopEditing();
@@ -593,12 +541,12 @@ const PartyList = ({editParty, stopEditing}) => {
         liveParties.length > 0 ? null :
         <div className="ion-text-center"><br/><br/><IonText>No upcoming parties, organize some parties with friends on the create page!</IonText></div>
       }     
-      {liveParties && liveParties.sort((a, b) => a.data.dateTime > b.data.dateTime ? 1:-1).map((party, k) => { 
+      {liveParties && liveParties.sort((a, b) => a.data.dateTime - b.data.dateTime).map((party, k) => { 
         return(        
           <Party key={k} id={party.id} data={party.data} live={true} edit={() => setEditingParty(party.data)}/>              
         );                    
       })}
-      {upcomingParties && upcomingParties.sort((a, b) => a.data.dateTime > b.data.dateTime ? 1: -1).map((party, l) => {
+      {upcomingParties && upcomingParties.sort((a, b) => a.data.dateTime - b.data.dateTime).map((party, l) => {
         return( 
           <Party key={l} id={party.id} data={party.data} live={false} edit={() => setEditingParty(party.data)}/>
         );                
@@ -628,7 +576,7 @@ const FriendRequest = ({id, click}) => {
     firebase.firestore().collection("users").doc(user).get().then(doc => {
       setCurrentUser(doc.data().username) // set name of person who requested 
     })
-  })  
+  }, [])  
 
   const userRef = firebase.firestore().collection("users").doc(id); // get document of person who requested
   userRef.get().then(function(doc) {
@@ -762,7 +710,7 @@ const PartyRequest = ({hostid, partyid, click}) => {
     firebase.firestore().collection("users").doc(hostid).get().then(doc => {
       setUserName(doc.data().username) // set name of person who requested 
     })
-  })
+  }, [])
 
   // get party document of the person who requested
   const userRef = firebase.firestore().collection("users").doc(hostid); 
@@ -945,8 +893,8 @@ const App: React.FC = () => {
       }
     }).catch(error => {
       console.log("error requesting permission: ", error.message)
-    })
-    ;    
+    });
+        
 
     // On succcess, we should be able to receive notifications
     PushNotifications.addListener('registration',
@@ -970,7 +918,6 @@ const App: React.FC = () => {
     //    (notification: PushNotification) => {
     //  }
     //);
-
     // Method called when tapping on a notification
     //PushNotifications.addListener('pushNotificationActionPerformed',
       //(notification: PushNotificationActionPerformed) => {
@@ -993,6 +940,7 @@ const App: React.FC = () => {
     <IonApp>
         { signedIn === false ? (   
           <IonReactRouter>
+          <AppUrlListener></AppUrlListener>
             <IonRouterOutlet>
               <Route path='/signin' component={SignIn} />
               <Route path='/signup' component={SignUp} />

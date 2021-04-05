@@ -1,5 +1,4 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {Redirect} from 'react-router-dom';
 import {
   IonText,
   IonPopover,
@@ -12,7 +11,6 @@ import {
   IonRefresher,
   IonRefresherContent,
   IonToolbar,
-  IonToast,
   IonTitle,
   IonRadioGroup,
   IonRadio,
@@ -26,16 +24,10 @@ import {
   IonSlides,
   IonSlide,
   IonCol,
-  IonAvatar,
   IonMenuButton,
-  IonItemDivider,
-  IonLabel
 } from '@ionic/react';
 import firebase from '../firestore';
 import moment from 'moment';
-
-import {useCamera} from '@ionic/react-hooks/camera';
-import {CameraResultType, CameraSource, Plugins} from '@capacitor/core';
 
 import Gallery from './gallery';
 import Memory from './memory';
@@ -84,8 +76,6 @@ const MyPartyList = () => {
   const [verifyNewPassword, setVerifyNewPassword] = useState(''); //popover to change username
   const [passwordError, setPasswordError] = useState('');
   const [usernameError, setUsernameError] = useState('');
-  const [profilePhoto, setProfilePhoto] = useState('');  
-  const [photoPopover, setPhotoPopover] = useState(false); 
   const [accountDeleted, setAccountDeleted] = useState(false);
   const [continuedWithSnap, setContinuedWithSnap] = useState(false);
 
@@ -93,7 +83,8 @@ const MyPartyList = () => {
   const [refresh, setRefresh] = useState(false);  
   var user = firebase.auth().currentUser;
   var currentuser = firebase.auth().currentUser.uid;
-  const [displayName, setDisplayName] = useState('');
+  const [fullname, setFullname] = useState('');
+  const [username, setUsername] = useState('');
   const [bitmoji, setBitmoji] = useState('');
 
   useEffect(() => {  
@@ -113,8 +104,9 @@ const MyPartyList = () => {
           });
         }
       }
-      setDisplayName(data.fullname);
-      if (data.bitmoji) {
+      setFullname(data.fullname);
+      setUsername(data.username);
+      if (data.bitmoji !== "") {
         setBitmoji(data.bitmoji);
       }
       var pwn = data.partiesWithNotifications ? data.partiesWithNotifications : [];
@@ -133,7 +125,18 @@ const MyPartyList = () => {
   }, [refresh, inGallery]); 
 
   window.onstorage = () => {
-    setContinuedWithSnap(true)
+    if (window.localStorage.getItem("snap_fullname") !== null) {
+      var fullname = window.localStorage.getItem("snap_fullname");
+      var bitmoji = window.localStorage.getItem("bitmoji_avatar");
+      firebase.firestore().collection("users").doc(currentuser).update({
+        fullname: fullname,
+        bitmoji: bitmoji
+      }).then(() => {
+        setContinuedWithSnap(true);
+      }).catch(err => {
+        console.log(err.message)
+      })
+    }    
   }
 
   const displayNewBitmo = () => {
@@ -155,7 +158,6 @@ const MyPartyList = () => {
     }
   };   
 
-  var user = firebase.auth().currentUser;  
   const friendsCollection = firebase.firestore().collection('friends');
   const usersCollection = firebase.firestore().collection('users');
   var tempFriends = []; // list for friend id's
@@ -293,52 +295,41 @@ const MyPartyList = () => {
   }  
 
  const displayParties = (pwn) => {          
-    // get your parties    
+   setYourParties([]);
+   setAttendedParties([]);
+   var yp = [];
+   var ap = [];
+    // get your parties
     firebase.firestore().collection("users")
-      .doc(currentuser).collection("myParties").orderBy("date", "desc").get().then(querySnapshot => {
-        setYourParties([]);
+      .doc(currentuser).collection("myParties").get().then(querySnapshot => {        
         querySnapshot.forEach(doc => {
-          let today = new Date();
           let data = doc.data();         
           var hasNotifications = pwn.some(item => doc.id === item);
-          if (moment(today).isAfter(data.dateTime)) { 
-            setYourParties(parties => [
-              ...parties, 
-              {
-                id: doc.id,
-                data: doc.data(),
-                notifications: hasNotifications
-              }              
-            ]);
+          if (moment().isAfter(data.dateTime)) { 
+            yp.push({id: doc.id, data: doc.data(), notifications: hasNotifications});
           } 
         })
+        yp.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);
+        setYourParties(yp);        
       })
 
     // get attended parties
     firebase.firestore().collection("users")
-      .doc(currentuser).get().then(doc => {
-          setAttendedParties([]);
-          let today = new Date();
+      .doc(currentuser).get().then(doc => {          
           let data = doc.data();
           if (data.acceptedInvites) {
             for (var i=0; i < data.acceptedInvites.length; i++) {
               firebase.firestore().collection("users")
                 .doc(data.acceptedInvites[i].hostid).collection("myParties").doc(data.acceptedInvites[i].partyid).get().then(partydoc => {
                   var hasNotifications = pwn.some(item => partydoc.id === item);
-                  if (moment(today).isAfter(partydoc.data().dateTime)) {
-                    attendedParties.sort((a, b) => a.data.dateTime - b.data.dateTime);   
-                    // if party is live
-                    setAttendedParties(parties => [
-                      ...parties,
-                      {
-                        id: partydoc.id,
-                        data: partydoc.data(),
-                        notifications: hasNotifications
-                      }
-                    ])            
+                  if (moment().isAfter(partydoc.data().dateTime)) {
+                    ap.push({id: partydoc.id, data: partydoc.data(), notifications: hasNotifications});
+                    // if party is live          
                   }
               })
             }                   
+            ap.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);
+            setAttendedParties(ap);    
           }
     });      
   }  
@@ -421,6 +412,11 @@ const MyPartyList = () => {
             </IonButton>
           </IonButtons>
           <IonTitle class="ion-padding">My Parties</IonTitle>
+          <IonButtons slot="end">
+            <IonButton fill="clear">
+              <IonIcon />
+            </IonButton>
+          </IonButtons>          
         </IonToolbar>
         <Gallery hostid={hostID} partyid={partyID} key={partyID}/>
         </>
@@ -451,12 +447,12 @@ const MyPartyList = () => {
               <IonButton onClick={() => setDeleteAccPopover(true)}>
                 Delete Account             
               </IonButton><br/>                
-              <IonButton>
+              {/* <IonButton>
                 Notifications
               </IonButton><br/>          
               <IonButton>
                 Help
-              </IonButton><br/><br/>
+              </IonButton><br/><br/> */}
               <div id="my-login-button-target"></div> 
               <IonButton onClick={() => CheckSnapInfo()}>Check Snap info</IonButton>                             
             </IonList>
@@ -474,11 +470,12 @@ const MyPartyList = () => {
             <IonGrid>
               <IonRow>
                 <IonCol size="3">
-                  {bitmoji !== "" ? <IonImg src={bitmoji}></IonImg> :
+                  {bitmoji !== null && bitmoji !== "" ? <IonImg src={bitmoji}></IonImg> :
                   <IonIcon className="profile-icon" icon={personOutline}/>}
                 </IonCol>
                 <IonCol size="6"> 
-                  <IonText>{displayName}</IonText><br/>
+                  <IonText>{fullname}</IonText><br/>
+                  <IonText class="white-text">{username}</IonText><br/>
                   <p className="white-text"><span onClick={()=>setShowFriends(true)}>{friend_no} FRIENDS</span></p>       
                 </IonCol>      
                 <IonCol size="3">
@@ -506,9 +503,9 @@ const MyPartyList = () => {
           </IonRow>
           </IonRadioGroup>                                
           </IonToolbar>
-        </IonHeader>                    
+        </IonHeader>      
         <IonSlides ref={slides} onIonSlideDidChange={e => handleSlideChange()}>                   
-          <IonSlide>     
+          <IonSlide>             
             <IonContent fullscreen={true} scroll-y={true}> 
               <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
                 <IonRefresherContent
@@ -540,7 +537,7 @@ const MyPartyList = () => {
               return(              
                 <Memory notifications={party.notifications} id={party.id} data={party.data} key={j} click={() => enter(party.id, party.data.hostid)}/>
               )          
-            })}      
+            })} 
             <br/><br/><br/><br/><br/>
             </IonContent>                                
           </IonSlide>          
@@ -641,11 +638,11 @@ const MyPartyList = () => {
               {friends && friends.map((friend, k) => {
                   return(
                     <IonItem lines="none" key={k}>
-                      <IonCol>
-                        {friend.bitmoji !== "" ? <IonImg src={friend.bitmoji}></IonImg> :
+                      <IonCol size="4">
+                        {friend.bitmoji !== null ? <IonImg src={friend.bitmoji}></IonImg> :
                         <IonIcon className="profile-icon" icon={personOutline}/>}
                       </IonCol>
-                      <IonCol>
+                      <IonCol size="9">
                         <IonRow>
                           <IonText>{friend.username}</IonText>   
                         </IonRow>

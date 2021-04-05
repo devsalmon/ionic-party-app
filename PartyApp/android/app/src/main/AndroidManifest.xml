@@ -17,6 +17,7 @@
             android:theme="@style/AppTheme.NoActionBarLaunch"
             android:launchMode="singleTask">
 
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -33,8 +34,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:host="test1619.page.link" android:scheme="http"/>
-                <data android:host="test1619.page.link" android:scheme="https"/>
+                <data android:scheme="https" android:host="test1619.page.link" />
             </intent-filter>
 
         </activity>

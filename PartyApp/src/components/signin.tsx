@@ -57,7 +57,7 @@ const SignIn: React.FC = () => {
       // if user has signed in by pressing a button in sign up, but isn't verified    
       setPasswordError(email + " is not verified yet, please click the link in your email to verify your account");           
     }
-  })
+  }, [])
 
   var actionCodeSettings = {
     url: 'http://localhost:8100/signup',
@@ -81,16 +81,19 @@ const SignIn: React.FC = () => {
     setFieldsMissing(false);  
   }
 
-  const resetPassword = () => {
-    setForgotPassword(false); // remove popover
-    if (!emailorphone) { // ask user to provide an email address
-      setEmailorphoneError("Please provide an email or phone number before resetting your password")
+  const resetPassword = () => {  
+    clearErrors();  
+    if (emailorphone.trim() === "") { // ask user to provide an email address
+      setEmailorphoneError("Please provide an email or phone number before resetting your password");
+      setForgotPassword(false); // remove popover
     } else {
       setEmailorphoneError("")
       firebase.auth().sendPasswordResetEmail(emailorphone, actionCodeSettings).then(() => {
         setEmailSent(true);
+        setForgotPassword(false); // remove popover
       }).catch(function(error) {
-        setPasswordError(error.message);                                              
+        setPasswordError(error.message);           
+        setForgotPassword(false); // remove popover                                   
       });          
     }
   }
@@ -182,8 +185,7 @@ const SignIn: React.FC = () => {
           type="text"
           onIonChange={e => setEmailorphone(e.detail.value!)}
           >        
-          </IonInput>
-          <IonText class="errormsg">{emailorphoneError}</IonText><br/>        
+          </IonInput>            
           <IonRow class="ion-align-items-center">
             <IonInput 
             class="create-input" 
@@ -201,6 +203,7 @@ const SignIn: React.FC = () => {
           <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
           <IonButton class="signin-button" onClick={() => handleLogin()}>Sign in</IonButton>
           <p className="errormsg">Don't have an account? <br/><IonButton className="yellow-text" href="/signup">Sign up</IonButton></p>
+          <IonText class="errormsg">{emailorphoneError}</IonText><br/>      
           <p className="errormsg"><IonButton className="yellow-text" onClick={() => setForgotPassword(true)}>Forgot Password?</IonButton></p>  
           {emailSent ? <IonText class="errormsg">Email sent, click the link to reset your password</IonText> : null}
           <IonPopover

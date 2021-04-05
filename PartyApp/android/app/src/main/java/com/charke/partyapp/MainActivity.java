@@ -38,7 +38,11 @@ public class MainActivity extends BridgeActivity {
       }});
       /*createDynamicLink_Basic();
       handleIntent(getIntent());*/
-  }
+
+      Intent intent = getIntent();
+      String action = intent.getAction();
+      Uri data = intent.getData();
+    }
   }
 
 

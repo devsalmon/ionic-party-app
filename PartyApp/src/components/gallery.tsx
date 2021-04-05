@@ -20,7 +20,6 @@ import {
   IonItemOption,
   IonTextarea,
   IonPopover,
-  IonTitle
 } from '@ionic/react';
 import {   
   heartOutline,
@@ -52,7 +51,6 @@ const Gallery = ({hostid, partyid}) => {
     const [host, setHost] = useState('');
     const [date, setDate] = useState('');
     const [title, setTitle] = useState('');
-    const [location, setLocation] = useState('');
     const [message, setMessage] = useState('');
     const [afterMessage, setAfterMessage] = useState('');
     const [edit, setEdit] = useState(false);
@@ -71,7 +69,6 @@ const Gallery = ({hostid, partyid}) => {
     doc.get().then(function(doc) {
       if (doc.exists) {
           setTitle(doc.data().title);
-          setLocation(doc.data().location);
           setDate(moment(doc.data().date).format('l'));
           setAfterMessage(doc.data().afterMessage)
       } else {
@@ -136,7 +133,6 @@ const Picture = ({doc, hostid, partyid}) => {
   const [ownPicture, setOwnPicture] = useState(Boolean);
   const [comment, setComment] = useState('');
   const [showComments, setShowComments] = useState(false);
-  const [refresh, setRefresh] = useState(false);
   const [otherComments, setOtherComments] = useState([]);
   const [displayName, setDisplayName] = useState('');
   const [takenBy, setTakenBy] = useState('');
@@ -154,7 +150,7 @@ const Picture = ({doc, hostid, partyid}) => {
     likedPicture();
     checkOwnPicture();
     displayComments();
-  }, [refresh]);
+  }, );
 
   const checkOwnPicture = () => {
     // function to check if the picture was taken by the current user
@@ -239,7 +235,7 @@ const Picture = ({doc, hostid, partyid}) => {
   ) : null 
 
   const writeComments = () => {
-    if (comment != '') {
+    if (comment !== '') {
     collectionRef.doc(doc.id).collection("Comments").add({
       username: displayName,
       comment: comment,

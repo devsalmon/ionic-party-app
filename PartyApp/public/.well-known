@@ -1,0 +1,5 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target" : { "namespace": "android_app", "package_name": "com.charke.partyapp",
+               "sha256_cert_fingerprints": ["7b:e8:6b:d4:ee:b4:25:24:6b:f6:3e:b6:20:9f:24:dd:4c:1a:69:9d:b0:58:4a:2c:62:58:30:18:66:82:ad:5a"] }
+}]
