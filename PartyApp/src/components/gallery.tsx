@@ -63,7 +63,7 @@ const Gallery = ({hostid, partyid}) => {
       firebase.firestore().collection("users").doc(hostid).get().then(doc => {
         setHost(doc.data().username)
       })
-    })
+    }, [])
 
     const doc = firebase.firestore().collection('users').doc(hostid).collection("myParties").doc(partyid)
     doc.get().then(function(doc) {
@@ -150,7 +150,7 @@ const Picture = ({doc, hostid, partyid}) => {
     likedPicture();
     checkOwnPicture();
     displayComments();
-  }, );
+  }, []);
 
   const checkOwnPicture = () => {
     // function to check if the picture was taken by the current user

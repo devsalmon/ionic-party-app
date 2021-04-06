@@ -7,11 +7,11 @@ const AppUrlListener: React.FC<any> = () => {
   let history = useHistory();
   useEffect(() => {
       console.log("url listener use effect triggered")
-    CapApp.addListener('appUrlOpen', (data: any) => {
+      CapApp.addListener('appUrlOpen', (data: any) => {
+      alert("app opened with url: " + data.url);
       // Example url: https://beerswift.app/tabs/tab2
       // slug = /tabs/tab2      
-      const slug = data.url.split('.app').pop();
-      console.log(data.url);
+      const slug = data.url.split('.app').pop();      
       if (slug) {
         history.push(slug);
       }

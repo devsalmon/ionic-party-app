@@ -116,7 +116,7 @@ const UserItem = ({bitmoji, username, fullname, id}) => {
         }
       })
     return () => { isMounted = false};
-  })
+  }, [])
 
   const requestFriend = () => {
     var receiver_user_id = id
@@ -231,7 +231,7 @@ const UserItem = ({bitmoji, username, fullname, id}) => {
   }
 
   return(
-    <IonRow>
+    <IonRow class="ion-align-items-center">
       <IonCol size="8">
       <IonItem lines="none" key={id}>    
         <IonCol size="4">

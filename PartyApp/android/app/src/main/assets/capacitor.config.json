@@ -6,7 +6,14 @@
   "webDir": "build",
   "plugins": {
     "SplashScreen": {
-      "launchShowDuration": 0
+      "launchShowDuration": 0,
+      "launchAutoHide": true,
+      "backgroundColor": "#00000000",
+      "androidSplashResourceName": "applogo",
+      "spinnerColor": "#FFFF00", 
+      "showSpinner": false,
+      "splashFullScreen": true,
+      "splashImmersive": true
     },
     "PushNotifications": {
       "presentationOptions": ["badge", "sound", "alert"]

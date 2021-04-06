@@ -411,7 +411,9 @@ const MyPartyList = () => {
               <IonIcon icon={chevronBackSharp} />
             </IonButton>
           </IonButtons>
-          <IonTitle class="ion-padding">My Parties</IonTitle>
+          <IonTitle class="ion-padding">
+            My Parties
+          </IonTitle>
           <IonButtons slot="end">
             <IonButton fill="clear">
               <IonIcon />
@@ -426,7 +428,7 @@ const MyPartyList = () => {
         <>
         <IonMenu side="end" type="overlay" contentId="myPartiesPage">
           <IonHeader>
-            <IonToolbar>
+            <IonToolbar class="ion-padding">
               <IonTitle class="ion-padding">Settings</IonTitle>
             </IonToolbar>
           </IonHeader>
@@ -463,12 +465,12 @@ const MyPartyList = () => {
         <div id="myPartiesPage">
         <IonHeader>
           <IonToolbar class="ion-padding">
-            <IonTitle>My Parties</IonTitle>
+            <IonTitle class="ion-padding">My Parties</IonTitle>
           </IonToolbar>
           <IonToolbar class="myparties-toolbar">
           <IonItem class="accordion-profile" lines="none">
             <IonGrid>
-              <IonRow>
+              <IonRow class="ion-align-items-center">
                 <IonCol size="3">
                   {bitmoji !== null && bitmoji !== "" ? <IonImg src={bitmoji}></IonImg> :
                   <IonIcon className="profile-icon" icon={personOutline}/>}
@@ -502,7 +504,7 @@ const MyPartyList = () => {
             </IonCol>
           </IonRow>
           </IonRadioGroup>                                
-          </IonToolbar>
+        </IonToolbar>
         </IonHeader>      
         <IonSlides ref={slides} onIonSlideDidChange={e => handleSlideChange()}>                   
           <IonSlide>             

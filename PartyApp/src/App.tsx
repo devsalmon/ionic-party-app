@@ -175,23 +175,12 @@ const Party = ({id, data, live, edit}) => {
   return(
     <>
     {moment().isBetween(moment(data.endTime), moment(data.endTime).add(20, 'hours')) ? 
-    <><IonCardTitle class="live-title">After Party</IonCardTitle><br/></> :
-    live ? <><IonCardTitle class="live-title">Live!</IonCardTitle><br/></> : 
+    <IonCardTitle class="live-title">After Party</IonCardTitle> :
+    live ? <IonCardTitle class="live-title">Live!</IonCardTitle> : 
     <div className="ion-text-center">
-      {/*hoursUntilParty ? 
-      <IonText className="ion-padding">
-        {hoursUntilParty} hrs {minutesUntilParty} mins
-      </IonText> : 
-      minutesUntilParty ? 
-      <IonText className="ion-padding">
-        {minutesUntilParty} mins
-      </IonText> :       
-      <IonText className="ion-padding"> 
-        {daysUntilParty} days
-      </IonText>
-      */}
-      <IonText>{timeUntil}</IonText><br/>
+      <IonText>{timeUntil}</IonText>
     </div>}
+    <br/>
     <IonItem className={!live ? "accordion-item" :"accordion-live-item"} lines="none">
       <IonGrid>
         <IonRow>
@@ -300,7 +289,7 @@ const Party = ({id, data, live, edit}) => {
         isOpen={pictureUploading}
         onDidDismiss={() => setPictureUploading(false)}
       />      
-    </IonItem>
+    </IonItem><br/>
     </>
   )
 }
@@ -503,56 +492,57 @@ const PartyList = ({editParty, stopEditing}) => {
       <CreateParty editingParty={editingParty} displayParties={() => displayParties()}/>
     )
   } else {
-  stopEditing();
-  return(    
-    <IonContent fullscreen={true} no-bounce>
-      <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
-        <IonRefresherContent
-          pullingIcon={chevronDownCircleOutline}
-          refreshingSpinner="circles">
-        </IonRefresherContent>
-      </IonRefresher> 
-        {location.pathname === '/home' ? 
-        <IonToast
-          isOpen={newNotifications}
-          cssClass={"refresh-toast"}
-          onDidDismiss={() => setNewNotifications(false)}
-          position = 'top'
-          color="danger"
-          buttons={[
-            {
-              side: 'start',
-              text: 'New Notifications',
-              handler: () => {
-                checkForRequests();
+    stopEditing();
+    
+    return(    
+      <IonContent fullscreen={true} no-bounce>
+        <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
+          <IonRefresherContent
+            pullingIcon={chevronDownCircleOutline}
+            refreshingSpinner="circles">
+          </IonRefresherContent>
+        </IonRefresher> 
+          {location.pathname === '/home' ? 
+          <IonToast
+            isOpen={newNotifications}
+            cssClass={"refresh-toast"}
+            onDidDismiss={() => setNewNotifications(false)}
+            position = 'top'
+            color="danger"
+            buttons={[
+              {
+                side: 'start',
+                text: 'New Notifications',
+                handler: () => {
+                  checkForRequests();
+                }
               }
-            }
-          ]}
-        />     
-         : null}         
-      {newNotifications ? <><br/><br/></> : null} 
-      {reqs && reqs.map((req, i) =>        
-        <FriendRequest id={req.name} click={()=>checkForRequests()} key={i}/>
-      )}
-      {partyreqs && partyreqs.map((req, j) => 
-          (<PartyRequest hostid={req.hostid} partyid={req.partyid} click={()=>acceptInvite()} key={j}/>)
-      )}
-      { upcomingParties.length > 0 ? null :
-        liveParties.length > 0 ? null :
-        <div className="ion-text-center"><br/><br/><IonText>No upcoming parties, organize some parties with friends on the create page!</IonText></div>
-      }     
-      {liveParties && liveParties.sort((a, b) => a.data.dateTime - b.data.dateTime).map((party, k) => { 
-        return(        
-          <Party key={k} id={party.id} data={party.data} live={true} edit={() => setEditingParty(party.data)}/>              
-        );                    
-      })}
-      {upcomingParties && upcomingParties.sort((a, b) => a.data.dateTime - b.data.dateTime).map((party, l) => {
-        return( 
-          <Party key={l} id={party.id} data={party.data} live={false} edit={() => setEditingParty(party.data)}/>
-        );                
-      })}  
-    </IonContent>   
-    )
+            ]}
+          />     
+          : null}         
+        {newNotifications ? <><br/><br/></> : null} 
+        {reqs && reqs.map((req, i) =>        
+          <FriendRequest id={req.name} click={()=>checkForRequests()} key={i}/>
+        )}
+        {partyreqs && partyreqs.map((req, j) => 
+            (<PartyRequest hostid={req.hostid} partyid={req.partyid} click={()=>acceptInvite()} key={j}/>)
+        )}
+        { upcomingParties.length > 0 ? null :
+          liveParties.length > 0 ? null :
+          <div className="ion-text-center"><br/><br/><IonText>No upcoming parties, organize some parties with friends on the create page!</IonText></div>
+        }     
+        {liveParties && liveParties.sort((a, b) => a.data.dateTime - b.data.dateTime).map((party, k) => { 
+          return(        
+            <Party key={k} id={party.id} data={party.data} live={true} edit={() => setEditingParty(party.data)}/>              
+          );                    
+        })}
+        {upcomingParties && upcomingParties.sort((a, b) => a.data.dateTime - b.data.dateTime).map((party, l) => {
+          return( 
+            <Party key={l} id={party.id} data={party.data} live={false} edit={() => setEditingParty(party.data)}/>
+          );                
+        })}  
+      </IonContent>   
+      )
   }
 }
 const Create: React.FC = () => {
@@ -867,7 +857,6 @@ const App: React.FC = () => {
     console.log("app useeffect")
     setLoading(true);
     firebase.auth().onAuthStateChanged(function(user) {   
-      console.log(user);
       if (user && user.emailVerified && user.displayName !== null) { // if new user logs in, is email verified and has a document        
         registerNotifications(user.uid); 
         setSignedIn(true);                
@@ -938,18 +927,18 @@ const App: React.FC = () => {
   } else {
     return( 
     <IonApp>
-        { signedIn === false ? (   
-          <IonReactRouter>
-          <AppUrlListener></AppUrlListener>
-            <IonRouterOutlet>
-              <Route path='/signin' component={SignIn} />
-              <Route path='/signup' component={SignUp} />
-              <Route exact path="/" render={() => <Redirect to="/signup" />} />
-            </IonRouterOutlet>    
-          </IonReactRouter>                             
-        ) : (       
-          <SignedInRoutes />
-        )}
+      { signedIn === false ? (   
+        <IonReactRouter>
+        <AppUrlListener></AppUrlListener>
+          <IonRouterOutlet>
+            <Route path='/signin' component={SignIn} />
+            <Route path='/signup' component={SignUp} />
+            <Route exact path="/" render={() => <Redirect to="/signup" />} />
+          </IonRouterOutlet>    
+        </IonReactRouter>                             
+      ) : (       
+        <SignedInRoutes />
+      )}
     </IonApp>
   )
   }

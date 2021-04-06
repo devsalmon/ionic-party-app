@@ -53,7 +53,7 @@ const CreateParty = ({editingParty, displayParties}) => {
     const usersCollection = firebase.firestore().collection('users');
 
   useEffect(() => {
-    findFriends()
+    findFriends();
   }, [])
   
   const findFriends = () => {

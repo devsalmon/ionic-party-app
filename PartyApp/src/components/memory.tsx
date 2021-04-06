@@ -35,7 +35,7 @@ const Memory = ({notifications, id, data, click}) => {
     firebase.firestore().collection("users").doc(data.hostid).get().then(doc => {
       setHost(doc.data().username)
     })
-  })
+  }, [])
   
   return(
     <IonItem button lines="none" onClick={click} class="accordion-item">

@@ -1,7 +1,6 @@
 .accordion-item {
     border-top: 2px solid yellow;
     border-bottom: 2px solid yellow;
-    background-image: linear-gradient(to right, transparent 80%, yellow);
 }
 
 .accordion-live-item {
@@ -71,7 +70,7 @@
 
 .create-input {
     --background: black;
-    color: yellow;
+    --color: yellow;
     --placeholder-color: yellow;
     --placeholder-font-weight: bold;
 }
@@ -128,13 +127,14 @@
 }
 
 .live-title {
-    color: red
+    color: red;
 }
 
 .myparties-toolbar {
     padding-bottom: 0px;
     padding-right: 0px;
     padding-left: 0px;
+    padding-top: 2%
 }
 
 .modal {
@@ -212,7 +212,6 @@
     border-width: 3px;
     border-color: yellow;
     color: yellow;
-    background-image: linear-gradient(to top left, red, black);
 }
 
 .refresh-toast {
@@ -349,7 +348,22 @@ ion-footer {
 
 ion-input {
     --padding-start: 10px;
-    text-align: left
+    text-align: left;
+}
+
+/* Change Autocomplete styles in Chrome*/
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    -webkit-text-fill-color: yellow;
+    -webkit-box-shadow: 0 0 0px 1000px #000 inset;
+    box-shadow: 0 0 0px 1000px #000 inset;
 }
 
 ion-item {
