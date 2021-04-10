@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">PartyApp</string>
-    <string name="title_activity_main">PartyApp</string>
+    <string name="app_name">Motiv</string>
+    <string name="title_activity_main">Motiv</string>
     <string name="package_name">com.charke.partyapp</string>
     <string name="custom_url_scheme">com.charke.partyapp</string>
 </resources>

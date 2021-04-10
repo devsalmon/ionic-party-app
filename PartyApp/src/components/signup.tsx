@@ -88,8 +88,8 @@ const SignUp: React.FC = () => {
   useEffect(() => {  
     clearErrors(); 
     hideBackButton();
-    var signUpStage = window.localStorage.getItem("signUpStage");
-    goToSlide(signUpStage)
+    // var signUpStage = window.localStorage.getItem("signUpStage");
+    // goToSlide(signUpStage)
 
     const script = document.createElement("script");
     script.src = "https://sdk.snapkit.com/js/v1/login.js"; //Try change this url
@@ -162,6 +162,7 @@ const SignUp: React.FC = () => {
   }
 
   const prevSlide = async() => {    
+    clearErrors();
     let swiper = await slides.current.getSwiper()
     swiper.slidePrev()
     hideBackButton();
