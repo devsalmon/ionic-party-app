@@ -295,7 +295,7 @@ exports.addAlgoliaUser = functions.firestore
     fullname: newValue.fullname,    
     id: newValue.id,    
     username: newValue.username,
-    bitmoji: newValue.bitmoji
+    // bitmoji: newValue.bitmoji
   });
 });
 

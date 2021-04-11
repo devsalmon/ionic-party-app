@@ -10,6 +10,7 @@ import {
   IonToolbar, 
   IonCard,
   IonTitle,
+  IonPage,
   IonSearchbar,
   IonPopover,
   IonInput,
@@ -289,17 +290,21 @@ const CreateParty = ({editingParty, displayParties}) => {
     }
 
     return(
+      <IonPage>      
+      <IonToolbar class="ion-padding create-toolbar">
+        {editingParty ? 
+        <IonButtons slot="start" class="create-back-button">
+          <IonButton fill="clear" color="dark" href="/home">
+            <IonIcon slot="icon-only" icon={chevronBackSharp}></IonIcon>
+          </IonButton> 
+        </IonButtons> : null}            
+        {editingParty ? 
+        <IonTitle class="ion-padding" color="dark">Editing</IonTitle> : 
+        <IonTitle class="ion-padding" color="dark">Create</IonTitle>
+        }  
+      </IonToolbar>
       <IonContent class="create-content" fullscreen={true}>
-        <IonToolbar color="warning" className="ion-padding">
-          {editingParty ? <IonButtons slot="start" class="create-back-button">
-            <IonButton fill="clear" color="dark" href="/home">
-              <IonIcon slot="icon-only" icon={chevronBackSharp}></IonIcon>
-            </IonButton> 
-          </IonButtons> : null}            
-          {editingParty ? <IonTitle class="ion-padding" color="dark">Editing</IonTitle> : 
-            <IonTitle class="ion-padding" color="dark">Create</IonTitle>
-          }  
-        </IonToolbar>
+        <IonText class="black-text">You can always invite more people and edit the party after it has been created.</IonText>
         <IonCard class="create-card">
           <IonItem class="rounded-top" lines="none">
             <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>
@@ -460,6 +465,7 @@ const CreateParty = ({editingParty, displayParties}) => {
         </IonButton>   
       </IonPopover>             
       </IonContent>
+      </IonPage>
     )
   };
 

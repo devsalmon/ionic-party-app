@@ -6,7 +6,7 @@ import Gallery from './components/gallery';
 import MyPartyList from './components/mypartylist';
 import SignIn from './components/signin';
 import SignUp from './components/signup';
-import AppUrlListener from './components/AppUrlListener';
+//import AppUrlListener from './components/AppUrlListener';
 
 import { Route, Redirect, useLocation, useHistory } from 'react-router-dom';
 import { RefresherEventDetail } from '@ionic/core';
@@ -138,6 +138,8 @@ const Party = ({id, data, live, edit}) => {
       source: CameraSource.Camera,
       quality: 30,
       correctOrientation: true,
+      height: 350,
+      width: 350,
       saveToGallery: true
     });
     var photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`;
@@ -531,12 +533,12 @@ const PartyList = ({editParty, stopEditing}) => {
           liveParties.length > 0 ? null :
           <div className="ion-text-center"><br/><br/><IonText>No upcoming parties, organize some parties with friends on the create page!</IonText></div>
         }     
-        {liveParties && liveParties.sort((a, b) => a.data.dateTime - b.data.dateTime).map((party, k) => { 
+        {liveParties && liveParties.map((party, k) => { 
           return(        
             <Party key={k} id={party.id} data={party.data} live={true} edit={() => setEditingParty(party.data)}/>              
           );                    
         })}
-        {upcomingParties && upcomingParties.sort((a, b) => a.data.dateTime - b.data.dateTime).map((party, l) => {
+        {upcomingParties && upcomingParties.map((party, l) => {
           return( 
             <Party key={l} id={party.id} data={party.data} live={false} edit={() => setEditingParty(party.data)}/>
           );                
@@ -550,9 +552,7 @@ const Create: React.FC = () => {
   const [back, setBack] = useState(false)
   
   return(
-    <IonPage>
-      <CreateParty editingParty={null} displayParties={() => setBack(!back)} />
-    </IonPage>
+    <CreateParty editingParty={null} displayParties={() => setBack(!back)} />  
   )
 }
 
@@ -929,7 +929,7 @@ const App: React.FC = () => {
     <IonApp>
       { signedIn === false ? (   
         <IonReactRouter>
-        <AppUrlListener></AppUrlListener>
+        {/* <AppUrlListener></AppUrlListener> */}
           <IonRouterOutlet>
             <Route path='/signin' component={SignIn} />
             <Route path='/signup' component={SignUp} />

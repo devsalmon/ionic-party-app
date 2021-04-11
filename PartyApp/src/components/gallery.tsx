@@ -99,13 +99,13 @@ const Gallery = ({hostid, partyid}) => {
             </IonCardHeader>
             <IonCardContent>
               {firebase.auth().currentUser.uid === hostid && edit ?              
-                <IonItem>
+                <IonItem lines="none">
                   <IonTextarea class="create-input" value={message} placeholder="Message" onIonChange={e => setMessage(e.detail.value!)}></IonTextarea>
                   <IonButton onClick={() => uploadMessage()}>Upload</IonButton>
                 </IonItem>
              : null
             }         
-            {afterMessage === "" ? <IonText>"Thanks for coming!"</IonText> : <IonText>"{afterMessage}"</IonText>}
+            {afterMessage ? <IonText>"{afterMessage}"</IonText> : <IonText>"Thanks for coming!"</IonText>}
             {firebase.auth().currentUser.uid === hostid && !edit ?              
               <IonItem lines="none">
                 <IonButton onClick={() => setEdit(true)}>Edit</IonButton>

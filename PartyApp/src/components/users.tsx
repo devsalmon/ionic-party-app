@@ -61,7 +61,7 @@ const Users: React.FC = () => {
         <IonContent>    
             {hits && query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map((hit, i) => 
               hit.objectID === firebase.auth().currentUser.uid ? null :
-              <UserItem bitmoji={hit.bitmoji ? hit.bitmoji : null} username={hit.username} fullname={hit.fullname} id={hit.objectID} key={i}/>
+              <UserItem username={hit.username} fullname={hit.fullname} id={hit.objectID} key={i}/>
             )}
             <br/><br/><br/><br/><br/>
         </IonContent>
@@ -69,7 +69,7 @@ const Users: React.FC = () => {
     )
   } 
 
-const UserItem = ({bitmoji, username, fullname, id}) => {
+const UserItem = ({username, fullname, id}) => {
 
   const [addDisabled, setAddDisabled] = useState(false);
   const [cancelDisabled, setCancelDisabled] = useState(true);
@@ -235,8 +235,7 @@ const UserItem = ({bitmoji, username, fullname, id}) => {
       <IonCol size="8">
       <IonItem lines="none" key={id}>    
         <IonCol size="4">
-          {bitmoji !== null ? <IonImg src={bitmoji}></IonImg> :
-          <IonIcon icon={personOutline} className="profile-icon" />}
+          <IonIcon icon={personOutline} className="profile-icon" />
         </IonCol>
         <IonCol offset="1" size="7">
           <IonRow>

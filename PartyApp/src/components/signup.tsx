@@ -91,11 +91,11 @@ const SignUp: React.FC = () => {
     // var signUpStage = window.localStorage.getItem("signUpStage");
     // goToSlide(signUpStage)
 
-    const script = document.createElement("script");
-    script.src = "https://sdk.snapkit.com/js/v1/login.js"; //Try change this url
-    script.async = true;
-    //script.onload = () => scriptLoaded();
-    document.body.appendChild(script);
+    // const script = document.createElement("script");
+    // script.src = "https://sdk.snapkit.com/js/v1/login.js"; //Try change this url
+    // script.async = true;
+    // //script.onload = () => scriptLoaded();
+    // document.body.appendChild(script);
  
     //window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container');
      window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
@@ -117,18 +117,6 @@ const SignUp: React.FC = () => {
      }); 
   }, []);  
 
-  window.onstorage = () => {
-    // When local storage changes, dump the list to
-    // the console.
-    console.log("Change in storage");
-    console.log("Snap name: " + window.localStorage.getItem("snap_fullname"))
-    if (window.localStorage.getItem("snap_fullname") !== null) {
-      setFullname(window.localStorage.getItem("snap_fullname"));
-      goToSlide(2);
-      console.log("went to appropriate slide")
-    }
-  };
-
   var actionCodeSettings = {
     url: "http://localhost:8100/signup",
     dynamicLinkDomain: "test1619.page.link",
@@ -138,7 +126,7 @@ const SignUp: React.FC = () => {
     },
     android: {
       packageName: 'com.charke.partyapp',
-      minimumVersion: '12',
+      //minimumVersion: '0',
       installApp: true,
     }
   };  
@@ -156,7 +144,7 @@ const SignUp: React.FC = () => {
   const goToSlide = async(index) => { 
     window.localStorage.setItem("signUpStage", index)
     await slides.current.getSwiper().then(swiper => {
-      swiper.slideTo(index, 1500, false)
+      swiper.slideTo(index)
     })       
     hideBackButton();
   }
@@ -169,7 +157,7 @@ const SignUp: React.FC = () => {
   }
 
   const slideOpts = {
-    //allowTouchMove: false
+    allowTouchMove: false
   };
 
   const clearErrors = () => {
@@ -250,10 +238,10 @@ const SignUp: React.FC = () => {
     }
   }
 
-  const checkSnap = () => {
-    alert("Snap Name: " + window.localStorage.getItem("snap_fullname"))
-    alert("Bitmo: " + window.localStorage.getItem("bitmoji_avatar"))
-  }
+  // const checkSnap = () => {
+  //   alert("Snap Name: " + window.localStorage.getItem("snap_fullname"))
+  //   alert("Bitmo: " + window.localStorage.getItem("bitmoji_avatar"))
+  // }
 
   // enter DOB.
   const slide2SignUp = async() => {
@@ -385,7 +373,7 @@ const SignUp: React.FC = () => {
         id: user.uid,
         phoneNumber: validatePhone(email_or_phone) ? email_or_phone : "",
         dateOfBirth: dob,
-        bitmoji: window.localStorage.getItem("bitmoji_avatar")
+        //bitmoji: window.localStorage.getItem("bitmoji_avatar")
       }, {merge: true}).then(()=>{ // redirect user to the home page
         setLoading(true);
         window.location.reload(false);
@@ -541,7 +529,7 @@ const SignUp: React.FC = () => {
       phoneNumber: email_or_phone,
       dateOfBirth: dob,
       phoneVerified: true,
-      bitmoji: window.localStorage.getItem("bitmoji_avatar")
+      // bitmoji: window.localStorage.getItem("bitmoji_avatar")
     }, {merge: true}).then(() => {
       setInterval(checkPhoneVerified, 3000);         
     }).catch(err => {
@@ -635,8 +623,7 @@ const SignUp: React.FC = () => {
 
            {/* Slide 1: Continue with snap or enter full name    */}
           <IonSlide>
-              <div id="my-login-button-target"></div>
-              <IonText>OR</IonText>      
+              {/* <div id="my-login-button-target"></div> */}
               <div className="signin-inputs">
               <IonInput 
               class="create-input" 
@@ -649,7 +636,6 @@ const SignUp: React.FC = () => {
               {fullnameError ? <><IonText class="errormsg">{fullnameError}</IonText><br/></>:null}                
               <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
               <IonButton className="signin-button" onClick={()=>slide1SignUp()}>Next</IonButton><br/>
-              <IonButton className="signin-button" onClick={()=>checkSnap()}>Log Snap info</IonButton>
               </div>
           </IonSlide>   
 

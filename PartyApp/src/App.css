@@ -17,7 +17,7 @@
 
 .black-text {
     color: black;
-    font-weight: bold
+    font-weight: bold;
 }
 
 .custom-button {
@@ -59,6 +59,7 @@
 
 .create-content {
     --background: yellow;
+    text-align: center;
     --padding-start: 15px;
     --padding-end: 15px;
 }
@@ -80,6 +81,11 @@
     color:yellow;
     font-weight: bold;
     --backdrop-opacity: 0.9;    
+}
+
+.create-toolbar {
+    --background: linear-gradient(yellow 5%,70%, transparent);
+    border: none
 }
 
 .day-text {
