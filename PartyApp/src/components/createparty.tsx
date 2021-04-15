@@ -53,9 +53,34 @@ const CreateParty = ({editingParty, displayParties}) => {
     const friendsCollection = firebase.firestore().collection('friends'); 
     const usersCollection = firebase.firestore().collection('users');
 
+    const [friends, setFriends] = useState([]); // list of people who can be searched for when inviting people
+    const [seeFriends, setSeeFriends] = useState(false); // boolean variable to see friends list or not 
+    const [invitedPeople, setInvitedPeople] = useState(editingParty ? editingParty.invited_people : []); // array of invited people
+    const [title, setTitle] = useState<string>(editingParty ? editingParty.title : "");
+    const [address, setAddress] = useState<string>(editingParty ? editingParty.address : "");
+    const [postcode, setPostcode] = useState<string>(editingParty ? editingParty.postcode : "");
+    const [dresscode, setDresscode] = useState<string>(editingParty ? editingParty.dresscode : "");
+    const [details, setDetails] = useState<string>(editingParty ? editingParty.details : "");
+    const [endTime, setEndTime] = useState<string>(editingParty ? editingParty.endTime : "");
+    const [dateTime, setDateTime] = useState<string>(editingParty ? editingParty.dateTime : ""); 
+    const [drinksProvided, setDrinksProvided] = useState(editingParty ? editingParty.drinksProvided : "");
+    //const [malesToFemales, setMalesToFemales] = useState(editingParty ? editingParty.malesToFemales : 50);
+    const [showPeopleSearch, setShowPeopleSearch] = useState(false);
+    const [showToast, setShowToast] = useState(false);
+    const [fieldsMissing, setFieldsMissing] = useState(false);
+    const [timeError, setTimeError] = useState(false);
+    const [showPopover, setShowPopover] = useState(false);
+    const [partyDeletedToast, setPartyDeletedToast] = useState(false);    
+    const [refresh, setRefresh] = useState(false);
+
+    const searchClient = algoliasearch('N5BVZA4FRH', '10173d946e2ba5aa9ba4f9ae445cef48');
+    const index = searchClient.initIndex('Users');
+    const [hits, setHits] = useState([]);
+    const [query, setQuery] = useState('');
+
   useEffect(() => {
     findFriends();
-  }, [])
+  }, [refresh])
   
   const findFriends = () => {
     var tempFriends = []; // list for friend id's
@@ -68,10 +93,11 @@ const CreateParty = ({editingParty, displayParties}) => {
             tempFriends.push(friend)
         })
         // loop through tempFriends and get all user documents of those id's, and add to friends array
-        tempFriends && tempFriends.map(friend => {
+        tempFriends && tempFriends.map(friend => {          
             usersCollection.doc(friend.id).get().then(doc => {
                 let data = doc.data();
-                data && setFriends(friends => [
+                var alreadyInFriends = friends.some(item => friend.id === doc.id);
+                data && !alreadyInFriends && setFriends(friends => [
                     ...friends, 
                     {
                         name: data.username,
@@ -95,30 +121,6 @@ const CreateParty = ({editingParty, displayParties}) => {
     //   const tabBar = document.getElementById('appTabBar');
     //   tabBar.style.display = 'flex';
     // }        
-
-    const [friends, setFriends] = useState([]); // list of people who can be searched for when inviting people
-    const [seeFriends, setSeeFriends] = useState(false); // boolean variable to see friends list or not 
-    const [invitedPeople, setInvitedPeople] = useState(editingParty ? editingParty.invited_people : []); // array of invited people
-    const [title, setTitle] = useState<string>(editingParty ? editingParty.title : "");
-    const [address, setAddress] = useState<string>(editingParty ? editingParty.address : "");
-    const [postcode, setPostcode] = useState<string>(editingParty ? editingParty.postcode : "");
-    const [dresscode, setDresscode] = useState<string>(editingParty ? editingParty.dresscode : "");
-    const [details, setDetails] = useState<string>(editingParty ? editingParty.details : "");
-    const [endTime, setEndTime] = useState<string>(editingParty ? editingParty.endTime : "");
-    const [dateTime, setDateTime] = useState<string>(editingParty ? editingParty.dateTime : ""); 
-    const [drinksProvided, setDrinksProvided] = useState(editingParty ? editingParty.drinksProvided : "");
-    //const [malesToFemales, setMalesToFemales] = useState(editingParty ? editingParty.malesToFemales : 50);
-    const [showPeopleSearch, setShowPeopleSearch] = useState(false);
-    const [showToast, setShowToast] = useState(false);
-    const [fieldsMissing, setFieldsMissing] = useState(false);
-    const [timeError, setTimeError] = useState(false);
-    const [showPopover, setShowPopover] = useState(false);
-    const [partyDeletedToast, setPartyDeletedToast] = useState(false);    
-
-    const searchClient = algoliasearch('N5BVZA4FRH', '10173d946e2ba5aa9ba4f9ae445cef48');
-    const index = searchClient.initIndex('Users');
-    const [hits, setHits] = useState([]);
-    const [query, setQuery] = useState('');
     
     async function search(query) {
       const result = await index.search(query); 
@@ -261,6 +263,7 @@ const CreateParty = ({editingParty, displayParties}) => {
       for (var i=0; i < invitedPeople.length; i++) {
         if (invitedPeople[i].id === id) {
             invitedPeople.splice(i,1);
+            setRefresh(!refresh);
             break;
         }   
       }      
