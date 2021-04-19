@@ -10,13 +10,17 @@
       "launchAutoHide": true,
       "backgroundColor": "#00000000",
       "androidSplashResourceName": "applogo",
-      "spinnerColor": "#FFFF00", 
+      "spinnerColor": "#FFFF00",
       "showSpinner": false,
       "splashFullScreen": true,
       "splashImmersive": true
     },
     "PushNotifications": {
-      "presentationOptions": ["badge", "sound", "alert"]
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
     }
   },
   "cordova": {}
