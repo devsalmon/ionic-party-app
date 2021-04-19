@@ -9,12 +9,14 @@ const AppUrlListener: React.FC<any> = () => {
       console.log("url listener use effect triggered")
       CapApp.addListener('appUrlOpen', (data: any) => {
       alert("app opened with url: " + data.url);
+      alert(data);
+      alert("window - " + window.location.href);
       // Example url: https://beerswift.app/tabs/tab2
       // slug = /tabs/tab2      
-      const slug = data.url.split('.app').pop();      
-      if (slug) {
-        history.push(slug);
-      }
+      // const slug = data.url.split('.app').pop();      
+      // if (slug) {
+      //   history.push(slug);
+      // }
       // If no match, do nothing - let regular routing
       // logic take over
     });
