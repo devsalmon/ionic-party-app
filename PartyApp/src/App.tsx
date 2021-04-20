@@ -531,7 +531,7 @@ const PartyList = ({editParty, stopEditing}) => {
         )}
         { upcomingParties.length > 0 ? null :
           liveParties.length > 0 ? null :
-          <div className="ion-text-center"><br/><br/><IonText>No upcoming parties, organize some parties with friends on the create page!</IonText></div>
+          <div className="ion-text-center"><br/><br/><IonText>You have no upcoming parties at the moment. Organise some parties with friends on the create page!</IonText></div>
         }     
         {liveParties && liveParties.map((party, k) => { 
           return(        
@@ -775,7 +775,7 @@ const Home: React.FC = () => {
       {editing ? null : 
       <IonToolbar class="ion-padding">      
         <IonTitle class="ion-padding">
-          Upcoming parties
+          Upcoming Parties
         </IonTitle>
         <IonButtons slot="end">
           <IonButton color="warning" href='/users'>

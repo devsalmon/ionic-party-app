@@ -81,6 +81,16 @@ const SignIn: React.FC = () => {
     setFieldsMissing(false);  
   }
 
+  const validateEmail = (email) => {
+    const re = RegExp(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+    return re.test(email);
+  }  
+
+  const validatePhone = (num) => {
+    var re = new RegExp(/^\+?([0-9]{1,4})\)?[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})$/g);
+    return re.test(num);
+  }  
+
   const resetPassword = () => {  
     clearErrors();  
     if (emailorphone.trim() === "") { // ask user to provide an email address
@@ -88,13 +98,19 @@ const SignIn: React.FC = () => {
       setForgotPassword(false); // remove popover
     } else {
       setEmailorphoneError("")
+      //check if phone or email
+      if (validatePhone(emailorphone)) { 
+        //send code to phone, and reset password.
+      } else if (validateEmail(emailorphone)) {
+        //reset email password.
       firebase.auth().sendPasswordResetEmail(emailorphone, actionCodeSettings).then(() => {
         setEmailSent(true);
         setForgotPassword(false); // remove popover
       }).catch(function(error) {
         setPasswordError(error.message);           
         setForgotPassword(false); // remove popover                                   
-      });          
+      });  
+    }        
     }
   }
 
@@ -107,8 +123,9 @@ const SignIn: React.FC = () => {
     } else if (firebase.auth().currentUser && !firebase.auth().currentUser.emailVerified) {
       setPasswordError("Not verified, please click the link in your email to verify your account");      
     } else { 
-      var re = new RegExp(/^[+]*[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\./0-9]*$/g)
-      if (re.test(emailorphone)) { // it's a phone number
+      //var re = new RegExp(/^[+]*[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\./0-9]*$/g)
+      //if (re.test(emailorphone)) { // it's a phone number
+      if (validatePhone(emailorphone)) { 
         console.log("phone number")
         phoneSignIn()
       } else {

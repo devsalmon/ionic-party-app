@@ -36,6 +36,7 @@ import {
   chevronBackSharp,
   settingsSharp,
   personOutline,
+  peopleOutline,
   chevronDownCircleOutline
 } from 'ionicons/icons';
 import '../App.css'
@@ -453,12 +454,14 @@ const MyPartyList = () => {
             <IonGrid>
               <IonRow class="ion-align-items-center">
                 <IonCol size="3">
-                  <IonIcon className="profile-icon" icon={personOutline}/>
+                  {/* <IonButton fill="clear" onClick={()=>setShowFriends(true)}> */}
+                  <span onClick={()=>setShowFriends(true)}><IonIcon className="profile-icon" icon={peopleOutline}/></span>
+                  {/* </IonButton> */}
                 </IonCol>
                 <IonCol size="6"> 
                   <IonText>{fullname}</IonText><br/>
-                  <IonText class="white-text">{username}</IonText><br/>
-                  <p className="white-text"><span onClick={()=>setShowFriends(true)}>{friend_no} FRIENDS</span></p>       
+                  <IonText class="white-text">{username}</IonText>
+                  {/* <p className="white-text"><span onClick={()=>setShowFriends(true)}>{friend_no} FRIENDS</span></p>        */}
                 </IonCol>      
                 <IonCol size="3">
                   <IonMenuButton class="top-icons">
@@ -496,7 +499,7 @@ const MyPartyList = () => {
                 </IonRefresherContent>
               </IonRefresher>                     
             {attendedParties.length === 0 ?
-            <IonText class="white-text">No attended parties yet..</IonText> :          
+            <IonText class="white-text">You haven't attended any parties yet..</IonText> :          
             attendedParties.map((party, i) => {
               return(
                 <Memory notifications={party.notifications} id={party.id} data={party.data} key={i} click={() => enter(party.id, party.data.hostid)}/>
@@ -514,7 +517,7 @@ const MyPartyList = () => {
                 </IonRefresherContent>
               </IonRefresher>                   
             {yourParties.length === 0 ?
-            <IonText class="white-text"> No hosted parties yet..</IonText> : 
+            <IonText class="white-text">You haven't hosted any parties yet..</IonText> : 
             yourParties.map((party, j) => {
               return(              
                 <Memory notifications={party.notifications} id={party.id} data={party.data} key={j} click={() => enter(party.id, party.data.hostid)}/>

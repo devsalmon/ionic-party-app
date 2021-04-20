@@ -149,6 +149,13 @@ const SignUp: React.FC = () => {
     hideBackButton();
   }
 
+  const nextSlide = async() => {
+    await slides.current.getSwiper().then(swiper => {
+      swiper.slideNext()
+    })
+    setLoading(false);
+  }
+
   const prevSlide = async() => {    
     clearErrors();
     let swiper = await slides.current.getSwiper()
@@ -157,7 +164,7 @@ const SignUp: React.FC = () => {
   }
 
   const slideOpts = {
-    allowTouchMove: false
+    allowTouchMove: true  //set to false for production
   };
 
   const clearErrors = () => {
@@ -185,8 +192,13 @@ const SignUp: React.FC = () => {
     console.log(username + password + email_or_phone);
     clearErrors();  
     setLoading(true);
-    if (email_or_phone.trim() !== "" && username.trim() && password.trim() !== "") {
+    if (email_or_phone.trim() !== "" && username.trim() && password.trim() !== "" && fullname.trim() !== "") {
       setFieldsMissing(false);    
+      console.log(fullname)
+      window.localStorage.setItem("fullname", fullname);      
+      //go to next slide (DOB)      
+      setFieldsMissing(false);
+      setPasswordError("");  
       if (password.trim().length < 6) { // password too short
         setPasswordError("Password too short")
         setLoading(false);
@@ -198,13 +210,16 @@ const SignUp: React.FC = () => {
           // it's a phone number                    
           setSignUpMethod('phone')
           window.localStorage.setItem("signUpMethod", "phone")
-          goToSlide(1);
+          //goToSlide(1);
+          nextSlide();
           console.log("Sign up method (phone): " + signUpMethod)
+          //setLoading(false);
         } else if (validateEmail(email_or_phone)) {
           // it's an email
           setSignUpMethod('email')
           window.localStorage.setItem("signUpMethod", "email")
-          goToSlide(1);
+          //goToSlide(1);
+          nextSlide();
           console.log("Sign up method (email): " + signUpMethod)
         } else {
           setEmailError(
@@ -216,7 +231,8 @@ const SignUp: React.FC = () => {
       }
     } else {
       setLoading(false);
-      setFieldsMissing(true);        
+      setFieldsMissing(true);
+      setPasswordError('');       
     }
   }
 
@@ -230,7 +246,8 @@ const SignUp: React.FC = () => {
       //go to next slide (DOB)      
       setFieldsMissing(false);
       setPasswordError("");      
-      goToSlide(2)
+      //goToSlide(2)
+      nextSlide();
     } else {
       setLoading(false);
       setPasswordError('');
@@ -330,7 +347,8 @@ const SignUp: React.FC = () => {
   const sendVerificationEmail = () => {
     firebase.auth().currentUser.sendEmailVerification(actionCodeSettings).then(function() {      
       setLinkSent(true);
-      goToSlide(3);
+      //goToSlide(3);
+      nextSlide();
     }).catch(function(error) {
       // An error happened.
       setLoading(false);
@@ -411,7 +429,8 @@ const SignUp: React.FC = () => {
             // SMS sent. Prompt user to type the code from the message, then sign the
             // user in with confirmationResult.confirm(code).        
             window.confirmationResult = confirmationResult;
-            goToSlide(3);   
+            //goToSlide(3);   
+            nextSlide();
             console.log("Phone signed in: " + confirmationResult)
           }).catch((error) => {
             // Error SMS not sent phone number may be wrong
@@ -434,7 +453,8 @@ const SignUp: React.FC = () => {
           // SMS sent. Prompt user to type the code from the message, then sign the
           // user in with confirmationResult.confirm(code).        
           window.confirmationResult = confirmationResult;
-          goToSlide(3);   
+          //goToSlide(3);   
+          nextSlide();
           console.log("Phone signed in: " + confirmationResult)
         }).catch((error) => {
           // Error SMS not sent phone number may be wrong
@@ -573,7 +593,7 @@ const SignUp: React.FC = () => {
       <IonContent id="signin-content">      
       <IonSlides class="sign-up-slides" ref={slides} options={slideOpts}> 
 
-          {/* Slide 0: Email/Phone, username and password.               */}
+          {/* Slide 0: Email/Phone, fullname, username and password. */}
           <IonSlide>               
             <div className="signin-inputs">
               {/* <IonButton class="custom-button" onClick={() => changeSlide('email')}>Sign up with email</IonButton><br/>
@@ -586,7 +606,17 @@ const SignUp: React.FC = () => {
               type="email"
               onIonChange={e => setEmail_or_phone(e.detail.value!)}
               >        
-              </IonInput> 
+              </IonInput>
+              <IonInput 
+              class="create-input" 
+              value={fullname} 
+              placeholder="Full Name"
+              type="text"
+              onIonChange={e => setFullname(e.detail.value!)}
+              >                  
+              </IonInput>  
+              {fullnameError ? <><IonText class="errormsg">{fullnameError}</IonText><br/></>:null}                
+              <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
               {emailError ? <><IonText class="errormsg">{emailError}</IonText><br/></>:null}
               {phoneError ? <><IonText class="errormsg">{phoneError}</IonText><br/></>:null}
               <IonInput 
@@ -622,9 +652,9 @@ const SignUp: React.FC = () => {
           </IonSlide>   
 
            {/* Slide 1: Continue with snap or enter full name    */}
-          <IonSlide>
+          {/* <IonSlide> */}
               {/* <div id="my-login-button-target"></div> */}
-              <div className="signin-inputs">
+              {/* <div className="signin-inputs">
               <IonInput 
               class="create-input" 
               value={fullname} 
@@ -637,9 +667,9 @@ const SignUp: React.FC = () => {
               <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
               <IonButton className="signin-button" onClick={()=>slide1SignUp()}>Next</IonButton><br/>
               </div>
-          </IonSlide>   
+          </IonSlide>    */}
 
-          {/* Slide 2: Enter DOB or skip */}
+          {/* Slide 1: Enter DOB or skip */}
           <IonSlide>     
               <div className="signin-inputs">
               <IonInput 
@@ -668,7 +698,7 @@ const SignUp: React.FC = () => {
               <a href="https://policies.google.com/terms"> Terms of Service </a> apply</IonText>
           </IonSlide>
 
-          {/* Slide 3: Confirm email or phone number */}
+          {/* Slide 2: Confirm email or phone number */}
           <IonSlide>
             <div className="signin-inputs">
             {/* if sign up method is email... */}
