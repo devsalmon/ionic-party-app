@@ -36,6 +36,14 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import '../variables.css';
 
+// declare global {
+//   interface Window {
+//     recaptchaVerifier:any;
+//     recaptchaWidgetId:any;
+//     confirmationResult:any;
+//   }
+// }
+
 const SignIn: React.FC = () => {
 
   // Will try to use previously entered email, defaults to an empty string
@@ -57,6 +65,24 @@ const SignIn: React.FC = () => {
       // if user has signed in by pressing a button in sign up, but isn't verified    
       setPasswordError(email + " is not verified yet, please click the link in your email to verify your account");           
     }
+    
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
+      'size': 'invisible',
+      'callback': (response) => {
+        // reCAPTCHA solved, allow signInWithPhoneNumber.
+        console.log("Response: " + response)
+        //signUpEmailorPhoneandVerify()
+        //phoneSignUp()
+        //phoneNumberAuth()
+      },
+      'expired-callback': () => {
+        // Response expired. Ask user to solve reCAPTCHA again.
+      }
+    });
+
+    window.recaptchaVerifier.render().then(function (widgetId) {
+      window.recaptchaWidgetId = widgetId;   
+    }); 
   }, [])
 
   var actionCodeSettings = {
@@ -100,8 +126,33 @@ const SignIn: React.FC = () => {
       setEmailorphoneError("")
       //check if phone or email
       if (validatePhone(emailorphone)) { 
+        console.log("phone")
         //send code to phone, and reset password.
-      } else if (validateEmail(emailorphone)) {
+        const appVerifier = window.recaptchaVerifier;
+        firebase.auth().signInWithPhoneNumber(emailorphone, appVerifier)
+          .then((confirmationResult) => {
+            // SMS sent. Prompt user to type the code from the message, then sign the
+            // user in with confirmationResult.confirm(code).        
+            window.confirmationResult = confirmationResult;
+            //goToSlide(3);   
+            //nextSlide();
+            console.log("Phone signed in: " + confirmationResult)
+            // IF THIS STAGE IS REACHED, A POP UP SHOULD APPEAR ASKING USER TO ENTER CODE,
+            // IF CODE IS CORRECT, THEN updatePassword CAN BE USED TO CHOOSE A NEW PASSWORD AND SAVE A NEW PASSWORD
+            console.log("Important stage reached")
+          }).catch((error) => {
+            // Error SMS not sent phone number may be wrong
+            if (error.code === "auth/invalid-phone-number") {              
+              //setPhoneError(
+              //  "Invalid format for email or phone number. " +
+              //  "Please enter phone numbers in the form +447123456789 (for UK)"
+             // )
+              //goToSlide(0);
+            } else {                  
+             // setPhoneError(error.message);
+            }
+          })
+          } else if (validateEmail(emailorphone)) {
         //reset email password.
       firebase.auth().sendPasswordResetEmail(emailorphone, actionCodeSettings).then(() => {
         setEmailSent(true);
@@ -218,6 +269,7 @@ const SignIn: React.FC = () => {
           </IonRow>
           <IonText class="errormsg">{passwordError}</IonText><br/>
           <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
+          <div id='sign-in-button'></div>
           <IonButton class="signin-button" onClick={() => handleLogin()}>Sign in</IonButton>
           <p className="errormsg">Don't have an account? <br/><IonButton className="yellow-text" href="/signup">Sign up</IonButton></p>
           <IonText class="errormsg">{emailorphoneError}</IonText><br/>      
@@ -229,6 +281,7 @@ const SignIn: React.FC = () => {
             onDidDismiss={() => setForgotPassword(false)}
           > 
           <IonText className="ion-padding">Reset password?</IonText><br/>
+          <div id='sign-in-button'></div>
           <IonButton onClick={() => setForgotPassword(false)}>No</IonButton>
           <IonButton onClick={() => resetPassword()}>Yes</IonButton>
           </IonPopover>         
