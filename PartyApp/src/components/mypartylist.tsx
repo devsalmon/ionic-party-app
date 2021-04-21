@@ -388,7 +388,7 @@ const MyPartyList = () => {
   if (inGallery) {
     return(
         <>
-        <IonToolbar class="ion-padding">
+        <IonToolbar class="myparties-title">
           <IonButtons slot="start">
             <IonButton color="warning" fill="clear" onClick={() => exitGallery()}>
               <IonIcon icon={chevronBackSharp} />
@@ -396,12 +396,7 @@ const MyPartyList = () => {
           </IonButtons>
           <IonTitle class="ion-padding">
             My Parties
-          </IonTitle>
-          <IonButtons slot="end">
-            <IonButton fill="clear">
-              <IonIcon />
-            </IonButton>
-          </IonButtons>          
+          </IonTitle>        
         </IonToolbar>
         <Gallery hostid={hostID} partyid={partyID} key={partyID}/>
         </>
@@ -410,11 +405,9 @@ const MyPartyList = () => {
     return(
         <>
         <IonMenu side="end" type="overlay" contentId="myPartiesPage">
-          <IonHeader>
-            <IonToolbar class="ion-padding">
-              <IonTitle class="ion-padding">Settings</IonTitle>
-            </IonToolbar>
-          </IonHeader>
+          <IonToolbar class="ion-padding">
+            <IonTitle class="ion-padding">Settings</IonTitle>
+          </IonToolbar>
           <IonContent class="list">
             <IonList class="list">      
               <IonButton href="/signin" onClick={() => signOut()}>
@@ -445,7 +438,6 @@ const MyPartyList = () => {
         <IonRouterOutlet></IonRouterOutlet>
 
         <div id="myPartiesPage">
-        <IonHeader>
           <IonToolbar class="ion-padding">
             <IonTitle class="ion-padding">My Parties</IonTitle>
           </IonToolbar>
@@ -482,13 +474,12 @@ const MyPartyList = () => {
             <IonCol size="6">
               <IonItem class="radio-buttons" lines="none">
                 <IonText>Hosted</IonText>
-                <IonRadio onIonFocus={e => changeSlide("next")} slot="start" value="hosted" />
+                <IonRadio onIonFocus={e => changeSlide("next")} slot="end" value="hosted" />
               </IonItem>
             </IonCol>
           </IonRow>
           </IonRadioGroup>                                
         </IonToolbar>
-        </IonHeader>      
         <IonSlides ref={slides} onIonSlideDidChange={e => handleSlideChange()}>                   
           <IonSlide>             
             <IonContent fullscreen={true} scroll-y={true}> 

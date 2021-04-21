@@ -15,7 +15,8 @@ import {
   IonPopover,
   IonLabel,
   IonRow,
-  IonCol
+  IonCol,
+  IonToast
 } from '@ionic/react';
 import { 
   eyeOutline,
@@ -57,6 +58,12 @@ const SignIn: React.FC = () => {
   const [fieldsMissing, setFieldsMissing] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [forgotPassword, setForgotPassword] = useState(false);
+  const [phonePopover, setPhonePopover] = useState(false);
+  const [code, setCode] = useState("");
+  const [codeError, setCodeError] = useState("");
+  const [newPassword, setNewPassword] = useState('');
+  const [newPasswordToast, setNewPasswordToast] = useState(false);
+  const [newPasswordError, setNewPasswordError] = useState("");
 
   useEffect(() => {
     clearErrors();
@@ -137,6 +144,7 @@ const SignIn: React.FC = () => {
             //goToSlide(3);   
             //nextSlide();
             console.log("Phone signed in: " + confirmationResult)
+            setPhonePopover(true);
             // IF THIS STAGE IS REACHED, A POP UP SHOULD APPEAR ASKING USER TO ENTER CODE,
             // IF CODE IS CORRECT, THEN updatePassword CAN BE USED TO CHOOSE A NEW PASSWORD AND SAVE A NEW PASSWORD
             console.log("Important stage reached")
@@ -164,6 +172,39 @@ const SignIn: React.FC = () => {
     }        
     }
   }
+
+const verifyCodeAndNewPassword = async() => {
+    //setLoading(true);
+    clearErrors();
+    if (window.confirmationResult && newPassword.trim().length > 6) {  
+      await window.confirmationResult.confirm(code).then((result) => {
+        // User signed in successfully.
+        //link with fake email
+        //UPDATE PASSWORD.
+        var user = firebase.auth().currentUser;  
+        user.updatePassword(newPassword).then(function() {
+          setPhonePopover(false);
+          setNewPasswordToast(true);
+          setNewPassword('');
+          //setLoading(false);
+        }).catch(function(error) {
+          setNewPasswordError(error.message);
+          //setLoading(false);
+        });             
+      }).catch((error) => {
+        // User couldn't sign in (bad verification code?)
+        //setLoading(false);
+        setCodeError(error.message);   
+      });
+    } else {
+      console.log("passworderror")
+      setNewPasswordError("Password may be too short, has to be over 6 characters")
+      firebase.auth().signOut().then(() => {
+      //  phoneSignUp();
+      //  setPhoneError("Page refreshed, please try again")
+      })      
+    }
+  }  
 
   const handleLogin = () => {
     // normal login function 
@@ -285,6 +326,45 @@ const SignIn: React.FC = () => {
           <IonButton onClick={() => setForgotPassword(false)}>No</IonButton>
           <IonButton onClick={() => resetPassword()}>Yes</IonButton>
           </IonPopover>         
+          <IonPopover
+            cssClass="popover"        
+            isOpen={phonePopover}
+            backdropDismiss={false}
+          > 
+          <IonText>Enter the phone verification code which we just sent you</IonText><br/>          
+          <IonInput 
+          class="create-input" 
+          placeholder="Verification code" 
+          value={code} 
+          type="text"
+          onIonChange={e => setCode(e.detail.value!)}          
+          ></IonInput>
+          {codeError ? <><IonText class="errormsg">{codeError}</IonText><br/></>:null}
+          <IonText className="ion-padding">Enter your new password</IonText><br/>          
+          <IonRow class="ion-align-items-center">
+            <IonInput 
+            class="create-input" 
+            value={newPassword} 
+            type={showPassword ? "text" : "password"}
+            placeholder="New Password"
+            onIonChange={e => setNewPassword(e.detail.value!)}
+            >
+            </IonInput>   
+            <IonButton onClick={()=>setShowPassword(!showPassword)}>
+              <IonIcon slot="icon-only" icon={eyeOutline} />
+            </IonButton>                  
+          </IonRow>         
+          <IonText>{newPasswordError}</IonText><br/>
+          <IonButton onClick={() => setPhonePopover(false)}>Cancel</IonButton>
+          <IonButton onClick={() => verifyCodeAndNewPassword()}>Done</IonButton>
+          </IonPopover>        
+          <IonToast
+            isOpen={newPasswordToast}
+            cssClass={"refresh-toast"}
+            onDidDismiss={() => setNewPasswordToast(false)}
+            position = 'bottom'
+            message="Password updated! Try signing in."
+          />                 
         </div>          
       </IonContent>
     </IonPage>

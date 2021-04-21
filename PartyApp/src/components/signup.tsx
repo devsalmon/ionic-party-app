@@ -74,6 +74,7 @@ const SignUp: React.FC = () => {
   const [fullnameError, setFullnameError] = useState('');
   const [usernameError, setUsernameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [codeError, setCodeError] = useState("");
   const [phoneError, setPhoneError] = useState('');
   const [dobError, setDobError] = useState('');
   const [fieldsMissing, setFieldsMissing] = useState(false);
@@ -144,7 +145,7 @@ const SignUp: React.FC = () => {
   const goToSlide = async(index) => { 
     window.localStorage.setItem("signUpStage", index)
     await slides.current.getSwiper().then(swiper => {
-      swiper.slideTo(index)
+      swiper.slideTo(index, 1500, false)
     })       
     hideBackButton();
   }
@@ -508,6 +509,7 @@ const SignUp: React.FC = () => {
               }          
             }).catch(err => {
               console.log(err.message);
+              setCodeError(err.message)
               setLoading(false);
             })              
           }
@@ -607,6 +609,8 @@ const SignUp: React.FC = () => {
               onIonChange={e => setEmail_or_phone(e.detail.value!)}
               >        
               </IonInput>
+              {emailError ? <><IonText class="errormsg">{emailError}</IonText><br/></>:null}
+              {phoneError ? <><IonText class="errormsg">{phoneError}</IonText><br/></>:null}              
               <IonInput 
               class="create-input" 
               value={fullname} 
@@ -616,9 +620,6 @@ const SignUp: React.FC = () => {
               >                  
               </IonInput>  
               {fullnameError ? <><IonText class="errormsg">{fullnameError}</IonText><br/></>:null}                
-              <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
-              {emailError ? <><IonText class="errormsg">{emailError}</IonText><br/></>:null}
-              {phoneError ? <><IonText class="errormsg">{phoneError}</IonText><br/></>:null}
               <IonInput 
               class="create-input" 
               value={username} 
@@ -722,7 +723,8 @@ const SignUp: React.FC = () => {
               <IonButton class="yellow-text" onClick={()=>verifyCode()}>
                 Verify
               </IonButton>                  
-              </IonRow>                      
+              </IonRow>     
+              {codeError ? <><IonText class="errormsg">{codeError}</IonText><br/></>:null}                               
               {phoneError ? <><IonText class="errormsg">{phoneError}</IonText><br/></>:null}
               </>   
               }

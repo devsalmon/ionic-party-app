@@ -307,7 +307,7 @@ const CreateParty = ({editingParty, displayParties}) => {
         }  
       </IonToolbar>
       <IonContent class="create-content" fullscreen={true}>
-        <IonText class="black-text">You can always invite more people and edit the party after it has been created.</IonText>
+        <IonText class="black-text">You can always invite more people and edit the party details after you create it.</IonText>
         <IonCard class="create-card">
           <IonItem class="rounded-top" lines="none">
             <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>

@@ -77,7 +77,7 @@
 }
 
 .create-popover {
-    --background: red;
+    --background: transparent;
     color:yellow;
     font-weight: bold;
     --backdrop-opacity: 0.9;    
@@ -187,7 +187,7 @@
     --backdrop-opacity: 0.9;
 }
 
-.popover-viewport {
+.popover-viewport .sc-ion-popover-ios {
     border:  3px solid yellow;
 }
 
