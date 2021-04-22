@@ -417,7 +417,7 @@ const CreateParty = ({editingParty, displayParties}) => {
           })}<br/>                    
         </IonContent>
         <IonFooter>
-          <IonButton class="custom-button" onClick={e => setShowPeopleSearch(false)}>Done</IonButton>
+          <IonButton class="create-button" onClick={e => setShowPeopleSearch(false)}>Done</IonButton>
         </IonFooter>        
       </IonModal>  
 
