@@ -5,7 +5,7 @@
   "dependencies": {
     "@capacitor/android": "^2.1.1",
     "@capacitor/core": "^2.4.7",
-    "@capacitor/ios": "^3.0.0-rc.0",
+    "@capacitor/ios": "^2.4.7",
     "@ionic-native/core": "^5.31.1",
     "@ionic-native/video-capture-plus": "^5.31.1",
     "@ionic/core": "^5.5.4",
