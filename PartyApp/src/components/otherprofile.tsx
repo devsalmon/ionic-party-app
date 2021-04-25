@@ -1,19 +1,13 @@
 import React, { useState, useEffect} from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
 import {
-  IonIcon,
-  IonButton,
   IonBackButton,
   IonPage, 
-  IonContent, 
   IonToolbar, 
-  IonItem ,
   IonButtons, 
   IonTitle,
   IonText,
-  IonImg,
   IonHeader,
-  IonList,
 } from '@ionic/react';
 import { 
   chevronBackSharp

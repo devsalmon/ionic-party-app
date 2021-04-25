@@ -7,7 +7,6 @@ import {
   IonMenu,
   IonRouterOutlet,
   IonItem,
-  IonImg,
   IonRefresher,
   IonRefresherContent,
   IonToolbar,
@@ -18,7 +17,6 @@ import {
   IonIcon,
   IonButtons,
   IonButton,
-  IonHeader,
   IonRow,
   IonGrid,
   IonSlides,
@@ -327,12 +325,17 @@ const MyPartyList = () => {
   }
 
   const changeSlide = async(direction) => {
-    const swiper = await slides.current.getSwiper();
     if (direction === "next") {
-      swiper.slideNext()
-    } else if (direction === "prev") {
-      swiper.slidePrev()
+      setSelected("attended")
+    } else {
+      setSelected("hosted")
     }
+    // const swiper = await slides.current.getSwiper();
+    // if (direction === "next") {
+    //   swiper.slideNext()
+    // } else if (direction === "prev") {
+    //   swiper.slidePrev()
+    // }
   }
 
   // const CheckSnapInfo = () => {
@@ -388,7 +391,7 @@ const MyPartyList = () => {
   if (inGallery) {
     return(
         <>
-        <IonToolbar class="myparties-title">
+        <IonToolbar>
           <IonButtons slot="start">
             <IonButton color="warning" fill="clear" onClick={() => exitGallery()}>
               <IonIcon icon={chevronBackSharp} />
@@ -405,7 +408,7 @@ const MyPartyList = () => {
     return(
         <>
         <IonMenu side="end" type="overlay" contentId="myPartiesPage">
-          <IonToolbar class="ion-padding">
+          <IonToolbar>
             <IonTitle class="ion-padding">Settings</IonTitle>
           </IonToolbar>
           <IonContent class="list">
@@ -438,10 +441,9 @@ const MyPartyList = () => {
         <IonRouterOutlet></IonRouterOutlet>
 
         <div id="myPartiesPage">
-          <IonToolbar class="ion-padding">
+          <IonToolbar>
             <IonTitle class="ion-padding">My Parties</IonTitle>
-          </IonToolbar>
-          <IonToolbar class="myparties-toolbar">
+          <div className="myparties-toolbar">
           <IonItem class="accordion-profile" lines="none">
             <IonGrid>
               <IonRow class="ion-align-items-center">
@@ -478,46 +480,47 @@ const MyPartyList = () => {
               </IonItem>
             </IonCol>
           </IonRow>
-          </IonRadioGroup>                                
+          </IonRadioGroup>  
+          </div>                              
         </IonToolbar>
-        <IonSlides ref={slides} onIonSlideDidChange={e => handleSlideChange()}>                   
-          <IonSlide>             
-            <IonContent fullscreen={true} scroll-y={true}> 
+        {/* <IonSlides ref={slides} onIonSlideDidChange={e => handleSlideChange()}>                   
+          <IonSlide>      */}
+            <IonContent fullscreen={true}>
               <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
                 <IonRefresherContent
                   pullingIcon={chevronDownCircleOutline}
                   refreshingSpinner="circles">
                 </IonRefresherContent>
               </IonRefresher>                     
-            {attendedParties.length === 0 ?
+            {selected === "attended" ? 
+            attendedParties.length === 0 ?
             <IonText class="white-text">You haven't attended any parties yet..</IonText> :          
             attendedParties.map((party, i) => {
               return(
                 <Memory notifications={party.notifications} id={party.id} data={party.data} key={i} click={() => enter(party.id, party.data.hostid)}/>
               )          
-            })}       
-            <br/><br/><br/><br/><br/>
-            </IonContent>    
-          </IonSlide>              
-          <IonSlide>
-            <IonContent fullscreen={true} scroll-y={true}>    
-              <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
+            }) : null}   
+          {/* </IonContent> */}
+          {/* </IonSlide>              
+          <IonSlide> */}
+            {/* <IonContent fullscreen={true} scroll-y={true}> */}
+              {/* <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
                 <IonRefresherContent
                   pullingIcon={chevronDownCircleOutline}
                   refreshingSpinner="circles">
                 </IonRefresherContent>
-              </IonRefresher>                   
-            {yourParties.length === 0 ?
+              </IonRefresher>                    */}
+            {selected === "hosted" ?
+            yourParties.length === 0 ?
             <IonText class="white-text">You haven't hosted any parties yet..</IonText> : 
             yourParties.map((party, j) => {
               return(              
                 <Memory notifications={party.notifications} id={party.id} data={party.data} key={j} click={() => enter(party.id, party.data.hostid)}/>
               )          
-            })} 
-            <br/><br/><br/><br/><br/><br/><br/>
-            </IonContent>                                
-          </IonSlide>          
-        </IonSlides>         
+            }) : null} 
+            </IonContent>                     
+          {/* </IonSlide> 
+        </IonSlides>     */}
         <IonPopover
           id="popover"
           cssClass="popover"        

@@ -294,7 +294,7 @@ const CreateParty = ({editingParty, displayParties}) => {
 
     return(
       <IonPage>      
-      <IonToolbar class="ion-padding create-toolbar">
+      <IonToolbar class="create-toolbar">
         {editingParty ? 
         <IonButtons slot="start" class="create-back-button">
           <IonButton fill="clear" color="dark" href="/home">
@@ -357,7 +357,7 @@ const CreateParty = ({editingParty, displayParties}) => {
               </IonItem>
             )
           })}  
-          <IonItem class="rounded-bottom"> 
+          <IonItem class="rounded-bottom" lines="none"> 
             <IonButton 
             class="create-button" 
             expand="block"            
@@ -368,7 +368,6 @@ const CreateParty = ({editingParty, displayParties}) => {
             <IonButton class="delete-button" onClick={() => setShowPopover(true)}>Delete party</IonButton> :
           null}
           </IonCard>
-          <br/><br/><br/><br/><br/>
              
       <IonModal cssClass="modal" swipeToClose={true} isOpen={showPeopleSearch}>
         <IonHeader>

@@ -7,10 +7,6 @@ import {
   IonPage,
   IonToolbar,
   IonInput,
-  IonRadioGroup,
-  IonRadio,
-  IonItem,
-  IonLabel,
   IonButton,
   IonContent
 } from '@ionic/react';

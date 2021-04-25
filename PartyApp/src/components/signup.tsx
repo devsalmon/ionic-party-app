@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef} from 'react';
 //import Script from 'react-load-script'
 import firebase from '../firestore';
 import {
-  IonItem,
   IonButton,
   IonPage,
   IonContent, 
@@ -12,10 +11,7 @@ import {
   IonTitle,
   IonInput, 
   IonText,
-  IonPopover,
-  IonLabel,
   IonRow,
-  IonCol,
   IonLoading,
   IonSlides,
   IonSlide,

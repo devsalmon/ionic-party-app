@@ -2,20 +2,16 @@ import React, { useState, useEffect} from 'react';
 import firebase from '../firestore';
 // import PhoneInput from 'react-phone-number-input';
 import {
-  IonItem,
   IonButton,
   IonPage,
   IonContent, 
   IonToolbar, 
-  IonButtons, 
   IonIcon,
   IonTitle,
   IonInput, 
   IonText,
   IonPopover,
-  IonLabel,
   IonRow,
-  IonCol,
   IonToast
 } from '@ionic/react';
 import { 

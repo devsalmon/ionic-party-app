@@ -1,3 +1,7 @@
+.ios ion-toolbar{
+    padding-top: var(--ion-safe-area-top);       
+}
+
 .accordion-item {
     border-top: 2px solid yellow;
     border-bottom: 2px solid yellow;
@@ -11,7 +15,7 @@
 
 .accordion-profile {
     border-top: 3px solid yellow;
-    border-bottom: 3px solid yellow;    
+    border-bottom: 3px solid yellow;         
     background-image: linear-gradient(to top left, red, black);
 }
 
@@ -49,6 +53,8 @@
 }
 
 .create-card {
+    margin-bottom: 50px;
+    margin-top: 15px;
     box-shadow: 4px 4px 5px black;
 }
 
@@ -85,7 +91,6 @@
 
 .create-toolbar {
     --background: linear-gradient(yellow 5%,70%, transparent);
-    border: none
 }
 
 .day-text {
@@ -137,10 +142,9 @@
 }
 
 .myparties-toolbar {
-    padding-bottom: 0px;
-    padding-right: 0px;
-    padding-left: 0px;
-    padding-top: 2%
+    padding: 0px;
+    --padding-end: 0px;
+    --padding-start: 0px
 }
 
 .modal {
@@ -340,7 +344,8 @@ ion-card-subtitle {
 
 ion-content {
     --background: transparent;
-    --padding-top: 10px
+    --padding-top: 5px;
+    text-align: center
 }
 
 ion-footer {
@@ -404,7 +409,7 @@ ion-refresher-content {
 }
     
 ion-slides {
-    height: 150%;
+    height: 200%
 }
 
 .sign-up-slides {
@@ -412,6 +417,7 @@ ion-slides {
 }
 
 .swiper-slide {
+    overflow-y: scroll;
     display: block;
 }
 
@@ -451,9 +457,8 @@ ion-title {
   }
   
 ion-toolbar {
-    padding: 20px;
-    --background: black;
-    border-bottom: yellow solid
+    padding: 16px;
+    --background: black;    
 }
 
 .PhoneInputInput {

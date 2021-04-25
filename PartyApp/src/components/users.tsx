@@ -10,7 +10,6 @@ import {
   IonRow,
   IonCol,
   IonText,
-  IonImg,
 } from '@ionic/react';
 import { 
   personOutline,

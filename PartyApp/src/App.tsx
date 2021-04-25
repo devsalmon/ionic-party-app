@@ -6,7 +6,6 @@ import Gallery from './components/gallery';
 import MyPartyList from './components/mypartylist';
 import SignIn from './components/signin';
 import SignUp from './components/signup';
-//import AppUrlListener from './components/AppUrlListener';
 
 import { Route, Redirect, useLocation, useHistory } from 'react-router-dom';
 import { RefresherEventDetail } from '@ionic/core';

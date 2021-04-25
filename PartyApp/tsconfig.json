@@ -20,7 +20,8 @@
     "noEmit": true,
     "noImplicitAny": false,
     "strictNullChecks": false,
-    "jsx": "react"
+    "jsx": "react",
+    "noFallthroughCasesInSwitch": false
   },
   "include": [
     "src"

@@ -3,15 +3,14 @@
   "version": "0.0.2",
   "private": true,
   "dependencies": {
-    "@capacitor/android": "^2.1.1",
-    "@capacitor/core": "^2.1.1",
-    "@capacitor/ios": "^2.1.1",
+    "@capacitor/android": "^2.4.7",
+    "@capacitor/core": "^2.4.7",
+    "@capacitor/ios": "^2.4.7",
     "@ionic-native/core": "^5.31.1",
     "@ionic-native/video-capture-plus": "^5.31.1",
     "@ionic/core": "^5.5.4",
     "@ionic/pwa-elements": "^1.5.2",
     "@ionic/react": "^5.2.2",
-    "@ionic/react-hooks": "0.0.8",
     "@ionic/react-router": "^5.2.2",
     "@react-google-maps/api": "^1.13.0",
     "@testing-library/jest-dom": "^4.2.4",
@@ -35,14 +34,12 @@
     "moment": "^2.27.0",
     "node-fetch": "^2.6.1",
     "react": "^16.13.0",
-    "react-accessible-accordion": "^3.3.0",
     "react-dom": "^16.13.0",
     "react-firebase-hooks": "^2.2.0",
     "react-hook-form": "^5.7.2",
     "react-load-script": "0.0.6",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "3.4.1",
     "typescript": "3.8.3"
   },
   "scripts": {
@@ -70,8 +67,9 @@
     "@capacitor/cli": "^2.1.1",
     "@ionic/app-scripts": "^3.2.4",
     "@ionic/lab": "3.1.7",
-    "eslint": "^6.6.0",
-    "eslint-config-google": "^0.14.0"
+    "eslint": "^7.25.0",
+    "eslint-config-google": "^0.14.0",
+    "react-scripts": "4.0.3"
   },
   "description": "An Ionic project"
 }
