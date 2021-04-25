@@ -294,6 +294,7 @@ const CreateParty = ({editingParty, displayParties}) => {
 
     return(
       <IonPage>      
+      <IonHeader>
       <IonToolbar class="create-toolbar">
         {editingParty ? 
         <IonButtons slot="start" class="create-back-button">
@@ -306,6 +307,7 @@ const CreateParty = ({editingParty, displayParties}) => {
         <IonTitle class="ion-padding" color="dark">Create</IonTitle>
         }  
       </IonToolbar>
+      </IonHeader>
       <IonContent class="create-content" fullscreen={true}>
         <IonText class="black-text">You can always invite more people and edit the party details after you create it.</IonText>
         <IonCard class="create-card">

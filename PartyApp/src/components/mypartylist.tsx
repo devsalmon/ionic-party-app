@@ -5,6 +5,7 @@ import {
   IonList,
   IonInput,
   IonMenu,
+  IonHeader,
   IonRouterOutlet,
   IonItem,
   IonRefresher,
@@ -441,9 +442,11 @@ const MyPartyList = () => {
         <IonRouterOutlet></IonRouterOutlet>
 
         <div id="myPartiesPage">
+          <IonHeader>
           <IonToolbar>
             <IonTitle class="ion-padding">My Parties</IonTitle>
-          <div className="myparties-toolbar">
+          </IonToolbar>
+          <IonToolbar class="myparties-toolbar">
           <IonItem class="accordion-profile" lines="none">
             <IonGrid>
               <IonRow class="ion-align-items-center">
@@ -481,8 +484,8 @@ const MyPartyList = () => {
             </IonCol>
           </IonRow>
           </IonRadioGroup>  
-          </div>                              
         </IonToolbar>
+        </IonHeader>
         {/* <IonSlides ref={slides} onIonSlideDidChange={e => handleSlideChange()}>                   
           <IonSlide>      */}
             <IonContent fullscreen={true}>

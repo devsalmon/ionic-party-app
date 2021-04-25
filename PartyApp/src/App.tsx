@@ -17,6 +17,7 @@ import {
   IonRouterOutlet,
   IonTabBar,
   IonTabButton,
+  IonHeader,
   IonTabs, 
   IonItem,
   IonButton,
@@ -521,7 +522,6 @@ const PartyList = ({editParty, stopEditing}) => {
             ]}
           />     
           : null}         
-        {newNotifications ? <><br/><br/></> : null} 
         {reqs && reqs.map((req, i) =>        
           <FriendRequest id={req.name} click={()=>checkForRequests()} key={i}/>
         )}
@@ -670,7 +670,7 @@ const FriendRequest = ({id, click}) => {
 
 
   return(
-    <IonCard>
+    <IonCard class="friend-request-card">
       <IonCardHeader>
         <IonCardTitle>
           <IonText>{userName} wants to be friends</IonText>
@@ -739,7 +739,7 @@ const PartyRequest = ({hostid, partyid, click}) => {
   }
 
   return(
-    <IonCard>
+    <IonCard class="invite-card">
       <IonCardHeader>
         <IonCardTitle>
           <IonText>{userName} has invited you to a party!</IonText>
@@ -772,6 +772,7 @@ const Home: React.FC = () => {
   return(
     <IonPage>
       {editing ? null : 
+      <IonHeader>
       <IonToolbar class="ion-padding">      
         <IonTitle class="ion-padding">
           Upcoming Parties
@@ -781,7 +782,8 @@ const Home: React.FC = () => {
             <IonIcon class="top-icons" slot="icon-only" icon={personAddSharp} />
           </IonButton>       
         </IonButtons>                     
-      </IonToolbar>}
+      </IonToolbar>
+      </IonHeader>}
       <PartyList editParty={() => setEditing(true)} stopEditing={()=>setEditing(false)}/>
       <br/> <br/> <br/> <br/> <br/> <br/>
     </IonPage>
