@@ -94,7 +94,7 @@
 }
 
 .create-toolbar {
-    --background: linear-gradient(yellow 5%,70%, transparent);
+    --background: yellow
 }
 
 .day-text {

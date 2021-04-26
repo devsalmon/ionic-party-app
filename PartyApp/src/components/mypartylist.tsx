@@ -79,6 +79,7 @@ const MyPartyList = () => {
   const [passwordError, setPasswordError] = useState('');
   const [usernameError, setUsernameError] = useState('');
   const [nameError, setNameError] = useState('');
+  const [nameUpdated, setNameUpdated] = useState(false);
   const [accountDeleted, setAccountDeleted] = useState(false);
   // const [continuedWithSnap, setContinuedWithSnap] = useState(false);
 
@@ -205,6 +206,7 @@ const MyPartyList = () => {
           setUsernameError('');
           setUsernamePopover(false);
           setNewUsername('');
+          setNameUpdated(true);
         })                 
       } else {
         setUsernameError("This username is already in use, try another one")        
@@ -213,13 +215,10 @@ const MyPartyList = () => {
   }
 
   const updateName = async() => {    
-    firebase.firestore().collection("users").where("username", "==", newName).get().then(snap => {
+    firebase.firestore().collection("users").where("fullname", "==", newName).get().then(snap => {
       if (snap.empty) { // if no duplicate username
         setNameError("");
         user = firebase.auth().currentUser
-       // user.updateProfile({
-       //   displayName: newUsername
-       // });
         firebase.firestore().collection('users').doc(user.uid).update({
           fullname: newName,  
         }).then(() => {
@@ -227,9 +226,10 @@ const MyPartyList = () => {
           setNameError('');
           setNamePopover(false);
           setNewName('');
+          setNameUpdated(true);
         })                 
       } else {
-        setNameError("This username is already in use, try another one")        
+        setNameError("This name is already in use, try another one")        
       }
     })       
   }
@@ -579,7 +579,7 @@ const MyPartyList = () => {
           onIonChange={e => setNewName(e.detail.value!)} 
           placeholder="New Name" clearInput>            
           </IonInput>
-          <IonText>{usernameError}</IonText><br/>
+          <IonText>{nameError}</IonText><br/>
           <IonButton onClick={() => updateName()}>Done</IonButton>             
         </IonPopover>
         {/* <IonPopover
@@ -690,7 +690,16 @@ const MyPartyList = () => {
         >
         <IonText>Account Deleted</IonText>
         <IonButton href='/signin'>Ok</IonButton>
-        </IonPopover>           
+        </IonPopover> 
+        <IonPopover
+          id="popover" 
+          cssClass="popover"        
+          isOpen={nameUpdated}
+          onDidDismiss={() => setRefresh(!refresh)}        
+        >
+        <IonText>Name updated!</IonText>
+        <IonButton href='/myparties'>Ok</IonButton>
+        </IonPopover>                   
         </div>    
       </>
     )
