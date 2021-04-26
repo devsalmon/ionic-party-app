@@ -25,7 +25,8 @@ import {
   heartOutline,
   heart,
   sendOutline,
-  closeSharp
+  closeSharp,
+  trashSharp
 } from 'ionicons/icons';
 import '../App.css'
 import firebase from '../firestore'
@@ -230,7 +231,7 @@ const Picture = ({doc, hostid, partyid}) => {
 
   const removePicture = ownPicture ? (
     <IonButton onClick={() => setDeletePhotoPopover(true)} fill="clear" color="warning">
-      <IonIcon icon={closeSharp}/>
+      <IonIcon icon={trashSharp}/>
     </IonButton>
   ) : null 
 
@@ -357,8 +358,8 @@ const Comment = (props: {name, comment, comid, colref, picid, deleteComment}) =>
           <IonText>{props.name}: {props.comment} <IonText class="white-text">{timestamp}</IonText></IonText>
         </IonItem>
         <IonItemOptions side="end">
-          <IonItemOption onClick={props.deleteComment}>
-            <IonIcon icon={closeSharp}></IonIcon>
+          <IonItemOption color="danger" onClick={props.deleteComment}>
+            <IonIcon icon={trashSharp}></IonIcon>
           </IonItemOption>
         </IonItemOptions>
       </IonItemSliding>

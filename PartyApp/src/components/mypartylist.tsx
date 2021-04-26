@@ -69,6 +69,8 @@ const MyPartyList = () => {
   const [showFriends, setShowFriends] = useState(false);
   const [usernamePopover, setUsernamePopover] = useState(false); //popover to change username
   const [newUsername, setNewUsername] = useState('');
+  const [namePopover, setNamePopover] = useState(false);
+  const [newName, setNewName] = useState('');
   const [passwordPopover, setPasswordPopover] = useState(false); //popover to change password
   const [deleteAccPopover, setDeleteAccPopover] = useState(false); 
   const [oldPassword, setOldPassword] = useState(''); //popover to change username
@@ -76,6 +78,7 @@ const MyPartyList = () => {
   const [verifyNewPassword, setVerifyNewPassword] = useState(''); //popover to change username
   const [passwordError, setPasswordError] = useState('');
   const [usernameError, setUsernameError] = useState('');
+  const [nameError, setNameError] = useState('');
   const [accountDeleted, setAccountDeleted] = useState(false);
   // const [continuedWithSnap, setContinuedWithSnap] = useState(false);
 
@@ -209,6 +212,27 @@ const MyPartyList = () => {
     })       
   }
 
+  const updateName = async() => {    
+    firebase.firestore().collection("users").where("username", "==", newName).get().then(snap => {
+      if (snap.empty) { // if no duplicate username
+        setNameError("");
+        user = firebase.auth().currentUser
+       // user.updateProfile({
+       //   displayName: newUsername
+       // });
+        firebase.firestore().collection('users').doc(user.uid).update({
+          fullname: newName,  
+        }).then(() => {
+          //setHits([]);
+          setNameError('');
+          setNamePopover(false);
+          setNewName('');
+        })                 
+      } else {
+        setNameError("This username is already in use, try another one")        
+      }
+    })       
+  }
 
   const updatePassword = () => {
     setPasswordError('');
@@ -417,6 +441,9 @@ const MyPartyList = () => {
               <IonButton href="/signin" onClick={() => signOut()}>
                 Sign out              
               </IonButton> <br/>
+              <IonButton onClick={() => setNamePopover(true)}>
+                Change name              
+              </IonButton> <br/>
               <IonButton onClick={() => setUsernamePopover(true)}>
                 Change username              
               </IonButton> <br/>
@@ -538,6 +565,22 @@ const MyPartyList = () => {
           </IonInput>
           <IonText>{usernameError}</IonText><br/>
           <IonButton onClick={() => updateUsername()}>Done</IonButton>             
+        </IonPopover>
+
+        <IonPopover
+          id="popover"
+          cssClass="popover"        
+          isOpen={namePopover}
+          onDidDismiss={() => setNamePopover(false)}
+        >
+          <IonInput 
+          class="create-input" 
+          value={newName} 
+          onIonChange={e => setNewName(e.detail.value!)} 
+          placeholder="New Name" clearInput>            
+          </IonInput>
+          <IonText>{usernameError}</IonText><br/>
+          <IonButton onClick={() => updateName()}>Done</IonButton>             
         </IonPopover>
         {/* <IonPopover
           id="popover"
