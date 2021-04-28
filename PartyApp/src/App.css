@@ -165,7 +165,7 @@
     width: 12px;
     background-color: red;
     border-radius: 50%;
-    animation: blinker 3s linear infinite; 
+    /*animation: blinker 3s linear infinite; */
     margin-bottom: 3px;
 }
   
