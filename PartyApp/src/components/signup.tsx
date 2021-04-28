@@ -206,6 +206,8 @@ const SignUp: React.FC = () => {
         if (validatePhone(email_or_phone)) { 
           // it's a phone number                    
           setSignUpMethod('phone')
+          //not a good way to replace 07 with +44
+          //email_or_phone = email_or_phone.replace("07", "+44");
           window.localStorage.setItem("signUpMethod", "phone")
           //goToSlide(1);
           nextSlide();

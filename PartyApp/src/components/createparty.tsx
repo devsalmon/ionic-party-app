@@ -328,11 +328,11 @@ const CreateParty = ({editingParty, displayParties}) => {
           </IonItem>         
           <IonItem class="create-card-input" lines="none">
             <IonLabel color="warning">Starts*</IonLabel>
-            <IonDatetime class="create-datetime" value={dateTime} onIonChange={e => setDateTime(e.detail.value!)} displayFormat="DD-MMM-YY HH:mm" placeholder="select"></IonDatetime>
+            <IonDatetime class="create-datetime" value={dateTime} onIonChange={e => setDateTime(e.detail.value!)} displayFormat="DD-MMM HH:mm" placeholder="select"></IonDatetime>
           </IonItem>
           <IonItem class="create-card-input" lines="none">
             <IonLabel color="warning">Ends*</IonLabel>
-            <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} displayFormat="DD-MMM-YY HH:mm" placeholder="select"></IonDatetime>
+            <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} displayFormat="DD-MMM HH:mm" placeholder="select"></IonDatetime>
           </IonItem>        
           {/* <IonItem class="create-card-input" lines="none">
             <IonLabel color="warning">Male:Female ratio</IonLabel>
