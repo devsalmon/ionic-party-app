@@ -6,6 +6,10 @@
     margin-bottom: var(--ion-safe-area-bottom);
 }
 
+.ios ion-tab-button {
+    margin-bottom: 0px;
+}
+
 .accordion-item {
     border-top: 2px solid yellow;
     border-bottom: 2px solid yellow;
@@ -150,7 +154,7 @@
 }
 
 .myparties-toolbar {
-    padding: 0px!;
+    padding: 0px;
     --padding-end: 0px;
     --padding-start: 0px
 }
@@ -165,7 +169,7 @@
     width: 12px;
     background-color: red;
     border-radius: 50%;
-    animation: blinker 3s linear infinite; 
+    /*animation: blinker 3s linear infinite; */
     margin-bottom: 3px;
 }
   
@@ -441,8 +445,8 @@ ion-tab-button {
     --color-selected: white;
     font-weight: bold;
     font-size: 10%;
-    text-align: center    
-  }  
+    --padding-bottom: 0px;
+}  
 
 ion-tab-bar {
     --border: none;
@@ -457,6 +461,7 @@ ion-tab-bar {
     align-items: flex-end;
     justify-content: center;
 }
+
 ion-title {
     text-align: center;
     font-weight: bold;

@@ -130,7 +130,7 @@ const CreateParty = ({editingParty, displayParties}) => {
 
     const onSave = () => {  
       // validate inputs  
-      const inputsFilled = Boolean((title.trim() !== "") && (address.trim() !== "") && (dateTime.trim() !== "") && (endTime.trim() !== "") && (dresscode.trim() !== "") && (drinksProvided.trim() !== ""));
+      const inputsFilled = Boolean((title.trim() !== "") && (address.trim() !== "") && (dateTime.trim() !== "") && (endTime.trim() !== ""));
       const timesValid = Boolean(moment(endTime).isAfter(dateTime));
       const collectionRef = firebase.firestore().collection("users").doc(currentuser.uid).collection("myParties");
 
@@ -312,10 +312,10 @@ const CreateParty = ({editingParty, displayParties}) => {
         <IonText class="black-text">You can always invite more people and edit the party details after you create it.</IonText>
         <IonCard class="create-card">
           <IonItem class="rounded-top" lines="none">
-            <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>
+            <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title*" clearInput></IonInput>
           </IonItem>
           <IonItem class="create-card-input" lines="none">   
-            <IonInput class="create-input" value={address}  onIonChange={e => setAddress(e.detail.value!)} placeholder="Address" clearInput></IonInput>                               
+            <IonInput class="create-input" value={address}  onIonChange={e => setAddress(e.detail.value!)} placeholder="Location*" clearInput></IonInput>                               
           </IonItem>
           <IonItem class="create-card-input" lines="none">   
             <IonInput class="create-input" value={postcode}  onIonChange={e => setPostcode(e.detail.value!)} placeholder="Postcode/Zipcode" clearInput></IonInput>                               
@@ -327,22 +327,13 @@ const CreateParty = ({editingParty, displayParties}) => {
             <IonInput class="create-input" value={drinksProvided}  onIonChange={e => setDrinksProvided(e.detail.value!)} placeholder="Drinks Provided" clearInput></IonInput>  
           </IonItem>         
           <IonItem class="create-card-input" lines="none">
-            <IonLabel color="warning">Starts</IonLabel>
-            <IonDatetime class="create-datetime" value={dateTime} onIonChange={e => setDateTime(e.detail.value!)} displayFormat="DD-MMM-YY HH:mm" placeholder="select"></IonDatetime>
+            <IonLabel color="warning">Starts*</IonLabel>
+            <IonDatetime class="create-datetime" value={dateTime} onIonChange={e => setDateTime(e.detail.value!)} displayFormat="DD-MMM HH:mm" placeholder="select"></IonDatetime>
           </IonItem>
           <IonItem class="create-card-input" lines="none">
-            <IonLabel color="warning">Ends</IonLabel>
-            <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} displayFormat="DD-MMM-YY HH:mm" placeholder="select"></IonDatetime>
+            <IonLabel color="warning">Ends*</IonLabel>
+            <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} displayFormat="DD-MMM HH:mm" placeholder="select"></IonDatetime>
           </IonItem>        
-          {/* <IonItem class="create-card-input" lines="none">
-            <IonLabel color="warning">Male:Female ratio</IonLabel>
-          </IonItem> */}
-          {/* <IonItem class="create-card-input" lines="none">            
-            <IonRange value={malesToFemales}  onIonChange={e => setMalesToFemales(e.detail.value!)}>
-              <IonIcon slot="start" icon={manOutline} />
-              <IonIcon slot="end" icon={womanOutline} />
-            </IonRange>
-          </IonItem> */}
           <IonItem class="create-card-input" lines="none">
             <IonTextarea maxlength={150} class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
           </IonItem>
