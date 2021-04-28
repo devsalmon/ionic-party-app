@@ -68,6 +68,7 @@ const MyPartyList = () => {
 
   const [showFriends, setShowFriends] = useState(false);
   const [usernamePopover, setUsernamePopover] = useState(false); //popover to change username
+  const [signOutPopover, setSignOutPopover] = useState(false); //popover to sign out
   const [newUsername, setNewUsername] = useState('');
   const [namePopover, setNamePopover] = useState(false);
   const [newName, setNewName] = useState('');
@@ -438,7 +439,7 @@ const MyPartyList = () => {
           </IonToolbar>
           <IonContent class="list">
             <IonList class="list">      
-              <IonButton href="/signin" onClick={() => signOut()}>
+              <IonButton onClick={() => setSignOutPopover(true)}>
                 Sign out              
               </IonButton> <br/>
               <IonButton onClick={() => setNamePopover(true)}>
@@ -564,7 +565,8 @@ const MyPartyList = () => {
           placeholder="New Username" clearInput>            
           </IonInput>
           <IonText>{usernameError}</IonText><br/>
-          <IonButton onClick={() => updateUsername()}>Done</IonButton>             
+          <IonButton onClick={() => setUsernamePopover(false)}>Cancel</IonButton>
+          <IonButton onClick={() => updateUsername()}>Done</IonButton>                         
         </IonPopover>
 
         <IonPopover
@@ -580,8 +582,20 @@ const MyPartyList = () => {
           placeholder="New Name" clearInput>            
           </IonInput>
           <IonText>{nameError}</IonText><br/>
+          <IonButton onClick={() => setNamePopover(false)}>Cancel</IonButton>
           <IonButton onClick={() => updateName()}>Done</IonButton>             
         </IonPopover>
+
+        <IonPopover
+          id="popover"
+          cssClass="popover"        
+          isOpen={signOutPopover}
+          onDidDismiss={() => setSignOutPopover(false)}
+        >
+          <IonText>Are you sure you want to sign out of your account?</IonText><br/>
+          <IonButton href="/signin" onClick={() => signOut()}>Yes</IonButton>  
+          <IonButton onClick={() => setSignOutPopover(false)}>No</IonButton>               
+        </IonPopover>        
         {/* <IonPopover
           id="popover"
           cssClass="popover"        
@@ -604,20 +618,21 @@ const MyPartyList = () => {
           value={oldPassword} 
           onIonChange={e => setOldPassword(e.detail.value!)} 
           placeholder="Old Password" clearInput>            
-          </IonInput>
+          </IonInput><br/>
           <IonInput 
           class="create-input" 
           value={newPassword} 
           onIonChange={e => setNewPassword(e.detail.value!)} 
           placeholder="New Password" clearInput>            
-          </IonInput>
+          </IonInput><br/>
           <IonInput 
           class="create-input" 
           value={verifyNewPassword} 
           onIonChange={e => setVerifyNewPassword(e.detail.value!)} 
           placeholder="Re-enter New Password" clearInput>            
-          </IonInput>              
-          <IonText>{passwordError}</IonText><br/>               
+          </IonInput><br/>              
+          <IonText>{passwordError}</IonText><br/>            
+          <IonButton onClick={() => setPasswordPopover(false)}>Cancel</IonButton>   
           <IonButton onClick={() => updatePassword()}>Done</IonButton>             
         </IonPopover>    
         <IonPopover
@@ -697,7 +712,7 @@ const MyPartyList = () => {
           isOpen={nameUpdated}
           onDidDismiss={() => setRefresh(!refresh)}        
         >
-        <IonText>Name updated!</IonText>
+        <IonText>Name updated!</IonText><br/>
         <IonButton href='/myparties'>Ok</IonButton>
         </IonPopover>                   
         </div>    

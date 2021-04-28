@@ -334,15 +334,6 @@ const CreateParty = ({editingParty, displayParties}) => {
             <IonLabel color="warning">Ends*</IonLabel>
             <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} displayFormat="DD-MMM-YY HH:mm" placeholder="select"></IonDatetime>
           </IonItem>        
-          {/* <IonItem class="create-card-input" lines="none">
-            <IonLabel color="warning">Male:Female ratio</IonLabel>
-          </IonItem> */}
-          {/* <IonItem class="create-card-input" lines="none">            
-            <IonRange value={malesToFemales}  onIonChange={e => setMalesToFemales(e.detail.value!)}>
-              <IonIcon slot="start" icon={manOutline} />
-              <IonIcon slot="end" icon={womanOutline} />
-            </IonRange>
-          </IonItem> */}
           <IonItem class="create-card-input" lines="none">
             <IonTextarea maxlength={150} class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
           </IonItem>

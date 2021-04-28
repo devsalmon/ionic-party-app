@@ -15,6 +15,7 @@ import {
   IonLoading,
   IonSlides,
   IonSlide,
+  IonPopover
 } from '@ionic/react';
 import { 
   eyeOutline,
@@ -79,6 +80,7 @@ const SignUp: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [code, setCode] = useState('');
   const [slide0, setSlide0] = useState(true);
+  const [resendEmailPopover, setResendEmailPopover] = useState(false);
   const slides = useRef(null);
 
   // When this component renders
@@ -344,7 +346,7 @@ const SignUp: React.FC = () => {
   const sendVerificationEmail = () => {
     firebase.auth().currentUser.sendEmailVerification(actionCodeSettings).then(function() {      
       setLinkSent(true);
-      //goToSlide(3);
+      setResendEmailPopover(false);
       nextSlide();
     }).catch(function(error) {
       // An error happened.
@@ -353,24 +355,24 @@ const SignUp: React.FC = () => {
     });      
   }
 
-  // const resendEmail = () => {
-  //   setLoading(true);
-  //   clearErrors();
-  //   var user = firebase.auth().currentUser;
-  //   if (user) {
-  //     sendVerificationEmail(); 
-  //   } else if (email_or_phone.trim() !== "" && password.trim() !== "") {
-  //     firebase.auth().signInWithEmailAndPassword(email_or_phone, password).then(user => {
-  //       sendVerificationEmail();        
-  //     }).catch(err => {
-  //       setLoading(false);
-  //       setPasswordError(err.message);
-  //     })
-  //   } else {
-  //     setLoading(false);
-  //     setPasswordError("Please provide an email and password")
-  //   }
-  // }
+  const resendEmail = () => {
+    setLoading(true);
+    clearErrors();
+    var user = firebase.auth().currentUser;
+    if (user) {
+      sendVerificationEmail(); 
+    } else if (email_or_phone.trim() !== "" && password.trim() !== "") {
+      firebase.auth().signInWithEmailAndPassword(email_or_phone, password).then(user => {
+        sendVerificationEmail();        
+      }).catch(err => {
+        setLoading(false);
+        setPasswordError(err.message);
+      })
+    } else {
+      setLoading(false);
+      setPasswordError("Please provide an email and password")
+    }
+  }
 
   const checkIfVerifiedandSignIn = () => {
     clearErrors();  
@@ -402,21 +404,6 @@ const SignUp: React.FC = () => {
     console.log("Triggered 2")
     clearErrors();
     setLoading(true);
-    //window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container');
-    // //console.log("recaptcha...")
-    // window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-    //   'size': 'normal',
-    //   'callback': (response) => {
-    //     // reCAPTCHA solved, allow signInWithPhoneNumber.
-    //     // ...
-    //     console.log(response)
-    //   },
-    //   'expired-callback': () => {
-    //     // Response expired. Ask user to solve reCAPTCHA again.
-    //     // ...
-    //     console.log("expired")
-    //   }
-    // });      
     const appVerifier = window.recaptchaVerifier;
     if (firebase.auth().currentUser) {
       firebase.auth().signOut().then(() => {
@@ -505,7 +492,7 @@ const SignUp: React.FC = () => {
               }          
             }).catch(err => {
               console.log(err.message);
-              setCodeError(err.message)
+              setCodeError(err.message);
               setLoading(false);
             })              
           }
@@ -516,7 +503,7 @@ const SignUp: React.FC = () => {
       }).catch((error) => {
         // User couldn't sign in (bad verification code?)
         setLoading(false);
-        setPhoneError(error.message)      
+        setPhoneError("Verification code is either incorrect or missing, please try again")      
       });
     } else {
       firebase.auth().signOut().then(() => {
@@ -703,7 +690,8 @@ const SignUp: React.FC = () => {
               <> 
               <IonText>We have sent you an email, please click the link in the email to verify it before continuing</IonText>
               <IonButton className="signin-button" onClick={()=>checkIfVerifiedandSignIn()}>Next</IonButton><br/>
-              <IonText>{emailError}</IonText>
+              <IonText>{emailError}</IonText><br/>
+              <IonButton onClick={() => setResendEmailPopover(true)}>Resend verification email</IonButton>
               </>
               // else sign up method is phone...
              : 
@@ -779,7 +767,17 @@ const SignUp: React.FC = () => {
       cssClass="loading"
       spinner="bubbles"
       isOpen={loading} 
-      onDidDismiss={() => setLoading(false)} />         
+      onDidDismiss={() => setLoading(false)} />  
+        <IonPopover
+          id="popover"
+          cssClass="popover"        
+          isOpen={resendEmailPopover}
+          onDidDismiss={() => setResendEmailPopover(false)}
+        >
+          <IonText>Are you sure you want us to resend the email?</IonText><br/>
+          <IonButton onClick={() => resendEmail()}>Yes</IonButton>             
+          <IonButton onClick={() => setResendEmailPopover(false)}>No</IonButton>             
+        </IonPopover>              
     </IonPage>
   )
 }
