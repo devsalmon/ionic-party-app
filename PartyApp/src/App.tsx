@@ -55,12 +55,13 @@ import {
 //   VideoCapturePlus,
 // } from "@ionic-native/video-capture-plus";
 import {
-  CameraResultType, 
-  CameraSource, 
-  Plugins, 
-  PushNotificationToken, 
-  Capacitor
-} from '@capacitor/core';
+  PushNotificationSchema,
+  PushNotifications,
+  // PushNotificationToken,
+  // PushNotificationActionPerformed,
+} from '@capacitor/push-notifications';
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+
 import './App.css';
 import firebase from './firestore';
 import moment from 'moment';
@@ -91,8 +92,6 @@ const Party = ({id, data, live, edit}) => {
   const [photo, setPhoto] = useState('');
   const [videoUrls, setVideoUrls] = useState<any[]>([]);
   const [timeUntil, setTimeUntil] = useState("");
-  //const {photo, getPhoto} = useCamera(); 
-  const { Camera } = Plugins;
   const [host, setHost] = useState('');
   const [pictureError, setPictureError] = useState('');
   const [currentUser, setCurrentUser] = useState(''); // id of current user
@@ -870,49 +869,46 @@ const App: React.FC = () => {
     })    
   }, [])   
 
-  const { PushNotifications } = Plugins;
-
   const registerNotifications = async(userid) => {
-    // Register with Apple / Google to receive push via APNS/FCM
-    PushNotifications.requestPermission().then((permission) => {
-      if (permission.granted) {
+    // Request permission to use push notifications
+    // iOS will prompt user and return if they granted permission or not
+    // Android will just grant without prompting
+    PushNotifications.requestPermissions().then(result => {
+      if (result.receive === 'granted') {
         // Register with Apple / Google to receive push via APNS/FCM
         PushNotifications.register();
       } else {
-        console.log("permission not granted")
+        // Show some error
       }
-    }).catch(error => {
-      console.log("error requesting permission: ", error.message)
     });
-        
 
-    // On succcess, we should be able to receive notifications
-    PushNotifications.addListener('registration',
-      (token: PushNotificationToken) => {
-        console.log('Push registration success, token: ' + token.value);
+    PushNotifications.addListener(
+      'registration',
+      (token) => {
+        alert('Push registration success, token: ' + token.value);
         return firebase.firestore().collection("users").doc(userid).update({
           deviceToken: token.value
-        })
-      }
+        })            
+      },
     );
 
-    // Some issue with your setup and push will not work
-    PushNotifications.addListener('registrationError',
-      (error: any) => {
-        console.log('Error on registration: ' + JSON.stringify(error));
-      }      
-    );   
+    PushNotifications.addListener('registrationError', (error: any) => {
+      alert('Error on registration: ' + JSON.stringify(error));
+    });
 
-    // Show us the notification payload if the app is open on our device
-    //    PushNotifications.addListener('pushNotificationReceived',
-    //    (notification: PushNotification) => {
-    //  }
-    //);
-    // Method called when tapping on a notification
-    //PushNotifications.addListener('pushNotificationActionPerformed',
-      //(notification: PushNotificationActionPerformed) => {
-      // }
-    //);  
+    PushNotifications.addListener(
+      'pushNotificationReceived',
+      (notification: PushNotificationSchema) => {
+        alert('Push received: ' + JSON.stringify(notification));
+      },
+    );
+
+    PushNotifications.addListener(
+      'pushNotificationActionPerformed',
+      (notification) => {
+        alert('Push action performed: ' + JSON.stringify(notification));
+      },
+    );
   }
 
   if (loading) {

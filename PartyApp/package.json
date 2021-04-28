@@ -4,8 +4,10 @@
   "private": true,
   "dependencies": {
     "@capacitor/android": "^2.4.7",
-    "@capacitor/core": "^2.4.7",
-    "@capacitor/ios": "^2.4.7",
+    "@capacitor/camera": "^0.4.3",
+    "@capacitor/core": "^3.0.0-rc.0",
+    "@capacitor/ios": "^3.0.0-rc.0",
+    "@capacitor/push-notifications": "^0.3.6",
     "@ionic-native/core": "^5.31.1",
     "@ionic-native/video-capture-plus": "^5.31.1",
     "@ionic/core": "^5.5.4",
@@ -40,6 +42,7 @@
     "react-load-script": "0.0.6",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
+    "rollup": "^1.18.0",
     "typescript": "3.8.3"
   },
   "scripts": {
@@ -64,12 +67,12 @@
     ]
   },
   "devDependencies": {
-    "@capacitor/cli": "^2.1.1",
+    "@capacitor/cli": "^3.0.0-rc.0",
     "@ionic/app-scripts": "^3.2.4",
     "@ionic/lab": "3.1.7",
     "eslint": "^7.25.0",
     "eslint-config-google": "^0.14.0",
-    "react-scripts": "4.0.3"
+    "react-scripts": "^4.0.3"
   },
   "description": "An Ionic project"
 }
