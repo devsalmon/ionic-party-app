@@ -1317,10 +1317,10 @@
   "resolved" "https://registry.npmjs.org/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz"
   "version" "0.2.3"
 
-"@capacitor/android@^2.4.7":
-  "integrity" "sha512-7jcmwheo94dJEOX1z4r3SlZrL+MvESav1xsUwC5ydLFZCpuvBKJ0szbDNWzCAglgpXmW9hC0WdwYBErgDrDPRg=="
-  "resolved" "https://registry.npmjs.org/@capacitor/android/-/android-2.4.7.tgz"
-  "version" "2.4.7"
+"@capacitor/android@^3.0.0-rc.0":
+  "integrity" "sha512-61CDzUQ6H3uqM/jmvq40wX4c0HuUAQvdBsvF94mGlFU3IKtjAjFV/UyrLfYgdL6v1RD+hv6UGUUj9k1Kto7sPA=="
+  "resolved" "https://registry.npmjs.org/@capacitor/android/-/android-3.0.0-rc.0.tgz"
+  "version" "3.0.0-rc.0"
 
 "@capacitor/camera@^0.4.3":
   "integrity" "sha512-Vpb5i5qEPbOpkcDjT7Xaf+N20oV5XEq4u8Iw8DVjkHGsWhp92IoOZej2UMQ3vwnzdx9YllP/VmbHs1Y7iDzGcw=="

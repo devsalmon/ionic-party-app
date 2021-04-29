@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "private": true,
   "dependencies": {
-    "@capacitor/android": "^2.4.7",
+    "@capacitor/android": "^3.0.0-rc.0",
     "@capacitor/camera": "^0.4.3",
     "@capacitor/core": "^3.0.0-rc.0",
     "@capacitor/ios": "^3.0.0-rc.0",
