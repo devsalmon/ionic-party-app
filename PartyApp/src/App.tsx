@@ -137,8 +137,6 @@ const Party = ({id, data, live, edit}) => {
       source: CameraSource.Camera,
       quality: 30,
       correctOrientation: true,
-      height: 350,
-      width: 350,
       saveToGallery: true
     });
     var photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`;

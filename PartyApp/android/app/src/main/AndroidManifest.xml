@@ -9,14 +9,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <meta-data android:name="com.snapchat.kit.sdk.clientId" android:value="f1a81f8c-e8e7-4b47-b43b-1ee06951ac03" />
-        <meta-data android:name="com.snapchat.kit.sdk.redirectUrl" android:value="https://test1619.page.link/DSF9" />
+        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@mipmap/ic_launcher" />
 
 
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode"
             android:name="com.charke.partyapp.MainActivity"
-            android:label="@string/title_activity_main"
+            android:label="Motive"
             android:theme="@style/AppTheme.NoActionBarLaunch"
             android:launchMode="singleTask">
 

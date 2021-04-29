@@ -28,21 +28,17 @@ import com.google.firebase.auth.ActionCodeResult;
 
 public class MainActivity extends BridgeActivity {
   //public static final String TAG = "tag";
-  //@Override
-  //public void onCreate(Bundle savedInstanceState) {
-      //super.onCreate(savedInstanceState);
-      // Initializes the Bridge
-      //this.init(savedInstanceState, new ArrayList<Class<? extends Plugin>>() {{
-          // Additional plugins you've installed go here
-          // Ex: add(TotallyAwesomePlugin.class);
-      //}});
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      setContentView(R.layout.activity_main);
       /*createDynamicLink_Basic();
       handleIntent(getIntent());*/
 
       //Intent intent = getIntent();
       //String action = intent.getAction();
       //Uri data = intent.getData();
-    //}
+    }
   }
 
 
