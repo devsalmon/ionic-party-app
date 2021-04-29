@@ -234,7 +234,7 @@ const verifyCodeAndNewPassword = async() => {
           case "auth/invalid-email":
           case "auth/user-disabled":
           case "auth/user-not-found":
-            setEmailorphoneError("User not found or is disabled, please check you have signed up to Motiv before trying to sign in.");
+            setEmailorphoneError("User not found or is disabled, please check you have signed up to Motive before trying to sign in.");
             break;
           case "auth/wrong-password":
             setPasswordError("The password you entered is incorrect, please try again or reset your password");
@@ -257,7 +257,7 @@ const verifyCodeAndNewPassword = async() => {
             setEmailorphoneError("Phone number not found or not formatted correctly")
           case "auth/user-disabled":
           case "auth/user-not-found":
-            setEmailorphoneError("User not found or is disabled, please check you have signed up to Motiv before trying to sign in.");
+            setEmailorphoneError("User not found or is disabled, please check you have signed up to Motive before trying to sign in.");
             break;
           case "auth/wrong-password":
             setPasswordError("The password you entered is incorrect, please try again or reset your password");

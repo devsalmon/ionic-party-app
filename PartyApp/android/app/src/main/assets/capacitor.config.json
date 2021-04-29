@@ -1,6 +1,6 @@
 {
 	"appId": "com.charke.partyapp",
-	"appName": "PartyApp",
+	"appName": "Motive",
 	"bundledWebRuntime": false,
 	"npmClient": "npm",
 	"webDir": "build",
