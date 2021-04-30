@@ -2,10 +2,6 @@
     padding-top: var(--ion-safe-area-top);       
 }
 
-.ios ion-tab-bar {
-    margin-bottom: var(--ion-safe-area-bottom);
-}
-
 .ios ion-tab-button {
     margin-bottom: 0px;
 }
