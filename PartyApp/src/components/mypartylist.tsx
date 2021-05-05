@@ -593,7 +593,7 @@ const MyPartyList = () => {
           onDidDismiss={() => setSignOutPopover(false)}
         >
           <IonText>Are you sure you want to sign out of your account?</IonText><br/>
-          <IonButton href="/signin" onClick={() => signOut()}>Yes</IonButton>  
+          <IonButton href="/welcomepage" onClick={() => signOut()}>Yes</IonButton>  
           <IonButton onClick={() => setSignOutPopover(false)}>No</IonButton>               
         </IonPopover>        
         {/* <IonPopover

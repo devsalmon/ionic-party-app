@@ -297,6 +297,12 @@
     color: yellow
 }
 
+.welcome-page-content {
+    --padding-top: 80%;
+    --padding-start: 5%;
+    --padding-end: 5%;
+}
+
 .white-text {
     font-weight: bold;
     color: white;
