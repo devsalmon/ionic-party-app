@@ -814,6 +814,7 @@ const SignedInRoutes: React.FC = () => {
           <Route path='/googlemap' component={MapContainer} />   
           <Route path='/signin' component={SignIn} />
           <Route path='/signup' component={SignUp} />
+          <Route path='/welcomepage' component={WelcomePage} />  
           <Route path='/create' component={Create} />
           <Route path='/users' component={Users} />
           <Route path='/gallery' component={Gallery} />
@@ -926,7 +927,8 @@ const App: React.FC = () => {
           <IonRouterOutlet>
             <Route path='/signin' component={SignIn} />
             <Route path='/signup' component={SignUp} />
-            <Route exact path="/" render={() => <Redirect to="/signup" />} />
+            <Route path='/welcomepage' component={WelcomePage} />            
+            <Route exact path="/" render={() => <Redirect to="/welcomepage" />} />
           </IonRouterOutlet>    
         </IonReactRouter>                             
       ) : (       
