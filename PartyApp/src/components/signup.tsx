@@ -86,17 +86,7 @@ const SignUp: React.FC = () => {
   // When this component renders
   useEffect(() => {  
     clearErrors(); 
-    //hideBackButton();
-    // var signUpStage = window.localStorage.getItem("signUpStage");
-    // goToSlide(signUpStage)
-
-    // const script = document.createElement("script");
-    // script.src = "https://sdk.snapkit.com/js/v1/login.js"; //Try change this url
-    // script.async = true;
-    // //script.onload = () => scriptLoaded();
-    // document.body.appendChild(script);
  
-    //window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container');
      window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
        'size': 'invisible',
        'callback': (response) => {
@@ -373,13 +363,15 @@ const SignUp: React.FC = () => {
           console.log("Phone signed in: " + confirmationResult)
         }).catch((error) => {
           // Error SMS not sent phone number may be wrong
-          if (error.code === "auth/invalid-phone-number") {            
+          if (error.code === "auth/invalid-phone-number") {   
+            setLoading(false)         
             setPhoneError(
               "Invalid format for email or phone number. " +
               "Please enter phone numbers in the form +447123456789 (for UK)"
             )
             goToSlide(0);
-          } else {                
+          } else {          
+            setLoading(false);      
             setPhoneError(error.message);
             goToSlide(0);
           }            
@@ -451,14 +443,18 @@ const SignUp: React.FC = () => {
     })      
   }
 
-  const redirectToHome = () => {
+  const redirect = () => {
     const user = firebase.auth().currentUser;
+    console.log(user.displayName, user.uid);
     user.reload();
-    if (!user.emailVerified) { // if user has signed in by pressing a button in sign up, but isn't verified  
-      setEmailError(email_or_phone + " is not verified, please click the link in your email to verify your account");                           
-    } else {
+    if (user.emailVerified && user.displayName !== null) { // if user has signed in by pressing a button in sign up, but isn't verified  
       window.location.href=window.location.href; // reloads app
-    }    
+    }  
+  }
+
+  const redirectToHome = () => {
+    setLoading(true); 
+    setInterval(() => redirect(), 1000)
   }
 
   return (

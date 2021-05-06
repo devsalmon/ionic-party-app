@@ -305,7 +305,10 @@ exports.verifyPhoneUser = functions.firestore
 .onWrite(async (change, context) => {
   admin.auth()
     .updateUser(change.after.id, {
-      emailVerified: change.after.data().phoneVerified
+      emailVerified: change.after.data().phoneVerified,
+      displayName: change.after.data().username,
+      email: change.after.data().email,
+      phoneNumber: change.after.data().phone_number,       
     })
 })
 
