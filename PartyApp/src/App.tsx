@@ -183,7 +183,7 @@ const Party = ({id, data, live, edit}) => {
           <IonCol>            
             <IonText>{data.title} <br/></IonText>  
             <IonText class="white-text">{data.address}</IonText><br/>
-            <IonText class="white-text">{data.postcode}</IonText><br/>
+            {data.postcode ? <><IonText class="white-text">{data.postcode}</IonText><br/></> : null}
             <IonText class="white-text">By {host}</IonText>
           </IonCol>      
         </IonRow> 

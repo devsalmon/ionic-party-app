@@ -271,7 +271,7 @@ exports.sendAcceptedInviteNotification = functions.firestore
     let oldAcceptedInvites = change.before.data().acceptedInvites ? change.before.data().acceptedInvites : [];
     if (newAcceptedInvites.length > oldAcceptedInvites.length) {
       let newAcceptedInvite = newAcceptedInvites[newAcceptedInvites.length - 1];
-      let partyHostid = newAcceptedInvite[0];
+      let partyHostid = newAcceptedInvite.hostid;
       admin.firestore().collection("users").doc(partyHostid).get().then(doc => {
         let token = doc.data().deviceToken;
         fetch('https://fcm.googleapis.com/fcm/send', {
