@@ -183,7 +183,14 @@ const SignUp: React.FC = () => {
 
   const validatePhone = (num) => {
     var re = new RegExp(/^\+?([0-9]{1,4})\)?[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})$/g);
-    return re.test(num);
+    if (num[0] === "0" && num[1] === "7") {
+      var temp = "+44" + num.slice(1);
+      setEmail_or_phone(temp)
+      console.log(temp)
+      return true 
+    } else {
+      return re.test(num);
+    }    
   }  
 
   // Enter email/password, username and password.
@@ -208,18 +215,13 @@ const SignUp: React.FC = () => {
         if (validatePhone(email_or_phone)) { 
           // it's a phone number                    
           setSignUpMethod('phone')
-          //not a good way to replace 07 with +44
-          //email_or_phone = email_or_phone.replace("07", "+44");
           window.localStorage.setItem("signUpMethod", "phone")
-          //goToSlide(1);
           nextSlide();
           console.log("Sign up method (phone): " + signUpMethod)
-          //setLoading(false);
         } else if (validateEmail(email_or_phone)) {
           // it's an email
           setSignUpMethod('email')
           window.localStorage.setItem("signUpMethod", "email")
-          //goToSlide(1);
           nextSlide();
           console.log("Sign up method (email): " + signUpMethod)
         } else {
@@ -516,6 +518,7 @@ const SignUp: React.FC = () => {
   }
 
   const checkPhoneVerified = async() => {
+    setLoading(true);
     var user = firebase.auth().currentUser;
     user.reload();
     var ver = await user.emailVerified;
@@ -716,53 +719,6 @@ const SignUp: React.FC = () => {
               }
               </div>
           </IonSlide>           
-          
-          {/* <IonSlide>     
-              <div id="my-login-button-target"></div>
-              <IonText>OR</IonText>      
-              <div className="signin-inputs">
-              <IonInput 
-              class="create-input" 
-              value={fullname} 
-              placeholder="Full name"
-              type="text"
-              onIonChange={e => setFullname(e.detail.value!)}
-              >                  
-              </IonInput>  
-              {fullnameError ? <><IonText class="errormsg">{fullnameError}</IonText><br/></>:null}
-              <IonInput 
-              class="create-input" 
-              value={username} 
-              placeholder="Username"
-              type="text"
-              onIonChange={e => setUsername(e.detail.value!)}
-              >                
-              </IonInput> 
-              {usernameError ? <><IonText class="errormsg">{usernameError}</IonText><br/></>:null}
-              <IonInput 
-              class="create-input" 
-              value={dob} 
-              placeholder="Date of birth (dd/mm/yyyy)"
-              type="text"
-              onIonChange={e => setDob(e.detail.value!)}
-              >                
-              </IonInput>         
-              {dobError ? <><IonText class="errormsg">{dobError}</IonText><br/></>:null}
-              {passwordError ? <><IonText class="errormsg">{passwordError}</IonText><br/></>:null}
-              <><IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText><br/></>
-              {linkSent ? (
-              <><IonText class="errormsg">A link has been sent to your email, please click it to verify your email</IonText><br/></>
-              ) : (null)}                
-              {linkSent ? 
-              <IonButton class="signin-button" onClick={()=>window.location.reload(false)}>Complete sign up</IonButton>       
-              :
-              <IonButton className="signin-button" onClick={()=>completeUserInfo()}>Continue</IonButton>
-              }
-              <br/>
-              {signUpMethod === "email" ? <IonButton className="yellow-text" onClick={() => resendEmail()} >Resend verification email</IonButton>:null}                
-              </div>
-          </IonSlide>                   */}
-
         </IonSlides>    
       </IonContent>      
       <IonLoading 
