@@ -20,8 +20,6 @@ import {
   IonButton,
   IonRow,
   IonGrid,
-  IonSlides,
-  IonSlide,
   IonCol,
   IonMenuButton,
 } from '@ionic/react';
@@ -57,7 +55,7 @@ import '../variables.css';
 
 const MyPartyList = () => {
 
-  const slides = useRef(null);
+  //const slides = useRef(null);
   const [yourParties, setYourParties] = useState([]);  
   const [attendedParties, setAttendedParties] = useState([]);  
   const [selected, setSelected] = useState('attended');
@@ -341,14 +339,14 @@ const MyPartyList = () => {
     });      
   }  
 
-  const handleSlideChange = async() => {
-    const swiper = await slides.current.getSwiper();
-    if (swiper.activeIndex === 0) {
-      setSelected("attended")
-    } else {
-      setSelected("hosted")
-    }
-  }
+  // const handleSlideChange = async() => {
+  //   //const swiper = await slißdes.current.getSwiper();
+  //   if (swiper.activeIndex === 0) {
+  //     setSelected("attended")
+  //   } else {
+  //     setSelected("hosted")
+  //   }
+  // }
 
   const changeSlide = async(direction) => {
     if (direction === "next") {
@@ -676,6 +674,9 @@ const MyPartyList = () => {
         >
           {friends.length > 0 ? 
           <IonList class="list">
+            <IonItem>
+              <IonText>{friend_no} Friends</IonText>
+            </IonItem>
               {friends && friends.map((friend, k) => {
                   return(
                     <IonItem lines="none" key={k}>

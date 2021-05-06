@@ -126,7 +126,6 @@ exports.subscribeToPartyTopic = functions.firestore
 exports.sendPartyNotification = functions.firestore
 .document("users/{userId}/{myPartiesId}/{partyId}")
   .onWrite(async (change, context) => {
-    var invitedPeople = change.after.data().invited_people
     if (change.before.data().topicCreated === false && change.after.data().topicCreated === true) {
       fetch('https://fcm.googleapis.com/fcm/send', {
         method: "POST", 
@@ -261,6 +260,44 @@ exports.sendCommentNotification = functions.firestore
     }).catch(err => {
       return console.log(err.message)
     })
+  })
+
+  // send notification to party host when someone has accepted their invite
+exports.sendAcceptedInviteNotification = functions.firestore 
+.document("users/{userId}")
+  .onWrite(async (change, context) => {
+    let userName = change.after.username;
+    let newAcceptedInvites = change.after.data().acceptedInvites ? change.after.data().acceptedInvites : [];
+    let oldAcceptedInvites = change.before.data().acceptedInvites ? change.before.data().acceptedInvites : [];
+    if (newAcceptedInvites.length > oldAcceptedInvites.length) {
+      let newAcceptedInvite = newAcceptedInvites[newAcceptedInvites.length - 1];
+      let partyHostid = newAcceptedInvite[0];
+      admin.firestore().collection("users").doc(partyHostid).get().then(doc => {
+        let token = doc.data().deviceToken;
+        fetch('https://fcm.googleapis.com/fcm/send', {
+          method: "POST", 
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization':'key=AAAAd7z8SLY:APA91bGDcq_D1ik3ppwxuQgp3d66IBusm8TICa04QC5nKDujDFWiLxAU0toYYgsMr9Kmz33femjOkTnl-EU6YZu_q55LQ8Vc0VA5wZNplCainzzdpyaFfSU0pLArv0HDlmvZ4-ydnO-C'
+          },
+          body: JSON.stringify({
+            "priority": "high",
+            "to": token,
+            "notification": {"title":`${userName} has accepted your party invite!`}
+          })                   
+        }).then(res => {
+          console.log("Request complete! ", token);
+          return
+        }).catch(err => {
+          console.log(err.message)
+          return
+        });    
+        return
+      }).catch(err => {
+        return console.log(err.message)
+      })      
+    }
   })
 
 exports.verifyPhoneUser = functions.firestore

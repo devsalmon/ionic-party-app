@@ -260,15 +260,6 @@ const Party = ({id, data, live, edit}) => {
         {data.dresscode ? <IonItem lines="none">Dress Code: {data.dresscode} </IonItem> : null}
         {data.drinksProvided ? <IonItem lines="none">Drinks Provided: {data.drinksProvided} </IonItem> : null}
         {data.postcode ? <IonItem lines="none">Postcode: {data.postcode} </IonItem> : null}
-        {/* <IonItem lines="none">
-        Male:Female Ratio<br/>
-        </IonItem> */}
-        {/* <IonItem lines="none">          
-          <IonRange color="yellow" value={data.malesToFemales} disabled={true}>
-            <IonIcon slot="start" icon={manOutline} />
-            <IonIcon slot="end" icon={womanOutline} />
-          </IonRange>       
-        </IonItem>  */}
         <IonItem lines="none">Starts: {moment(data.dateTime).format('ddd, LT')}</IonItem>     
         <IonItem lines="none">Ends: {moment(data.endTime).format('ddd, LT')}</IonItem>
         {data.invited_people ? <IonItem lines="none">Number of Invites: {data.invited_people.length}</IonItem>  : null}

@@ -127,6 +127,10 @@
     border-radius: 10px;    
 }
 
+.gallery-photo {
+    display: block
+}
+
 .like-panel {
     position: absolute;
     color: yellow;
@@ -442,7 +446,6 @@ ion-text {
 
 ion-tab-button {
     --background: transparent;
-    --ripple-color: white;
     --color: black;
     --color-selected: white;
     font-weight: bold;

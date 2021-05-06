@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {useCollection} from 'react-firebase-hooks/firestore';
+import { useDoubleTap } from 'use-double-tap';
 import {
   IonIcon,
   IonCard,
@@ -180,14 +181,24 @@ const Picture = ({doc, hostid, partyid}) => {
     });    
   }
 
+  const doubletap = useDoubleTap((event) => {
+    // Your action here
+    like();
+    console.log('Double tapped');
+  });  
+
   const like = () => {
     // function to like a picture
     collectionRef.doc(doc.id).get().then(function(doc){
       // increase like counter in the picture document, and add current user to the likes array
-      collectionRef.doc(doc.id).update({
-        likes: firebase.firestore.FieldValue.arrayUnion(currentuser),
-        likeCounter:  firebase.firestore.FieldValue.increment(1)
-      })             
+      if (doc.data().likes.includes(currentuser)) {
+        return
+      } else {
+        collectionRef.doc(doc.id).update({
+          likes: firebase.firestore.FieldValue.arrayUnion(currentuser),
+          likeCounter:  firebase.firestore.FieldValue.increment(1)
+        })          
+      }           
     });
     setLiked(true); 
   }
@@ -284,8 +295,10 @@ const Picture = ({doc, hostid, partyid}) => {
         <IonCol size="5"><IonText>{takenBy}</IonText></IonCol> 
         <IonCol><IonText>{numLikes} likes</IonText></IonCol> 
         </IonRow>
-      </IonCardHeader>       
-      <IonImg class="gallery-photo" src={doc.data().picture} />  
+      </IonCardHeader>    
+      <div {...doubletap} className="gallery-photo">
+        <IonImg src={doc.data().picture}/>  
+      </div>
       <IonRow>
         {likeButton}    
         {removePicture}
