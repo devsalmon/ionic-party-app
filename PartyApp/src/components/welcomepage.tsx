@@ -4,7 +4,16 @@ import {
   IonPage,
   IonContent, 
   IonText,
+  IonImg,
+  IonToolbar,
+  IonButtons,
+  IonIcon
 } from '@ionic/react';
+import { 
+  eyeOutline,
+  search,
+  personCircle
+} from 'ionicons/icons';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */
@@ -25,6 +34,11 @@ const WelcomePage: React.FC = () => {
 
   return (
     <IonPage>
+      <IonToolbar>
+    <IonButtons slot="end">
+      <IonButton>Help</IonButton>
+    </IonButtons>
+    </IonToolbar>
       <IonContent class="welcome-page-content">   
         {/* <IonImg src={} /> */}
         <IonText>*Add logo on top of MOTIVE title*</IonText><br/>

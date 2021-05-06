@@ -38,6 +38,7 @@ import '@ionic/react/css/display.css';
 import '../variables.css';
 import moment from 'moment';
 import { verify } from 'crypto';
+import { Router } from 'react-router';
 
 declare global {
   interface Window {
@@ -81,12 +82,13 @@ const SignUp: React.FC = () => {
   const [code, setCode] = useState('');
   const [slide0, setSlide0] = useState(true);
   const [resendEmailPopover, setResendEmailPopover] = useState(false);
+  const [disableBtns, setDisableBtns] = useState(false)
   const slides = useRef(null);
 
   // When this component renders
   useEffect(() => {  
     clearErrors(); 
-    hideBackButton();
+    //hideBackButton();
     // var signUpStage = window.localStorage.getItem("signUpStage");
     // goToSlide(signUpStage)
 
@@ -130,14 +132,14 @@ const SignUp: React.FC = () => {
     }
   };  
 
-  const hideBackButton = async() => {
+  const hideBtnsCheck = async() => {
     let swiper = await slides.current.getSwiper()
-    if (swiper && swiper.isBeginning) {
-      setSlide0(true)
+    if (swiper.isEnd) {
+      setDisableBtns(true)
     } else {
-      setSlide0(false)
+      setDisableBtns(false)
     }
-    setLoading(false);            
+    //setLoading(false);            
   }
 
   const goToSlide = async(index) => { 
@@ -145,7 +147,7 @@ const SignUp: React.FC = () => {
     await slides.current.getSwiper().then(swiper => {
       swiper.slideTo(index, 1500, false)
     })       
-    hideBackButton();
+    //hideBackButton();
   }
 
   const nextSlide = async() => {
@@ -159,7 +161,20 @@ const SignUp: React.FC = () => {
     clearErrors();
     let swiper = await slides.current.getSwiper()
     swiper.slidePrev()
-    hideBackButton();
+    //hideBackButton();
+  }
+
+  const back = async() => {
+    //clearErrors();
+    let swiper = await slides.current.getSwiper()
+    if (swiper.isBeginning) {
+     // e.preventDefault();
+     console.log("Welcome Page")
+     //REDIRECT BACK TO WELCOME PAGE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //Router.('/welcomepage');
+    } else {
+    swiper.slidePrev()
+    }
   }
 
   const slideOpts = {
@@ -195,10 +210,10 @@ const SignUp: React.FC = () => {
 
   // Enter email/password, username and password.
   const slide0SignUp = async() => {
-    console.log(username + password + email_or_phone);
+    //console.log(username + password + email_or_phone);
     clearErrors();  
     setLoading(true);
-    if (email_or_phone.trim() !== "" && username.trim() && password.trim() !== "" && fullname.trim() !== "") {
+    if (email_or_phone.trim() !== "" && password.trim() !== "" && fullname.trim() !== "") {
       setFieldsMissing(false);    
       console.log(fullname)
       window.localStorage.setItem("fullname", fullname);      
@@ -216,14 +231,19 @@ const SignUp: React.FC = () => {
           // it's a phone number                    
           setSignUpMethod('phone')
           window.localStorage.setItem("signUpMethod", "phone")
-          nextSlide();
+          //goToSlide(1);
+          //nextSlide();
           console.log("Sign up method (phone): " + signUpMethod)
+          signUpEmailorPhoneandVerify()
+          //setLoading(false);
         } else if (validateEmail(email_or_phone)) {
           // it's an email
           setSignUpMethod('email')
           window.localStorage.setItem("signUpMethod", "email")
-          nextSlide();
+          //goToSlide(1);
+          //nextSlide();
           console.log("Sign up method (email): " + signUpMethod)
+          signUpEmailorPhoneandVerify()
         } else {
           setEmailError(
             "Invalid format for email or phone number. " +
@@ -301,32 +321,35 @@ const SignUp: React.FC = () => {
     clearErrors();
     console.log("Triggered 2")
     console.log("Email: " + email_or_phone)
-    if (firebase.auth().currentUser) {
-      firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
-        if (snap.empty) { // no duplicate username
-          sendVerificationEmail();            
-        } else {                      
-          setUsernameError("Username is taken, please try another one");            
-          goToSlide(0);
-        }          
-      }).catch(err => {
-        console.log(err.message);
-        setLoading(false);
-      }) 
-    } else {
+    // if (firebase.auth().currentUser) {
+    //   firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
+    //     if (snap.empty) { // no duplicate username
+    //       sendVerificationEmail();       
+    //       //WELCOME PAGE     
+    //     } else {                      
+    //       setUsernameError("Username is taken, please try another one");            
+    //       goToSlide(0);
+    //     }          
+    //   }).catch(err => {
+    //     console.log(err.message);
+    //     setLoading(false);
+    //   }) 
+    // } else {
       firebase.auth().createUserWithEmailAndPassword(email_or_phone, password).then(user => {
         firebase.auth().signInWithEmailAndPassword(email_or_phone, password).then(res => {
-          firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
-            if (snap.empty) { // no duplicate username
-              sendVerificationEmail();            
-            } else {                          
-              setUsernameError("Username is taken, please try another one");            
-              goToSlide(0);
-            }          
-          }).catch(err => {
-            console.log(err.message);
-            setLoading(false);
-          })            
+          sendVerificationEmail();
+          // firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
+          //   if (snap.empty) { // no duplicate username
+          //     //sendVerificationEmail();   
+          //     //WELCOME PAGE         
+          //   } else {                          
+          //     setUsernameError("Username is taken, please try another one");            
+          //     goToSlide(0);
+          //   }          
+          // }).catch(err => {
+          //   console.log(err.message);
+          //   setLoading(false);
+          // })            
         }).catch(err => {          
           setPasswordError(err.message);
           goToSlide(0);
@@ -337,14 +360,15 @@ const SignUp: React.FC = () => {
           case "auth/email-already-exists":
           case "auth/email-already-in-use":
             setEmailError(err.message);
+            setLoading(false);
             break;
           case "auth/invalid-password":
             setPasswordError(err.message);
+            setLoading(false);
             break;
         }              
         goToSlide(0);
       });
-    }
   };   
 
   const sendVerificationEmail = () => {
@@ -387,20 +411,21 @@ const SignUp: React.FC = () => {
     } else {
       console.log("Email verified")
       // if verified...
-      firebase.firestore().collection('users').doc(user.uid).set({ // create a user document when a new user signs up
-        fullname: fullname,
-        username: username,
-        email: validateEmail(email_or_phone) ? email_or_phone : "",      
-        id: user.uid,
-        phoneNumber: validatePhone(email_or_phone) ? email_or_phone : "",
-        dateOfBirth: dob,
-        //bitmoji: window.localStorage.getItem("bitmoji_avatar")
-      }, {merge: true}).then(()=>{ // redirect user to the home page
-        setLoading(true);
-        window.location.reload(false);
-      }).catch(err => {
-        setPasswordError(err.message);
-      })       
+      nextSlide();
+      // firebase.firestore().collection('users').doc(user.uid).set({ // create a user document when a new user signs up
+      //   fullname: fullname,
+      //   username: username,
+      //   email: email_or_phone,      
+      //   id: user.uid,
+      //   //phoneNumber: validatePhone(email_or_phone) ? email_or_phone : "",
+      //   //dateOfBirth: dob,
+      //   //bitmoji: window.localStorage.getItem("bitmoji_avatar")
+      // }, {merge: true}).then(()=>{ // redirect user to the home page
+      //   setLoading(true);
+      //   window.location.reload(false);
+      // }).catch(err => {
+      //   setPasswordError(err.message);
+      // })       
     }
   }
 
@@ -473,32 +498,34 @@ const SignUp: React.FC = () => {
         result.user.linkWithCredential(credential)      
         .then((usercred) => {
           var user = usercred.user;
-          console.log("Account linking success", user);      
-          firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
-            if (snap.empty) { // no duplicate username
-              addUserInfo();
-            } else {              
-              setUsernameError("Username is taken, please try another one");              
-              goToSlide(0);
-            }          
-          }).catch(err => {
-            console.log(err.message);
-            setLoading(false);
-          })              
+          console.log("Account linking success", user); 
+          nextSlide();     
+          // firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
+          //   if (snap.empty) { // no duplicate username
+          //     addUserInfo();
+          //   } else {              
+          //     setUsernameError("Username is taken, please try another one");              
+          //     goToSlide(0);
+          //   }          
+          // }).catch(err => {
+          //   console.log(err.message);
+          //   setLoading(false);
+          // })              
         }).catch((error) => {
           if (error.code === "auth/provider-already-linked") {
-            firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
-              if (snap.empty) { // no duplicate username
-                addUserInfo();
-              } else {              
-                setUsernameError("Username is taken, please try another one");              
-                goToSlide(0);
-              }          
-            }).catch(err => {
-              console.log(err.message);
-              setCodeError(err.message);
-              setLoading(false);
-            })              
+            // firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
+            //   if (snap.empty) { // no duplicate username
+            //     addUserInfo();
+            //   } else {              
+            //     setUsernameError("Username is taken, please try another one");              
+            //     goToSlide(0);
+            //   }          
+            // }).catch(err => {
+            //   console.log(err.message);
+            //   setCodeError(err.message);
+            //   setLoading(false);
+            // })        
+            console.log("auth already linked")      
           }
           setLoading(false);
           console.log("Account linking error", error);
@@ -524,7 +551,8 @@ const SignUp: React.FC = () => {
     var ver = await user.emailVerified;
     if (ver === true) {
       setLoading(true);
-      window.location.reload(false);
+      //nextSlide();
+      //window.location.reload(false);
     } else {
       console.log("not verified yet")
     }
@@ -534,14 +562,16 @@ const SignUp: React.FC = () => {
     firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid).set({ // create a user document when a new user signs up
       fullname: fullname,
       username: username,
-      email: email_or_phone + "@partyemail.com",      
+      email: validateEmail(email_or_phone) ? email_or_phone : "",      
       id: firebase.auth().currentUser.uid,
-      phoneNumber: email_or_phone,
-      dateOfBirth: dob,
-      phoneVerified: true,
+      phoneNumber: validatePhone(email_or_phone) ? email_or_phone : "",
+      //dateOfBirth: dob,
+      //phoneVerified: true,
+      Verified: true,
       // bitmoji: window.localStorage.getItem("bitmoji_avatar")
     }, {merge: true}).then(() => {
-      setInterval(checkPhoneVerified, 3000);         
+      //setInterval(checkPhoneVerified, 3000);   
+      nextSlide();      
     }).catch(err => {
       setLoading(false);
       console.log(err.message);
@@ -568,20 +598,18 @@ const SignUp: React.FC = () => {
   return (
     <IonPage>
       <IonToolbar class="ion-padding">
-        {slide0 ? null :<IonButtons slot="start">
-          <IonButton slot="start" onClick={() => prevSlide()}>
+          {disableBtns ? null : <IonButtons slot="start">
+          <IonButton slot="start" onClick={() => back()}>
             <IonIcon icon={chevronBackSharp} /> 
           </IonButton>
         </IonButtons>}
-        <IonTitle class="ion-padding signup-toolbar">Sign Up</IonTitle>     
-        {slide0 ? null : <IonButtons slot="end">
-          <IonButton slot="end">
-            <IonIcon /> 
-          </IonButton>
-        </IonButtons>}        
+        <IonTitle class="ion-padding signup-toolbar">Sign Up</IonTitle> 
+        {disableBtns ? null : <IonButtons slot="end">
+          <IonButton slot="end">Help</IonButton>
+        </IonButtons>}   
       </IonToolbar>
       <IonContent id="signin-content">      
-      <IonSlides class="sign-up-slides" ref={slides} options={slideOpts}> 
+      <IonSlides class="sign-up-slides" ref={slides} options={slideOpts} onIonSlideWillChange={()=>hideBtnsCheck()}>
 
           {/* Slide 0: Email/Phone, fullname, username and password. */}
           <IonSlide>               
@@ -608,14 +636,7 @@ const SignUp: React.FC = () => {
               >                  
               </IonInput>  
               {fullnameError ? <><IonText class="errormsg">{fullnameError}</IonText><br/></>:null}                
-              <IonInput 
-              class="create-input" 
-              value={username} 
-              placeholder="Username"
-              type="text"
-              onIonChange={e => setUsername(e.detail.value!)}
-              ></IonInput>
-              {usernameError ? <><IonText class="errormsg">{usernameError}</IonText><br/></>:null}
+            
               <IonRow class="ion-align-items-center">
               <IonInput 
               class="create-input" 
@@ -633,10 +654,16 @@ const SignUp: React.FC = () => {
               <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
               <IonButton className="signin-button" onClick={()=>slide0SignUp()}>Next</IonButton><br/>
 
-              <p className="errormsg">
+              <div id='sign-in-button'></div>
+              {/* <IonButton onClick={()=>signUpEmailorPhoneandVerify()}>Skip</IonButton><br/> */}
+              <IonText>This site is protected by reCAPTCHA and the Google
+              <a href="https://policies.google.com/privacy"> Privacy Policy </a> and
+              <a href="https://policies.google.com/terms"> Terms of Service </a> apply</IonText>
+
+              {/* <p className="errormsg">
               Have an account?<br/> 
               <IonButton className="yellow-text" href="/signin" >Sign in</IonButton><br/>            
-              </p>
+              </p> */}
             </div>
           </IonSlide>   
 
@@ -658,36 +685,7 @@ const SignUp: React.FC = () => {
               </div>
           </IonSlide>    */}
 
-          {/* Slide 1: Enter DOB or skip */}
-          <IonSlide>     
-              <div className="signin-inputs">
-              <IonInput 
-              class="create-input" 
-              value={dob} 
-              placeholder="Date of birth (dd/mm/yyyy)"
-              type="text"
-              onIonChange={e => setDob(e.detail.value!)}
-              >                
-              </IonInput>         
-              {dobError ? <><IonText class="errormsg">{dobError}</IonText><br/></>:null}
-              <IonButton className="signin-button" onClick={()=>slide2SignUp()}>Next</IonButton>
-              <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
-              {/* <div id='sign-in-button'>
-              <button>Test</button>
-              </div> */}
-              {/* <div id='sign-in-button'></div> */}
-              {/* <IonButton class="signin-button" id='sign-in-button' onClick={()=>signUpEmailorPhoneandVerify()}>Continue</IonButton> */}
-              {/* <div id="recaptcha-container"></div> */}
-              </div>
-              {/* <button className="signin-button" id='sign-in-button'>Skip</button> */}
-              <div id='sign-in-button'></div>
-              <IonButton onClick={()=>signUpEmailorPhoneandVerify()}>Skip</IonButton><br/>
-              <IonText>This site is protected by reCAPTCHA and the Google
-              <a href="https://policies.google.com/privacy"> Privacy Policy </a> and
-              <a href="https://policies.google.com/terms"> Terms of Service </a> apply</IonText>
-          </IonSlide>
-
-          {/* Slide 2: Confirm email or phone number */}
+          {/* Slide 1: Confirm email or phone number */}
           <IonSlide>
             <div className="signin-inputs">
             {/* if sign up method is email... */}
@@ -718,7 +716,101 @@ const SignUp: React.FC = () => {
               </>   
               }
               </div>
-          </IonSlide>           
+          </IonSlide>
+
+          {/* Slide 2: Enter username */}
+          <IonSlide>     
+              <div className="signin-inputs">
+              <IonInput 
+              class="create-input" 
+              value={username} 
+              placeholder="Username"
+              type="text"
+              onIonChange={e => setUsername(e.detail.value!)}
+              ></IonInput>
+              {usernameError ? <><IonText class="errormsg">{usernameError}</IonText><br/></>:null}
+              
+              <IonButton className="signin-button" onClick={()=>addUserInfo()}>Finish Up</IonButton>
+              </div>
+
+              {/* <IonInput 
+              class="create-input" 
+              value={dob} 
+              placeholder="Date of birth (dd/mm/yyyy)"
+              type="text"
+              onIonChange={e => setDob(e.detail.value!)}
+              >                
+              </IonInput>         
+              {dobError ? <><IonText class="errormsg">{dobError}</IonText><br/></>:null}
+              <IonButton className="signin-button" onClick={()=>slide2SignUp()}>Next</IonButton>
+              <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText> */}
+              {/* <div id='sign-in-button'>
+              <button>Test</button>
+              </div> */}
+              {/* <div id='sign-in-button'></div> */}
+              {/* <IonButton class="signin-button" id='sign-in-button' onClick={()=>signUpEmailorPhoneandVerify()}>Continue</IonButton> */}
+              {/* <div id="recaptcha-container"></div> */}
+          
+              {/* <button className="signin-button" id='sign-in-button'>Skip</button> */}
+              {/* <div id='sign-in-button'></div>
+              <IonButton onClick={()=>signUpEmailorPhoneandVerify()}>Skip</IonButton><br/>
+              <IonText>This site is protected by reCAPTCHA and the Google
+              <a href="https://policies.google.com/privacy"> Privacy Policy </a> and
+              <a href="https://policies.google.com/terms"> Terms of Service </a> apply</IonText> */}
+          </IonSlide>
+           
+          {/* Slide 3: Welcome in */}
+          <IonSlide>   
+          <IonText>Welcome {fullname}!</IonText>
+          <IonButton className="signin-button" href="/home">Start Partying!</IonButton>
+          </IonSlide>
+          
+          {/* <IonSlide>     
+              <div id="my-login-button-target"></div>
+              <IonText>OR</IonText>      
+              <div className="signin-inputs">
+              <IonInput 
+              class="create-input" 
+              value={fullname} 
+              placeholder="Full name"
+              type="text"
+              onIonChange={e => setFullname(e.detail.value!)}
+              >                  
+              </IonInput>  
+              {fullnameError ? <><IonText class="errormsg">{fullnameError}</IonText><br/></>:null}
+              <IonInput 
+              class="create-input" 
+              value={username} 
+              placeholder="Username"
+              type="text"
+              onIonChange={e => setUsername(e.detail.value!)}
+              >                
+              </IonInput> 
+              {usernameError ? <><IonText class="errormsg">{usernameError}</IonText><br/></>:null}
+              <IonInput 
+              class="create-input" 
+              value={dob} 
+              placeholder="Date of birth (dd/mm/yyyy)"
+              type="text"
+              onIonChange={e => setDob(e.detail.value!)}
+              >                
+              </IonInput>         
+              {dobError ? <><IonText class="errormsg">{dobError}</IonText><br/></>:null}
+              {passwordError ? <><IonText class="errormsg">{passwordError}</IonText><br/></>:null}
+              <><IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText><br/></>
+              {linkSent ? (
+              <><IonText class="errormsg">A link has been sent to your email, please click it to verify your email</IonText><br/></>
+              ) : (null)}                
+              {linkSent ? 
+              <IonButton class="signin-button" onClick={()=>window.location.reload(false)}>Complete sign up</IonButton>       
+              :
+              <IonButton className="signin-button" onClick={()=>completeUserInfo()}>Continue</IonButton>
+              }
+              <br/>
+              {signUpMethod === "email" ? <IonButton className="yellow-text" onClick={() => resendEmail()} >Resend verification email</IonButton>:null}                
+              </div>
+          </IonSlide>                   */}
+
         </IonSlides>    
       </IonContent>      
       <IonLoading 
