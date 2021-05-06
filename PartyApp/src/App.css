@@ -3,7 +3,7 @@
 }
 
 .ios ion-tab-button {
-    margin-bottom: 0px;
+    bottom: 0px;
 }
 
 .accordion-item {
@@ -295,6 +295,12 @@
 .swiper-pagination {
     position: absolute;
     color: yellow
+}
+
+.welcome-page-content {
+    --padding-top: 80%;
+    --padding-start: 5%;
+    --padding-end: 5%;
 }
 
 .white-text {

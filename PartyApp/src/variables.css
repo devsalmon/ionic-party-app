@@ -115,6 +115,10 @@ http://ionicframework.com/docs/theming/ */
     font-size: 10px;
   }  
 
+  .welcome-title {
+    font-size: 50px
+  }
+
   ion-button, .custom-button {
     font-size: 12px;
   }
@@ -176,6 +180,10 @@ http://ionicframework.com/docs/theming/ */
     font-size: 16px;
   }  
 
+  .welcome-title {
+    font-size: 60px
+  }  
+
   ion-button, .custom-button {
     font-size: 20px;
   }
@@ -235,6 +243,10 @@ http://ionicframework.com/docs/theming/ */
 
   .white-text, black-text {
     font-size: 22px;
+  }  
+
+  .welcome-title {
+    font-size: 70px
   }  
 
   ion-button, .custom-button {
@@ -300,6 +312,10 @@ http://ionicframework.com/docs/theming/ */
 
   .white-text, black-text {
     font-size: 26px;
+  }  
+
+  .welcome-title {
+    font-size: 80px
   }  
 
   ion-button, .custom-button {
