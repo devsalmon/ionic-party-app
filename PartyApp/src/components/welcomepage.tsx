@@ -1,17 +1,10 @@
-import React, { useState, useEffect} from 'react';
-import firebase from '../firestore';
-// import PhoneInput from 'react-phone-number-input';
+import React from 'react';
 import {
   IonButton,
   IonPage,
   IonContent, 
-  IonTitle,
   IonText,
-  IonImg
 } from '@ionic/react';
-import { 
-  eyeOutline,
-} from 'ionicons/icons';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */

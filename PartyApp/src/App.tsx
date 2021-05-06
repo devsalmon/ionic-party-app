@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Users from './components/users';
 import CreateParty from './components/createparty';
-import MapContainer from './components/mapcontainer';
 import Gallery from './components/gallery';
 import MyPartyList from './components/mypartylist';
 import SignIn from './components/signin';
 import SignUp from './components/signup';
 import WelcomePage from './components/welcomepage'
 
-import { Route, Redirect, useLocation, useHistory } from 'react-router-dom';
+import { Route, Redirect, useLocation } from 'react-router-dom';
 import { RefresherEventDetail } from '@ionic/core';
 import {
   IonApp,
@@ -50,16 +49,9 @@ import {
   thumbsDownOutline,
   createOutline
 } from 'ionicons/icons';
-// import {
-//   MediaFile,
-//   VideoCapturePlusOptions,
-//   VideoCapturePlus,
-// } from "@ionic-native/video-capture-plus";
 import {
   PushNotificationSchema,
   PushNotifications,
-  // PushNotificationToken,
-  // PushNotificationActionPerformed,
 } from '@capacitor/push-notifications';
 import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
@@ -216,11 +208,6 @@ const Party = ({id, data, live, edit}) => {
               <IonIcon slot="icon-only" icon={cameraOutline} />      
             </IonButton>  
           </IonCol>         
-          {/* <IonCol className="ion-self-align-center"> 
-            <IonButton class="yellow-text" onClick={() => takeVideo()}>
-              Video    
-            </IonButton>  
-          </IonCol> */}
           </>                     
           : null}
         </IonRow> 
@@ -803,7 +790,6 @@ const SignedInRoutes: React.FC = () => {
     <IonReactRouter>
       <IonTabs>
         <IonRouterOutlet>    
-          <Route path='/googlemap' component={MapContainer} />   
           <Route path='/signin' component={SignIn} />
           <Route path='/signup' component={SignUp} />
           <Route path='/welcomepage' component={WelcomePage} />  
