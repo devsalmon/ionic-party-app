@@ -7,7 +7,7 @@
 	"plugins": {
 		"SplashScreen": {
 			"launchShowDuration": 0,
-			"launchAutoHide": true,
+			"launchAutoHide": false,
 			"backgroundColor": "#00000000",
 			"androidSplashResourceName": "applogo",
 			"spinnerColor": "#FFFF00",
