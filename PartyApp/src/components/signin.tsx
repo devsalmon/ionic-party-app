@@ -12,6 +12,8 @@ import {
   IonText,
   IonPopover,
   IonRow,
+  IonBackButton,
+  IonButtons,
   IonToast
 } from '@ionic/react';
 import { 
@@ -33,13 +35,13 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import '../variables.css';
 
-// declare global {
-//   interface Window {
-//     recaptchaVerifier:any;
-//     recaptchaWidgetId:any;
-//     confirmationResult:any;
-//   }
-// }
+declare global {
+  interface Window {
+    recaptchaVerifier:any;
+    recaptchaWidgetId:any;
+    confirmationResult:any;
+  }
+}
 
 const SignIn: React.FC = () => {
 
@@ -117,7 +119,14 @@ const SignIn: React.FC = () => {
 
   const validatePhone = (num) => {
     var re = new RegExp(/^\+?([0-9]{1,4})\)?[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})$/g);
-    return re.test(num);
+    if (num[0] === "0" && num[1] === "7") {
+      var temp = "+44" + num.slice(1);
+      setEmailorphone(temp)
+      console.log(temp)
+      return true 
+    } else {
+      return re.test(num);
+    }    
   }  
 
   const resetPassword = () => {  
@@ -193,12 +202,7 @@ const verifyCodeAndNewPassword = async() => {
         setCodeError(error.message);   
       });
     } else {
-      console.log("passworderror")
-      setNewPasswordError("Password may be too short, has to be over 6 characters")
-      firebase.auth().signOut().then(() => {
-      //  phoneSignUp();
-      //  setPhoneError("Page refreshed, please try again")
-      })      
+      setNewPasswordError("Password may be too short, has to be over 6 characters")   
     }
   }  
 
@@ -206,13 +210,11 @@ const verifyCodeAndNewPassword = async() => {
     // normal login function 
     clearErrors();   
     // check all fields have a value 
-    if (emailorphone === "" || password === "") {
+    if (emailorphone.trim() === "" || password.trim() === "") {
       setFieldsMissing(true);
     } else if (firebase.auth().currentUser && !firebase.auth().currentUser.emailVerified) {
       setPasswordError("Not verified, please click the link in your email to verify your account");      
     } else { 
-      //var re = new RegExp(/^[+]*[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\./0-9]*$/g)
-      //if (re.test(emailorphone)) { // it's a phone number
       if (validatePhone(emailorphone)) { 
         console.log("phone number")
         phoneSignIn()
@@ -249,7 +251,7 @@ const verifyCodeAndNewPassword = async() => {
     var phoneEmail = emailorphone + '@partyemail.com';
     firebase.auth().signInWithEmailAndPassword(phoneEmail, password)
       .then(result => {
-        console.log("signed in with email and password")      
+        console.log("signed in with email and password", firebase.auth().currentUser.emailVerified)      
       })
       .catch(err => {
         switch(err.code){
@@ -274,15 +276,13 @@ const verifyCodeAndNewPassword = async() => {
     <div id="external_id"></div> */}
 
       <IonToolbar class="ion-padding">
+        <IonButtons slot="start">
+          <IonBackButton text="" color="warning" defaultHref="/welcomepage" />
+        </IonButtons>
         <IonTitle class="ion-padding">Sign In</IonTitle>
       </IonToolbar>
       <IonContent id="signin-content">   
         <div className="signin-inputs">
-          {/* <PhoneInput
-            defaultCountry="GB"
-            placeholder="Enter phone number"
-            value={emailorphone}
-            onChange={setEmailorphone}/>         */}
           <IonInput 
           class="create-input"
           value={emailorphone} 

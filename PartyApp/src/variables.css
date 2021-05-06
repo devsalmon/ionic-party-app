@@ -144,11 +144,6 @@ http://ionicframework.com/docs/theming/ */
   } 
 
   ion-tab-button {
-    --background: transparent;
-    --color: black;
-    --color-focused: yellow;
-    --color-selected: white;
-    font-weight: bold;
     font-size: 12px;
     text-align: center    
   }  
@@ -209,11 +204,6 @@ http://ionicframework.com/docs/theming/ */
   } 
 
   ion-tab-button {
-    --background: transparent;
-    --color: black;
-    --color-focused: yellow;
-    --color-selected: white;
-    font-weight: bold;
     font-size: 14px;
     text-align: center    
   }  
@@ -278,11 +268,6 @@ http://ionicframework.com/docs/theming/ */
   } 
 
   ion-tab-button {
-    --background: transparent;
-    --color: black;
-    --color-focused: yellow;
-    --color-selected: white;
-    font-weight: bold;
     font-size: 18px;
     text-align: center    
   }  
@@ -347,11 +332,6 @@ http://ionicframework.com/docs/theming/ */
   } 
 
   ion-tab-button {
-    --background: transparent;
-    --color: black;
-    --color-focused: yellow;
-    --color-selected: white;
-    font-weight: bold;
     font-size: 20px;
     text-align: center    
   }  

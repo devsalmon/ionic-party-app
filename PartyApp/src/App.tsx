@@ -798,24 +798,21 @@ const SignedInRoutes: React.FC = () => {
           <Route path='/gallery' component={Gallery} />
           <Route exact path='/myparties' component={MyParties} />      
           <Route exact path='/home' component={Home} />      
-          <Route exact path={["/signin", "/signup", "/"]} render={() => <Redirect to="/home" />} /> 
+          <Route exact path={["/signin", "/signup", "/welcomepage", "/"]} render={() => <Redirect to="/home" />} /> 
         </IonRouterOutlet> 
         
         <IonTabBar slot="bottom" id="appTabBar">
           <IonTabButton tab="home" href="/home">
             <IonIcon class="side-icons" src={homeNotifications ? "assets/icon/HOME_NOTIF.svg" : "assets/icon/HOME.svg"} />
             Home
-            <IonRippleEffect></IonRippleEffect>
           </IonTabButton>
           <IonTabButton tab="create" href="/create">
             <IonIcon class="mid-icon" src="assets/icon/Create.svg" />
             Create
-            <IonRippleEffect></IonRippleEffect>
           </IonTabButton>              
           <IonTabButton tab="myparties" href="/myparties">
             <IonIcon class="side-icons" src={mpNotifications ? "assets/icon/MY_PARTIES_NOTIF.svg" : "assets/icon/MY_PARTIES.svg"} />
             MyParties
-            <IonRippleEffect></IonRippleEffect>
           </IonTabButton>                         
         </IonTabBar>
       </IonTabs>
@@ -833,8 +830,8 @@ const App: React.FC = () => {
     setLoading(true);
     firebase.auth().onAuthStateChanged(function(user) {   
       if (user && user.emailVerified && user.displayName !== null) { // if new user logs in, is email verified and has a document        
-        registerNotifications(user.uid); 
-        setSignedIn(true);                
+        setSignedIn(true);
+        registerNotifications(user.uid);                 
         window.localStorage.clear();    
         setLoading(false);
       } else {
@@ -901,7 +898,6 @@ const App: React.FC = () => {
     <IonApp>
       { signedIn === false ? (   
         <IonReactRouter>
-        {/* <AppUrlListener></AppUrlListener> */}
           <IonRouterOutlet>
             <Route path='/signin' component={SignIn} />
             <Route path='/signup' component={SignUp} />
