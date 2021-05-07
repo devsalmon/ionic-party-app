@@ -14,7 +14,9 @@ import {
   IonRow,
   IonBackButton,
   IonButtons,
-  IonToast
+  IonToast,
+  IonItem,
+  IonLabel
 } from '@ionic/react';
 import { 
   eyeOutline,
@@ -171,7 +173,13 @@ const SignIn: React.FC = () => {
         setEmailSent(true);
         setForgotPassword(false); // remove popover
       }).catch(function(error) {
-        setPasswordError(error.message);           
+        switch(error.code){
+          case "auth/invalid-email":
+          case "auth/user-disabled":
+          case "auth/user-not-found":
+            setEmailorphoneError("User not found or is disabled, please check you have signed up to Motive before trying to reset your password.");
+            break;
+        }         
         setForgotPassword(false); // remove popover                                   
       });  
     }        
@@ -283,20 +291,21 @@ const verifyCodeAndNewPassword = async() => {
       </IonToolbar>
       <IonContent id="signin-content">   
         <div className="signin-inputs">
+          <IonItem lines="none">
+          <IonLabel position="floating">Phone Number or Email</IonLabel>
           <IonInput 
-          class="create-input"
           value={emailorphone} 
-          placeholder="Mobile Number or Email"
           type="text"
           onIonChange={e => setEmailorphone(e.detail.value!)}
           >        
-          </IonInput>            
-          <IonRow class="ion-align-items-center">
+          </IonInput> 
+          </IonItem>
+          <IonItem lines="none">           
+          <IonLabel position="floating">Password</IonLabel>
+          <IonRow class="ion-align-items-center">          
             <IonInput 
-            class="create-input" 
             value={password} 
             type={showPassword ? "text" : "password"}
-            placeholder="Password"
             onIonChange={e => setPassword(e.detail.value!)}
             >
             </IonInput>   
@@ -304,14 +313,16 @@ const verifyCodeAndNewPassword = async() => {
               <IonIcon slot="icon-only" icon={eyeOutline} />
             </IonButton>                  
           </IonRow>
-          <IonText class="errormsg">{passwordError}</IonText><br/>
-          <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
+          </IonItem>
+          <div className="ion-text-end ion-padding">
+            <IonButton className="yellow-text" onClick={() => setForgotPassword(true)}>Forgot Password?</IonButton>
+          </div>  
+          {emailSent ? <div className="ion-padding"><IonText class="errormsg">Email sent, click the link to reset your password</IonText><br/></div>:null}               
+          {passwordError ? <div className="ion-padding"><IonText class="errormsg">{passwordError}</IonText><br/></div> : null}
+          {fieldsMissing ? <div className="ion-padding"><IonText class="errormsg">Please fill in all the fields</IonText><br/></div>:null}               
           <div id='sign-in-button'></div>
           <IonButton class="signin-button" onClick={() => handleLogin()}>Sign in</IonButton>
-          <p className="errormsg">Don't have an account? <br/><IonButton className="yellow-text" href="/signup">Sign up</IonButton></p>
-          <IonText class="errormsg">{emailorphoneError}</IonText><br/>      
-          <p className="errormsg"><IonButton className="yellow-text" onClick={() => setForgotPassword(true)}>Forgot Password?</IonButton></p>  
-          {emailSent ? <IonText class="errormsg">Email sent, click the link to reset your password</IonText> : null}
+          {emailorphoneError ? <div className="ion-padding"><IonText class="errormsg">{emailorphoneError}</IonText><br/></div>:null}               
           <IonPopover
             cssClass="popover"        
             isOpen={forgotPassword}
@@ -335,7 +346,7 @@ const verifyCodeAndNewPassword = async() => {
           type="text"
           onIonChange={e => setCode(e.detail.value!)}          
           ></IonInput>
-          {codeError ? <><IonText class="errormsg">{codeError}</IonText><br/></>:null}
+          {codeError ? <div className="ion-padding"><IonText class="errormsg">{codeError}</IonText><br/></div>:null}
           <IonText className="ion-padding">Enter your new password</IonText><br/>          
           <IonRow class="ion-align-items-center">
             <IonInput 

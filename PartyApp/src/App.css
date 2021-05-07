@@ -80,7 +80,6 @@
 }
 
 .create-input {
-    --background: black;
     --color: yellow;
     --placeholder-color: yellow;
     --placeholder-font-weight: bold;
@@ -129,6 +128,14 @@
 
 .gallery-photo {
     display: block
+}
+
+.logo-button {
+    font-size: 50px
+}
+
+.logo-icon {
+    font-size: 100px;
 }
 
 .like-panel {
@@ -277,7 +284,7 @@
     --background-activated: transparent;
     width: 90%;
     height: 50px;    
-    text-align: center;    
+    text-align: center;  
 }
 
 /* //hides recapthca badge */
@@ -288,6 +295,13 @@
 #signin-content .signin-inputs {
     padding: 10px;
     text-align: center
+}
+
+#signin-content ion-item {
+    border: 2px yellow solid;
+    border-radius: 5px;
+    margin-top: 10%;
+    margin-bottom: 10%
 }
 
 #signin-content{
@@ -305,6 +319,10 @@
     --padding-top: 80%;
     --padding-start: 5%;
     --padding-end: 5%;
+}
+
+.welcome-title {
+    margin-top: 30%
 }
 
 .white-text {
@@ -401,8 +419,6 @@ ion-item {
 }
 
 ion-label {
-    font-weight: bold;
-    text-transform: uppercase;
     color: yellow
 }
 

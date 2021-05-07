@@ -14,12 +14,14 @@ import {
   IonRow,
   IonLoading,
   IonSlides,
+  IonItem,
   IonSlide,
-  IonPopover
+  IonBackButton,
+  IonPopover,
+  IonLabel
 } from '@ionic/react';
 import { 
   eyeOutline,
-  chevronBackSharp
 } from 'ionicons/icons';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -79,14 +81,14 @@ const SignUp: React.FC = () => {
   const [code, setCode] = useState('');
   const [slide0, setSlide0] = useState(true);
   const [resendEmailPopover, setResendEmailPopover] = useState(false);
-  const [disableBtns, setDisableBtns] = useState(false)
+  const [lastSlide, setLastSlide] = useState(false);
   const slides = useRef(null);
   let history = useHistory();
 
   // When this component renders
   useEffect(() => {  
     clearErrors(); 
- 
+    hideBtnsCheck();
      window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
        'size': 'invisible',
        'callback': (response) => {
@@ -123,11 +125,10 @@ const SignUp: React.FC = () => {
   const hideBtnsCheck = async() => {
     let swiper = await slides.current.getSwiper()
     if (swiper.isEnd) {
-      setDisableBtns(true)
+      setLastSlide(true)
     } else {
-      setDisableBtns(false)
+      setLastSlide(false)
     }
-    //setLoading(false);            
   }
 
   const goToSlide = async(index) => { 
@@ -135,7 +136,6 @@ const SignUp: React.FC = () => {
     await slides.current.getSwiper().then(swiper => {
       swiper.slideTo(index, 1500, false)
     })       
-    //hideBackButton();
   }
 
   const nextSlide = async() => {
@@ -145,17 +145,18 @@ const SignUp: React.FC = () => {
     setLoading(false);
   }
 
-  const back = async() => {
+  const prevSlide = async() => {
     let swiper = await slides.current.getSwiper()
     if (swiper.isBeginning) {
-      history.push('/welcomepage');
+      return false 
     } else {
       swiper.slidePrev()
+      return true 
     }
   }
 
   const slideOpts = {
-    allowTouchMove: true  //set to false for production
+    allowTouchMove: false 
   };
 
   const clearErrors = () => {
@@ -417,13 +418,16 @@ const SignUp: React.FC = () => {
 
   const addUserInfo = async() => {
     setLoading(true);
+    if (username.trim().length < 4) {
+      setUsernameError("Please enter a username longer than 4 characters")
+    } else {
     await firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
       if (snap.empty) { // if no duplicate username
         setUsernameError("")
         firebase.firestore().collection('users').doc(firebase.auth().currentUser.uid).set({ // create a user document when a new user signs up
           fullname: fullname,
           username: username,
-          email: validateEmail(email_or_phone) ? email_or_phone : "",      
+          email: validateEmail(email_or_phone) ? email_or_phone : email_or_phone  + '@partyemail.com',      
           id: firebase.auth().currentUser.uid,
           phoneNumber: validatePhone(email_or_phone) ? email_or_phone : "",
           //dateOfBirth: dob,
@@ -440,7 +444,8 @@ const SignUp: React.FC = () => {
         setLoading(false);
         setUsernameError("This username is already in use, try another one")        
       }
-    })      
+    }) 
+    }     
   }
 
   const redirect = () => {
@@ -460,16 +465,14 @@ const SignUp: React.FC = () => {
   return (
     <IonPage>
       <IonToolbar class="ion-padding">
-          {disableBtns ? null :
+          {lastSlide ? null :
         <IonButtons slot="start">
-          <IonButton slot="start" onClick={() => back()}>
-            <IonIcon icon={chevronBackSharp} /> 
-          </IonButton>
+          <IonBackButton text="" color="warning" defaultHref="/welcomepage" />
         </IonButtons>}
         <IonTitle class="ion-padding signup-toolbar">Sign Up</IonTitle> 
-        {disableBtns ? null : <IonButtons slot="end">
+        {/* {lastSlide ? null : <IonButtons slot="end">
           <IonButton slot="end">Help</IonButton>
-        </IonButtons>}   
+        </IonButtons>}    */}
       </IonToolbar>
       <IonContent id="signin-content">      
       <IonSlides class="sign-up-slides" ref={slides} options={slideOpts} onIonSlideWillChange={()=>hideBtnsCheck()}>
@@ -477,77 +480,53 @@ const SignUp: React.FC = () => {
           {/* Slide 0: Email/Phone, fullname, username and password. */}
           <IonSlide>               
             <div className="signin-inputs">
-              {/* <IonButton class="custom-button" onClick={() => changeSlide('email')}>Sign up with email</IonButton><br/>
-              <IonText class="errormsg">OR</IonText><br/>
-              <IonButton class="custom-button" onClick={() => changeSlide('phone')}>Sign up with phone</IonButton> */}
+              <IonItem lines="none">
+              <IonLabel position="floating">Phone Number or Email</IonLabel>
               <IonInput 
-              class="create-input"
               value={email_or_phone} 
-              placeholder="Mobile Number or Email"
-              type="email"
+              type="text"
               onIonChange={e => setEmail_or_phone(e.detail.value!)}
               >        
               </IonInput>
-              {emailError ? <><IonText class="errormsg">{emailError}</IonText><br/></>:null}
-              {phoneError ? <><IonText class="errormsg">{phoneError}</IonText><br/></>:null}              
+              </IonItem>
+              {emailError ? <div className="ion-padding"><IonText class="errormsg">{emailError}</IonText><br/></div>:null}
+              {phoneError ? <div className="ion-padding"><IonText class="errormsg">{phoneError}</IonText><br/></div>:null} 
+              <IonItem lines="none">             
+              <IonLabel position="floating">Full Name</IonLabel>
               <IonInput 
-              class="create-input" 
               value={fullname} 
-              placeholder="Full Name"
               type="text"
               onIonChange={e => setFullname(e.detail.value!)}
               >                  
               </IonInput>  
-              {fullnameError ? <><IonText class="errormsg">{fullnameError}</IonText><br/></>:null}                
+              </IonItem>
+              {fullnameError ? <div className="ion-padding"><IonText class="errormsg">{fullnameError}</IonText></div>:null}                
             
-              <IonRow class="ion-align-items-center">
-              <IonInput 
-              class="create-input" 
-              value={password} 
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              onIonChange={e => setPassword(e.detail.value!)}
-              >
-              </IonInput>   
-              <IonButton onClick={()=>setShowPassword(!showPassword)}>
-                <IonIcon slot="icon-only" icon={eyeOutline} />
-              </IonButton>                  
-              </IonRow>     
-              {passwordError ? <><IonText class="errormsg">{passwordError}</IonText><br/></>:null}               
-              <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
+              <IonItem lines="none">
+              <IonLabel position="floating">Password</IonLabel>
+              <IonRow class="ion-align-items-center">                              
+                <IonInput 
+                value={password} 
+                type={showPassword ? "text" : "password"}
+                onIonChange={e => setPassword(e.detail.value!)}
+                >
+                </IonInput>   
+                <IonButton onClick={()=>setShowPassword(!showPassword)}>
+                  <IonIcon slot="icon-only" icon={eyeOutline} />
+                </IonButton>                  
+                </IonRow>    
+              </IonItem> 
+              {passwordError ? <div className="ion-padding"><IonText class="errormsg">{passwordError}</IonText><br/></div>:null}               
+              {fieldsMissing ? <div className="ion-padding"><IonText class="errormsg">Please fill in all the fields</IonText><br/></div>:null}               
               <IonButton className="signin-button" onClick={()=>slide0SignUp()}>Next</IonButton><br/>
 
               <div id='sign-in-button'></div>
-              {/* <IonButton onClick={()=>signUpEmailorPhoneandVerify()}>Skip</IonButton><br/> */}
               <IonText>This site is protected by reCAPTCHA and the Google
               <a href="https://policies.google.com/privacy"> Privacy Policy </a> and
-              <a href="https://policies.google.com/terms"> Terms of Service </a> apply</IonText>
-
-              {/* <p className="errormsg">
-              Have an account?<br/> 
-              <IonButton className="yellow-text" href="/signin" >Sign in</IonButton><br/>            
-              </p> */}
+              <a href="https://policies.google.com/terms"> Terms of Service </a> apply</IonText>              
             </div>
           </IonSlide>   
-
-           {/* Slide 1: Continue with snap or enter full name    */}
-          {/* <IonSlide> */}
-              {/* <div id="my-login-button-target"></div> */}
-              {/* <div className="signin-inputs">
-              <IonInput 
-              class="create-input" 
-              value={fullname} 
-              placeholder="Full name"
-              type="text"
-              onIonChange={e => setFullname(e.detail.value!)}
-              >                  
-              </IonInput>  
-              {fullnameError ? <><IonText class="errormsg">{fullnameError}</IonText><br/></>:null}                
-              <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText>
-              <IonButton className="signin-button" onClick={()=>slide1SignUp()}>Next</IonButton><br/>
-              </div>
-          </IonSlide>    */}
-
+ 
           {/* Slide 1: Confirm email or phone number */}
           <IonSlide>
             <div className="signin-inputs">
@@ -564,7 +543,6 @@ const SignUp: React.FC = () => {
               <>
               <IonRow class="ion-align-items-center">
               <IonInput 
-              class="create-input" 
               value={code} 
               placeholder="SMS verification code"
               onIonChange={e => setCode(e.detail.value!)}
@@ -574,26 +552,30 @@ const SignUp: React.FC = () => {
                 Verify
               </IonButton>                  
               </IonRow>     
-              {codeError ? <><IonText class="errormsg">{codeError}</IonText><br/></>:null}                               
-              {phoneError ? <><IonText class="errormsg">{phoneError}</IonText><br/></>:null}
+              {codeError ? <div className="ion-padding"><IonText class="errormsg">{codeError}</IonText><br/></div>:null}                               
+              {phoneError ? <div className="ion-padding"><IonText class="errormsg">{phoneError}</IonText><br/></div>:null}
               </>   
-              }
+              }<br/>
+              <div className="ion-text-start"><IonButton onClick={() => prevSlide()}>Prev</IonButton></div>
               </div>
           </IonSlide>
 
           {/* Slide 2: Enter username */}
           <IonSlide>     
               <div className="signin-inputs">
+              <IonItem>
+              <IonLabel position="floating">Username</IonLabel>
               <IonInput 
               class="create-input" 
               value={username} 
-              placeholder="Username"
               type="text"
               onIonChange={e => setUsername(e.detail.value!)}
               ></IonInput>
-              {usernameError ? <><IonText class="errormsg">{usernameError}</IonText><br/></>:null}
+              </IonItem>
+              {usernameError ? <div className="ion-padding"><IonText class="errormsg">{usernameError}</IonText><br/></div>:null}
               
-              <IonButton className="signin-button" onClick={()=>addUserInfo()}>Finish Up</IonButton>
+              <IonButton className="signin-button" onClick={()=>addUserInfo()}>Finish Up</IonButton><br/>
+              <div className="ion-text-start"><IonButton onClick={() => prevSlide()}>Prev</IonButton></div>         
               </div>
 
               {/* <IonInput 
@@ -628,54 +610,7 @@ const SignUp: React.FC = () => {
           <IonButton className="signin-button" onClick={() => redirectToHome()}>Start Partying!</IonButton><br/>
           <IonText>{emailError}</IonText>
           </IonSlide>
-          
-          {/* <IonSlide>     
-              <div id="my-login-button-target"></div>
-              <IonText>OR</IonText>      
-              <div className="signin-inputs">
-              <IonInput 
-              class="create-input" 
-              value={fullname} 
-              placeholder="Full name"
-              type="text"
-              onIonChange={e => setFullname(e.detail.value!)}
-              >                  
-              </IonInput>  
-              {fullnameError ? <><IonText class="errormsg">{fullnameError}</IonText><br/></>:null}
-              <IonInput 
-              class="create-input" 
-              value={username} 
-              placeholder="Username"
-              type="text"
-              onIonChange={e => setUsername(e.detail.value!)}
-              >                
-              </IonInput> 
-              {usernameError ? <><IonText class="errormsg">{usernameError}</IonText><br/></>:null}
-              <IonInput 
-              class="create-input" 
-              value={dob} 
-              placeholder="Date of birth (dd/mm/yyyy)"
-              type="text"
-              onIonChange={e => setDob(e.detail.value!)}
-              >                
-              </IonInput>         
-              {dobError ? <><IonText class="errormsg">{dobError}</IonText><br/></>:null}
-              {passwordError ? <><IonText class="errormsg">{passwordError}</IonText><br/></>:null}
-              <><IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText><br/></>
-              {linkSent ? (
-              <><IonText class="errormsg">A link has been sent to your email, please click it to verify your email</IonText><br/></>
-              ) : (null)}                
-              {linkSent ? 
-              <IonButton class="signin-button" onClick={()=>window.location.reload(false)}>Complete sign up</IonButton>       
-              :
-              <IonButton className="signin-button" onClick={()=>completeUserInfo()}>Continue</IonButton>
-              }
-              <br/>
-              {signUpMethod === "email" ? <IonButton className="yellow-text" onClick={() => resendEmail()} >Resend verification email</IonButton>:null}                
-              </div>
-          </IonSlide>                   */}
-
-        </IonSlides>    
+        </IonSlides>            
       </IonContent>      
       <IonLoading 
       cssClass="loading"

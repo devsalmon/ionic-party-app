@@ -327,11 +327,11 @@ const CreateParty = ({editingParty, displayParties}) => {
             <IonInput class="create-input" value={drinksProvided}  onIonChange={e => setDrinksProvided(e.detail.value!)} placeholder="Drinks Provided" clearInput></IonInput>  
           </IonItem>         
           <IonItem class="create-card-input" lines="none">
-            <IonLabel color="warning">Starts*</IonLabel>
+            <IonLabel>STARTS*</IonLabel>
             <IonDatetime class="create-datetime" value={dateTime} onIonChange={e => setDateTime(e.detail.value!)} displayFormat="DD-MMM HH:mm" placeholder="select"></IonDatetime>
           </IonItem>
           <IonItem class="create-card-input" lines="none">
-            <IonLabel color="warning">Ends*</IonLabel>
+            <IonLabel>ENDS*</IonLabel>
             <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} displayFormat="DD-MMM HH:mm" placeholder="select"></IonDatetime>
           </IonItem>        
           <IonItem class="create-card-input" lines="none">
@@ -377,7 +377,7 @@ const CreateParty = ({editingParty, displayParties}) => {
                 <IonIcon size="large" icon={addOutline} />  
               </IonButton>
             </IonItem>                  
-          ))}<br/>    
+          ))}<br/>     
 
           {seeFriends ? 
           <IonButton class="create-button" onClick={()=>setSeeFriends(false)}>

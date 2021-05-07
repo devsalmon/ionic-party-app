@@ -11,8 +11,6 @@ import {
 } from '@ionic/react';
 import { 
   eyeOutline,
-  search,
-  personCircle
 } from 'ionicons/icons';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -34,16 +32,17 @@ const WelcomePage: React.FC = () => {
 
   return (
     <IonPage>
-      <IonToolbar>
+{/* <IonToolbar>
     <IonButtons slot="end">
       <IonButton>Help</IonButton>
     </IonButtons>
-    </IonToolbar>
-      <IonContent class="welcome-page-content">   
-        {/* <IonImg src={} /> */}
-        <IonText>*Add logo on top of MOTIVE title*</IonText><br/>
-        <IonText class="welcome-title">MOTIVE</IonText><br/>
-        <IonText>*Add description* e.g. An app for organizing parties with friends, and capturing memories...</IonText><br/>
+    </IonToolbar> */}
+      <IonContent class="welcome-page-content" id="welcome-page">   
+        <IonButton class="logo-button">
+        <IonIcon class="logo-icon" slot="icon-only" src={"assets/images/logo.svg"} />
+        </IonButton><br/>
+        <div className="ion-padding"><IonText class="welcome-title">MOTIVE</IonText><br/></div>
+        <IonText>Motive is an app for organizing parties with friends and capturing memories.</IonText><br/>
         <IonButton href="signup" class="custom-button">Get Started</IonButton>
         <IonButton href="signin" class="custom-button">Already have an account? Sign In</IonButton>
       </IonContent>

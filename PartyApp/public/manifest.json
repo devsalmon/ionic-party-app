@@ -9,6 +9,9 @@
       "purpose": "maskable"
     }, 
     {
+      "src": "assets/images/logo.svg"
+    },
+    {
       "src": "assets/icon/balloon-outline.svg"    
     },
     {
