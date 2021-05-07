@@ -292,6 +292,15 @@ const CreateParty = ({editingParty, displayParties}) => {
         })    
     }
 
+    const startTime = (e) => {
+      setDateTime(e.detail.value!)
+      //console.log("End Time" + endTime)
+      if (endTime == "") {
+        //console.log("TEST")
+        setEndTime(e.detail.value!)
+      }
+    }
+
     return(
       <IonPage>      
       <IonHeader>
@@ -327,8 +336,8 @@ const CreateParty = ({editingParty, displayParties}) => {
             <IonInput class="create-input" value={drinksProvided}  onIonChange={e => setDrinksProvided(e.detail.value!)} placeholder="Drinks Provided" clearInput></IonInput>  
           </IonItem>         
           <IonItem class="create-card-input" lines="none">
-            <IonLabel>STARTS*</IonLabel>
-            <IonDatetime class="create-datetime" value={dateTime} onIonChange={e => setDateTime(e.detail.value!)} displayFormat="DD-MMM HH:mm" placeholder="select"></IonDatetime>
+            <IonLabel color="warning">Starts*</IonLabel>
+            <IonDatetime class="create-datetime" value={dateTime} onIonChange={e => startTime(e)} displayFormat="DD-MMM HH:mm" placeholder="select"></IonDatetime>
           </IonItem>
           <IonItem class="create-card-input" lines="none">
             <IonLabel>ENDS*</IonLabel>
