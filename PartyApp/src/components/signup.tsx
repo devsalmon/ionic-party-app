@@ -540,20 +540,20 @@ const SignUp: React.FC = () => {
               </>
               // else sign up method is phone...
              : 
-              <>
-              <IonRow class="ion-align-items-center">
+             <>
+              <IonItem>
+              <IonLabel position="floating">SMS verification code</IonLabel>
               <IonInput 
               value={code} 
-              placeholder="SMS verification code"
               onIonChange={e => setCode(e.detail.value!)}
               >
               </IonInput>   
-              <IonButton class="yellow-text" onClick={()=>verifyCode()}>
-                Verify
-              </IonButton>                  
-              </IonRow>     
+              </IonItem>
               {codeError ? <div className="ion-padding"><IonText class="errormsg">{codeError}</IonText><br/></div>:null}                               
               {phoneError ? <div className="ion-padding"><IonText class="errormsg">{phoneError}</IonText><br/></div>:null}
+              <IonButton class="signin-button" onClick={()=>verifyCode()}>
+                Verify
+              </IonButton>                 
               </>   
               }<br/>
               <div className="ion-text-start"><IonButton onClick={() => prevSlide()}>Prev</IonButton></div>
