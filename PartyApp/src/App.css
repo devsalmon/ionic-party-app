@@ -111,6 +111,14 @@
     text-align: center;    
 }
 
+.eye-icon {
+    margin: 0;
+    position: relative;
+    top: 50%;
+    -ms-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+
 .errormsg {
     color: white;
     font-size: 15px!;
@@ -293,7 +301,7 @@
 }
 
 #signin-content .signin-inputs {
-    padding: 10px;
+    padding: 2%;
     text-align: center
 }
 
@@ -305,9 +313,9 @@
 }
 
 #signin-content{
-    --padding-start: 10px;
-    --padding-top: 80px;
-    --padding-end: 10px;    
+    text-align: center;
+    --padding-start: 3%;
+    --padding-end: 3%;    
 }
 
 .swiper-pagination {
@@ -393,6 +401,10 @@ ion-footer {
     display: none
 }
 
+ion-icon {
+    color:yellow
+}
+
 ion-input {
     --padding-start: 10px;
     text-align: left;
@@ -419,6 +431,10 @@ ion-item {
 }
 
 ion-label {
+    --color: yellow;   
+}
+
+.item-has-focus .label-floating.sc-ion-label-md-h {
     color: yellow
 }
 

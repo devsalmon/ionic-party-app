@@ -64,7 +64,6 @@ const CreateParty = ({editingParty, displayParties}) => {
     const [endTime, setEndTime] = useState<string>(editingParty ? editingParty.endTime : "");
     const [dateTime, setDateTime] = useState<string>(editingParty ? editingParty.dateTime : ""); 
     const [drinksProvided, setDrinksProvided] = useState(editingParty ? editingParty.drinksProvided : "");
-    //const [malesToFemales, setMalesToFemales] = useState(editingParty ? editingParty.malesToFemales : 50);
     const [showPeopleSearch, setShowPeopleSearch] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [fieldsMissing, setFieldsMissing] = useState(false);
@@ -109,18 +108,6 @@ const CreateParty = ({editingParty, displayParties}) => {
       }              
     })
   }    
-
-    // function to hide tabs when in the create page
-    // function hideTab() {
-    //   const tabBar = document.getElementById('appTabBar');
-    //   tabBar.style.display = 'none';
-    // }
-    // show tabs again when create page is exited
-    // function showTab() {       
-    //   backButton() 
-    //   const tabBar = document.getElementById('appTabBar');
-    //   tabBar.style.display = 'flex';
-    // }        
     
     async function search(query) {
       const result = await index.search(query); 
@@ -148,7 +135,6 @@ const CreateParty = ({editingParty, displayParties}) => {
               postcode: postcode,
               dresscode: dresscode,
               drinksProvided: drinksProvided,
-              //malesToFemales: malesToFemales,
               date: moment(dateTime).format('LL'), 
               day: moment(dateTime).format('D'), 
               month: moment(dateTime).format('MMM'),
@@ -165,11 +151,15 @@ const CreateParty = ({editingParty, displayParties}) => {
                 invitedPeople && invitedPeople.map(person => {
                   var userDocument = firebase.firestore().collection("users").doc(person.id)
                   userDocument.get().then(doc => {
-                    if (doc.data().myInvites) {
-                      var alreadyInMI = doc.data().myInvites.some(item => editingParty.id === item);
-                      //var alreadyInIF = doc.data().inviteFrom.some(item => host_user_id === item);                    
-                    }
-                    if ((!alreadyInMI) || !doc.data().myInvites) {
+                    var hasmyinvites = false
+                    var alreadyInMI = false
+                    doc.data().forEach((key) => {
+                      if (key === "myInvites") {
+                        hasmyinvites = true;
+                        alreadyInMI = doc.data().myInvites.some(item => editingParty.id === item);                  
+                      }
+                    })
+                    if (!alreadyInMI || !hasmyinvites) {
                       userDocument.update({
                         // add party id to user documents
                         myInvites: firebase.firestore.FieldValue.arrayUnion({hostid: host_user_id, partyid: editingParty.id}),
@@ -186,7 +176,6 @@ const CreateParty = ({editingParty, displayParties}) => {
               setDateTime("");
               setDresscode("");
               setDrinksProvided("");
-              //setMalesToFemales(0);
               setInvitedPeople([]);                               
               })  
             } else {
@@ -197,7 +186,6 @@ const CreateParty = ({editingParty, displayParties}) => {
                 postcode: postcode,
                 dresscode: dresscode,
                 drinksProvided: drinksProvided,
-                //malesToFemales: malesToFemales,
                 date: moment(dateTime).format('LL'), 
                 day: moment(dateTime).format('D'), 
                 month: moment(dateTime).format('MMM'),
@@ -237,7 +225,6 @@ const CreateParty = ({editingParty, displayParties}) => {
                   setDateTime("");
                   setDresscode("");
                   setDrinksProvided("");
-                  //setMalesToFemales(0);
                   setInvitedPeople([]);                
               })  
             }     
@@ -294,9 +281,8 @@ const CreateParty = ({editingParty, displayParties}) => {
 
     const startTime = (e) => {
       setDateTime(e.detail.value!)
-      //console.log("End Time" + endTime)
+      console.log(e.detail.value!)
       if (endTime == "") {
-        //console.log("TEST")
         setEndTime(e.detail.value!)
       }
     }
@@ -340,7 +326,7 @@ const CreateParty = ({editingParty, displayParties}) => {
             <IonDatetime class="create-datetime" value={dateTime} onIonChange={e => startTime(e)} displayFormat="DD-MMM HH:mm" placeholder="select"></IonDatetime>
           </IonItem>
           <IonItem class="create-card-input" lines="none">
-            <IonLabel>ENDS*</IonLabel>
+            <IonLabel>Ends*</IonLabel>
             <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} displayFormat="DD-MMM HH:mm" placeholder="select"></IonDatetime>
           </IonItem>        
           <IonItem class="create-card-input" lines="none">

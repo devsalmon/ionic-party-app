@@ -121,14 +121,7 @@ const SignIn: React.FC = () => {
 
   const validatePhone = (num) => {
     var re = new RegExp(/^\+?([0-9]{1,4})\)?[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})$/g);
-    if (num[0] === "0" && num[1] === "7") {
-      var temp = "+44" + num.slice(1);
-      setEmailorphone(temp)
-      console.log(temp)
-      return true 
-    } else {
-      return re.test(num);
-    }    
+    return re.test(num);
   }  
 
   const resetPassword = () => {  
@@ -226,9 +219,11 @@ const verifyCodeAndNewPassword = async() => {
       if (validatePhone(emailorphone)) { 
         console.log("phone number")
         phoneSignIn()
-      } else {
+      } else if (validateEmail(emailorphone)) {
         console.log("email")
         emailSignIn()
+      } else {
+        setEmailorphoneError("Invalid format for email or phone number, please try again")
       }
     }
   }  
@@ -276,6 +271,16 @@ const verifyCodeAndNewPassword = async() => {
       })    
   }  
 
+  const updateEmailorphone = (val) => {
+    var re = new RegExp(/^\+?([0-9]{1,4})\)?[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})$/g);
+    if (val[0] === "0" && val[1] === "7") {
+      var temp = "+44" + val.slice(1);
+      setEmailorphone(temp)
+    } else {
+      setEmailorphone(val)
+    }   
+  }
+
   return (
     <IonPage>
     {/* <div id="my-login-button-target"></div>
@@ -288,6 +293,9 @@ const verifyCodeAndNewPassword = async() => {
           <IonBackButton text="" color="warning" defaultHref="/welcomepage" />
         </IonButtons>
         <IonTitle class="ion-padding">Sign In</IonTitle>
+        <IonButtons slot="end">
+          <IonButton slot="end">Help</IonButton>
+        </IonButtons>    
       </IonToolbar>
       <IonContent id="signin-content">   
         <div className="signin-inputs">
@@ -296,23 +304,22 @@ const verifyCodeAndNewPassword = async() => {
           <IonInput 
           value={emailorphone} 
           type="text"
-          onIonChange={e => setEmailorphone(e.detail.value!)}
+          onIonChange={e => updateEmailorphone(e.detail.value!)}
           >        
           </IonInput> 
           </IonItem>
           <IonItem lines="none">           
           <IonLabel position="floating">Password</IonLabel>
-          <IonRow class="ion-align-items-center">          
             <IonInput 
             value={password} 
             type={showPassword ? "text" : "password"}
             onIonChange={e => setPassword(e.detail.value!)}
             >
             </IonInput>   
-            <IonButton onClick={()=>setShowPassword(!showPassword)}>
-              <IonIcon slot="icon-only" icon={eyeOutline} />
-            </IonButton>                  
-          </IonRow>
+            <div className="eye-icon" slot="end">                
+            <IonIcon onClick={()=>setShowPassword(!showPassword)} slot="end" icon={eyeOutline}>
+            </IonIcon> 
+            </div>         
           </IonItem>
           <div className="ion-text-end ion-padding">
             <IonButton className="yellow-text" onClick={() => setForgotPassword(true)}>Forgot Password?</IonButton>

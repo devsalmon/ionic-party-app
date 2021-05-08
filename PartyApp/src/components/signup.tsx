@@ -462,6 +462,16 @@ const SignUp: React.FC = () => {
     setInterval(() => redirect(), 1000)
   }
 
+  const updateEmailorphone = (val) => {
+    var re = new RegExp(/^\+?([0-9]{1,4})\)?[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})$/g);
+    if (val[0] === "0" && val[1] === "7") {
+      var temp = "+44" + val.slice(1);
+      setEmail_or_phone(temp)
+    } else {
+      setEmail_or_phone(val)
+    }   
+  }  
+
   return (
     <IonPage>
       <IonToolbar class="ion-padding">
@@ -470,9 +480,9 @@ const SignUp: React.FC = () => {
           <IonBackButton text="" color="warning" defaultHref="/welcomepage" />
         </IonButtons>}
         <IonTitle class="ion-padding signup-toolbar">Sign Up</IonTitle> 
-        {/* {lastSlide ? null : <IonButtons slot="end">
+        {lastSlide ? null : <IonButtons slot="end">
           <IonButton slot="end">Help</IonButton>
-        </IonButtons>}    */}
+        </IonButtons>}   
       </IonToolbar>
       <IonContent id="signin-content">      
       <IonSlides class="sign-up-slides" ref={slides} options={slideOpts} onIonSlideWillChange={()=>hideBtnsCheck()}>
@@ -485,7 +495,7 @@ const SignUp: React.FC = () => {
               <IonInput 
               value={email_or_phone} 
               type="text"
-              onIonChange={e => setEmail_or_phone(e.detail.value!)}
+              onIonChange={e => updateEmailorphone(e.detail.value!)}
               >        
               </IonInput>
               </IonItem>
@@ -504,17 +514,16 @@ const SignUp: React.FC = () => {
             
               <IonItem lines="none">
               <IonLabel position="floating">Password</IonLabel>
-              <IonRow class="ion-align-items-center">                              
                 <IonInput 
                 value={password} 
                 type={showPassword ? "text" : "password"}
                 onIonChange={e => setPassword(e.detail.value!)}
                 >
-                </IonInput>   
-                <IonButton onClick={()=>setShowPassword(!showPassword)}>
-                  <IonIcon slot="icon-only" icon={eyeOutline} />
-                </IonButton>                  
-                </IonRow>    
+                </IonInput> 
+                <div className="eye-icon" slot="end">                
+                <IonIcon onClick={()=>setShowPassword(!showPassword)} slot="end" icon={eyeOutline}>
+                </IonIcon> 
+                </div>                         
               </IonItem> 
               {passwordError ? <div className="ion-padding"><IonText class="errormsg">{passwordError}</IonText><br/></div>:null}               
               {fieldsMissing ? <div className="ion-padding"><IonText class="errormsg">Please fill in all the fields</IonText><br/></div>:null}               
