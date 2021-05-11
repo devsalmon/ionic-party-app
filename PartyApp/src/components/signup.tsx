@@ -71,19 +71,14 @@ const SignUp: React.FC = () => {
   const [fullnameError, setFullnameError] = useState('');
   const [usernameError, setUsernameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const [codeError, setCodeError] = useState("");
   const [phoneError, setPhoneError] = useState('');
   const [dobError, setDobError] = useState('');
   const [fieldsMissing, setFieldsMissing] = useState(false);
-  const [linkSent, setLinkSent] = useState(false); 
-  const [signIn, setSignIn] = useState(false);  
   const [loading, setLoading] = useState(false);
   const [code, setCode] = useState('');
-  const [slide0, setSlide0] = useState(true);
   const [resendEmailPopover, setResendEmailPopover] = useState(false);
   const [lastSlide, setLastSlide] = useState(false);
   const slides = useRef(null);
-  let history = useHistory();
 
   // When this component renders
   useEffect(() => {  
@@ -278,7 +273,6 @@ const SignUp: React.FC = () => {
 
   const sendVerificationEmail = (goToNextSlide) => {
     firebase.auth().currentUser.sendEmailVerification(actionCodeSettings).then(function() {      
-      setLinkSent(true);
       setResendEmailPopover(false);
       setLoading(false);
       if (goToNextSlide) {
@@ -400,7 +394,7 @@ const SignUp: React.FC = () => {
           nextSlide();                 
         }).catch((error) => {
           if (error.code === "auth/provider-already-linked") {  
-            console.log("auth already linked")      
+            setPhoneError("Someone has already signed up with this phone number")     
           }
           setLoading(false);
           console.log("Account linking error", error);
@@ -567,7 +561,6 @@ const SignUp: React.FC = () => {
               >
               </IonInput>   
               </IonItem>
-              {codeError ? <div className="ion-padding"><IonText class="errormsg">{codeError}</IonText><br/></div>:null}                               
               {phoneError ? <div className="ion-padding"><IonText class="errormsg">{phoneError}</IonText><br/></div>:null}
               <IonButton class="signin-button" onClick={()=>verifyCode()}>
                 Verify

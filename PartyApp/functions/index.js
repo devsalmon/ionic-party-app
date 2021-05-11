@@ -308,7 +308,7 @@ exports.verifyPhoneUser = functions.firestore
       emailVerified: change.after.data().phoneVerified,
       displayName: change.after.data().username,
       email: change.after.data().email,
-      phoneNumber: change.data().phone_number,       
+      phoneNumber: change.after.data().phone_number,       
     })
 })
 
