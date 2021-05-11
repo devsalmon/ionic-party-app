@@ -514,8 +514,11 @@ const ForgotPassword: React.FC = () => {
           })
           } else if (validateEmail(email_or_phone)) {
         //reset email password.
+        console.log("going to reset email password")
+        console.log(email_or_phone)
       firebase.auth().sendPasswordResetEmail(email_or_phone, actionCodeSettings).then(() => {
        //setEmailSent(true);
+       console.log("email sent?")
         //setForgotPassword(false); // remove popover
         nextSlide();
       }).catch(function(error) {
