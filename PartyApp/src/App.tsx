@@ -5,6 +5,7 @@ import Gallery from './components/gallery';
 import MyPartyList from './components/mypartylist';
 import SignIn from './components/signin';
 import SignUp from './components/signup';
+import ForgotPassword from './components/forgotpassword';
 import WelcomePage from './components/welcomepage'
 
 import { Route, Redirect, useLocation } from 'react-router-dom';
@@ -792,13 +793,14 @@ const SignedInRoutes: React.FC = () => {
         <IonRouterOutlet>    
           <Route path='/signin' component={SignIn} />
           <Route path='/signup' component={SignUp} />
+          <Route path='/forgotpassword' component={ForgotPassword} />
           <Route path='/welcomepage' component={WelcomePage} />  
           <Route path='/create' component={Create} />
           <Route path='/users' component={Users} />
           <Route path='/gallery' component={Gallery} />
           <Route exact path='/myparties' component={MyParties} />      
           <Route exact path='/home' component={Home} />      
-          <Route exact path={["/signin", "/signup", "/welcomepage", "/"]} render={() => <Redirect to="/home" />} /> 
+          <Route exact path={["/signin", "/signup", "/forgotpassword", "/welcomepage", "/"]} render={() => <Redirect to="/home" />} /> 
         </IonRouterOutlet> 
         
         <IonTabBar slot="bottom" id="appTabBar">
@@ -901,6 +903,7 @@ const App: React.FC = () => {
           <IonRouterOutlet>
             <Route path='/signin' component={SignIn} />
             <Route path='/signup' component={SignUp} />
+            <Route path='/forgotpassword' component={ForgotPassword} />
             <Route path='/welcomepage' component={WelcomePage} />            
             <Route exact path="/" render={() => <Redirect to="/welcomepage" />} />
           </IonRouterOutlet>    

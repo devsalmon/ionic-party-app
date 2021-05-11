@@ -322,7 +322,7 @@ const verifyCodeAndNewPassword = async() => {
             </div>         
           </IonItem>
           <div className="ion-text-end ion-padding">
-            <IonButton className="yellow-text" onClick={() => setForgotPassword(true)}>Forgot Password?</IonButton>
+            <IonButton className="yellow-text" href="/forgotpassword">Forgot Password?</IonButton>
           </div>  
           {emailSent ? <div className="ion-padding"><IonText class="errormsg">Email sent, click the link to reset your password</IonText><br/></div>:null}               
           {passwordError ? <div className="ion-padding"><IonText class="errormsg">{passwordError}</IonText><br/></div> : null}
