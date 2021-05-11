@@ -110,7 +110,7 @@ const SignUp: React.FC = () => {
 
   var actionCodeSettings = {
     url: "http://localhost:8100/signup",
-    dynamicLinkDomain: "test1619.page.link",
+    dynamicLinkDomain: "motivepartyapp.page.link",
     handleCodeInApp: false,
     iOS: {
       bundleId: 'com.charke.partyapp',
@@ -253,7 +253,7 @@ const SignUp: React.FC = () => {
     console.log("Email: " + email_or_phone)
       firebase.auth().createUserWithEmailAndPassword(email_or_phone, password).then(user => {
         firebase.auth().signInWithEmailAndPassword(email_or_phone, password).then(res => {
-          sendVerificationEmail();
+          sendVerificationEmail(true);
         }).catch(err => {          
           setPasswordError(err.message);
           goToSlide(0);
@@ -276,12 +276,14 @@ const SignUp: React.FC = () => {
       });
   };   
 
-  const sendVerificationEmail = () => {
+  const sendVerificationEmail = (goToNextSlide) => {
     firebase.auth().currentUser.sendEmailVerification(actionCodeSettings).then(function() {      
       setLinkSent(true);
       setResendEmailPopover(false);
       setLoading(false);
-      nextSlide();
+      if (goToNextSlide) {
+        nextSlide()
+      };
     }).catch(function(error) {
       // An error happened.
       setLoading(false);
@@ -294,10 +296,10 @@ const SignUp: React.FC = () => {
     clearErrors();
     var user = firebase.auth().currentUser;
     if (user) {
-      sendVerificationEmail(); 
+      sendVerificationEmail(false); 
     } else if (email_or_phone.trim() !== "" && password.trim() !== "") {
       firebase.auth().signInWithEmailAndPassword(email_or_phone, password).then(user => {
-        sendVerificationEmail();        
+        sendVerificationEmail(false);        
       }).catch(err => {
         setLoading(false);
         setPasswordError(err.message);
@@ -308,17 +310,18 @@ const SignUp: React.FC = () => {
     }
   }
 
-  const checkIfVerifiedandSignIn = () => {
+  const checkIfVerified = () => {
     clearErrors();  
     const user = firebase.auth().currentUser;
-    user.reload();
-    if (!user.emailVerified) { // if user has signed in by pressing a button in sign up, but isn't verified  
-      setEmailError(email_or_phone + " is not verified, please click the link in your email to verify your account");                           
-    } else {
-      console.log("Email verified")
-      // if verified...
-      nextSlide();
-    }
+    user.reload().then(() => {
+      if (!user.emailVerified) { // if user has signed in by pressing a button in sign up, but isn't verified  
+        setEmailError(email_or_phone + " is not verified, please try again or click the link in your email to verify your account");                           
+      } else {
+        console.log("Email verified")
+        // if verified...
+        nextSlide();
+      }
+    });
   }
 
   const phoneSignUp = async() => {
@@ -419,6 +422,7 @@ const SignUp: React.FC = () => {
   const addUserInfo = async() => {
     setLoading(true);
     if (username.trim().length < 4) {
+      setLoading(false);
       setUsernameError("Please enter a username longer than 4 characters")
     } else {
     await firebase.firestore().collection("users").where("username", "==", username).get().then(snap => {
@@ -431,7 +435,7 @@ const SignUp: React.FC = () => {
           id: firebase.auth().currentUser.uid,
           phoneNumber: validatePhone(email_or_phone) ? email_or_phone : "",
           //dateOfBirth: dob,
-          phoneVerified: signUpMethod === "phone" ? true : false,
+          phoneVerified:true,
           // bitmoji: window.localStorage.getItem("bitmoji_avatar")
         }, {merge: true}).then(() => {
           setLoading(false);
@@ -449,12 +453,17 @@ const SignUp: React.FC = () => {
   }
 
   const redirect = () => {
+    clearErrors();
     const user = firebase.auth().currentUser;
-    console.log(user.displayName, user.uid);
-    user.reload();
-    if (user.emailVerified && user.displayName !== null) { // if user has signed in by pressing a button in sign up, but isn't verified  
-      window.location.href=window.location.href; // reloads app
-    }  
+    console.log(user.displayName, user.emailVerified);
+    user.reload().then(() => {
+      const user = firebase.auth().currentUser;
+      if (user.emailVerified === true && user.displayName !== null) {   
+        window.location.href=window.location.href// should redirect to home automatically 
+      } else {
+        console.log("email not verified or display name is null")
+      }
+    });
   }
 
   const redirectToHome = () => {
@@ -491,7 +500,7 @@ const SignUp: React.FC = () => {
           <IonSlide>               
             <div className="signin-inputs">
               <IonItem lines="none">
-              <IonLabel position="floating">Phone Number or Email</IonLabel>
+              <IonLabel position="floating">Email or Phone Number</IonLabel>
               <IonInput 
               value={email_or_phone} 
               type="text"
@@ -543,14 +552,14 @@ const SignUp: React.FC = () => {
              {signUpMethod === 'email' ? 
               <> 
               <IonText>We have sent you an email, please click the link in the email to verify it before continuing</IonText>
-              <IonButton className="signin-button" onClick={()=>checkIfVerifiedandSignIn()}>Next</IonButton><br/>
+              <IonButton className="signin-button" onClick={()=>checkIfVerified()}>Next</IonButton><br/>
               <IonText>{emailError}</IonText><br/>
               <IonButton onClick={() => setResendEmailPopover(true)}>Resend verification email</IonButton>
               </>
               // else sign up method is phone...
              : 
              <>
-              <IonItem>
+              <IonItem lines="none">
               <IonLabel position="floating">SMS verification code</IonLabel>
               <IonInput 
               value={code} 
@@ -572,7 +581,7 @@ const SignUp: React.FC = () => {
           {/* Slide 2: Enter username */}
           <IonSlide>     
               <div className="signin-inputs">
-              <IonItem>
+              <IonItem lines="none">
               <IonLabel position="floating">Username</IonLabel>
               <IonInput 
               class="create-input" 
@@ -615,8 +624,8 @@ const SignUp: React.FC = () => {
            
           {/* Slide 3: Welcome in */}
           <IonSlide>   
-          <IonText>Welcome {fullname}!</IonText><br/>
-          <IonButton className="signin-button" onClick={() => redirectToHome()}>Start Partying!</IonButton><br/>
+          <div className="ion-padding"><IonText>Welcome {fullname}!</IonText><br/></div>
+          <div className="ion-padding"><IonButton className="signin-button" onClick={() => redirectToHome()}>Start Partying!</IonButton><br/></div>
           <IonText>{emailError}</IonText>
           </IonSlide>
         </IonSlides>            

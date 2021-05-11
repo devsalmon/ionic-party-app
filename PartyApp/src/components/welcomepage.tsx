@@ -38,11 +38,9 @@ const WelcomePage: React.FC = () => {
     </IonButtons>
     </IonToolbar> */}
       <IonContent class="welcome-page-content" id="welcome-page">   
-        <IonButton class="logo-button">
-        <IonIcon class="logo-icon" slot="icon-only" src={"assets/images/logo.svg"} />
-        </IonButton><br/>
+        <IonIcon class="logo-icon" src={"assets/images/logo.svg"}></IonIcon>
         <div className="ion-padding"><IonText class="welcome-title">MOTIVE</IonText><br/></div>
-        <IonText>Motive is an app for organizing parties with friends and capturing memories.</IonText><br/>
+        <div className="ion-padding"><IonText>Motive is an app for organizing parties with friends and capturing memories.</IonText><br/></div>
         <IonButton href="signup" class="custom-button">Get Started</IonButton>
         <IonButton href="signin" class="custom-button">Already have an account? Sign In</IonButton>
       </IonContent>

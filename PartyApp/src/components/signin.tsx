@@ -105,7 +105,7 @@ const SignIn: React.FC = () => {
     handleCodeInApp: false,
     // When multiple custom dynamic link domains are defined, specify which
     // one to use.
-   //dynamicLinkDomain: "test1619.page.link"
+   dynamicLinkDomain: "motivepartyapp.page.link"
   };  
 
   const clearErrors = () => {
@@ -300,7 +300,7 @@ const verifyCodeAndNewPassword = async() => {
       <IonContent id="signin-content">   
         <div className="signin-inputs">
           <IonItem lines="none">
-          <IonLabel position="floating">Phone Number or Email</IonLabel>
+          <IonLabel position="floating">Email or Phone Number</IonLabel>
           <IonInput 
           value={emailorphone} 
           type="text"
