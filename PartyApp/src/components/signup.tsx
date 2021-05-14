@@ -532,7 +532,7 @@ const SignUp: React.FC = () => {
               {fieldsMissing ? <div className="ion-padding"><IonText class="errormsg">Please fill in all the fields</IonText><br/></div>:null}               
               <IonButton className="signin-button" onClick={()=>slide0SignUp()}>Next</IonButton><br/>
 
-              <div id='sign-in-button'></div>
+              <div id='sign-in-button' data-sitekey="6LddLNUaAAAAAFEDkS3Jg8mCAD20Jp7sGJ08-bed"></div>
               <IonText>This site is protected by reCAPTCHA and the Google
               <a href="https://policies.google.com/privacy"> Privacy Policy </a> and
               <a href="https://policies.google.com/terms"> Terms of Service </a> apply</IonText>              
