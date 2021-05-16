@@ -6,7 +6,9 @@ import MyPartyList from './components/mypartylist';
 import SignIn from './components/signin';
 import SignUp from './components/signup';
 import ForgotPassword from './components/forgotpassword';
-import WelcomePage from './components/welcomepage'
+import WelcomePage from './components/welcomepage';
+
+import {Online, Offline} from "react-detect-offline";
 
 import { Route, Redirect, useLocation } from 'react-router-dom';
 import { RefresherEventDetail } from '@ionic/core';
@@ -898,6 +900,7 @@ const App: React.FC = () => {
   } else {
     return( 
     <IonApp>
+      <Online> {/*only render when online*/}
       { signedIn === false ? (   
         <IonReactRouter>
           <IonRouterOutlet>
@@ -911,6 +914,18 @@ const App: React.FC = () => {
       ) : (       
         <SignedInRoutes />
       )}
+      </Online>
+      <Offline>
+        <IonPage>
+          <IonContent>
+          <IonTitle class="ion-text-center">
+            <div className="ion-text-wrap">
+              Oops! Connection error, try to reconnect before using Motive.
+            </div>
+          </IonTitle>
+          </IonContent>
+        </IonPage>
+      </Offline>      
     </IonApp>
   )
   }

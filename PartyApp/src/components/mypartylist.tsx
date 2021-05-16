@@ -446,22 +446,12 @@ const MyPartyList = () => {
               <IonButton onClick={() => setUsernamePopover(true)}>
                 Change username              
               </IonButton> <br/>
-              {/* <IonButton onClick={() => setPhotoPopover(true)}>
-                Change photo             
-              </IonButton> <br/>               */}
               <IonButton onClick={() => setPasswordPopover(true)}>
                 Change password              
               </IonButton><br/>
               <IonButton onClick={() => setDeleteAccPopover(true)}>
                 Delete Account             
               </IonButton><br/>                
-              {/* <IonButton>
-                Notifications
-              </IonButton><br/>          
-              <IonButton>
-                Help
-              </IonButton><br/><br/> */}
-              {/* <div id="my-login-button-target"></div>  */}
             </IonList>
           </IonContent>
         </IonMenu>
@@ -477,14 +467,11 @@ const MyPartyList = () => {
             <IonGrid>
               <IonRow class="ion-align-items-center">
                 <IonCol size="3">
-                  {/* <IonButton fill="clear" onClick={()=>setShowFriends(true)}> */}
                   <span onClick={()=>setShowFriends(true)}><IonIcon className="profile-icon" icon={peopleOutline}/></span>
-                  {/* </IonButton> */}
                 </IonCol>
                 <IonCol size="6"> 
                   <IonText>{fullname}</IonText><br/>
                   <IonText class="white-text">{username}</IonText>
-                  {/* <p className="white-text"><span onClick={()=>setShowFriends(true)}>{friend_no} FRIENDS</span></p>        */}
                 </IonCol>      
                 <IonCol size="3">
                   <IonMenuButton class="top-icons">
@@ -512,8 +499,6 @@ const MyPartyList = () => {
           </IonRadioGroup>  
         </IonToolbar>
         </IonHeader>
-        {/* <IonSlides ref={slides} onIonSlideDidChange={e => handleSlideChange()}>                   
-          <IonSlide>      */}
             <IonContent fullscreen={true}>
               <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
                 <IonRefresherContent
@@ -529,16 +514,6 @@ const MyPartyList = () => {
                 <Memory notifications={party.notifications} id={party.id} data={party.data} key={i} click={() => enter(party.id, party.data.hostid)}/>
               )          
             }) : null}   
-          {/* </IonContent> */}
-          {/* </IonSlide>              
-          <IonSlide> */}
-            {/* <IonContent fullscreen={true} scroll-y={true}> */}
-              {/* <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
-                <IonRefresherContent
-                  pullingIcon={chevronDownCircleOutline}
-                  refreshingSpinner="circles">
-                </IonRefresherContent>
-              </IonRefresher>                    */}
             {selected === "hosted" ?
             yourParties.length === 0 ?
             <IonText class="white-text">You haven't hosted any parties yet..</IonText> : 
@@ -547,9 +522,7 @@ const MyPartyList = () => {
                 <Memory notifications={party.notifications} id={party.id} data={party.data} key={j} click={() => enter(party.id, party.data.hostid)}/>
               )          
             }) : null} 
-            </IonContent>                     
-          {/* </IonSlide> 
-        </IonSlides>     */}
+            </IonContent>       
         <IonPopover
           id="popover"
           cssClass="popover"        

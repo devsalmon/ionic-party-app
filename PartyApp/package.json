@@ -36,6 +36,7 @@
     "moment": "^2.27.0",
     "node-fetch": "^2.6.1",
     "react": "^16.13.0",
+    "react-detect-offline": "^2.4.4",
     "react-dom": "^16.13.0",
     "react-firebase-hooks": "^2.2.0",
     "react-hook-form": "^5.7.2",

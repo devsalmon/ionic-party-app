@@ -235,7 +235,7 @@ const SignIn: React.FC = () => {
           </div>  
           {passwordError ? <div className="ion-padding"><IonText class="errormsg">{passwordError}</IonText><br/></div> : null}
           {fieldsMissing ? <div className="ion-padding"><IonText class="errormsg">Please fill in all the fields</IonText><br/></div>:null}               
-          <div id='sign-in-button' data-sitekey="6LddLNUaAAAAAFEDkS3Jg8mCAD20Jp7sGJ08-bed"></div>
+          <div id='sign-in-button'></div>
           <IonButton class="signin-button" onClick={() => handleLogin()}>Sign in</IonButton>
           {emailorphoneError ? <div className="ion-padding"><IonText class="errormsg">{emailorphoneError}</IonText><br/></div>:null}               
                     

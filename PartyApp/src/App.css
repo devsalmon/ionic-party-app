@@ -388,7 +388,8 @@ ion-card-subtitle {
 
 ion-content {
     --background: transparent;
-    --padding-top: 5px;
+    --padding-top: 2%;
+    --padding-bottom: 2%;
     text-align: center
 }
 
