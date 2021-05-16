@@ -11,7 +11,6 @@ import {
   IonTitle,
   IonInput, 
   IonText,
-  IonRow,
   IonLoading,
   IonSlides,
   IonItem,
@@ -477,17 +476,17 @@ const SignUp: React.FC = () => {
 
   return (
     <IonPage>
-      <IonToolbar class="ion-padding">
+      <IonToolbar class="ion-padding-top">
           {lastSlide ? null :
         <IonButtons slot="start">
           <IonBackButton text="" color="warning" defaultHref="/welcomepage" />
         </IonButtons>}
-        <IonTitle class="ion-padding signup-toolbar">Sign Up</IonTitle> 
+        <IonTitle class="ion-padding">Sign Up</IonTitle> 
         {lastSlide ? null : <IonButtons slot="end">
           <IonButton slot="end">Help</IonButton>
         </IonButtons>}   
       </IonToolbar>
-      <IonContent id="signin-content">      
+      <IonContent id="signin-content" fullscreen={true}>      
       <IonSlides class="sign-up-slides" ref={slides} options={slideOpts} onIonSlideWillChange={()=>hideBtnsCheck()}>
 
           {/* Slide 0: Email/Phone, fullname, username and password. */}
@@ -502,8 +501,8 @@ const SignUp: React.FC = () => {
               >        
               </IonInput>
               </IonItem>
-              {emailError ? <div className="ion-padding"><IonText class="errormsg">{emailError}</IonText><br/></div>:null}
-              {phoneError ? <div className="ion-padding"><IonText class="errormsg">{phoneError}</IonText><br/></div>:null} 
+              {emailError ? <div><IonText class="errormsg">{emailError}</IonText><br/></div>:null}
+              {phoneError ? <div><IonText class="errormsg">{phoneError}</IonText><br/></div>:null} 
               <IonItem lines="none">             
               <IonLabel position="floating">Full Name</IonLabel>
               <IonInput 
@@ -513,7 +512,7 @@ const SignUp: React.FC = () => {
               >                  
               </IonInput>  
               </IonItem>
-              {fullnameError ? <div className="ion-padding"><IonText class="errormsg">{fullnameError}</IonText></div>:null}                
+              {fullnameError ? <div><IonText class="errormsg">{fullnameError}</IonText></div>:null}                
             
               <IonItem lines="none">
               <IonLabel position="floating">Password</IonLabel>
@@ -523,13 +522,13 @@ const SignUp: React.FC = () => {
                 onIonChange={e => setPassword(e.detail.value!)}
                 >
                 </IonInput> 
-                <div className="eye-icon" slot="end">                
+                <div className="button-icon" slot="end">                
                 <IonIcon onClick={()=>setShowPassword(!showPassword)} slot="end" icon={eyeOutline}>
                 </IonIcon> 
                 </div>                         
               </IonItem> 
-              {passwordError ? <div className="ion-padding"><IonText class="errormsg">{passwordError}</IonText><br/></div>:null}               
-              {fieldsMissing ? <div className="ion-padding"><IonText class="errormsg">Please fill in all the fields</IonText><br/></div>:null}               
+              {passwordError ? <div><IonText class="errormsg">{passwordError}</IonText><br/></div>:null}               
+              {fieldsMissing ? <div><IonText class="errormsg">Please fill in all the fields</IonText><br/></div>:null}               
               <IonButton className="signin-button" onClick={()=>slide0SignUp()}>Next</IonButton><br/>
 
               <div id='sign-in-button'></div>
@@ -561,7 +560,7 @@ const SignUp: React.FC = () => {
               >
               </IonInput>   
               </IonItem>
-              {phoneError ? <div className="ion-padding"><IonText class="errormsg">{phoneError}</IonText><br/></div>:null}
+              {phoneError ? <div><IonText class="errormsg">{phoneError}</IonText><br/></div>:null}
               <IonButton class="signin-button" onClick={()=>verifyCode()}>
                 Verify
               </IonButton>                 
@@ -583,7 +582,7 @@ const SignUp: React.FC = () => {
               onIonChange={e => setUsername(e.detail.value!)}
               ></IonInput>
               </IonItem>
-              {usernameError ? <div className="ion-padding"><IonText class="errormsg">{usernameError}</IonText><br/></div>:null}
+              {usernameError ? <div><IonText class="errormsg">{usernameError}</IonText><br/></div>:null}
               
               <IonButton className="signin-button" onClick={()=>addUserInfo()}>Finish Up</IonButton><br/>
               <div className="ion-text-start"><IonButton onClick={() => prevSlide()}>Prev</IonButton></div>         
@@ -617,8 +616,8 @@ const SignUp: React.FC = () => {
            
           {/* Slide 3: Welcome in */}
           <IonSlide>   
-          <div className="ion-padding"><IonText>Welcome {fullname}!</IonText><br/></div>
-          <div className="ion-padding"><IonButton className="signin-button" onClick={() => redirectToHome()}>Start Partying!</IonButton><br/></div>
+          <div><IonText>Welcome {fullname}!</IonText><br/></div>
+          <div><IonButton className="signin-button" onClick={() => redirectToHome()}>Start Partying!</IonButton><br/></div>
           <IonText>{emailError}</IonText>
           </IonSlide>
         </IonSlides>            

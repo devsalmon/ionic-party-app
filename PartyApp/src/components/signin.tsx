@@ -225,7 +225,7 @@ const SignIn: React.FC = () => {
             onIonChange={e => setPassword(e.detail.value!)}
             >
             </IonInput>   
-            <div className="eye-icon" slot="end">                
+            <div className="button-icon" slot="end">                
             <IonIcon onClick={()=>setShowPassword(!showPassword)} slot="end" icon={eyeOutline}>
             </IonIcon> 
             </div>         

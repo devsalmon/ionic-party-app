@@ -111,7 +111,7 @@
     text-align: center;    
 }
 
-.eye-icon {
+.button-icon {
     margin: 0;
     position: relative;
     top: 50%;
@@ -311,14 +311,15 @@
 }
 
 #signin-content .signin-inputs {
-    padding: 2%;
+    padding-bottom: 2%;
+    padding-left: 2%;
+    padding-right: 2%;
     text-align: center
 }
 
 #signin-content ion-item {
     border: 2px yellow solid;
     border-radius: 5px;
-    margin-top: 10%;
     margin-bottom: 10%
 }
 
@@ -393,7 +394,7 @@ ion-card-title {
 }
 
 ion-card-subtitle {
-    color: yellow;
+    color: yellow
 }
 
 ion-content {
@@ -401,9 +402,6 @@ ion-content {
     --padding-top: 2%;
     --padding-bottom: 2%;
     text-align: center;
-    --padding-top: 5px;
-    text-align: center;
-    margin-bottom: var(--ion-safe-area-bottom);
 }
 
 ion-footer {
@@ -448,6 +446,10 @@ ion-label {
     --color: yellow;   
 }
 
+ion-list {
+    margin-bottom: 50%
+}
+
 .item-has-focus .label-floating.sc-ion-label-md-h {
     color: yellow
 }
@@ -471,18 +473,9 @@ ion-refresher-content {
     color: white;
     --color: white;
 }
-    
-ion-slides {
-    height: 200%
-}
 
 .sign-up-slides {
     height: 100%
-}
-
-.swiper-slide {
-    overflow-y: scroll;
-    display: block;
 }
 
 ion-text {

@@ -459,7 +459,7 @@ const MyPartyList = () => {
 
         <div id="myPartiesPage">
           <IonHeader>
-          <IonToolbar>
+          <IonToolbar class="ion-padding">
             <IonTitle class="ion-padding">My Parties</IonTitle>
           </IonToolbar>
           <IonToolbar class="myparties-toolbar">

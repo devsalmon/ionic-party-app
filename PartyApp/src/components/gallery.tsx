@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import {useCollection} from 'react-firebase-hooks/firestore';
 import { useDoubleTap } from 'use-double-tap';
 import {
@@ -12,6 +12,7 @@ import {
   IonButton,
   IonContent,
   IonImg,
+  IonList,
   IonCol,
   IonInput,
   IonText,
@@ -93,7 +94,7 @@ const Gallery = ({hostid, partyid}) => {
     // and for each document, we create a picture card, 
     // passing through the document and doc.id to the picture function
     return(   
-      <IonContent>
+      <IonContent fullscreen={true}>
           <IonCard class="gallery-card">
             <IonCardHeader>
               <IonCardTitle>{title}</IonCardTitle><br/>         
@@ -116,11 +117,13 @@ const Gallery = ({hostid, partyid}) => {
             }                  
             </IonCardContent>
           </IonCard>
+          <IonList>
           {value && value.docs.map((doc, i) => {
             return( !loading &&
               <Picture doc={doc} hostid={hostid} partyid={partyid} key={i}/> 
             )
-          })}         
+          })} 
+          </IonList>        
       </IonContent>
     )
   } 
@@ -153,6 +156,8 @@ const Picture = ({doc, hostid, partyid}) => {
     checkOwnPicture();
     displayComments();
   }, []);
+
+  const inputEl = useRef(null);
 
   const checkOwnPicture = () => {
     // function to check if the picture was taken by the current user
@@ -286,6 +291,10 @@ const Picture = ({doc, hostid, partyid}) => {
     })
   }    
 
+  const scrollContentUp = () => {
+    inputEl.current.scrollIntoView({behavior: "smooth", block: "center"});
+
+  }
 
   return(
     <IonCard class="picture-card">
@@ -315,17 +324,23 @@ const Picture = ({doc, hostid, partyid}) => {
         return(<Comment key={i} name={comment.name} comment={comment.comment} comid={comment.id} colref={collectionRef} picid={doc.id} deleteComment={() => deleteComment(comment.id)}/>)
       })}
       <IonRow>
-      <IonInput 
-        class="create-input ion-padding-start" 
-        value={comment} 
-        placeholder="Comment"
-        type="text"
-        onIonChange={e => setComment(e.detail.value!)}>
+
+      <IonItem lines="none">           
+        <IonInput 
+          ref={inputEl}
+          class="create-input ion-padding-start" 
+          value={comment} 
+          placeholder="Comment"
+          type="text"
+          onIonChange={e => setComment(e.detail.value!)}
+          onIonFocus={() => scrollContentUp()}>
+        </IonInput>  
         {comment.trim() !== '' ? /*only show send button when there is text in the comment area */
-        <IonButton onClick={writeComments}>
-          <IonIcon slot="icon-only" icon={sendOutline} />
-        </IonButton> : null} 
-      </IonInput>  
+        <div className="eye-icon" slot="end">
+          <IonIcon onClick={writeComments} slot="end" icon={sendOutline} />
+        </div> : null}                    
+      </IonItem>
+
       </IonRow>
       <IonPopover
         cssClass="popover"        
