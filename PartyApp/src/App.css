@@ -202,6 +202,15 @@
     --width: 80%
 }
 
+.party-title {
+    margin-bottom: 3%;
+    background: linear-gradient(to right, transparent, yellow, transparent);    
+}
+
+.photo-grid {
+    margin-right: 2%
+}
+
 .picker-opt {
     color: white;
 }
@@ -279,6 +288,7 @@
     --clear-button-color: red;
     --icon-color: black;
     --placeholder-color: black;
+    --color: black
 }
 
 .signin-button {
@@ -390,7 +400,10 @@ ion-content {
     --background: transparent;
     --padding-top: 2%;
     --padding-bottom: 2%;
-    text-align: center
+    text-align: center;
+    --padding-top: 5px;
+    text-align: center;
+    margin-bottom: var(--ion-safe-area-bottom);
 }
 
 ion-footer {

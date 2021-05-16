@@ -321,9 +321,9 @@ const Picture = ({doc, hostid, partyid}) => {
         placeholder="Comment"
         type="text"
         onIonChange={e => setComment(e.detail.value!)}>
-        {comment ? /*only show send button when there is text in the comment area */
+        {comment.trim() !== '' ? /*only show send button when there is text in the comment area */
         <IonButton onClick={writeComments}>
-        <IonIcon slot="icon-only" icon={sendOutline} />
+          <IonIcon slot="icon-only" icon={sendOutline} />
         </IonButton> : null} 
       </IonInput>  
       </IonRow>

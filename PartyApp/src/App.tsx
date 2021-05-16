@@ -56,7 +56,7 @@ import {
   PushNotificationSchema,
   PushNotifications,
 } from '@capacitor/push-notifications';
-import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
+import { Camera, CameraResultType, CameraSource, CameraDirection } from '@capacitor/camera';
 
 import './App.css';
 import firebase from './firestore';
@@ -126,18 +126,19 @@ const Party = ({id, data, live, edit}) => {
     }
   }  
 
-  // TODO - add IOS AND ANDROID permissions from pwa elements
   const takePhoto = async() => {
     const cameraPhoto = await Camera.getPhoto({
       resultType: CameraResultType.Base64,
       source: CameraSource.Camera,
-      quality: 30,
-      correctOrientation: true,
+      quality: 90,
+      height: 1000,
+      width: 1000,
+      preserveAspectRatio: true,
+      direction: CameraDirection.Front,
       saveToGallery: true
     });
     var photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`;
     setPhoto(photo);  
-    console.log(photo)
   }    
 
   // const takeVideo = async () => {
@@ -169,13 +170,14 @@ const Party = ({id, data, live, edit}) => {
 
   return(
     <>
+    <div className="party-title">
     {moment().isBetween(moment(data.endTime), moment(data.endTime).add(20, 'hours')) ? 
     <IonCardTitle class="live-title">After Party</IonCardTitle> :
-    live ? <IonCardTitle class="live-title">Live!</IonCardTitle> : 
+    live ? <IonCardTitle class="live-title">Live Party</IonCardTitle> : 
     <div className="ion-text-center">
-      <IonText>{timeUntil}</IonText>
+      <IonText class="black-text">{timeUntil}</IonText>
     </div>}
-    <br/>
+    </div>
     <IonItem className={!live ? "accordion-item" :"accordion-live-item"} lines="none">
       <IonGrid>
         <IonRow>
@@ -193,21 +195,21 @@ const Party = ({id, data, live, edit}) => {
         <IonRow className="ion-text-center">
             {currentUser === data.hostid ?  
               <IonCol className="ion-align-self-center">
-              <IonButton color="warning" onClick={edit}>
+              <IonButton color="dark" onClick={edit}>
                 <IonIcon slot="icon-only" icon={createOutline} />
               </IonButton>
               </IonCol>
              : null
             }                  
           <IonCol className="ion-align-self-center">    
-            <IonButton color="warning" onClick={()=> setShowPopover(true)}>
+            <IonButton color="dark" onClick={()=> setShowPopover(true)}>
               <IonIcon slot="icon-only" src="assets/icon/balloon-outline.svg"/>
             </IonButton>
           </IonCol>
           {live ? 
           <>
           <IonCol className="ion-self-align-center"> 
-            <IonButton color="warning" onClick={() => takePhoto()}>
+            <IonButton color="dark" onClick={() => takePhoto()}>
               <IonIcon slot="icon-only" icon={cameraOutline} />      
             </IonButton>  
           </IonCol>         
@@ -215,7 +217,7 @@ const Party = ({id, data, live, edit}) => {
           : null}
         </IonRow> 
         {photo ?
-        <>         
+        <IonGrid class="photo-grid">         
         <IonRow  className="ion-text-center"> 
           <IonImg src={photo}></IonImg>
         </IonRow>     
@@ -234,7 +236,7 @@ const Party = ({id, data, live, edit}) => {
         <IonRow>
           <IonText>{pictureError}</IonText>
         </IonRow>
-        </> : null}  
+        </IonGrid> : null}  
         {videoUrls.map((video: any, key: any) => (
           <video controls key={key} width="100%" height="150px" src={video}></video>
         ))}

@@ -647,7 +647,7 @@ const MyPartyList = () => {
         >
           {friends.length > 0 ? 
           <IonList class="list">
-            <IonItem>
+            <IonItem lines="full">
               <IonText>{friend_no} Friends</IonText>
             </IonItem>
               {friends && friends.map((friend, k) => {

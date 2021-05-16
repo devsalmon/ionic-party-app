@@ -55,7 +55,7 @@ const Users: React.FC = () => {
     return(
       <IonPage>
         <IonToolbar>
-          <IonSearchbar class="searchbar" onIonChange={e => search(e.detail.value!)}></IonSearchbar>
+          <IonSearchbar inputmode="search" class="searchbar" onIonChange={e => search(e.detail.value!)}></IonSearchbar>
         </IonToolbar>
         <IonContent>    
             {hits && query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map((hit, i) => 
