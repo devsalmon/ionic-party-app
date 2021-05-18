@@ -30,7 +30,7 @@ import firebase from '../firestore'
 const Memory = ({notifications, id, data, click}) => {
   // party card  
   const [host, setHost] = useState('');
-
+ 
   useEffect(() => {
     firebase.firestore().collection("users").doc(data.hostid).get().then(doc => {
       setHost(doc.data().username)

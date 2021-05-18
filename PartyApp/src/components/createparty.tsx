@@ -293,8 +293,8 @@ const CreateParty = ({editingParty, displayParties}) => {
       <IonToolbar class="create-toolbar">
         {editingParty ? 
         <IonButtons slot="start" class="create-back-button">
-          <IonButton fill="clear" color="dark" href="/home">
-            <IonIcon slot="icon-only" icon={chevronBackSharp}></IonIcon>
+          <IonButton fill="clear" href="/home">
+            <IonIcon color="dark" slot="icon-only" icon={chevronBackSharp}></IonIcon>
           </IonButton> 
         </IonButtons> : null}            
         {editingParty ? 
@@ -322,7 +322,7 @@ const CreateParty = ({editingParty, displayParties}) => {
             <IonInput class="create-input" value={drinksProvided}  onIonChange={e => setDrinksProvided(e.detail.value!)} placeholder="Drinks Provided" clearInput></IonInput>  
           </IonItem>         
           <IonItem class="create-card-input" lines="none">
-            <IonLabel color="warning">Starts*</IonLabel>
+            <IonLabel>Starts*</IonLabel>
             <IonDatetime class="create-datetime" value={dateTime} onIonChange={e => startTime(e)} displayFormat="DD-MMM HH:mm" placeholder="select"></IonDatetime>
           </IonItem>
           <IonItem class="create-card-input" lines="none">
@@ -409,12 +409,12 @@ const CreateParty = ({editingParty, displayParties}) => {
       </IonModal>  
 
       <IonPopover
-        cssClass="create-popover"        
+        cssClass="popover"        
         isOpen={showToast}
         onDidDismiss={() => setShowToast(false)}
       >
         <div className="ion-text-center">
-        <IonButton class="create-popover" href="/home">
+        <IonButton href="/home">
           Party Created! <br/> Click here to see it
         </IonButton>   
         </div>

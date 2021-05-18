@@ -618,7 +618,7 @@ const MyPartyList = () => {
           class="create-input" 
           value={oldPassword} 
           onIonChange={e => setOldPassword(e.detail.value!)} 
-          placeholder="Enter password to delete account" clearInput>            
+          placeholder="Enter password to confirm">            
           </IonInput>    
           <IonText>{passwordError}</IonText><br/>
           <IonButton onClick={()=>setDeleteAccPopover(false)}>
@@ -674,7 +674,7 @@ const MyPartyList = () => {
         <IonPopover
           id="popover" 
           cssClass="popover"        
-          isOpen={accountDeleted}
+          isOpen={accountDeleted} 
           onDidDismiss={() => setAccountDeleted(false)}        
         >
         <IonText>Account Deleted</IonText>

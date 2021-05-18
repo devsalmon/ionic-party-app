@@ -472,14 +472,14 @@ const SignUp: React.FC = () => {
     } else {
       setEmail_or_phone(val)
     }   
-  }  
+  }   
 
   return (
     <IonPage>
       <IonToolbar class="ion-padding-top">
           {lastSlide ? null :
         <IonButtons slot="start">
-          <IonBackButton text="" color="warning" defaultHref="/welcomepage" />
+          <IonBackButton class="signup-back-button" text="" defaultHref="/welcomepage" />
         </IonButtons>}
         <IonTitle class="ion-padding">Sign Up</IonTitle> 
         {lastSlide ? null : <IonButtons slot="end">

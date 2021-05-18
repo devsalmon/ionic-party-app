@@ -46,7 +46,7 @@ const Users: React.FC = () => {
     const result = await index.search(query);
     setHits(result.hits);
     setQuery(query)    
-  }
+  } 
 // when current user searches for friend, create doc in friend requests with sender's id (current user's id),
 // and add the reciever's id to the current user's request to array. Once this is done successfully, create doc with
 // reciever's id and add current user's id (the sender's id) to the request from array. Next see do refresh.

@@ -8,7 +8,7 @@ import {
   IonButtons, 
   IonIcon,
   IonTitle,
-  IonInput, 
+  IonInput,  
   IonText,
   IonLoading,
   IonSlides,

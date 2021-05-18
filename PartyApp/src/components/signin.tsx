@@ -199,7 +199,7 @@ const SignIn: React.FC = () => {
 
       <IonToolbar class="ion-padding">
         <IonButtons slot="start">
-          <IonBackButton text="" color="warning" defaultHref="/welcomepage" />
+          <IonBackButton class="signup-back-button" text="" defaultHref="/welcomepage" />
         </IonButtons>
         <IonTitle class="ion-padding">Sign In</IonTitle>
         <IonButtons slot="end">

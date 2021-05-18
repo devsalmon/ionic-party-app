@@ -3,15 +3,15 @@ http://ionicframework.com/docs/theming/ */
 
 /** Ionic CSS Variables **/
 @font-face {
-  font-family: helvetica; /* not actually helvetica */ 
+  font-family: zurich; /* not actually helvetica */ 
   src: url("font/Zurich BT.ttf")
 }
 
 :root {  
 
-  --ion-font-family: helvetica;  
+  --ion-font-family: zurich;  
   /* Set the background of the entire app */
-  --ion-background-color: black;
+  --ion-background-color: #0f0e0e;
   --ion-background-color-rgb: 0, 0, 0;
 
   /** primary **/
@@ -47,7 +47,7 @@ http://ionicframework.com/docs/theming/ */
   --ion-color-success-tint: #42d77d;
 
   /** warning **/
-  --ion-color-warning: yellow;
+  --ion-color-warning: #ffd046;
   --ion-color-warning-rgb: 255, 196, 9;
   --ion-color-warning-contrast: #000000;
   --ion-color-warning-contrast-rgb: 0, 0, 0;
@@ -55,7 +55,7 @@ http://ionicframework.com/docs/theming/ */
   --ion-color-warning-tint: #ebb813;
 
   /** danger **/
-  --ion-color-danger: red;
+  --ion-color-danger: #d62839;
   --ion-color-danger-rgb: 235, 68, 90;
   --ion-color-danger-contrast: #ffffff;
   --ion-color-danger-contrast-rgb: 255, 255, 255;
@@ -63,7 +63,7 @@ http://ionicframework.com/docs/theming/ */
   --ion-color-danger-tint: #ed576b;
 
   /** dark **/
-  --ion-color-dark: black;
+  --ion-color-dark: #0f0e0e;
   --ion-color-dark-rgb: 34, 36, 40;
   --ion-color-dark-contrast: #ffffff;
   --ion-color-dark-contrast-rgb: 255, 255, 255;
@@ -79,7 +79,7 @@ http://ionicframework.com/docs/theming/ */
   --ion-color-medium-tint: #9d9fa6;
 
   /** light **/
-  --ion-color-light: #f4f5f8;
+  --ion-color-light: #ddf0ff;
   --ion-color-light-rgb: 244, 245, 248;
   --ion-color-light-contrast: #000000;
   --ion-color-light-contrast-rgb: 0, 0, 0;
@@ -108,7 +108,7 @@ http://ionicframework.com/docs/theming/ */
 
   .top-icons, .profile-icon {
     font-size: 55px; 
-    color: yellow
+    color: #ffe046
   }    
 
   .white-text, black-text {
@@ -168,7 +168,7 @@ http://ionicframework.com/docs/theming/ */
 
   .top-icons, .profile-icon {
     font-size: 65px; 
-    color: yellow
+    color: #ffe046
   }    
 
   .white-text, black-text {
@@ -228,7 +228,7 @@ http://ionicframework.com/docs/theming/ */
 
   .top-icons, .profile-icon {
     font-size: 90px; 
-    color: yellow
+    color: #ffe046
   }    
 
   .white-text, black-text {
@@ -292,7 +292,7 @@ http://ionicframework.com/docs/theming/ */
 
   .top-icons, .profile-icon {
     font-size: 90px; 
-    color: yellow
+    color: #ffe046
   }    
 
   .white-text, black-text {
@@ -372,7 +372,7 @@ http://ionicframework.com/docs/theming/ */
     --ion-color-success-shade: #29c467;
     --ion-color-success-tint: #44e283;
 
-    --ion-color-warning: #ffd534;
+    --ion-color-warning: #ffd046;
     --ion-color-warning-rgb: 255,213,52;
     --ion-color-warning-contrast: #000000;
     --ion-color-warning-contrast-rgb: 0,0,0;
@@ -417,7 +417,7 @@ http://ionicframework.com/docs/theming/ */
     --ion-background-color: #000000;
     --ion-background-color-rgb: 0,0,0;
 
-    --ion-text-color: yellow;
+    --ion-text-color: #ffe046;
 
     --ion-color-step-50: #0d0d0d;
     --ion-color-step-100: #1a1a1a;
@@ -451,10 +451,10 @@ http://ionicframework.com/docs/theming/ */
    */
 
   .md body {
-    --ion-background-color: black;
+    --ion-background-color: #0f0e0e;
     --ion-background-color-rgb: 0, 0, 0;
 
-    --ion-text-color: yellow;
+    --ion-text-color: #ffe046;
 
     --ion-border-color: #020101;
 

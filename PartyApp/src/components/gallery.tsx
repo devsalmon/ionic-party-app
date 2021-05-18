@@ -246,7 +246,7 @@ const Picture = ({doc, hostid, partyid}) => {
   )
 
   const removePicture = ownPicture ? (
-    <IonButton onClick={() => setDeletePhotoPopover(true)} fill="clear" color="warning">
+    <IonButton onClick={() => setDeletePhotoPopover(true)} fill="clear">
       <IonIcon icon={trashSharp}/>
     </IonButton>
   ) : null 
@@ -312,11 +312,11 @@ const Picture = ({doc, hostid, partyid}) => {
         {likeButton}    
         {removePicture}
         {showComments ? 
-        <IonButton onClick={()=>setShowComments(false)} fill="clear" color="warning">
+        <IonButton onClick={()=>setShowComments(false)} fill="clear">
           Hide comments
         </IonButton>    
         : otherComments.length > 0 ?
-        <IonButton onClick={()=>setShowComments(true)} fill="clear" color="warning">
+        <IonButton onClick={()=>setShowComments(true)} fill="clear">
           See comments
         </IonButton> : null}
       </IonRow>

@@ -223,12 +223,12 @@ const Party = ({id, data, live, edit}) => {
         </IonRow>     
         <IonRow  className="ion-text-center">
           <IonCol>
-          <IonButton color="warning" onClick={() => onSave()}>
+          <IonButton onClick={() => onSave()}>
             Share      
           </IonButton>
           </IonCol>
           <IonCol className="ion-align-self-center">
-          <IonButton color="warning" onClick={() => setPhoto('')}>
+          <IonButton onClick={() => setPhoto('')}>
             Cancel
           </IonButton> 
           </IonCol>           
@@ -278,7 +278,7 @@ const Party = ({id, data, live, edit}) => {
 // when party is created and invites are sent, each user invited gets the party id added to their document.
 // Each user then checks their document for parties and then if there is a new party id, this is then checked
 // against the same id in the parties collection in order to display all the details.
-const PartyList = ({editParty, stopEditing}) => {
+const Home: React.FC = () => {
 
   // for friend request bit.
   const collectionRef = firebase.firestore().collection("friend_requests"); 
@@ -467,15 +467,25 @@ const PartyList = ({editParty, stopEditing}) => {
 
   const location = useLocation();
 
-  if (editingParty) {
-    editParty();
+  if (editingParty !== "") {
     return(
       <CreateParty editingParty={editingParty} displayParties={() => displayParties()}/>
     )
-  } else {
-    stopEditing();
-    
-    return(    
+  } else {    
+    return(  
+      <IonPage>  
+      <IonHeader>
+      <IonToolbar class="ion-padding">      
+        <IonTitle class="ion-padding">
+          Upcoming Parties
+        </IonTitle>
+        <IonButtons slot="end">
+          <IonButton href='/users'>
+            <IonIcon class="top-icons" slot="icon-only" icon={personAddSharp} />
+          </IonButton>       
+        </IonButtons>                     
+      </IonToolbar>
+      </IonHeader>      
       <IonContent fullscreen={true} no-bounce>
         <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
           <IonRefresherContent
@@ -521,7 +531,8 @@ const PartyList = ({editParty, stopEditing}) => {
             <Party key={l} id={party.id} data={party.data} live={false} edit={() => setEditingParty(party.data)}/>
           );                
         })}  
-      </IonContent>   
+      </IonContent>         
+      </IonPage>
       )
   }
 }
@@ -739,32 +750,6 @@ const MyParties: React.FC = () => {
   return(
     <IonPage>
       <MyPartyList />
-        {/* to allow for last item in list to be clicked (otherwise it's covered by tabbar) */}
-        <br/> <br/> <br/> <br/> <br/> <br/>
-    </IonPage>
-  )
-}
-const Home: React.FC = () => {
-
- const [editing, setEditing] = useState(false);
- 
-  return(
-    <IonPage>
-      {editing ? null : 
-      <IonHeader>
-      <IonToolbar class="ion-padding">      
-        <IonTitle class="ion-padding">
-          Upcoming Parties
-        </IonTitle>
-        <IonButtons slot="end">
-          <IonButton color="warning" href='/users'>
-            <IonIcon class="top-icons" slot="icon-only" icon={personAddSharp} />
-          </IonButton>       
-        </IonButtons>                     
-      </IonToolbar>
-      </IonHeader>}
-      <PartyList editParty={() => setEditing(true)} stopEditing={()=>setEditing(false)}/>
-      <br/> <br/> <br/> <br/> <br/> <br/>
     </IonPage>
   )
 }

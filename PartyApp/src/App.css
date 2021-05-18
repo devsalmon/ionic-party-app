@@ -7,67 +7,69 @@
 }
 
 .accordion-item {
-    border-top: 2px solid yellow;
-    border-bottom: 2px solid yellow;
+    border-top: 2px solid #ffd046;
+    border-bottom: 2px solid #ffd046;
 }
 
 .accordion-live-item {
-    border-top: 2px solid yellow;
-    border-bottom: 2px solid yellow;
-    background-image: linear-gradient(to top left, red, black);
+    border-top: 2px solid #ffd046;
+    border-bottom: 2px solid #ffd046;
+    background-image: linear-gradient(to top left, #d62839, black);
 }
 
 .accordion-profile {
-    border-top: 3px solid yellow;
-    border-bottom: 3px solid yellow;         
-    background-image: linear-gradient(to top left, red, black);
+    border: 3px solid #ffd046;
+    border-radius: 10px;         
+    background-image: linear-gradient(to top left, #d62839, black);
 }
 
 .black-text {
-    color: black;
+    color: #0f0e0e;
     font-weight: bold;
 }
 
 .custom-button {
-    --background: yellow; 
-    color: black;
+    --background: #ffd046; 
+    color: #0f0e0e;
     --background-activated: transparent;
     font-weight: bold;
     font-size: 18px;
     --background-hover-opacity: 0.3;
     width: 100%;
     height: 50px;    
-    text-align: center;    
+    text-align: center;  
+    border-radius: 10px  
 }
 
 .create-back-button {
     position: absolute
 }
 
-
 .create-button {
-    --background: black; 
-    color: yellow;
+    --background: #0f0e0e; 
+    color: #ffd046;
     --background-activated: transparent;
     font-weight: bold;
     font-size: 18px;
     width: 100%;
     height: 50px;    
     text-align: center;
+    border-radius: 10px;
+    text-transform: none
 }
 
 .create-card {
     margin-top: 15px;
-    box-shadow: 4px 4px 5px black;
+    box-shadow: 4px 4px 5px #0f0e0e;
 }
 
 .create-card-input {
     --highlight-height: 0;    
-    --background: black;
+    --background: #0f0e0e;
 }
 
 .create-content {
-    --background: yellow;
+    --background: #ffd046;
     text-align: center;
     --padding-start: 15px;
     --padding-end: 15px;
@@ -75,25 +77,25 @@
 }
 
 .create-datetime {
-    --placeholder-color: yellow;
-    color: yellow;
+    --placeholder-color: #ffd046;
+    color: #ffd046;
 }
 
 .create-input {
-    --color: yellow;
-    --placeholder-color: yellow;
+    --color: #ffd046;
+    --placeholder-color: #ffd046;
     --placeholder-font-weight: bold;
 }
 
 .create-popover {
     --background: transparent;
-    color:yellow;
+    color:#ffd046;
     font-weight: bold;
     --backdrop-opacity: 0.9;    
 }
 
 .create-toolbar {
-    --background: yellow
+    --background: #ffd046
 }
 
 .day-text {
@@ -101,14 +103,16 @@
 }
 
 .delete-button {
-    --background: black; 
-    color: red;
+    --background: #0f0e0e; 
+    color: #d62839;
     --background-activated: transparent;
     font-weight: bold;
     font-size: 18px;
     width: 100%;
     height: 50px;    
-    text-align: center;    
+    text-align: center; 
+    border-radius: 10px;
+    text-transform: none  
 }
 
 .button-icon {
@@ -120,17 +124,17 @@
 }
 
 .errormsg {
-    color: white;
+    color: #e9e3e6;
     font-size: 15px!;
     text-align: center;
 }
 
 .friend-request-card .invite-card {
-    border: 2px solid red
+    border: 2px solid #d62839
 }
 
 .gallery-card {
-    border: 2px solid yellow;
+    border: 2px solid #ffd046;
     border-radius: 10px;    
 }
 
@@ -148,30 +152,30 @@
 
 .like-panel {
     position: absolute;
-    color: yellow;
+    color: #ffd046;
     --ripple-color: transparent;
     right: 5px;
     font-size: 10px;  
 }
 
 .list {
-    background-color: black;
+    background-color: #0f0e0e;
 }
 
 .loading {
     --background: none;
-    --spinner-color: yellow; 
-    color: yellow;
+    --spinner-color: #ffd046; 
+    color: #ffd046;
 }
 
 .live-title {
-    color: red;
+    color: #d62839;
 }
 
 .myparties-toolbar {
     padding: 0px;
-    --padding-end: 0px;
-    --padding-start: 0px
+    --padding-end: 2%;
+    --padding-start: 2%
 }
 
 .modal {
@@ -182,7 +186,7 @@
 .notification-dot {
     height: 12px;
     width: 12px;
-    background-color: red;
+    background-color: #d62839;
     border-radius: 50%;
     /*animation: blinker 3s linear infinite; */
     margin-bottom: 3px;
@@ -196,44 +200,56 @@
   
 
 .party-details-popover {
-    --background: red;
-    color: red;
+    --background: #d62839;
+    color: #d62839;
     --backdrop-opacity: 0.9;
     --width: 80%
 }
 
 .party-title {
     margin-bottom: 3%;
-    background: linear-gradient(to right, transparent, yellow, transparent);    
+    background: linear-gradient(to right, transparent, #ffd046, transparent);    
 }
 
 .photo-grid {
     margin-right: 2%
 }
 
+.picker-button.sc-ion-picker-ios, .picker-button.ion-activated.sc-ion-picker-ios {
+    color: #ffd046
+}
+
+.picker-button.sc-ion-picker-md, .picker-button.ion-activated.sc-ion-picker-md {
+    color: #ffd046
+}
+
+.picker-prefix, .picker-suffix, .picker-opt.picker-opt-selected {
+    color: #ffd046
+}
+
 .picker-opt {
-    color: white;
+    color: #e9e3e6;
 }
 
 .picture-card {
-    border: 2px solid yellow;
+    border: 2px solid #ffd046;
     border-radius: 10px;    
 }
 
 .popover {
-    --background: black;
-    color: black;
+    --background: #0f0e0e;
+    color: #0f0e0e;
     text-align: center;
-    --backdrop-opacity: 0.9;
+    --backdrop-opacity: 0.9;        
 }
 
-.popover-viewport .sc-ion-popover-ios {
-    border:  3px solid yellow;
+.popover-viewport {
+    padding: 4%
 }
 
 .profile-button {
-    --background: yellow; 
-    color: black;
+    --background: #ffd046; 
+    color: #0f0e0e;
     font-weight: bold;
     --background-hover-opacity: 0.3;
     width: 50px;
@@ -247,7 +263,7 @@
 }
 
 .red-date-box {
-    border: 4px double red;    
+    border: 4px double #d62839;    
     border-radius: 5px;
     text-align: center;
     margin: auto
@@ -255,9 +271,10 @@
 
 .radio-buttons {
     border: solid;
+    border-radius: 10px;
     border-width: 3px;
-    border-color: yellow;
-    color: yellow;
+    border-color: #ffd046;
+    color: #ffd046;
 }
 
 .refresh-toast {
@@ -271,38 +288,42 @@
 .rounded-top {
     --border-radius: 10px 10px 0 0;
     --highlight-height: 0;
-    --background: black;
+    --background: #0f0e0e;
 }
 
 .rounded-bottom {
     --border-radius: 0 0 10px 10px;
     --highlight-height: 0;
-    --background: black;  
+    --background: #0f0e0e;  
 }
 
 .searchbar {
     margin-top: 4%;
-    --background: yellow;
+    --background: #ffd046;
     --border-radius: 10px;
-    --cancel-button-color: red;
-    --clear-button-color: red;
-    --icon-color: black;
-    --placeholder-color: black;
-    --color: black
+    --cancel-button-color: #d62839;
+    --clear-button-color: #d62839;
+    --icon-color: #0f0e0e;
+    --placeholder-color: #0f0e0e;
+    --color: #0f0e0e
 }
 
 .signin-button {
-    --background: yellow; 
-    color: black;
+    --background: #ffd046; 
+    color: #0f0e0e;
     --background-activated: transparent;
     font-weight: bold;
     font-size: 18px;
     --background-hover-opacity: 0.3;
-    --border-radius: 0px;    
+    --border-radius: 10px;    
     --background-activated: transparent;
     width: 90%;
     height: 50px;    
     text-align: center;  
+}
+
+.signup-back-button {
+    color: #ffd046
 }
 
 /* //hides recapthca badge */
@@ -318,7 +339,7 @@
 }
 
 #signin-content ion-item {
-    border: 2px yellow solid;
+    border: 2px #ffd046 solid;
     border-radius: 5px;
     margin-bottom: 10%
 }
@@ -331,7 +352,7 @@
 
 .swiper-pagination {
     position: absolute;
-    color: yellow
+    color: #ffd046
 }
 
 .welcome-page-content {
@@ -346,33 +367,33 @@
 
 .white-text {
     font-weight: bold;
-    color: white;
+    color: #e9e3e6;
 }
 
 .yellow-text {
-    color: yellow
+    color: #ffd046
 }
 
 .yellow-date-box {
-    border: 2px solid yellow;    
+    border: 2px solid #ffd046;    
     border-radius: 5px;
     text-align: center;
     margin: auto
 }
 
 ion-button {
-    --color: yellow;
-    --color-activated: black;
-    --background: black;
+    --color: #ffd046;
+    --color-activated: #0f0e0e;
+    --background: #0f0e0e;
     --background-activated-opacity: 0.5;
     --background-activated: transparent;
     --background-hover-opacity: 0.3;
 }
 
 ion-buttons {
-    --background: yellow;
+    --background: #ffd046;
     --background-hover-opacity: 0.3;
-    color: yellow
+    color: #ffd046
 } 
 
 ion-card {
@@ -389,12 +410,12 @@ ion-card-content {
 }
 
 ion-card-title {
-    color: yellow;
+    color: #ffd046;
     text-align: center;
 }
 
 ion-card-subtitle {
-    color: yellow
+    color: #ffd046
 }
 
 ion-content {
@@ -406,7 +427,7 @@ ion-content {
 
 ion-footer {
     padding: 20px;
-    background-color: black;
+    background-color: #0f0e0e;
 }
 
 ::-webkit-scrollbar {
@@ -414,7 +435,7 @@ ion-footer {
 }
 
 ion-icon {
-    color:yellow
+    color:#ffd046
 }
 
 ion-input {
@@ -432,18 +453,18 @@ textarea:-webkit-autofill:focus,
 select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
-    -webkit-text-fill-color: yellow;
-    -webkit-box-shadow: 0 0 0px 1000px #000 inset;
-    box-shadow: 0 0 0px 1000px #000 inset;
+    -webkit-text-fill-color: #ffd046;
+    -webkit-box-shadow: 0 0 0px 1000px #0f0e0e inset;
+    box-shadow: 0 0 0px 1000px #0f0e0e inset;
 }
 
 ion-item {
     --background: transparent;
-    --ion-text-color: yellow;
+    --ion-text-color: #ffd046;
 }
 
 ion-label {
-    --color: yellow;   
+    --color: #ffd046;   
 }
 
 ion-list {
@@ -451,27 +472,27 @@ ion-list {
 }
 
 .item-has-focus .label-floating.sc-ion-label-md-h {
-    color: yellow
+    color: #ffd046
 }
 
 ion-radio {
-    --color: yellow;
-    --color-checked: yellow;    
+    --color: #ffd046;
+    --color-checked: #ffd046;    
 }
 
 ion-range {
-    --bar-background: yellow;
-    --knob-background: yellow;
+    --bar-background: #ffd046;
+    --knob-background: #ffd046;
     --knob-size: 20px;
-    --bar-background-active: yellow;
+    --bar-background-active: #ffd046;
     --bar-height: 3px;
     --height: 3px;
     --knob-border-radius: 0px;
 }
 
 ion-refresher-content {
-    color: white;
-    --color: white;
+    color: #e9e3e6;
+    --color: #e9e3e6;
 }
 
 .sign-up-slides {
@@ -479,21 +500,21 @@ ion-refresher-content {
 }
 
 ion-text {
-    color: yellow; 
+    color: #ffd046; 
     font-weight: bold;
 }
 
 ion-tab-button {
     --background: transparent;
-    --color: black;
-    --color-selected: white;
+    --color: #0f0e0e;
+    --color-selected: #e9e3e6;
     font-weight: bold;
     --padding-bottom: 0px;
 }  
 
 ion-tab-bar {
     --border: none;
-    background: linear-gradient(transparent 5%, 70%, yellow);    
+    background: linear-gradient(transparent 5%, 70%, #ffd046);    
     opacity: 1;
     height: 120px;
     text-transform: uppercase; 
@@ -508,22 +529,22 @@ ion-tab-bar {
 ion-title {
     text-align: center;
     font-weight: bold;
-    --color: yellow;
+    --color: #ffd046;
   }
   
 ion-toolbar {
     padding: 16px;
-    --background: black;    
+    --background: #0f0e0e;    
 }
 
 .PhoneInputInput {
-    background-color: black;
-    color: yellow;
+    background-color: #0f0e0e;
+    color: #ffd046;
     border: none;
 }
 
 .PhoneInputCountry {
-    background-color: white;
+    background-color: #e9e3e6;
     padding: 5px;
 }
 
