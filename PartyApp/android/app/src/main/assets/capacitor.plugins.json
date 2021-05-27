@@ -6,9 +6,5 @@
 	{
 		"pkg": "@capacitor/push-notifications",
 		"classpath": "com.capacitorjs.plugins.pushnotifications.PushNotificationsPlugin"
-	},
-	{
-		"pkg": "capacitor-firebase-auth",
-		"classpath": "com.baumblatt.capacitor.firebase.auth.CapacitorFirebaseAuth"
 	}
 ]

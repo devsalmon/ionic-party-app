@@ -86,7 +86,7 @@ const Party = ({id, data, live, edit}) => {
   const [showPopover, setShowPopover] = useState(false);
   const [pictureUploading, setPictureUploading] = useState(false);
   const [photo, setPhoto] = useState('');
-  const [videoUrls, setVideoUrls] = useState<any[]>([]);
+  //const [videoUrls, setVideoUrls] = useState<any[]>([]);
   const [timeUntil, setTimeUntil] = useState("");
   const [host, setHost] = useState('');
   const [pictureError, setPictureError] = useState('');
@@ -237,9 +237,9 @@ const Party = ({id, data, live, edit}) => {
           <IonText>{pictureError}</IonText>
         </IonRow>
         </IonGrid> : null}  
-        {videoUrls.map((video: any, key: any) => (
+        {/* {videoUrls.map((video: any, key: any) => (
           <video controls key={key} width="100%" height="150px" src={video}></video>
-        ))}
+        ))} */}
       </IonGrid>   
       <IonPopover
         cssClass="party-details-popover"        
@@ -486,7 +486,7 @@ const Home: React.FC = () => {
         </IonButtons>                     
       </IonToolbar>
       </IonHeader>      
-      <IonContent fullscreen={true} no-bounce>
+      <IonContent fullscreen={true} class="home-content">
         <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
           <IonRefresherContent
             pullingIcon={chevronDownCircleOutline}
@@ -848,7 +848,6 @@ const App: React.FC = () => {
     PushNotifications.addListener(
       'registration',
       (token) => {
-        alert('Push registration success, token: ' + token.value);
         return firebase.firestore().collection("users").doc(userid).update({
           deviceToken: token.value
         })            
@@ -856,20 +855,20 @@ const App: React.FC = () => {
     );
 
     PushNotifications.addListener('registrationError', (error: any) => {
-      alert('Error on registration: ' + JSON.stringify(error));
+      console.log('Error on registration: ' + JSON.stringify(error));
     });
 
     PushNotifications.addListener(
       'pushNotificationReceived',
       (notification: PushNotificationSchema) => {
-        alert('Push received: ' + JSON.stringify(notification));
+        console.log('Push received: ' + JSON.stringify(notification));
       },
     );
 
     PushNotifications.addListener(
       'pushNotificationActionPerformed',
       (notification) => {
-        alert('Push action performed: ' + JSON.stringify(notification));
+        console.log('Push action performed: ' + JSON.stringify(notification));
       },
     );
   }

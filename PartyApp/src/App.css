@@ -73,7 +73,7 @@
     text-align: center;
     --padding-start: 15px;
     --padding-end: 15px;
-    --padding-bottom: 100px;
+    --padding-bottom: 30%;
 }
 
 .create-datetime {
@@ -332,6 +332,10 @@
 /* //hides recapthca badge */
 .grecaptcha-badge { 
     visibility: hidden;
+}
+
+.home-content {
+    --padding-bottom: 30%
 }
 
 #signin-content .signin-inputs {
