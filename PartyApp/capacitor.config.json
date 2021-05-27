@@ -3,7 +3,7 @@
   "appName": "Motive",
   "bundledWebRuntime": false,
   "npmClient": "npm",
-  "webDir": "build",
+  "webDir": "build",  
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 0,

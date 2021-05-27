@@ -38,13 +38,13 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import '../variables.css';
 
-declare global {
-  interface Window {
-    recaptchaVerifier:any;
-    recaptchaWidgetId:any;
-    confirmationResult:any;
-  }
-}
+// declare global {
+//   interface Window {
+//     recaptchaVerifier:any;
+//     recaptchaWidgetId:any;
+//     confirmationResult:any;
+//   }
+// }
 
 const SignUp: React.FC = () => {
 
@@ -70,11 +70,11 @@ const SignUp: React.FC = () => {
   const [fullnameError, setFullnameError] = useState('');
   const [usernameError, setUsernameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  const [phoneError, setPhoneError] = useState('');
+  //const [phoneError, setPhoneError] = useState('');
   const [dobError, setDobError] = useState('');
   const [fieldsMissing, setFieldsMissing] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [code, setCode] = useState('');
+  //const [code, setCode] = useState('');
   const [resendEmailPopover, setResendEmailPopover] = useState(false);
   const [lastSlide, setLastSlide] = useState(false);
   const slides = useRef(null);
@@ -83,23 +83,23 @@ const SignUp: React.FC = () => {
   useEffect(() => {  
     clearErrors(); 
     hideBtnsCheck();
-     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
-       'size': 'invisible',
-       'callback': (response) => {
-         // reCAPTCHA solved, allow signInWithPhoneNumber.
-         console.log("Response: " + response)
-         //signUpEmailorPhoneandVerify()
-         //phoneSignUp()
-         //phoneNumberAuth()
-       },
-       'expired-callback': () => {
-         // Response expired. Ask user to solve reCAPTCHA again.
-       }
-     });
+    //  window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
+    //    'size': 'invisible',
+    //    'callback': (response) => {
+    //      // reCAPTCHA solved, allow signInWithPhoneNumber.
+    //      console.log("Response: " + response)
+    //      //signUpEmailorPhoneandVerify()
+    //      //phoneSignUp()
+    //      //phoneNumberAuth()
+    //    },
+    //    'expired-callback': () => {
+    //      // Response expired. Ask user to solve reCAPTCHA again.
+    //    }
+    //  });
 
-     window.recaptchaVerifier.render().then(function (widgetId) {
-       window.recaptchaWidgetId = widgetId;   
-     }); 
+    //  window.recaptchaVerifier.render().then(function (widgetId) {
+    //    window.recaptchaWidgetId = widgetId;   
+    //  }); 
   }, []);  
 
   var actionCodeSettings = {
@@ -159,7 +159,7 @@ const SignUp: React.FC = () => {
     setUsernameError('');
     setPasswordError('');
     setDobError('');
-    setPhoneError('');      
+    //setPhoneError('');      
     setFieldsMissing(false);  
   }
 
@@ -168,17 +168,17 @@ const SignUp: React.FC = () => {
     return re.test(email);
   }  
 
-  const validatePhone = (num) => {
-    var re = new RegExp(/^\+?([0-9]{1,4})\)?[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})$/g);
-    if (num[0] === "0" && num[1] === "7") {
-      var temp = "+44" + num.slice(1);
-      setEmail_or_phone(temp)
-      console.log(temp)
-      return true 
-    } else {
-      return re.test(num);
-    }    
-  }  
+  // const validatePhone = (num) => {
+  //   var re = new RegExp(/^\+?([0-9]{1,4})\)?[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})$/g);
+  //   if (num[0] === "0" && num[1] === "7") {
+  //     var temp = "+44" + num.slice(1);
+  //     setEmail_or_phone(temp)
+  //     console.log(temp)
+  //     return true 
+  //   } else {
+  //     return re.test(num);
+  //   }    
+  // }  
 
   // Enter email/password, username and password.
   const slide0SignUp = async() => {
@@ -197,25 +197,26 @@ const SignUp: React.FC = () => {
         window.localStorage.setItem("email_or_phone", email_or_phone);
         window.localStorage.setItem("username", username);
         // check which sign up method to use        
-        if (validatePhone(email_or_phone)) { 
-          // it's a phone number                    
-          setSignUpMethod('phone')
-          window.localStorage.setItem("signUpMethod", "phone")
-          console.log("Sign up method (phone): " + signUpMethod)
-          signUpEmailorPhoneandVerify("phone")
-        } else if (validateEmail(email_or_phone)) {
+        // if (validatePhone(email_or_phone)) { 
+        //   // it's a phone number                    
+        //   setSignUpMethod('phone')
+        //   window.localStorage.setItem("signUpMethod", "phone")
+        //   console.log("Sign up method (phone): " + signUpMethod)
+        //   signUpEmailorPhoneandVerify("phone")
+        // } else 
+        //if (validateEmail(email_or_phone)) {
           // it's an email
           setSignUpMethod('email')
           window.localStorage.setItem("signUpMethod", "email")
           console.log("Sign up method (email): " + signUpMethod)
           signUpEmailorPhoneandVerify("email")
-        } else {
-          setEmailError(
-            "Invalid format for email or phone number. " +
-            "Please enter phone numbers in the form +447123456789 (for UK)"
-          )
-          setLoading(false)
-        }
+        // } else {
+        //   setEmailError(
+        //     "Invalid format for email or phone number. " +
+        //     "Please enter phone numbers in the form +447123456789 (for UK)"
+        //   )
+        //   setLoading(false)
+        // }
       }
     } else {
       setLoading(false);
@@ -228,9 +229,9 @@ const SignUp: React.FC = () => {
     if (method === "email") { // they want email sign up
       emailSignUp();
       //triggered 1
-    } else if (method === "phone") { // they want phone sign up
-      console.log("Triggered 1")
-      phoneSignUp();
+    // } else if (method === "phone") { // they want phone sign up
+    //   console.log("Triggered 1")
+    //   phoneSignUp();
     } else {   // they didn't enter either
       setPasswordError("Enter email or phone number");
       //We should check this field before?
@@ -245,6 +246,9 @@ const SignUp: React.FC = () => {
     clearErrors();
     console.log("Triggered 2")
     console.log("Email: " + email_or_phone)
+    if (firebase.auth().currentUser) {
+      nextSlide()
+    } else {
       firebase.auth().createUserWithEmailAndPassword(email_or_phone, password).then(user => {
         firebase.auth().signInWithEmailAndPassword(email_or_phone, password).then(res => {
           sendVerificationEmail(true);
@@ -268,6 +272,7 @@ const SignUp: React.FC = () => {
         }              
         goToSlide(0);
       });
+    }
   };   
 
   const sendVerificationEmail = (goToNextSlide) => {
@@ -317,100 +322,100 @@ const SignUp: React.FC = () => {
     });
   }
 
-  const phoneSignUp = async() => {
-    console.log("Triggered 2")
-    clearErrors();
-    setLoading(true);
-    const appVerifier = window.recaptchaVerifier;
-    if (firebase.auth().currentUser) {
-      firebase.auth().signOut().then(() => {
-        firebase.auth().signInWithPhoneNumber(email_or_phone, appVerifier)
-          .then((confirmationResult) => {
-            console.log("Triggered 3")
-            // SMS sent. Prompt user to type the code from the message, then sign the
-            // user in with confirmationResult.confirm(code).        
-            window.confirmationResult = confirmationResult;
-            //goToSlide(3);   
-            nextSlide();
-            console.log("Phone signed in: " + confirmationResult)
-          }).catch((error) => {
-            // Error SMS not sent phone number may be wrong
-            if (error.code === "auth/invalid-phone-number") {   
-              setLoading(false);           
-              setPhoneError(
-                "Invalid format for email or phone number. " +
-                "Please enter phone numbers in the form +447123456789 (for UK)"
-              )
-              goToSlide(0);
-            } else {      
-              setLoading(false);            
-              setPhoneError(error.message);
-              goToSlide(0);
-            }            
-          });
-      })
-    } else {
-      firebase.auth().signInWithPhoneNumber(email_or_phone, appVerifier)
-        .then((confirmationResult) => {
-          console.log("Triggered 3")
-          // SMS sent. Prompt user to type the code from the message, then sign the
-          // user in with confirmationResult.confirm(code).        
-          window.confirmationResult = confirmationResult;
-          nextSlide();
-          console.log("Phone signed in: " + confirmationResult)
-        }).catch((error) => {
-          // Error SMS not sent phone number may be wrong
-          if (error.code === "auth/invalid-phone-number") {   
-            setLoading(false)         
-            setPhoneError(
-              "Invalid format for email or phone number. " +
-              "Please enter phone numbers in the form +447123456789 (for UK)"
-            )
-            goToSlide(0);
-          } else {          
-            setLoading(false);      
-            setPhoneError(error.message);
-            goToSlide(0);
-          }            
-        });
-      }
-    }  
+  // const phoneSignUp = async() => {
+  //   console.log("Triggered 2")
+  //   clearErrors();
+  //   setLoading(true);
+  //   const appVerifier = window.recaptchaVerifier;
+  //   if (firebase.auth().currentUser) {
+  //     firebase.auth().signOut().then(() => {
+  //       firebase.auth().signInWithPhoneNumber(email_or_phone, appVerifier)
+  //         .then((confirmationResult) => {
+  //           console.log("Triggered 3")
+  //           // SMS sent. Prompt user to type the code from the message, then sign the
+  //           // user in with confirmationResult.confirm(code).        
+  //           window.confirmationResult = confirmationResult;
+  //           //goToSlide(3);   
+  //           nextSlide();
+  //           console.log("Phone signed in: " + confirmationResult)
+  //         }).catch((error) => {
+  //           // Error SMS not sent phone number may be wrong
+  //           if (error.code === "auth/invalid-phone-number") {   
+  //             setLoading(false);           
+  //             setPhoneError(
+  //               "Invalid format for email or phone number. " +
+  //               "Please enter phone numbers in the form +447123456789 (for UK)"
+  //             )
+  //             goToSlide(0);
+  //           } else {      
+  //             setLoading(false);            
+  //             setPhoneError(error.message);
+  //             goToSlide(0);
+  //           }            
+  //         });
+  //     })
+  //   } else {
+  //     firebase.auth().signInWithPhoneNumber(email_or_phone, appVerifier)
+  //       .then((confirmationResult) => {
+  //         console.log("Triggered 3")
+  //         // SMS sent. Prompt user to type the code from the message, then sign the
+  //         // user in with confirmationResult.confirm(code).        
+  //         window.confirmationResult = confirmationResult;
+  //         nextSlide();
+  //         console.log("Phone signed in: " + confirmationResult)
+  //       }).catch((error) => {
+  //         // Error SMS not sent phone number may be wrong
+  //         if (error.code === "auth/invalid-phone-number") {   
+  //           setLoading(false)         
+  //           setPhoneError(
+  //             "Invalid format for email or phone number. " +
+  //             "Please enter phone numbers in the form +447123456789 (for UK)"
+  //           )
+  //           goToSlide(0);
+  //         } else {          
+  //           setLoading(false);      
+  //           setPhoneError(error.message);
+  //           goToSlide(0);
+  //         }            
+  //       });
+  //     }
+  //   }  
   
-  const verifyCode = async() => {
-    setLoading(true);
-    clearErrors();
-    if (window.confirmationResult) {
-      await window.confirmationResult.confirm(code).then((result) => {
-        // User signed in successfully.
-        //link with fake email
-        var phoneEmail = email_or_phone + '@partyemail.com'
-        var credential = firebase.auth.EmailAuthProvider.credential(phoneEmail, password);
-        //var user = result.user
-        result.user.linkWithCredential(credential)      
-        .then((usercred) => {
-          var user = usercred.user;
-          console.log("Account linking success", user); 
-          nextSlide();                 
-        }).catch((error) => {
-          if (error.code === "auth/provider-already-linked") {  
-            setPhoneError("Someone has already signed up with this phone number")     
-          }
-          setLoading(false);
-          console.log("Account linking error", error);
-        });
+  // const verifyCode = async() => {
+  //   setLoading(true);
+  //   clearErrors();
+  //   if (window.confirmationResult) {
+  //     await window.confirmationResult.confirm(code).then((result) => {
+  //       // User signed in successfully.
+  //       //link with fake email
+  //       var phoneEmail = email_or_phone + '@partyemail.com'
+  //       var credential = firebase.auth.EmailAuthProvider.credential(phoneEmail, password);
+  //       //var user = result.user
+  //       result.user.linkWithCredential(credential)      
+  //       .then((usercred) => {
+  //         var user = usercred.user;
+  //         console.log("Account linking success", user); 
+  //         nextSlide();                 
+  //       }).catch((error) => {
+  //         if (error.code === "auth/provider-already-linked") {  
+  //           setPhoneError("Someone has already signed up with this phone number")     
+  //         }
+  //         setLoading(false);
+  //         console.log("Account linking error", error);
+  //       });
 
-      }).catch((error) => {
-        // User couldn't sign in (bad verification code?)
-        setLoading(false);
-        setPhoneError("Verification code is either incorrect or missing, please try again")      
-      });
-    } else {
-      firebase.auth().signOut().then(() => {
-        phoneSignUp();
-        setPhoneError("Page refreshed, please try again")
-      })      
-    }
-  }
+  //     }).catch((error) => {
+  //       // User couldn't sign in (bad verification code?)
+  //       setLoading(false);
+  //       setPhoneError("Verification code is either incorrect or missing, please try again")      
+  //     });
+  //   } else {
+  //     firebase.auth().signOut().then(() => {
+  //       phoneSignUp();
+  //       setPhoneError("Page refreshed, please try again")
+  //     })      
+  //   }
+  // }
 
   const addUserInfo = async() => {
     setLoading(true);
@@ -426,9 +431,9 @@ const SignUp: React.FC = () => {
           username: username,
           email: validateEmail(email_or_phone) ? email_or_phone : email_or_phone  + '@partyemail.com',      
           id: firebase.auth().currentUser.uid,
-          phoneNumber: validatePhone(email_or_phone) ? email_or_phone : "",
+          //phoneNumber: validatePhone(email_or_phone) ? email_or_phone : "",
           //dateOfBirth: dob,
-          phoneVerified:true,
+          //phoneVerified:true,
           // bitmoji: window.localStorage.getItem("bitmoji_avatar")
         }, {merge: true}).then(() => {
           setLoading(false);
@@ -464,15 +469,15 @@ const SignUp: React.FC = () => {
     setInterval(() => redirect(), 1000)
   }
 
-  const updateEmailorphone = (val) => {
-    var re = new RegExp(/^\+?([0-9]{1,4})\)?[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})$/g);
-    if (val[0] === "0" && val[1] === "7") {
-      var temp = "+44" + val.slice(1);
-      setEmail_or_phone(temp)
-    } else {
-      setEmail_or_phone(val)
-    }   
-  }   
+  // const updateEmailorphone = (val) => {
+  //   var re = new RegExp(/^\+?([0-9]{1,4})\)?[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})$/g);
+  //   if (val[0] === "0" && val[1] === "7") {
+  //     var temp = "+44" + val.slice(1);
+  //     setEmail_or_phone(temp)
+  //   } else {
+  //     setEmail_or_phone(val)
+  //   }   
+  // }   
 
   return (
     <IonPage>
@@ -493,16 +498,16 @@ const SignUp: React.FC = () => {
           <IonSlide>               
             <div className="signin-inputs">
               <IonItem lines="none">
-              <IonLabel position="floating">Email or Phone Number</IonLabel>
+              <IonLabel position="floating">Email</IonLabel>
               <IonInput 
               value={email_or_phone} 
               type="text"
-              onIonChange={e => updateEmailorphone(e.detail.value!)}
+              onIonChange={e => setEmail_or_phone(e.detail.value!)}
               >        
               </IonInput>
               </IonItem>
-              {emailError ? <div><IonText class="errormsg">{emailError}</IonText><br/></div>:null}
-              {phoneError ? <div><IonText class="errormsg">{phoneError}</IonText><br/></div>:null} 
+              {emailError ? <div><IonText class="errormsg">{emailError}</IonText></div>:null}
+              {/* {phoneError ? <div><IonText class="errormsg">{phoneError}</IonText></div>:null}  */}
               <IonItem lines="none">             
               <IonLabel position="floating">Full Name</IonLabel>
               <IonInput 
@@ -527,14 +532,14 @@ const SignUp: React.FC = () => {
                 </IonIcon> 
                 </div>                         
               </IonItem> 
-              {passwordError ? <div><IonText class="errormsg">{passwordError}</IonText><br/></div>:null}               
-              {fieldsMissing ? <div><IonText class="errormsg">Please fill in all the fields</IonText><br/></div>:null}               
-              <IonButton className="signin-button" onClick={()=>slide0SignUp()}>Next</IonButton><br/>
+              {passwordError ? <div><IonText class="errormsg">{passwordError}</IonText></div>:null}               
+              {fieldsMissing ? <div><IonText class="errormsg">Please fill in all the fields</IonText></div>:null}               
+              <IonButton className="signin-button" onClick={()=>slide0SignUp()}>Next</IonButton>
 
-              <div id='sign-in-button'></div>
-              <IonText>This site is protected by reCAPTCHA and the Google
+              {/* <div id='sign-in-button'></div> */}
+              {/* <IonText>This site is protected by reCAPTCHA and the Google
               <a href="https://policies.google.com/privacy"> Privacy Policy </a> and
-              <a href="https://policies.google.com/terms"> Terms of Service </a> apply</IonText>              
+              <a href="https://policies.google.com/terms"> Terms of Service </a> apply</IonText>               */}
             </div>
           </IonSlide>   
  
@@ -542,17 +547,13 @@ const SignUp: React.FC = () => {
           <IonSlide>
             <div className="signin-inputs">
             {/* if sign up method is email... */}
-             {signUpMethod === 'email' ? 
               <> 
               <IonText>We have sent you an email, please click the link in the email to verify it before continuing</IonText>
-              <IonButton className="signin-button" onClick={()=>checkIfVerified()}>Next</IonButton><br/>
-              <IonText>{emailError}</IonText><br/>
+              <IonButton className="signin-button" onClick={()=>checkIfVerified()}>Next</IonButton>
+              <IonText class="errormsg">{emailError}</IonText>
               <IonButton onClick={() => setResendEmailPopover(true)}>Resend verification email</IonButton>
               </>
-              // else sign up method is phone...
-             : 
-             <>
-              <IonItem lines="none">
+              {/* <IonItem lines="none">
               <IonLabel position="floating">SMS verification code</IonLabel>
               <IonInput 
               value={code} 
@@ -560,12 +561,11 @@ const SignUp: React.FC = () => {
               >
               </IonInput>   
               </IonItem>
-              {phoneError ? <div><IonText class="errormsg">{phoneError}</IonText><br/></div>:null}
+              {phoneError ? <div><IonText class="errormsg">{phoneError}</IonText></div>:null}
               <IonButton class="signin-button" onClick={()=>verifyCode()}>
                 Verify
-              </IonButton>                 
-              </>   
-              }<br/>
+              </IonButton>                  */}
+              
               <div className="ion-text-start"><IonButton onClick={() => prevSlide()}>Prev</IonButton></div>
               </div>
           </IonSlide>
@@ -582,9 +582,9 @@ const SignUp: React.FC = () => {
               onIonChange={e => setUsername(e.detail.value!)}
               ></IonInput>
               </IonItem>
-              {usernameError ? <div><IonText class="errormsg">{usernameError}</IonText><br/></div>:null}
+              {usernameError ? <div><IonText class="errormsg">{usernameError}</IonText></div>:null}
               
-              <IonButton className="signin-button" onClick={()=>addUserInfo()}>Finish Up</IonButton><br/>
+              <IonButton className="signin-button" onClick={()=>addUserInfo()}>Finish Up</IonButton>
               <div className="ion-text-start"><IonButton onClick={() => prevSlide()}>Prev</IonButton></div>         
               </div>
 
@@ -596,7 +596,7 @@ const SignUp: React.FC = () => {
               onIonChange={e => setDob(e.detail.value!)}
               >                
               </IonInput>         
-              {dobError ? <><IonText class="errormsg">{dobError}</IonText><br/></>:null}
+              {dobError ? <><IonText class="errormsg">{dobError}</IonText></>:null}
               <IonButton className="signin-button" onClick={()=>slide2SignUp()}>Next</IonButton>
               <IonText class="errormsg">{fieldsMissing ? "Please fill in all the fields" : (null)} </IonText> */}
               {/* <div id='sign-in-button'>
@@ -608,7 +608,7 @@ const SignUp: React.FC = () => {
           
               {/* <button className="signin-button" id='sign-in-button'>Skip</button> */}
               {/* <div id='sign-in-button'></div>
-              <IonButton onClick={()=>signUpEmailorPhoneandVerify()}>Skip</IonButton><br/>
+              <IonButton onClick={()=>signUpEmailorPhoneandVerify()}>Skip</IonButton>
               <IonText>This site is protected by reCAPTCHA and the Google
               <a href="https://policies.google.com/privacy"> Privacy Policy </a> and
               <a href="https://policies.google.com/terms"> Terms of Service </a> apply</IonText> */}
@@ -616,8 +616,8 @@ const SignUp: React.FC = () => {
            
           {/* Slide 3: Welcome in */}
           <IonSlide>   
-          <div><IonText>Welcome {fullname}!</IonText><br/></div>
-          <div><IonButton className="signin-button" onClick={() => redirectToHome()}>Start Partying!</IonButton><br/></div>
+          <IonText>Welcome {fullname}!</IonText><br/>
+          <IonButton className="signin-button" onClick={() => redirectToHome()}>Start Partying!</IonButton>
           <IonText>{emailError}</IonText>
           </IonSlide>
         </IonSlides>            
@@ -633,7 +633,7 @@ const SignUp: React.FC = () => {
           isOpen={resendEmailPopover}
           onDidDismiss={() => setResendEmailPopover(false)}
         >
-          <IonText>Are you sure you want us to resend the email?</IonText><br/>
+          <IonText>Are you sure you want us to resend the email?</IonText>
           <IonButton onClick={() => resendEmail()}>Yes</IonButton>             
           <IonButton onClick={() => setResendEmailPopover(false)}>No</IonButton>             
         </IonPopover>              

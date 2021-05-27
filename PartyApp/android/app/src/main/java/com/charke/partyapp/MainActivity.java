@@ -1,5 +1,4 @@
 package com.charke.partyapp;
-
 import android.os.Bundle;
 
 import com.getcapacitor.BridgeActivity;

@@ -38,7 +38,7 @@
     width: 100%;
     height: 50px;    
     text-align: center;  
-    border-radius: 10px  
+    --border-radius: 10px  
 }
 
 .create-back-button {
@@ -54,7 +54,7 @@
     width: 100%;
     height: 50px;    
     text-align: center;
-    border-radius: 10px;
+    --border-radius: 10px;
     text-transform: none
 }
 
@@ -282,7 +282,6 @@
     --color:#fff;
     top: 100px;
     text-align: center;
-    align: center
 }
 
 .rounded-top {
@@ -326,26 +325,29 @@
     color: #ffd046
 }
 
+.swiper-slide {
+    display: block
+}
+
 /* //hides recapthca badge */
 .grecaptcha-badge { 
     visibility: hidden;
 }
 
 #signin-content .signin-inputs {
-    padding-bottom: 2%;
-    padding-left: 2%;
+    text-align: center;
     padding-right: 2%;
-    text-align: center
+    padding-left: 2%;
 }
 
 #signin-content ion-item {
     border: 2px #ffd046 solid;
-    border-radius: 5px;
-    margin-bottom: 10%
+    border-radius: 10px;
+    margin-bottom: 8%;
+    margin-top: 8%
 }
 
 #signin-content{
-    text-align: center;
     --padding-start: 3%;
     --padding-end: 3%;    
 }
@@ -502,6 +504,7 @@ ion-refresher-content {
 ion-text {
     color: #ffd046; 
     font-weight: bold;
+    word-wrap: break-word
 }
 
 ion-tab-button {

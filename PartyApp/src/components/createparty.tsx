@@ -425,21 +425,27 @@ const CreateParty = ({editingParty, displayParties}) => {
         duration={2000}
         message="Party Deleted!"
         position="bottom"
-      />      
-      <IonAlert
+      />    
+      <IonPopover
+        cssClass="popover"        
         isOpen={fieldsMissing}
         onDidDismiss={() => setFieldsMissing(false)}
-        header={'Alert'}
-        message={"One or more input fields missing"}
-        buttons={['OK']}
-      /> 
-      <IonAlert
+      >
+        <IonText>Please fill in all required input fields</IonText><br/>
+        <IonButton onClick={()=>setFieldsMissing(false)}>
+          Ok
+        </IonButton>   
+      </IonPopover>    
+      <IonPopover
+        cssClass="popover"        
         isOpen={timeError}
         onDidDismiss={() => setTimeError(false)}
-        header={'Alert'}
-        message={"Start time must be before end time"}
-        buttons={['OK']}
-      />          
+      >
+        <IonText>Error! - End time must be after start time</IonText><br/>
+        <IonButton onClick={()=>setTimeError(false)}>
+          Ok
+        </IonButton>            
+      </IonPopover>       
       <IonPopover
         cssClass="popover"        
         isOpen={showPopover}

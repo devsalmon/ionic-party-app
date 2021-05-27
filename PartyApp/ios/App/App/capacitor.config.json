@@ -21,6 +21,13 @@
 				"sound",
 				"alert"
 			]
+		},
+		"CapacitorFirebaseAuth": {
+			"providers": [
+				"phone"
+			],
+			"languageCode": "en",
+			"nativeAuth": false
 		}
 	},
 	"cordova": {}

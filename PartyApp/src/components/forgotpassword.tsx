@@ -37,13 +37,13 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import '../variables.css';
 
-declare global {
-  interface Window {
-    recaptchaVerifier:any;
-    recaptchaWidgetId:any;
-    confirmationResult:any;
-  }
-}
+// declare global {
+//   interface Window {
+//     recaptchaVerifier:any;
+//     recaptchaWidgetId:any;
+//     confirmationResult:any;
+//   }
+// }
 
 const ForgotPassword: React.FC = () => {
 
@@ -56,9 +56,9 @@ const ForgotPassword: React.FC = () => {
   );    
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
-  const [phoneError, setPhoneError] = useState('');
+  // const [phoneError, setPhoneError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [code, setCode] = useState('');
+  // const [code, setCode] = useState('');
   const [resendEmailPopover, setResendEmailPopover] = useState(false);
   const [lastSlide, setLastSlide] = useState(false);
   const [emailorphoneError, setEmailorphoneError] = useState('');
@@ -70,23 +70,23 @@ const ForgotPassword: React.FC = () => {
   useEffect(() => {  
     clearErrors(); 
     hideBtnsCheck();
-     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
-       'size': 'invisible',
-       'callback': (response) => {
-         // reCAPTCHA solved, allow signInWithPhoneNumber.
-         console.log("Response: " + response)
-         //signUpEmailorPhoneandVerify()
-         //phoneSignUp()
-         //phoneNumberAuth()
-       },
-       'expired-callback': () => {
-         // Response expired. Ask user to solve reCAPTCHA again.
-       }
-     });
+    //  window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {
+    //    'size': 'invisible',
+    //    'callback': (response) => {
+    //      // reCAPTCHA solved, allow signInWithPhoneNumber.
+    //      console.log("Response: " + response)
+    //      //signUpEmailorPhoneandVerify()
+    //      //phoneSignUp()
+    //      //phoneNumberAuth()
+    //    },
+    //    'expired-callback': () => {
+    //      // Response expired. Ask user to solve reCAPTCHA again.
+    //    }
+    //  });
 
-     window.recaptchaVerifier.render().then(function (widgetId) {
-       window.recaptchaWidgetId = widgetId;   
-     }); 
+    //  window.recaptchaVerifier.render().then(function (widgetId) {
+    //    window.recaptchaWidgetId = widgetId;   
+    //  }); 
   }, []);  
 
   var actionCodeSettings = {
@@ -135,7 +135,7 @@ const ForgotPassword: React.FC = () => {
 
   const clearErrors = () => {
     setEmailError('');
-    setPhoneError('');       
+    //setPhoneError('');       
   }
 
   const validateEmail = (email) => {
@@ -143,17 +143,17 @@ const ForgotPassword: React.FC = () => {
     return re.test(email);
   }  
 
-  const validatePhone = (num) => {
-    var re = new RegExp(/^\+?([0-9]{1,4})\)?[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})$/g);
-    if (num[0] === "0" && num[1] === "7") {
-      var temp = "+44" + num.slice(1);
-      setEmail_or_phone(temp)
-      console.log(temp)
-      return true 
-    } else {
-      return re.test(num);
-    }    
-  }  
+  // const validatePhone = (num) => {
+  //   var re = new RegExp(/^\+?([0-9]{1,4})\)?[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})$/g);
+  //   if (num[0] === "0" && num[1] === "7") {
+  //     var temp = "+44" + num.slice(1);
+  //     setEmail_or_phone(temp)
+  //     console.log(temp)
+  //     return true 
+  //   } else {
+  //     return re.test(num);
+  //   }    
+  // }  
   
   const redirect = () => {
     const user = firebase.auth().currentUser;
@@ -164,20 +164,15 @@ const ForgotPassword: React.FC = () => {
     }  
   }
 
-  const redirectToHome = () => {
-    setLoading(true); 
-    setInterval(() => redirect(), 1000)
-  }
-
-  const updateEmailorphone = (val) => {
-    var re = new RegExp(/^\+?([0-9]{1,4})\)?[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})$/g);
-    if (val[0] === "0" && val[1] === "7") {
-      var temp = "+44" + val.slice(1);
-      setEmail_or_phone(temp)
-    } else {
-      setEmail_or_phone(val)
-    }   
-  }  
+  // const updateEmailorphone = (val) => {
+  //   var re = new RegExp(/^\+?([0-9]{1,4})\)?[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})$/g);
+  //   if (val[0] === "0" && val[1] === "7") {
+  //     var temp = "+44" + val.slice(1);
+  //     setEmail_or_phone(temp)
+  //   } else {
+  //     setEmail_or_phone(val)
+  //   }   
+  // }  
 
   const resetPassword = () => {  
     clearErrors();  
@@ -187,31 +182,32 @@ const ForgotPassword: React.FC = () => {
     } else {
       setEmailorphoneError("")
       //check if phone or email
-      if (validatePhone(email_or_phone)) { 
-        setSignUpMethod("phone")
-        //send code to phone, and reset password.
-        const appVerifier = window.recaptchaVerifier;
-        firebase.auth().signInWithPhoneNumber(email_or_phone, appVerifier)
-          .then((confirmationResult) => {
-            // SMS sent. Prompt user to type the code from the message, then sign the
-            // user in with confirmationResult.confirm(code).        
-            window.confirmationResult = confirmationResult;
-            console.log("Phone signed in: " + confirmationResult)
-            // IF THIS STAGE IS REACHED, A POP UP SHOULD APPEAR ASKING USER TO ENTER CODE,
-            // IF CODE IS CORRECT, THEN updatePassword CAN BE USED TO CHOOSE A NEW PASSWORD AND SAVE A NEW PASSWORD
-            nextSlide();
-          }).catch((error) => {
-            // Error SMS not sent phone number may be wrong
-            if (error.code === "auth/invalid-phone-number") {              
-              setPhoneError(
-               "Invalid format for email or phone number. " +
-               "Please enter phone numbers in the form +447123456789 (for UK)"
-             )
-            } else {                  
-             setPhoneError(error.message);
-            }
-          })
-      } else if (validateEmail(email_or_phone)) {
+      // if (validatePhone(email_or_phone)) { 
+      //   setSignUpMethod("phone")
+      //   //send code to phone, and reset password.
+      //   const appVerifier = window.recaptchaVerifier;
+      //   firebase.auth().signInWithPhoneNumber(email_or_phone, appVerifier)
+      //     .then((confirmationResult) => {
+      //       // SMS sent. Prompt user to type the code from the message, then sign the
+      //       // user in with confirmationResult.confirm(code).        
+      //       window.confirmationResult = confirmationResult;
+      //       console.log("Phone signed in: " + confirmationResult)
+      //       // IF THIS STAGE IS REACHED, A POP UP SHOULD APPEAR ASKING USER TO ENTER CODE,
+      //       // IF CODE IS CORRECT, THEN updatePassword CAN BE USED TO CHOOSE A NEW PASSWORD AND SAVE A NEW PASSWORD
+      //       nextSlide();
+      //     }).catch((error) => {
+      //       // Error SMS not sent phone number may be wrong
+      //       if (error.code === "auth/invalid-phone-number") {              
+      //         setPhoneError(
+      //          "Invalid format for email or phone number. " +
+      //          "Please enter phone numbers in the form +447123456789 (for UK)"
+      //        )
+      //       } else {                  
+      //        setPhoneError(error.message);
+      //       }
+      //     })
+      // } else 
+      // if (validateEmail(email_or_phone)) {
         setSignUpMethod("email")
           //reset email password.
         console.log("going to reset email password")
@@ -228,41 +224,41 @@ const ForgotPassword: React.FC = () => {
               break;
           }         
         });  
-      }        
+      // }        
     }
   }
 
-const verifyCodeforReset = async() => {
-    clearErrors();
-    if (window.confirmationResult) {  
-      await window.confirmationResult.confirm(code).then((result) => {
-        // User signed in successfully.
-        // update password
-        var user = firebase.auth().currentUser;  
-        user.updatePassword(newPassword).then(function() {
-          setNewPassword('');
-          setLoading(false);
-        }).catch(function(error) {
-          setNewPasswordError(error.message);
-          setLoading(false);
-        });          
-      }).catch((error) => {
-        // User couldn't sign in (bad verification code?)
-        setLoading(false);
-        setPhoneError(error.message);   
-      });
-    }
-  }  
+// const verifyCodeforReset = async() => {
+//     clearErrors();
+//     if (window.confirmationResult) {  
+//       await window.confirmationResult.confirm(code).then((result) => {
+//         // User signed in successfully.
+//         // update password
+//         var user = firebase.auth().currentUser;  
+//         user.updatePassword(newPassword).then(function() {
+//           setNewPassword('');
+//           setLoading(false);
+//         }).catch(function(error) {
+//           setNewPasswordError(error.message);
+//           setLoading(false);
+//         });          
+//       }).catch((error) => {
+//         // User couldn't sign in (bad verification code?)
+//         setLoading(false);
+//         setPhoneError(error.message);   
+//       });
+//     }
+//   }  
 
-  const verifyNewPassword = () => {
-    setLoading(true)
-    if (newPassword.trim().length > 6) {
-        verifyCodeforReset();            
-    } else {
-      setLoading(false)
-      setNewPasswordError("Password may be too short, has to be over 6 characters")   
-    }
-  }
+//   const verifyNewPassword = () => {
+//     setLoading(true)
+//     if (newPassword.trim().length > 6) {
+//         verifyCodeforReset();            
+//     } else {
+//       setLoading(false)
+//       setNewPasswordError("Password may be too short, has to be over 6 characters")   
+//     }
+//   }
 
   return (
     <IonPage>
@@ -283,32 +279,31 @@ const verifyCodeforReset = async() => {
           <IonSlide>               
             <div className="signin-inputs">
               <IonItem lines="none">
-              <IonLabel position="floating">Phone Number or Email</IonLabel>
+              <IonLabel position="floating">Email</IonLabel>
               <IonInput 
               value={email_or_phone} 
               type="text"
-              onIonChange={e => updateEmailorphone(e.detail.value!)}
+              onIonChange={e => setEmail_or_phone(e.detail.value!)}
               >        
               </IonInput>
               </IonItem>
-              {emailError ? <div className="ion-padding"><IonText class="errormsg">{emailError}</IonText><br/></div>:null}
-              {phoneError ? <div className="ion-padding"><IonText class="errormsg">{phoneError}</IonText><br/></div>:null} 
-              {emailorphoneError ? <div className="ion-padding"><IonText class="errormsg">{emailorphoneError}</IonText><br/></div>:null}
+              {emailError ? <div className="ion-padding"><IonText class="errormsg">{emailError}</IonText></div>:null}
+              {/* {phoneError ? <div className="ion-padding"><IonText class="errormsg">{phoneError}</IonText></div>:null}  */}
+              {emailorphoneError ? <div className="ion-padding"><IonText class="errormsg">{emailorphoneError}</IonText></div>:null}
 
-              <IonButton className="signin-button" onClick={()=>resetPassword()}>Next</IonButton><br/>
+              <IonButton className="signin-button" onClick={()=>resetPassword()}>Next</IonButton>
 
-              <div id='sign-in-button'></div>
+              {/* <div id='sign-in-button'></div>
               <IonText>This site is protected by reCAPTCHA and the Google
               <a href="https://policies.google.com/privacy"> Privacy Policy </a> and
-              <a href="https://policies.google.com/terms"> Terms of Service </a> apply</IonText>              
+              <a href="https://policies.google.com/terms"> Terms of Service </a> apply</IonText>               */}
             </div>
           </IonSlide>   
  
           {/* Slide 1: Create new password and confirm code */}
           <IonSlide>     
               <div className="signin-inputs">
-              {signUpMethod === "phone" ? 
-              <>
+              {/* <>
               <IonItem lines="none">
               <IonLabel position="floating">SMS verification code</IonLabel>
               <IonInput 
@@ -317,7 +312,7 @@ const verifyCodeforReset = async() => {
               >
               </IonInput>   
               </IonItem>
-              {phoneError ? <div className="ion-padding"><IonText class="errormsg">{phoneError}</IonText><br/></div>:null}
+              {phoneError ? <div className="ion-padding"><IonText class="errormsg">{phoneError}</IonText></div>:null}
 
               <IonItem lines="none">           
               <IonLabel position="floating">New Password</IonLabel>
@@ -332,7 +327,7 @@ const verifyCodeforReset = async() => {
                 </IonIcon> 
                 </div>         
               </IonItem>
-              {newPasswordError ? <div className="ion-padding"><IonText class="errormsg">{newPasswordError}</IonText><br/></div>:null}
+              {newPasswordError ? <div className="ion-padding"><IonText class="errormsg">{newPasswordError}</IonText></div>:null}
               
               <IonButton class="signin-button" onClick={()=>verifyNewPassword()}>
                 Reset password and sign in 
@@ -340,10 +335,10 @@ const verifyCodeforReset = async() => {
               <br/>
               <div className="ion-text-start"><IonButton onClick={() => prevSlide()}>Prev</IonButton></div>              
               </>
-              :
+              : */}
               <>
-              <IonText>An email has been sent to {email_or_phone}, click the link in the email to reset your password.</IonText><br/>
-              <IonButton className="signin-button" href="/signin">Go to sign in</IonButton><br/>
+              <IonText>An email has been sent to {email_or_phone}, click the link in the email to reset your password.</IonText>
+              <IonButton className="signin-button" href="/signin">Go to sign in</IonButton>
               <IonText>{emailError}</IonText>
               </>
               }              
@@ -362,7 +357,7 @@ const verifyCodeforReset = async() => {
           isOpen={resendEmailPopover}
           onDidDismiss={() => setResendEmailPopover(false)}
         >
-          <IonText>Are you sure you want us to resend the email?</IonText><br/>
+          <IonText>Are you sure you want us to resend the email?</IonText>
           {/* <IonButton onClick={() => resendEmail()}>Yes</IonButton>              */}
           <IonButton onClick={() => setResendEmailPopover(false)}>No</IonButton>             
         </IonPopover>                     
