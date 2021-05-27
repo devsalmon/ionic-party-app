@@ -458,7 +458,7 @@ const MyPartyList = () => {
         <IonRouterOutlet></IonRouterOutlet>
 
         <div id="myPartiesPage">
-          <IonHeader>
+        <IonHeader>
           <IonToolbar class="ion-padding">
             <IonTitle class="ion-padding">My Parties</IonTitle>
           </IonToolbar>
@@ -499,13 +499,13 @@ const MyPartyList = () => {
           </IonRadioGroup>  
         </IonToolbar>
         </IonHeader>
-            <IonContent fullscreen={true}>
-              <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
-                <IonRefresherContent
-                  pullingIcon={chevronDownCircleOutline}
-                  refreshingSpinner="circles">
-                </IonRefresherContent>
-              </IonRefresher>                     
+          <IonContent fullscreen={true}>
+            <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
+              <IonRefresherContent
+                pullingIcon={chevronDownCircleOutline}
+                refreshingSpinner="circles">
+              </IonRefresherContent>
+            </IonRefresher>                     
             {selected === "attended" ? 
             attendedParties.length === 0 ?
             <IonText class="white-text">You haven't attended any parties yet..</IonText> :          

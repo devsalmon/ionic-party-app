@@ -94,7 +94,7 @@ const Gallery = ({hostid, partyid}) => {
     // and for each document, we create a picture card, 
     // passing through the document and doc.id to the picture function
     return(   
-      <IonContent fullscreen={true}>
+      <IonContent fullscreen={true} class="home-content">
           <IonCard class="gallery-card">
             <IonCardHeader>
               <IonCardTitle>{title}</IonCardTitle><br/>         
