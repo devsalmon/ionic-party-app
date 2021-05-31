@@ -50,6 +50,7 @@ import {
   chevronDownCircleOutline,
   thumbsUpOutline,
   thumbsDownOutline,
+  imagesOutline,
   createOutline
 } from 'ionicons/icons';
 import {
@@ -141,6 +142,21 @@ const Party = ({id, data, live, edit}) => {
     setPhoto(photo);  
   }    
 
+  const getGalleryPhoto = async() => {
+    const cameraPhoto = await Camera.getPhoto({
+      resultType: CameraResultType.Base64,
+      source: CameraSource.Photos,
+      quality: 90,
+      height: 1000,
+      width: 1000,
+      preserveAspectRatio: true,
+      direction: CameraDirection.Front,
+      saveToGallery: true
+    });
+    var photo = `data:image/jpeg;base64,${cameraPhoto.base64String}`;
+    setPhoto(photo);  
+  }
+
   // const takeVideo = async () => {
   //   let options: VideoCapturePlusOptions = { limit: 1, duration: 30, highquality: true };
   //   let capture:any = await VideoCapturePlus.captureVideo(options);
@@ -212,7 +228,12 @@ const Party = ({id, data, live, edit}) => {
             <IonButton color="dark" onClick={() => takePhoto()}>
               <IonIcon slot="icon-only" icon={cameraOutline} />      
             </IonButton>  
-          </IonCol>         
+          </IonCol>
+          <IonCol className="ion-self-align-center"> 
+            <IonButton color="dark" onClick={() => getGalleryPhoto()}>
+              <IonIcon slot="icon-only" icon={imagesOutline} />      
+            </IonButton>  
+          </IonCol>                   
           </>                     
           : null}
         </IonRow> 
