@@ -487,9 +487,9 @@ const SignUp: React.FC = () => {
           <IonBackButton class="signup-back-button" text="" defaultHref="/welcomepage" />
         </IonButtons>}
         <IonTitle class="ion-padding">Sign Up</IonTitle> 
-        {lastSlide ? null : <IonButtons slot="end">
-          <IonButton slot="end">{/*Help*/}</IonButton>
-        </IonButtons>}   
+        {/* {lastSlide ? null : <IonButtons slot="end">
+          <IonButton slot="end">Help</IonButton>
+        </IonButtons>}    */}
       </IonToolbar>
       <IonContent id="signin-content" fullscreen={true}>      
       <IonSlides class="sign-up-slides" ref={slides} options={slideOpts} onIonSlideWillChange={()=>hideBtnsCheck()}>

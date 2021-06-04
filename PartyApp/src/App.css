@@ -399,7 +399,8 @@ ion-button {
 ion-buttons {
     --background: #ffd046;
     --background-hover-opacity: 0.3;
-    color: #ffd046
+    color: #ffd046;
+    position: absolute
 } 
 
 ion-card {

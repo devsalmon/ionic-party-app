@@ -203,9 +203,9 @@ const SignIn: React.FC = () => {
           <IonBackButton class="signup-back-button" text="" defaultHref="/welcomepage" />
         </IonButtons>
         <IonTitle class="ion-padding">Sign In</IonTitle>
-        <IonButtons slot="end">
-          <IonButton slot="end">{/*Help*/}</IonButton>
-        </IonButtons>    
+        {/* <IonButtons slot="end">
+          <IonButton slot="end">Help</IonButton>
+        </IonButtons>     */}
       </IonToolbar>
       <IonContent id="signin-content">   
         <div className="signin-inputs">
