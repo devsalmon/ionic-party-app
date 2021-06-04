@@ -2,28 +2,6 @@ package com.charke.partyapp;
 import android.os.Bundle;
 
 import com.getcapacitor.BridgeActivity;
-import com.getcapacitor.Plugin;
-
-import java.util.ArrayList;
-import java.util.List;
-import android.util.Log;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
- import com.google.android.gms.tasks.OnSuccessListener;
- import com.google.android.gms.tasks.OnFailureListener;
- import com.google.android.gms.tasks.Task;
-
- import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.ActionCodeResult;
-
- import com.google.firebase.dynamiclinks.DynamicLink;
- import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
- import com.google.firebase.dynamiclinks.PendingDynamicLinkData;
- import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
 public class MainActivity extends BridgeActivity {
   //public static final String TAG = "tag";

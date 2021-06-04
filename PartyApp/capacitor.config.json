@@ -9,11 +9,10 @@
       "launchShowDuration": 0,
       "launchAutoHide": false,
       "backgroundColor": "#00000000",
-      "androidSplashResourceName": "applogo",
+      "androidSplashResourceName": "splash",
       "spinnerColor": "#FFFF00",
       "showSpinner": false,
-      "splashFullScreen": true,
-      "splashImmersive": true
+      "androidScaleType": "CENTER_CROP"
     },
     "PushNotifications": {
       "presentationOptions": [
