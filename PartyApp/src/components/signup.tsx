@@ -488,7 +488,7 @@ const SignUp: React.FC = () => {
         </IonButtons>}
         <IonTitle class="ion-padding">Sign Up</IonTitle> 
         {lastSlide ? null : <IonButtons slot="end">
-          <IonButton slot="end">Help</IonButton>
+          <IonButton slot="end">{/*Help*/}</IonButton>
         </IonButtons>}   
       </IonToolbar>
       <IonContent id="signin-content" fullscreen={true}>      

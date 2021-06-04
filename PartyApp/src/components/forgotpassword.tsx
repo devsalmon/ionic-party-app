@@ -340,8 +340,7 @@ const ForgotPassword: React.FC = () => {
               <IonText>An email has been sent to {email_or_phone}, click the link in the email to reset your password.</IonText>
               <IonButton className="signin-button" href="/signin">Go to sign in</IonButton>
               <IonText>{emailError}</IonText>
-              </>
-              }              
+              </>            
               </div>
           </IonSlide>
         </IonSlides>            

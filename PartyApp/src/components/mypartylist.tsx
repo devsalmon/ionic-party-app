@@ -22,6 +22,7 @@ import {
   IonGrid,
   IonCol,
   IonMenuButton,
+  IonToast
 } from '@ionic/react';
 import firebase from '../firestore';
 import moment from 'moment';
@@ -80,7 +81,7 @@ const MyPartyList = () => {
   const [nameError, setNameError] = useState('');
   const [nameUpdated, setNameUpdated] = useState(false);
   const [accountDeleted, setAccountDeleted] = useState(false);
-  // const [continuedWithSnap, setContinuedWithSnap] = useState(false);
+  const [passwordUpdated, setPasswordUpdated] = useState(false);
 
   const [friends, setFriends] = useState([]);
   const [refresh, setRefresh] = useState(false);  
@@ -214,8 +215,7 @@ const MyPartyList = () => {
   }
 
   const updateName = async() => {    
-    firebase.firestore().collection("users").where("fullname", "==", newName).get().then(snap => {
-      if (snap.empty) { // if no duplicate username
+      if (newName.trim().length > 0) { // if new name is entered
         setNameError("");
         user = firebase.auth().currentUser
         firebase.firestore().collection('users').doc(user.uid).update({
@@ -228,9 +228,8 @@ const MyPartyList = () => {
           setNameUpdated(true);
         })                 
       } else {
-        setNameError("This name is already in use, try another one")        
-      }
-    })       
+        setNameError("Please enter a name")        
+      }     
   }
 
   const updatePassword = () => {
@@ -247,6 +246,7 @@ const MyPartyList = () => {
       user.reauthenticateWithCredential(credential).then(function() {
         user.updatePassword(newPassword).then(function() {
           setPasswordPopover(false);
+          setPasswordUpdated(true);
           setOldPassword('');
           setNewPassword('');
           setVerifyNewPassword('');
@@ -566,7 +566,15 @@ const MyPartyList = () => {
           <IonText>Are you sure you want to sign out of your account?</IonText><br/>
           <IonButton href="/welcomepage" onClick={() => signOut()}>Yes</IonButton>  
           <IonButton onClick={() => setSignOutPopover(false)}>No</IonButton>               
-        </IonPopover>        
+        </IonPopover>    
+
+        <IonToast 
+        isOpen={passwordUpdated}
+        onDidDismiss={() => setPasswordUpdated(false)}
+        duration={2000}
+        message="Password updated!"
+        position="bottom"
+        />               
         {/* <IonPopover
           id="popover"
           cssClass="popover"        

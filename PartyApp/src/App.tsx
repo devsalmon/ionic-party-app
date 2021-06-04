@@ -36,7 +36,6 @@ import {
   IonImg,
   IonText,
   IonToast,
-  IonRippleEffect,
   IonLoading,
   IonCard,
   IonCardHeader,
