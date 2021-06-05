@@ -268,9 +268,9 @@ const ForgotPassword: React.FC = () => {
           <IonBackButton text="" color="warning" defaultHref="/welcomepage" />
         </IonButtons>}
         <IonTitle class="ion-padding signup-toolbar">Forgot Password</IonTitle> 
-        {lastSlide ? null : <IonButtons slot="end">
+        {/* {lastSlide ? null : <IonButtons slot="end">
           <IonButton slot="end">Help</IonButton>
-        </IonButtons>}   
+        </IonButtons>}    */}
       </IonToolbar>
       <IonContent id="signin-content">      
       <IonSlides class="sign-up-slides" ref={slides} options={slideOpts} onIonSlideWillChange={()=>hideBtnsCheck()}>

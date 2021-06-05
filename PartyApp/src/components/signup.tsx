@@ -246,33 +246,29 @@ const SignUp: React.FC = () => {
     clearErrors();
     console.log("Triggered 2")
     console.log("Email: " + email_or_phone)
-    if (firebase.auth().currentUser) {
-      nextSlide()
-    } else {
-      firebase.auth().createUserWithEmailAndPassword(email_or_phone, password).then(user => {
-        firebase.auth().signInWithEmailAndPassword(email_or_phone, password).then(res => {
-          sendVerificationEmail(true);
-        }).catch(err => {          
-          setPasswordError(err.message);
-          goToSlide(0);
-          setLoading(false);
-        })   
-      }).catch(err => {              
-        switch(err.code){
-          case "auth/invalid-email":
-          case "auth/email-already-exists":
-          case "auth/email-already-in-use":
-            setEmailError(err.message);
-            setLoading(false);
-            break;
-          case "auth/invalid-password":
-            setPasswordError(err.message);
-            setLoading(false);
-            break;
-        }              
+    firebase.auth().createUserWithEmailAndPassword(email_or_phone, password).then(user => {
+      firebase.auth().signInWithEmailAndPassword(email_or_phone, password).then(res => {
+        sendVerificationEmail(true);
+      }).catch(err => {          
+        setPasswordError(err.message);
         goToSlide(0);
-      });
-    }
+        setLoading(false);
+      })   
+    }).catch(err => {              
+      switch(err.code){
+        case "auth/invalid-email":
+        case "auth/email-already-exists":
+        case "auth/email-already-in-use":
+          setEmailError(err.message);
+          setLoading(false);
+          break;
+        case "auth/invalid-password":
+          setPasswordError(err.message);
+          setLoading(false);
+          break;
+      }              
+      goToSlide(0);
+    });
   };   
 
   const sendVerificationEmail = (goToNextSlide) => {
@@ -487,9 +483,9 @@ const SignUp: React.FC = () => {
           <IonBackButton class="signup-back-button" text="" defaultHref="/welcomepage" />
         </IonButtons>}
         <IonTitle class="ion-padding">Sign Up</IonTitle> 
-        {/* {lastSlide ? null : <IonButtons slot="end">
-          <IonButton slot="end">Help</IonButton>
-        </IonButtons>}    */}
+        {lastSlide ? null : <IonButtons slot="end">
+          <IonButton slot="end">{/*Help*/}</IonButton>
+        </IonButtons>}   
       </IonToolbar>
       <IonContent id="signin-content" fullscreen={true}>      
       <IonSlides class="sign-up-slides" ref={slides} options={slideOpts} onIonSlideWillChange={()=>hideBtnsCheck()}>
@@ -550,7 +546,7 @@ const SignUp: React.FC = () => {
               <> 
               <IonText>We have sent you an email, please click the link in the email to verify it before continuing</IonText>
               <IonButton className="signin-button" onClick={()=>checkIfVerified()}>Next</IonButton>
-              <IonText class="errormsg">{emailError}</IonText>
+              <IonText class="errormsg">{emailError}</IonText><br/>
               <IonButton onClick={() => setResendEmailPopover(true)}>Resend verification email</IonButton>
               </>
               {/* <IonItem lines="none">
@@ -565,8 +561,6 @@ const SignUp: React.FC = () => {
               <IonButton class="signin-button" onClick={()=>verifyCode()}>
                 Verify
               </IonButton>                  */}
-              
-              <div className="ion-text-start"><IonButton onClick={() => prevSlide()}>Prev</IonButton></div>
               </div>
           </IonSlide>
 
@@ -585,7 +579,6 @@ const SignUp: React.FC = () => {
               {usernameError ? <div><IonText class="errormsg">{usernameError}</IonText></div>:null}
               
               <IonButton className="signin-button" onClick={()=>addUserInfo()}>Finish Up</IonButton>
-              <div className="ion-text-start"><IonButton onClick={() => prevSlide()}>Prev</IonButton></div>         
               </div>
 
               {/* <IonInput 
@@ -618,7 +611,7 @@ const SignUp: React.FC = () => {
           <IonSlide>   
           <IonText>Welcome {fullname}!</IonText><br/>
           <IonButton className="signin-button" onClick={() => redirectToHome()}>Start Partying!</IonButton>
-          <IonText>{emailError}</IonText>
+          <IonText>{emailError}</IonText><br/>
           </IonSlide>
         </IonSlides>            
       </IonContent>      
@@ -633,7 +626,7 @@ const SignUp: React.FC = () => {
           isOpen={resendEmailPopover}
           onDidDismiss={() => setResendEmailPopover(false)}
         >
-          <IonText>Are you sure you want us to resend the email?</IonText>
+          <IonText>Are you sure you want us to resend the email?</IonText><br/>
           <IonButton onClick={() => resendEmail()}>Yes</IonButton>             
           <IonButton onClick={() => setResendEmailPopover(false)}>No</IonButton>             
         </IonPopover>              

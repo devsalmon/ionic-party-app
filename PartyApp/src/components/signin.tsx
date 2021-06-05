@@ -60,9 +60,7 @@ const SignIn: React.FC = () => {
   useEffect(() => {
     clearErrors();
     if (firebase.auth().currentUser && !firebase.auth().currentUser.emailVerified) { 
-      var email = firebase.auth().currentUser.email
-      // if user has signed in by pressing a button in sign up, but isn't verified    
-      setPasswordError(email + " is not verified yet, please click the link in your email to verify your account");           
+      firebase.auth().signOut();
     }
     
     // window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sign-in-button', {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   IonButton,
   IonPage,
@@ -27,8 +27,15 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 /* Theme variables */
 import '../variables.css';
+import firebase from 'firebase';
 
 const WelcomePage: React.FC = () => {
+
+  useEffect(() => {
+    if (firebase.auth().currentUser) {
+      firebase.auth().signOut();
+    }
+  })
 
   return (
     <IonPage>
