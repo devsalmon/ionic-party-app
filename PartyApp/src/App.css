@@ -354,7 +354,9 @@
     text-align: center;
     padding-right: 2%;
     padding-left: 2%;
-    padding-top: 50%;   
+    position: relative;
+    top: 40%;
+    transform: translateY(-50%);    
 }
 
 #signin-content ion-item {
