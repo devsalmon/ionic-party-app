@@ -308,7 +308,6 @@ const Home: React.FC = () => {
   const [liveParties, setLiveParties] = useState([]);
   const [newNotifications, setNewNotifications] = useState(false);
   const [editingParty, setEditingParty] = useState(""); // holds data of the party being edited
-  const [deviceTokens, setDeviceTokens] = useState(""); // holds tokens of all current user's devices 
   var current_user = firebase.auth().currentUser; 
 
   useEffect(() => {  
@@ -487,12 +486,14 @@ const Home: React.FC = () => {
 
   const location = useLocation();
 
-  if (editingParty !== "") {
-    return(
+  return editingParty !== "" ? 
+    (
+      <IonPage>
       <CreateParty editingParty={editingParty} displayParties={() => displayParties()}/>
+      </IonPage>
     )
-  } else {    
-    return(  
+    :
+    (  
       <IonPage>  
       <IonHeader>
       <IonToolbar class="ion-padding">      
@@ -555,13 +556,15 @@ const Home: React.FC = () => {
       </IonPage>
       )
   }
-}
+
 const Create: React.FC = () => {
 
   const [back, setBack] = useState(false)
   
   return(
+    <IonPage>
     <CreateParty editingParty={null} displayParties={() => setBack(!back)} />  
+    </IonPage>
   )
 }
 
