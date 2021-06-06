@@ -80,7 +80,6 @@ const MyPartyList = () => {
   const [usernameError, setUsernameError] = useState('');
   const [nameError, setNameError] = useState('');
   const [nameUpdated, setNameUpdated] = useState(false);
-  const [accountDeleted, setAccountDeleted] = useState(false);
   const [passwordUpdated, setPasswordUpdated] = useState(false);
 
   const [friends, setFriends] = useState([]);
@@ -270,7 +269,7 @@ const MyPartyList = () => {
       user.delete();
       setOldPassword('');
       setPasswordError('');
-      setAccountDeleted(true);
+      // now it should redirect to welcome page as authstate changes in app.tsx
     }).catch(error => {
       setPasswordError(error.message)
     })
@@ -437,9 +436,6 @@ const MyPartyList = () => {
           </IonToolbar>
           <IonContent class="list">
             <IonList class="list">      
-              <IonButton onClick={() => setSignOutPopover(true)}>
-                Sign out              
-              </IonButton> <br/>
               <IonButton onClick={() => setNamePopover(true)}>
                 Change name              
               </IonButton> <br/>
@@ -449,6 +445,9 @@ const MyPartyList = () => {
               <IonButton onClick={() => setPasswordPopover(true)}>
                 Change password              
               </IonButton><br/>
+              <IonButton onClick={() => setSignOutPopover(true)}>
+                Sign out              
+              </IonButton> <br/>              
               <IonButton onClick={() => setDeleteAccPopover(true)}>
                 Delete Account             
               </IonButton><br/>                
@@ -459,7 +458,7 @@ const MyPartyList = () => {
 
         <div id="myPartiesPage">
         <IonHeader>
-          <IonToolbar class="ion-padding">
+          <IonToolbar class="myparties-title ion-padding">
             <IonTitle class="ion-padding">My Parties</IonTitle>
           </IonToolbar>
           <IonToolbar class="myparties-toolbar">
@@ -468,7 +467,7 @@ const MyPartyList = () => {
               <IonRow class="ion-align-items-center">
                 <IonCol size="3">
                   <span onClick={()=>setShowFriends(true)}><IonIcon className="profile-icon" icon={peopleOutline}/></span>
-                </IonCol>
+                </IonCol> 
                 <IonCol size="6"> 
                   <IonText>{fullname}</IonText><br/>
                   <IonText class="white-text">{username}</IonText>
@@ -679,15 +678,6 @@ const MyPartyList = () => {
           :
           <IonItem lines="none">Add some friends to start partying!</IonItem>}
         </IonPopover>
-        <IonPopover
-          id="popover" 
-          cssClass="popover"        
-          isOpen={accountDeleted} 
-          onDidDismiss={() => setAccountDeleted(false)}        
-        >
-        <IonText>Account Deleted</IonText>
-        <IonButton href='/signin'>Ok</IonButton>
-        </IonPopover> 
         <IonPopover
           id="popover" 
           cssClass="popover"        

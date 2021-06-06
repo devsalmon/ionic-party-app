@@ -18,7 +18,6 @@ import {
   IonDatetime,
   IonTextarea,
   IonToast,
-  IonAlert,
   IonIcon,
   IonText,
 } from '@ionic/react';
@@ -128,8 +127,7 @@ const CreateParty = ({editingParty, displayParties}) => {
       } else if (inputsFilled === true && timesValid === true) {
           // if editing party, update the document, otheriwse add a new document 
           if (editingParty) {
-            console.log("editing")
-            collectionRef.doc(editingParty.id).update({
+            collectionRef.doc(editingParty.id).set({
               title: title, 
               address: address,
               postcode: postcode,
@@ -288,12 +286,12 @@ const CreateParty = ({editingParty, displayParties}) => {
     }
 
     return(
-      <IonPage>      
+      <>
       <IonHeader>
       <IonToolbar class="create-toolbar">
         {editingParty ? 
-        <IonButtons slot="start" class="create-back-button">
-          <IonButton fill="clear" href="/home">
+        <IonButtons slot="start">
+          <IonButton class="create-back-button" fill="clear" href="/home">
             <IonIcon color="dark" slot="icon-only" icon={chevronBackSharp}></IonIcon>
           </IonButton> 
         </IonButtons> : null}            
@@ -323,11 +321,25 @@ const CreateParty = ({editingParty, displayParties}) => {
           </IonItem>         
           <IonItem class="create-card-input" lines="none">
             <IonLabel>Starts*</IonLabel>
-            <IonDatetime class="create-datetime" value={dateTime} onIonChange={e => startTime(e)} displayFormat="DD-MMM HH:mm" placeholder="select"></IonDatetime>
+            <IonDatetime 
+            class="create-datetime" 
+            value={dateTime} 
+            onIonChange={e => startTime(e)} 
+            displayFormat="DD-MMM HH:mm" 
+            placeholder="select"
+            minuteValues="0, 15, 30, 45"
+            ></IonDatetime>
           </IonItem>
           <IonItem class="create-card-input" lines="none">
             <IonLabel>Ends*</IonLabel>
-            <IonDatetime class="create-datetime" value={endTime} onIonChange={e => setEndTime(e.detail.value!)} displayFormat="DD-MMM HH:mm" placeholder="select"></IonDatetime>
+            <IonDatetime 
+            class="create-datetime" 
+            value={endTime} 
+            onIonChange={e => setEndTime(e.detail.value!)} 
+            displayFormat="DD-MMM HH:mm" 
+            placeholder="select"
+            minuteValues="0, 15, 30, 45"
+            ></IonDatetime>
           </IonItem>        
           <IonItem class="create-card-input" lines="none">
             <IonTextarea maxlength={150} class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
@@ -461,7 +473,7 @@ const CreateParty = ({editingParty, displayParties}) => {
         </IonButton>   
       </IonPopover>             
       </IonContent>
-      </IonPage>
+      </>
     )
   };
 

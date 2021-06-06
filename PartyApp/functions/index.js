@@ -265,8 +265,8 @@ exports.sendCommentNotification = functions.firestore
   // send notification to party host when someone has accepted their invite
 exports.sendAcceptedInviteNotification = functions.firestore 
 .document("users/{userId}")
-  .onWrite(async (change, context) => {
-    let userName = change.after.username;
+  .onWrite(async (change) => {
+    const userName = change.after.username;
     let newAcceptedInvites = change.after.data().acceptedInvites ? change.after.data().acceptedInvites : [];
     let oldAcceptedInvites = change.before.data().acceptedInvites ? change.before.data().acceptedInvites : [];
     if (newAcceptedInvites.length > oldAcceptedInvites.length) {
@@ -287,7 +287,7 @@ exports.sendAcceptedInviteNotification = functions.firestore
             "notification": {"title":`${userName} has accepted your party invite!`}
           })                   
         }).then(res => {
-          console.log("Request complete! ", token);
+          console.log("Request complete! ", userName);
           return
         }).catch(err => {
           console.log(err.message)

@@ -10,11 +10,9 @@ import {
   IonTitle,
   IonInput, 
   IonText,
-  IonPopover,
-  IonRow,
+  IonFooter,
   IonBackButton,
   IonButtons,
-  IonToast,
   IonItem,
   IonLabel
 } from '@ionic/react';
@@ -235,11 +233,12 @@ const SignIn: React.FC = () => {
           {passwordError ? <div className="ion-padding"><IonText class="errormsg">{passwordError}</IonText></div> : null}
           {fieldsMissing ? <div className="ion-padding"><IonText class="errormsg">Please fill in all the fields</IonText></div>:null}               
           {/* <div id='sign-in-button'></div> */}
-          <IonButton class="signin-button" onClick={() => handleLogin()}>Sign in</IonButton>
           {emailorphoneError ? <div className="ion-padding"><IonText class="errormsg">{emailorphoneError}</IonText></div>:null}               
-                    
-        </div>          
+          </div>          
       </IonContent>
+      <IonFooter>
+        <IonButton class="signin-button" onClick={() => handleLogin()}>Sign in</IonButton>                    
+      </IonFooter>      
     </IonPage>
   )
 }

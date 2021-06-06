@@ -308,7 +308,6 @@ const Home: React.FC = () => {
   const [liveParties, setLiveParties] = useState([]);
   const [newNotifications, setNewNotifications] = useState(false);
   const [editingParty, setEditingParty] = useState(""); // holds data of the party being edited
-  const [deviceTokens, setDeviceTokens] = useState(""); // holds tokens of all current user's devices 
   var current_user = firebase.auth().currentUser; 
 
   useEffect(() => {  
@@ -487,19 +486,21 @@ const Home: React.FC = () => {
 
   const location = useLocation();
 
-  if (editingParty !== "") {
-    return(
+  return editingParty !== "" ? 
+    (
+      <IonPage>
       <CreateParty editingParty={editingParty} displayParties={() => displayParties()}/>
+      </IonPage>
     )
-  } else {    
-    return(  
+    :
+    (  
       <IonPage>  
       <IonHeader>
       <IonToolbar class="ion-padding">      
         <IonTitle class="ion-padding">
           Upcoming Parties
         </IonTitle>
-        <IonButtons slot="end">
+        <IonButtons class="add-friends-button" slot="end">
           <IonButton href='/users'>
             <IonIcon class="top-icons" slot="icon-only" icon={personAddSharp} />
           </IonButton>       
@@ -555,13 +556,15 @@ const Home: React.FC = () => {
       </IonPage>
       )
   }
-}
+
 const Create: React.FC = () => {
 
   const [back, setBack] = useState(false)
   
   return(
+    <IonPage>
     <CreateParty editingParty={null} displayParties={() => setBack(!back)} />  
+    </IonPage>
   )
 }
 
@@ -914,7 +917,7 @@ const App: React.FC = () => {
             <Route path='/signup' component={SignUp} />
             <Route path='/forgotpassword' component={ForgotPassword} />
             <Route path='/welcomepage' component={WelcomePage} />            
-            <Route exact path="/" render={() => <Redirect to="/welcomepage" />} />
+            <Route exact path={["/", "/myparties"]} render={() => <Redirect to="/welcomepage" />} />
           </IonRouterOutlet>    
         </IonReactRouter>                             
       ) : (       

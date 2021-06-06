@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef} from 'react';
-import { useHistory } from "react-router-dom";
 import firebase from '../firestore';
 import {
   IonButton,
+  IonFooter,
   IonPage,
   IonContent, 
   IonToolbar, 
@@ -477,16 +477,16 @@ const SignUp: React.FC = () => {
 
   return (
     <IonPage>
-      <IonToolbar class="ion-padding-top">
-          {lastSlide ? null :
+      <IonToolbar class="ion-padding">
+      {lastSlide ? null :
         <IonButtons slot="start">
           <IonBackButton class="signup-back-button" text="" defaultHref="/welcomepage" />
-        </IonButtons>}
-        <IonTitle class="ion-padding">Sign Up</IonTitle> 
-        {lastSlide ? null : <IonButtons slot="end">
-          <IonButton slot="end">{/*Help*/}</IonButton>
-        </IonButtons>}   
-      </IonToolbar>
+        </IonButtons>} 
+        <IonTitle class="ion-padding">Sign Up</IonTitle>
+        {/* <IonButtons slot="end">
+          <IonButton slot="end">Help</IonButton>
+        </IonButtons>     */}
+      </IonToolbar>      
       <IonContent id="signin-content" fullscreen={true}>      
       <IonSlides class="sign-up-slides" ref={slides} options={slideOpts} onIonSlideWillChange={()=>hideBtnsCheck()}>
 
@@ -529,26 +529,28 @@ const SignUp: React.FC = () => {
                 </div>                         
               </IonItem> 
               {passwordError ? <div><IonText class="errormsg">{passwordError}</IonText></div>:null}               
-              {fieldsMissing ? <div><IonText class="errormsg">Please fill in all the fields</IonText></div>:null}               
+              {fieldsMissing ? <div><IonText class="errormsg">Please fill in all the fields</IonText></div>:null}  
+              </div>             
+              <IonFooter>
               <IonButton className="signin-button" onClick={()=>slide0SignUp()}>Next</IonButton>
-
+              </IonFooter>
               {/* <div id='sign-in-button'></div> */}
               {/* <IonText>This site is protected by reCAPTCHA and the Google
               <a href="https://policies.google.com/privacy"> Privacy Policy </a> and
-              <a href="https://policies.google.com/terms"> Terms of Service </a> apply</IonText>               */}
-            </div>
+              <a href="https://policies.google.com/terms"> Terms of Service </a> apply</IonText>               */}            
           </IonSlide>   
  
           {/* Slide 1: Confirm email or phone number */}
           <IonSlide>
             <div className="signin-inputs">
             {/* if sign up method is email... */}
-              <> 
               <IonText>We have sent you an email, please click the link in the email to verify it before continuing</IonText>
-              <IonButton className="signin-button" onClick={()=>checkIfVerified()}>Next</IonButton>
-              <IonText class="errormsg">{emailError}</IonText><br/>
-              <IonButton onClick={() => setResendEmailPopover(true)}>Resend verification email</IonButton>
-              </>
+            </div>
+            <IonFooter>
+            <IonButton className="signin-button" onClick={()=>checkIfVerified()}>Next</IonButton>
+            <IonText class="errormsg">{emailError}</IonText><br/>
+            <IonButton onClick={() => setResendEmailPopover(true)}>Resend verification email</IonButton>
+            </IonFooter>
               {/* <IonItem lines="none">
               <IonLabel position="floating">SMS verification code</IonLabel>
               <IonInput 
@@ -560,8 +562,7 @@ const SignUp: React.FC = () => {
               {phoneError ? <div><IonText class="errormsg">{phoneError}</IonText></div>:null}
               <IonButton class="signin-button" onClick={()=>verifyCode()}>
                 Verify
-              </IonButton>                  */}
-              </div>
+              </IonButton>                  */}              
           </IonSlide>
 
           {/* Slide 2: Enter username */}
@@ -577,9 +578,10 @@ const SignUp: React.FC = () => {
               ></IonInput>
               </IonItem>
               {usernameError ? <div><IonText class="errormsg">{usernameError}</IonText></div>:null}
-              
-              <IonButton className="signin-button" onClick={()=>addUserInfo()}>Finish Up</IonButton>
               </div>
+              <IonFooter>
+              <IonButton className="signin-button" onClick={()=>addUserInfo()}>Finish Up</IonButton>
+              </IonFooter>              
 
               {/* <IonInput 
               class="create-input" 
@@ -609,9 +611,13 @@ const SignUp: React.FC = () => {
            
           {/* Slide 3: Welcome in */}
           <IonSlide>   
+          <div className="signin-inputs">
           <IonText>Welcome {fullname}!</IonText><br/>
+          </div>
+          <IonFooter>
           <IonButton className="signin-button" onClick={() => redirectToHome()}>Start Partying!</IonButton>
           <IonText>{emailError}</IonText><br/>
+          </IonFooter>
           </IonSlide>
         </IonSlides>            
       </IonContent>      
