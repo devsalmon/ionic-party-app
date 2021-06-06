@@ -16,7 +16,8 @@ import {
   IonSlide,
   IonBackButton,
   IonPopover,
-  IonLabel
+  IonLabel,
+  IonFooter
 } from '@ionic/react';
 import { 
   eyeOutline,
@@ -290,14 +291,14 @@ const ForgotPassword: React.FC = () => {
               {emailError ? <div className="ion-padding"><IonText class="errormsg">{emailError}</IonText></div>:null}
               {/* {phoneError ? <div className="ion-padding"><IonText class="errormsg">{phoneError}</IonText></div>:null}  */}
               {emailorphoneError ? <div className="ion-padding"><IonText class="errormsg">{emailorphoneError}</IonText></div>:null}
-
+              </div>
+              <IonFooter>
               <IonButton className="signin-button" onClick={()=>resetPassword()}>Next</IonButton>
-
+              </IonFooter>
               {/* <div id='sign-in-button'></div>
               <IonText>This site is protected by reCAPTCHA and the Google
               <a href="https://policies.google.com/privacy"> Privacy Policy </a> and
               <a href="https://policies.google.com/terms"> Terms of Service </a> apply</IonText>               */}
-            </div>
           </IonSlide>   
  
           {/* Slide 1: Create new password and confirm code */}
@@ -336,12 +337,12 @@ const ForgotPassword: React.FC = () => {
               <div className="ion-text-start"><IonButton onClick={() => prevSlide()}>Prev</IonButton></div>              
               </>
               : */}
-              <>
               <IonText>An email has been sent to {email_or_phone}, click the link in the email to reset your password.</IonText>
+              <IonText>{emailError}</IonText>  
+              </div>            
+              <IonFooter>
               <IonButton className="signin-button" href="/signin">Go to sign in</IonButton>
-              <IonText>{emailError}</IonText>
-              </>            
-              </div>
+              </IonFooter>
           </IonSlide>
         </IonSlides>            
       </IonContent>      

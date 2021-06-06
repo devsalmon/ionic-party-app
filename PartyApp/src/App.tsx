@@ -499,7 +499,7 @@ const Home: React.FC = () => {
         <IonTitle class="ion-padding">
           Upcoming Parties
         </IonTitle>
-        <IonButtons slot="end">
+        <IonButtons class="add-friends-button" slot="end">
           <IonButton href='/users'>
             <IonIcon class="top-icons" slot="icon-only" icon={personAddSharp} />
           </IonButton>       
@@ -914,7 +914,7 @@ const App: React.FC = () => {
             <Route path='/signup' component={SignUp} />
             <Route path='/forgotpassword' component={ForgotPassword} />
             <Route path='/welcomepage' component={WelcomePage} />            
-            <Route exact path="/" render={() => <Redirect to="/welcomepage" />} />
+            <Route exact path={["/", "/myparties"]} render={() => <Redirect to="/welcomepage" />} />
           </IonRouterOutlet>    
         </IonReactRouter>                             
       ) : (       

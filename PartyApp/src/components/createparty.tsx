@@ -292,8 +292,8 @@ const CreateParty = ({editingParty, displayParties}) => {
       <IonHeader>
       <IonToolbar class="create-toolbar">
         {editingParty ? 
-        <IonButtons slot="start" class="create-back-button">
-          <IonButton fill="clear" href="/home">
+        <IonButtons slot="start">
+          <IonButton class="create-back-button" fill="clear" href="/home">
             <IonIcon color="dark" slot="icon-only" icon={chevronBackSharp}></IonIcon>
           </IonButton> 
         </IonButtons> : null}            

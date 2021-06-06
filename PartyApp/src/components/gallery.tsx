@@ -323,8 +323,7 @@ const Picture = ({doc, hostid, partyid}) => {
       {otherComments && showComments && otherComments.map((comment, i) => {
         return(<Comment key={i} name={comment.name} comment={comment.comment} comid={comment.id} colref={collectionRef} picid={doc.id} deleteComment={() => deleteComment(comment.id)}/>)
       })}
-      <IonRow>
-
+      <IonRow class="comment-item">
       <IonItem lines="none">           
         <IonInput 
           ref={inputEl}
@@ -336,11 +335,10 @@ const Picture = ({doc, hostid, partyid}) => {
           onIonFocus={() => scrollContentUp()}>
         </IonInput>  
         {comment.trim() !== '' ? /*only show send button when there is text in the comment area */
-        <div className="eye-icon" slot="end">
+        <div className="send-icon" slot="end">
           <IonIcon onClick={writeComments} slot="end" icon={sendOutline} />
         </div> : null}                    
       </IonItem>
-
       </IonRow>
       <IonPopover
         cssClass="popover"        
@@ -348,7 +346,7 @@ const Picture = ({doc, hostid, partyid}) => {
         onDidDismiss={() => setDeletePhotoPopover(false)}
       >      
       <IonText>Delete this photo?</IonText><br/>
-      <IonButton class="yellow-text" onClick={() => deletePicture()}>YES</IonButton>
+      <IonButton class="yellow-text" onClick={() => deletePicture()}>Yes</IonButton>
       <IonButton class="yellow-text" onClick={() => setDeletePhotoPopover(false)}>No</IonButton>
       </IonPopover>
     </IonCard>  
