@@ -438,6 +438,8 @@ const Home: React.FC = () => {
         lp.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);      
         setUpcomingParties(up);
         setLiveParties(lp);  
+        console.log(upcomingParties)
+        console.log(liveParties)
       });
 
     firebase.firestore().collection("users")
@@ -508,12 +510,12 @@ const Home: React.FC = () => {
       </IonToolbar>
       </IonHeader>      
       <IonContent fullscreen={true} class="home-content">
-        <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
+        {/* <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
           <IonRefresherContent
             pullingIcon={chevronDownCircleOutline}
             refreshingSpinner="circles">
           </IonRefresherContent>
-        </IonRefresher> 
+        </IonRefresher>  */}
           {location.pathname === '/home' ? 
           <IonToast
             isOpen={newNotifications}

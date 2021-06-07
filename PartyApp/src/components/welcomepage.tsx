@@ -44,7 +44,7 @@ const WelcomePage: React.FC = () => {
       <IonContent class="welcome-page-content" id="welcome-page">   
         <IonIcon class="logo-icon" src={"assets/images/logo.svg"}></IonIcon>
         <div className="ion-padding"><IonText class="welcome-title">MOTIVE</IonText><br/></div>
-        <div className="ion-padding"><IonText>The app for organizing parties with friends and capturing memories.</IonText><br/></div>
+        <div className="ion-padding"><IonText>The app for organizing parties and capturing memories.</IonText><br/></div>
         <IonButton href="signup" class="custom-button">Get Started</IonButton>
         <IonButton href="signin" class="custom-button">Already have an account? Sign In</IonButton>
       </IonContent>

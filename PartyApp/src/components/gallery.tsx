@@ -22,13 +22,15 @@ import {
   IonItemOption,
   IonTextarea,
   IonPopover,
+  IonActionSheet
 } from '@ionic/react';
 import {   
   heartOutline,
   heart,
   sendOutline,
   closeSharp,
-  trashSharp
+  trashSharp,
+  ellipsisHorizontal
 } from 'ionicons/icons';
 import '../App.css'
 import firebase from '../firestore'
@@ -137,11 +139,12 @@ const Picture = ({doc, hostid, partyid}) => {
   const [numLikes, setNumLikes] = useState(Number); 
   const [ownPicture, setOwnPicture] = useState(Boolean);
   const [comment, setComment] = useState('');
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(true);
   const [otherComments, setOtherComments] = useState([]);
   const [displayName, setDisplayName] = useState('');
   const [takenBy, setTakenBy] = useState('');
   const [deletePhotoPopover, setDeletePhotoPopover] = useState(false);
+  const [showActionSheet, setShowActionSheet] = useState(false);
     
   var currentuser = firebase.auth().currentUser.uid
 
@@ -246,9 +249,39 @@ const Picture = ({doc, hostid, partyid}) => {
   )
 
   const removePicture = ownPicture ? (
-    <IonButton onClick={() => setDeletePhotoPopover(true)} fill="clear">
-      <IonIcon icon={trashSharp}/>
-    </IonButton>
+    <>
+      <IonButton onClick={() => setShowActionSheet(true)} expand="block">
+      <IonIcon icon={ellipsisHorizontal}/>
+      </IonButton>
+      <IonActionSheet
+        isOpen={showActionSheet}
+        onDidDismiss={() => setShowActionSheet(false)}
+        cssClass='my-custom-class'
+        buttons={[{
+          text: 'Delete',
+          role: 'destructive',
+          icon: trashSharp,
+          handler: () => {
+            console.log('Delete clicked');
+            setDeletePhotoPopover(true)
+          }
+        }, {
+          text: 'Share',
+         // icon: share,
+          handler: () => {
+            console.log('Share clicked');
+          }
+        }, {
+          text: 'Cancel',
+          //icon: close,
+          role: 'cancel',
+          handler: () => {
+            console.log('Cancel clicked');
+          }
+        }]}
+      >
+      </IonActionSheet>
+      </>
   ) : null 
 
   const writeComments = () => {
