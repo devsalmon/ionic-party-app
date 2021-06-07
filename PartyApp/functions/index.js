@@ -266,7 +266,6 @@ exports.sendCommentNotification = functions.firestore
 exports.sendAcceptedInviteNotification = functions.firestore 
 .document("users/{userId}")
   .onWrite(async (change) => {
-    const userName = change.after.username;
     let newAcceptedInvites = change.after.data().acceptedInvites ? change.after.data().acceptedInvites : [];
     let oldAcceptedInvites = change.before.data().acceptedInvites ? change.before.data().acceptedInvites : [];
     if (newAcceptedInvites.length > oldAcceptedInvites.length) {
@@ -284,10 +283,10 @@ exports.sendAcceptedInviteNotification = functions.firestore
           body: JSON.stringify({
             "priority": "high",
             "to": token,
-            "notification": {"title":`${userName} has accepted your party invite!`}
+            "notification": {"title":`${change.after.data().username} has accepted your party invite!`}
           })                   
         }).then(res => {
-          console.log("Request complete! ", userName);
+          console.log("Request complete! ", change.after.data().username);
           return
         }).catch(err => {
           console.log(err.message)

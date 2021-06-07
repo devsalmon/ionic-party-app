@@ -50,7 +50,8 @@ import {
   thumbsUpOutline,
   thumbsDownOutline,
   imagesOutline,
-  createOutline
+  createOutline,
+  peopleOutline
 } from 'ionicons/icons';
 import {
   PushNotificationSchema,
@@ -84,6 +85,7 @@ const Party = ({id, data, live, edit}) => {
 
   const [showToast, setShowToast] = useState(false);
   const [showPopover, setShowPopover] = useState(false);
+  const [showAccepted, setShowAccepted] = useState(false);
   const [pictureUploading, setPictureUploading] = useState(false);
   const [photo, setPhoto] = useState('');
   //const [videoUrls, setVideoUrls] = useState<any[]>([]);
@@ -208,14 +210,19 @@ const Party = ({id, data, live, edit}) => {
           </IonCol>      
         </IonRow> 
         <IonRow className="ion-text-center">
-            {currentUser === data.hostid ?  
-              <IonCol className="ion-align-self-center">
-              <IonButton color="dark" onClick={edit}>
-                <IonIcon slot="icon-only" icon={createOutline} />
-              </IonButton>
-              </IonCol>
-             : null
-            }                  
+          {currentUser === data.hostid ?  
+            <IonCol className="ion-align-self-center">
+            <IonButton color="dark" onClick={edit}>
+              <IonIcon slot="icon-only" icon={createOutline} />
+            </IonButton>
+            </IonCol>
+            : null
+          } 
+          <IonCol className="ion-align-self-center">    
+            <IonButton color="dark" onClick={()=> setShowAccepted(true)}>
+              <IonIcon slot="icon-only" icon={peopleOutline}/>
+            </IonButton>
+          </IonCol>                           
           <IonCol className="ion-align-self-center">    
             <IonButton color="dark" onClick={()=> setShowPopover(true)}>
               <IonIcon slot="icon-only" src="assets/icon/balloon-outline.svg"/>
@@ -271,12 +278,22 @@ const Party = ({id, data, live, edit}) => {
         {data.postcode ? <IonItem lines="none">Postcode: {data.postcode} </IonItem> : null}
         {data.dresscode ? <IonItem lines="none">Dress Code: {data.dresscode} </IonItem> : null}
         {data.drinksProvided ? <IonItem lines="none">Drinks Provided: {data.drinksProvided} </IonItem> : null}
-        {data.postcode ? <IonItem lines="none">Postcode: {data.postcode} </IonItem> : null}
         <IonItem lines="none">Starts: {moment(data.dateTime).format('ddd, LT')}</IonItem>     
         <IonItem lines="none">Ends: {moment(data.endTime).format('ddd, LT')}</IonItem>
-        {data.invited_people ? <IonItem lines="none">Number of Invites: {data.invited_people.length}</IonItem>  : null}
+        {data.invited_people ? <IonItem lines="none">Number of Invites: {data.invited_people.length}</IonItem>  : null}        
         {data.details ? <IonItem lines="none">Details: {data.details}</IonItem> : null } 
-      </IonPopover>    
+      </IonPopover>  
+      <IonPopover
+        cssClass="party-details-popover"        
+        isOpen={showAccepted}
+        onDidDismiss={() => setShowAccepted(false)}
+      >
+        {/* if not blank then display detail in pop up */}
+        {data.accepted_invites ? data.accepted_invites.map((invitee, i) => {
+          <IonItem lines="none">{data.accepted_invites[i]} </IonItem> 
+        })
+        : <IonItem>No accepted invites yet</IonItem>}
+      </IonPopover>          
       <IonToast 
       isOpen={showToast}
       onDidDismiss={() => setShowToast(false)}
@@ -741,7 +758,11 @@ const PartyRequest = ({hostid, partyid, click}) => {
     firebase.firestore().collection("users").doc(current_user_id).update({
         myInvites: firebase.firestore.FieldValue.arrayRemove({hostid, partyid}),
         acceptedInvites: firebase.firestore.FieldValue.arrayUnion({hostid: hostid, partyid: partyid}),        
-      }).then(() => click());
+      }).then(() => { // add current user id to party doc accepted_invites section
+        firebase.firestore().collection("users").doc(hostid).collection("myParties").doc(partyid).update({
+          accepted_invites: firebase.firestore.FieldValue.arrayUnion(userName)
+        }).then(() => click());
+      })
   }
 
   const declineInvite = async() => {
