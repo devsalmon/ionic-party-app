@@ -339,7 +339,6 @@ const Home: React.FC = () => {
     if (doc.exists && doc.data().request_from) {
       for (var i = 0; i < doc.data().request_from.length; i++) {
         var curr_id = doc.data().request_from[i].id
-        var curr_name = doc.data().request_from[i].name
         var alreadyInReq = reqs.some(item => curr_id === item.id);
         if (alreadyInReq) { 
           setNewNotifications(false);
@@ -455,8 +454,11 @@ const Home: React.FC = () => {
         lp.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);      
         setUpcomingParties(up);
         setLiveParties(lp);  
+        console.log(up, lp)
         console.log(upcomingParties)
         console.log(liveParties)
+      }).catch((err) => {
+        console.log(err.message)
       });
 
     firebase.firestore().collection("users")
@@ -508,7 +510,7 @@ const Home: React.FC = () => {
   return editingParty !== "" ? 
     (
       <IonPage>
-      <CreateParty editingParty={editingParty} displayParties={() => displayParties()}/>
+      <CreateParty editingParty={editingParty}/>
       </IonPage>
     )
     :
@@ -577,12 +579,10 @@ const Home: React.FC = () => {
   }
 
 const Create: React.FC = () => {
-
-  const [back, setBack] = useState(false)
   
   return(
     <IonPage>
-    <CreateParty editingParty={null} displayParties={() => setBack(!back)} />  
+    <CreateParty editingParty={null} />  
     </IonPage>
   )
 }

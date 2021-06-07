@@ -23,6 +23,11 @@
     background-image: linear-gradient(to top left, #d62839, black);
 }
 
+.action-sheet {
+    --button-color: #ffd046;
+    --color: #ffd046
+}
+
 .add-friends-button {
     position: relative !important;
 }

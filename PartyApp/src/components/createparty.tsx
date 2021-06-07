@@ -46,7 +46,7 @@ import '@ionic/react/css/display.css';
 import '../variables.css';
 import algoliasearch from 'algoliasearch/lite';
 
-const CreateParty = ({editingParty, displayParties}) => {
+const CreateParty = ({editingParty}) => {
 
     var currentuser = firebase.auth().currentUser
     const friendsCollection = firebase.firestore().collection('friends'); 
@@ -126,8 +126,8 @@ const CreateParty = ({editingParty, displayParties}) => {
         setTimeError(true)
       } else if (inputsFilled === true && timesValid === true) {
           // if editing party, update the document, otheriwse add a new document 
-          if (editingParty) {
-            collectionRef.doc(editingParty.id).set({
+          if (editingParty !== null) {
+            collectionRef.doc(editingParty.id).update({
               title: title, 
               address: address,
               postcode: postcode,

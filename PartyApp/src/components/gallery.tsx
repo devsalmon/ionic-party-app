@@ -256,7 +256,7 @@ const Picture = ({doc, hostid, partyid}) => {
       <IonActionSheet
         isOpen={showActionSheet}
         onDidDismiss={() => setShowActionSheet(false)}
-        cssClass='my-custom-class'
+        cssClass='action-sheet'
         buttons={[{
           text: 'Delete',
           role: 'destructive',
