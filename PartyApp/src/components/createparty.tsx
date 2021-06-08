@@ -151,12 +151,12 @@ const CreateParty = ({editingParty}) => {
                   userDocument.get().then(doc => {
                     var hasmyinvites = false
                     var alreadyInMI = false
-                    doc.data().forEach((key) => {
-                      if (key === "myInvites") {
+                    for (const property in doc.data()) {
+                      if (property === "myInvites") {
                         hasmyinvites = true;
-                        alreadyInMI = doc.data().myInvites.some(item => editingParty.id === item);                  
+                        alreadyInMI = doc.data().myInvites.some(item => editingParty.id === item);    
                       }
-                    })
+                    }
                     if (!alreadyInMI || !hasmyinvites) {
                       userDocument.update({
                         // add party id to user documents

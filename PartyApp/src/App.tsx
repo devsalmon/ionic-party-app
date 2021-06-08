@@ -93,9 +93,11 @@ const Party = ({id, data, live, edit}) => {
   const [host, setHost] = useState('');
   const [pictureError, setPictureError] = useState('');
   const [currentUser, setCurrentUser] = useState(''); // id of current user
+  console.log(data.hostid)
+  console.log(data)
   const collectionRef = firebase.firestore().collection("users").doc(data.hostid).collection("myParties");  
 
-  useEffect(()=>{        
+  useEffect(()=>{            
     firebase.firestore().collection("users").doc(data.hostid).get().then(doc => {
       setHost(doc.data().username);
     })        
@@ -288,11 +290,10 @@ const Party = ({id, data, live, edit}) => {
         isOpen={showAccepted}
         onDidDismiss={() => setShowAccepted(false)}
       >
-        {/* if not blank then display detail in pop up */}
-        {data.accepted_invites ? data.accepted_invites.map((invitee, i) => {
-          <IonItem lines="none">{data.accepted_invites[i]} </IonItem> 
+        {data.accepted_invites && data.accepted_invites.length > 0 ? data.accepted_invites.map((invitee, i) => {
+          return(<IonItem lines="none" key={i}>{invitee}</IonItem>) 
         })
-        : <IonItem>No accepted invites yet</IonItem>}
+        : <IonItem lines="none">No accepted invites yet</IonItem>}
       </IonPopover>          
       <IonToast 
       isOpen={showToast}
@@ -329,7 +330,7 @@ const Home: React.FC = () => {
 
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once    
-    displayParties();   
+    displayParties()
     // this means display parties only runs once
   },  []); 
 
@@ -449,11 +450,9 @@ const Home: React.FC = () => {
               }   
             }             
           }
-        })
-        up.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);
-        lp.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);      
-        setUpcomingParties(up);
-        setLiveParties(lp);  
+          setUpcomingParties(up.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1));
+          setLiveParties(lp.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1));            
+        })                    
         console.log(up, lp)
         console.log(upcomingParties)
         console.log(liveParties)
@@ -490,12 +489,12 @@ const Home: React.FC = () => {
                         }   
                       }             
                     }
+                    up.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);
+                    lp.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);
+                    setUpcomingParties(up);        
+                    setLiveParties(lp);              
               })
-            } 
-            up.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);
-            lp.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);
-            setUpcomingParties(up);        
-            setLiveParties(lp);            
+            }           
           }                           
     });       
   }
@@ -507,14 +506,15 @@ const Home: React.FC = () => {
 
   const location = useLocation();
 
-  return editingParty !== "" ? 
-    (
+  if (editingParty !== "") {
+    return(
       <IonPage>
       <CreateParty editingParty={editingParty}/>
       </IonPage>
     )
-    :
-    (  
+  }  
+  else {
+    return(  
       <IonPage>  
       <IonHeader>
       <IonToolbar class="ion-padding">      
@@ -529,12 +529,12 @@ const Home: React.FC = () => {
       </IonToolbar>
       </IonHeader>      
       <IonContent fullscreen={true} class="home-content">
-        {/* <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
+        <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
           <IonRefresherContent
             pullingIcon={chevronDownCircleOutline}
             refreshingSpinner="circles">
           </IonRefresherContent>
-        </IonRefresher>  */}
+        </IonRefresher> 
           {location.pathname === '/home' ? 
           <IonToast
             isOpen={newNotifications}
@@ -576,6 +576,8 @@ const Home: React.FC = () => {
       </IonContent>         
       </IonPage>
       )
+    
+  }
   }
 
 const Create: React.FC = () => {
@@ -758,11 +760,13 @@ const PartyRequest = ({hostid, partyid, click}) => {
     firebase.firestore().collection("users").doc(current_user_id).update({
         myInvites: firebase.firestore.FieldValue.arrayRemove({hostid, partyid}),
         acceptedInvites: firebase.firestore.FieldValue.arrayUnion({hostid: hostid, partyid: partyid}),        
-      }).then(() => { // add current user id to party doc accepted_invites section
-        firebase.firestore().collection("users").doc(hostid).collection("myParties").doc(partyid).update({
-          accepted_invites: firebase.firestore.FieldValue.arrayUnion(userName)
-        }).then(() => click());
-      })
+    }).then(() => {
+      // add current user id to party doc accepted_invites section
+      firebase.firestore().collection("users").doc(hostid).collection("myParties").doc(partyid).update({
+        accepted_invites: firebase.firestore.FieldValue.arrayUnion(userName)
+      }).then(() => click());
+    })
+   
   }
 
   const declineInvite = async() => {
