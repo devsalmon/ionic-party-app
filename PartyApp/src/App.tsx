@@ -93,8 +93,6 @@ const Party = ({id, data, live, edit}) => {
   const [host, setHost] = useState('');
   const [pictureError, setPictureError] = useState('');
   const [currentUser, setCurrentUser] = useState(''); // id of current user
-  console.log(data.hostid)
-  console.log(data)
   const collectionRef = firebase.firestore().collection("users").doc(data.hostid).collection("myParties");  
 
   useEffect(()=>{            
@@ -290,6 +288,7 @@ const Party = ({id, data, live, edit}) => {
         isOpen={showAccepted}
         onDidDismiss={() => setShowAccepted(false)}
       >
+        <IonItem lines="full">Accepted Invites:</IonItem>
         {data.accepted_invites && data.accepted_invites.length > 0 ? data.accepted_invites.map((invitee, i) => {
           return(<IonItem lines="none" key={i}>{invitee}</IonItem>) 
         })
@@ -331,6 +330,7 @@ const Home: React.FC = () => {
   useEffect(() => {  
     // useeffect hook only runs after first render so it only runs once    
     displayParties()
+    checkForRequests()
     // this means display parties only runs once
   },  []); 
 
@@ -419,43 +419,47 @@ const Home: React.FC = () => {
   }
 
   const displayParties = () => {       
-    setUpcomingParties([]);
-    setLiveParties([]);   
-    var up = [];
-    var lp = [];
-
     firebase.firestore().collection("users")
       .doc(current_user.uid).collection("myParties").get().then(querySnapshot => {
         querySnapshot.forEach(doc => {          
           let data = doc.data();      
           var endTime = moment(data.endTime).add(20, 'hours');
           if (moment().isBefore(data.dateTime)) { 
-            up.push({id: doc.id, data: data});
+            setUpcomingParties(upcomingParties => [
+              ...upcomingParties,
+              {
+                id: doc.id,
+                data: data,
+              }
+            ]);            
           } else if
           (moment().isBetween(data.dateTime, endTime)) {
             // if party is live
-            lp.push({id: doc.id, data: data});
+            setLiveParties(liveParties => [
+              ...liveParties,
+              {
+                id: doc.id,
+                data: data,
+              }
+            ]);            
             // remove the party from upcomingParties array if party turns live
             for (var i=0; i < upcomingParties.length; i++) {
-              if (up[i].id === doc.id) {
-                  up.splice(i,1);
+              if (upcomingParties[i].id === doc.id) {
+                  upcomingParties.splice(i,1);
                   break;
               }   
             }             
           } else if (moment().isAfter(endTime)) {
-            for (var j=0; j < lp.length; j++) { 
-              if (lp[j].id === doc.id) {
-                  lp.splice(j,1);
+            for (var j=0; j < liveParties.length; j++) { 
+              if (liveParties[j].id === doc.id) {
+                  liveParties.splice(j,1);
                   break;
               }   
             }             
           }
-          setUpcomingParties(up.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1));
-          setLiveParties(lp.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1));            
+          upcomingParties.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);
+          liveParties.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);            
         })                    
-        console.log(up, lp)
-        console.log(upcomingParties)
-        console.log(liveParties)
       }).catch((err) => {
         console.log(err.message)
       });
@@ -469,30 +473,40 @@ const Home: React.FC = () => {
                 .doc(data.acceptedInvites[i].hostid).collection("myParties").doc(data.acceptedInvites[i].partyid).get().then(partydoc => {
                   var endTime = moment(partydoc.data().endTime).add(20, 'hours');
                   if (moment().isBefore(partydoc.data().dateTime)) { 
-                    up.push({id: partydoc.id, data: partydoc.data()});
+                    setUpcomingParties(upcomingParties => [
+                      ...upcomingParties,
+                      {
+                        id: partydoc.id,
+                        data: partydoc.data(),
+                      }
+                    ]);                     
                   } else if 
                   (moment().isBetween(partydoc.data().dateTime, endTime)) {
                     // if party is live
-                    lp.push({id: partydoc.id, data: partydoc.data()});
+                    setLiveParties(liveParties => [
+                      ...liveParties,
+                      {
+                        id: partydoc.id,
+                        data: partydoc.data(),
+                      }
+                    ]);                     
                     // remove the party from upcomingParties array 
-                    for (var i=0; i < up.length; i++) {
-                      if (up[i].id === partydoc.id) {
-                          up.splice(i,1);
+                    for (var i=0; i < upcomingParties.length; i++) {
+                      if (upcomingParties[i].id === partydoc.id) {
+                          upcomingParties.splice(i,1);
                           break;
                       }   
                     }             
                   } else if (moment().isAfter(endTime)) {
-                      for (var j=0; j < lp.length; j++) {
-                        if (lp[j].id === doc.id) {
-                            lp.splice(j,1);
+                      for (var j=0; j < liveParties.length; j++) {
+                        if (liveParties[j].id === doc.id) {
+                            liveParties.splice(j,1);
                             break;
                         }   
                       }             
                     }
-                    up.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);
-                    lp.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);
-                    setUpcomingParties(up);        
-                    setLiveParties(lp);              
+                    upcomingParties.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);
+                    liveParties.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);             
               })
             }           
           }                           
@@ -506,15 +520,14 @@ const Home: React.FC = () => {
 
   const location = useLocation();
 
-  if (editingParty !== "") {
-    return(
+  return editingParty !== "" ? 
+    (
       <IonPage>
       <CreateParty editingParty={editingParty}/>
       </IonPage>
     )
-  }  
-  else {
-    return(  
+    :
+    (  
       <IonPage>  
       <IonHeader>
       <IonToolbar class="ion-padding">      
@@ -529,12 +542,12 @@ const Home: React.FC = () => {
       </IonToolbar>
       </IonHeader>      
       <IonContent fullscreen={true} class="home-content">
-        <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
+        {/* <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
           <IonRefresherContent
             pullingIcon={chevronDownCircleOutline}
             refreshingSpinner="circles">
           </IonRefresherContent>
-        </IonRefresher> 
+        </IonRefresher>  */}
           {location.pathname === '/home' ? 
           <IonToast
             isOpen={newNotifications}
@@ -576,8 +589,6 @@ const Home: React.FC = () => {
       </IonContent>         
       </IonPage>
       )
-    
-  }
   }
 
 const Create: React.FC = () => {

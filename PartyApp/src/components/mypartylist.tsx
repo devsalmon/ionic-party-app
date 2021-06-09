@@ -95,31 +95,35 @@ const MyPartyList = () => {
     // //script.async = true;
     // //script.onload = () => scriptLoaded();
     // document.body.appendChild(script); 
-    firebase.firestore().collection("users").doc(user.uid).get().then(doc => {
-      let data = doc.data()
-      if (data.partiesWithNotifications) {
-        if (data.partiesWithNotifications.length === 0) {
-          firebase.firestore().collection("users").doc(user.uid).update({
-            myPartiesNotifications: false
-          }).catch(err => {
-            console.log(err.message)
-          });
+    async function getUserDoc() {
+      await firebase.firestore().collection("users").doc(user.uid).get().then(doc => {
+        let data = doc.data()
+        if (data.partiesWithNotifications) {
+          if (data.partiesWithNotifications.length === 0) {
+            firebase.firestore().collection("users").doc(user.uid).update({
+              myPartiesNotifications: false
+            }).catch(err => {
+              console.log(err.message)
+            });
+          }
         }
-      }
-      setFullname(data.fullname);
-      setUsername(data.username);
-      var pwn = data.partiesWithNotifications ? data.partiesWithNotifications : [];
-      displayParties(pwn); 
-    })
-    findFriends();  
-    // useeffect hook only runs after first render so it only runs once    
-    //finds the number of friends you have.
-    firebase.firestore().collection("friends")
-    .doc(currentuser).get().then(function(doc) {
-        if (doc.exists) {
-          setFriend_no(doc.data().friends.length);
-        }
-      })         
+        setFullname(data.fullname);
+        setUsername(data.username);
+        var pwn = data.partiesWithNotifications ? data.partiesWithNotifications : [];
+        displayParties(pwn); 
+        findFriends();
+        //finds the number of friends you have.
+        firebase.firestore().collection("friends")
+        .doc(currentuser).get().then(function(doc) {
+            if (doc.exists) {
+              setFriend_no(doc.data().friends.length);
+            }
+          })           
+      })      
+    } 
+
+    getUserDoc();
+    // useeffect hook only runs after first render so it only runs once          
     // useeffect makes display parties only runs once
   }, [refresh, inGallery]); 
 
@@ -148,7 +152,7 @@ const MyPartyList = () => {
 
   function doRefresh(event) {
     // toggle new parties so displayParties runs and it checks for new parties    
-    setRefresh(!refresh);         
+    //setRefresh(!refresh);         
     setTimeout(() => {
       event.detail.complete();
     }, 2000);
@@ -298,23 +302,28 @@ const MyPartyList = () => {
   }  
 
  const displayParties = (pwn) => {          
-   setYourParties([]);
-   setAttendedParties([]);
-   var yp = [];
-   var ap = [];
     // get your parties
     firebase.firestore().collection("users")
       .doc(currentuser).collection("myParties").get().then(querySnapshot => {        
         querySnapshot.forEach(doc => {
           let data = doc.data();         
           var hasNotifications = pwn.some(item => doc.id === item);
+          var alreadyInYP = yourParties.some(item => doc.id === item.id)
           if (moment().isAfter(data.dateTime)) { 
-            yp.push({id: doc.id, data: doc.data(), notifications: hasNotifications});
+            if (!alreadyInYP) {
+              setYourParties(yourParties => [
+                ...yourParties,
+                {
+                  id: doc.id,
+                  data: doc.data(),
+                  notifications: hasNotifications
+                }
+              ]); 
+            }            
           } 
         })
-        yp.sort((a, b) => moment(a.data.dateTime).unix() < moment(b.data.dateTime).unix() ? 1:-1);
-        setYourParties(yp);        
-        yp.map(y=>{console.log(moment(y.data.dateTime).unix(), y.data.dateTime)})
+        yourParties.sort((a, b) => moment(a.data.dateTime).unix() < moment(b.data.dateTime).unix() ? 1:-1);
+        yourParties.map(y=>{console.log(moment(y.data.dateTime).unix(), y.data.dateTime)})
       })
 
     // get attended parties
@@ -326,14 +335,23 @@ const MyPartyList = () => {
               firebase.firestore().collection("users")
                 .doc(data.acceptedInvites[i].hostid).collection("myParties").doc(data.acceptedInvites[i].partyid).get().then(partydoc => {
                   var hasNotifications = pwn.some(item => partydoc.id === item);
+                  var alreadyInAP = attendedParties.some(item => partydoc.id === item.id)
                   if (moment().isAfter(partydoc.data().dateTime)) {
-                    ap.push({id: partydoc.id, data: partydoc.data(), notifications: hasNotifications});
+                    if (!alreadyInAP) {
+                      setAttendedParties(attendedParties => [
+                        ...attendedParties,
+                        {
+                          id: partydoc.id,
+                          data: partydoc.data(),
+                          notifications: hasNotifications
+                        }
+                      ]);    
+                    }                  
                     // if party is live          
                   }
               })
             }                   
-            ap.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);
-            setAttendedParties(ap);    
+            attendedParties.sort((a, b) => moment(a.data.dateTime).unix() > moment(b.data.dateTime).unix() ? 1:-1);
           }
     });      
   }  
@@ -499,18 +517,18 @@ const MyPartyList = () => {
         </IonToolbar>
         </IonHeader>
           <IonContent fullscreen={true}>
-            <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
+            {/* <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
               <IonRefresherContent
                 pullingIcon={chevronDownCircleOutline}
                 refreshingSpinner="circles">
               </IonRefresherContent>
-            </IonRefresher>                     
+            </IonRefresher>                      */}
             {selected === "attended" ? 
             attendedParties.length === 0 ?
             <IonText class="white-text">You haven't attended any parties yet..</IonText> :          
             attendedParties.map((party, i) => {
               return(
-                <Memory notifications={party.notifications} id={party.id} data={party.data} key={i} click={() => enter(party.id, party.data.hostid)}/>
+                <Memory notifications={party.notifications} data={party.data} key={i} click={() => enter(party.id, party.data.hostid)}/>
               )          
             }) : null}   
             {selected === "hosted" ?
@@ -518,7 +536,7 @@ const MyPartyList = () => {
             <IonText class="white-text">You haven't hosted any parties yet..</IonText> : 
             yourParties.map((party, j) => {
               return(              
-                <Memory notifications={party.notifications} id={party.id} data={party.data} key={j} click={() => enter(party.id, party.data.hostid)}/>
+                <Memory notifications={party.notifications} data={party.data} key={j} click={() => enter(party.id, party.data.hostid)}/>
               )          
             }) : null} 
             </IonContent>       

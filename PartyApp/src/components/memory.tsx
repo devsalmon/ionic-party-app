@@ -27,7 +27,7 @@ import '../variables.css';
 import firebase from '../firestore'
 
 
-const Memory = ({notifications, id, data, click}) => {
+const Memory = ({notifications, data, click}) => {
   // party card  
   const [host, setHost] = useState('');
  
