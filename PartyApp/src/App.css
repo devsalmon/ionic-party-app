@@ -257,6 +257,10 @@
     border-radius: 10px;    
 }
 
+.popover-content {
+    width: 120%
+}
+
 .popover {
     --background: #0f0e0e;
     color: #0f0e0e;

@@ -33,7 +33,6 @@ import Memory from './memory';
 import { 
   chevronBackSharp,
   settingsSharp,
-  personOutline,
   peopleOutline,
 } from 'ionicons/icons';
 import '../App.css'
@@ -667,7 +666,7 @@ const MyPartyList = () => {
         </IonPopover>             */}
         <IonPopover
           id="popover" 
-          cssClass="popover"        
+          cssClass="friends-popover"        
           isOpen={showFriends}
           onDidDismiss={() => setShowFriends(false)}        
         >
@@ -679,10 +678,7 @@ const MyPartyList = () => {
               {friends && friends.map((friend, k) => {
                   return(
                     <IonItem lines="none" key={k}>
-                      <IonCol size="4">
-                        <IonIcon className="profile-icon" icon={personOutline}/>
-                      </IonCol>
-                      <IonCol size="9">
+                      <IonCol>
                         <IonRow>
                           <IonText>{friend.username}</IonText>   
                         </IonRow>
