@@ -6,9 +6,6 @@ import {
   IonText,
   IonIcon
 } from '@ionic/react';
-import { 
-  eyeOutline,
-} from 'ionicons/icons';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */

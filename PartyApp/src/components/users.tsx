@@ -73,7 +73,6 @@ const UserItem = ({username, fullname, id}) => {
   const [addDisabled, setAddDisabled] = useState(false);
   const [cancelDisabled, setCancelDisabled] = useState(true);
   const [alreadyFriends, setAlreadyFriends] = useState(false);
-  const [requestAlreadySent, setRequestAlreadySent] = useState(false);
   const friendRequestsRef = firebase.firestore().collection("friend_requests");
   const friendsRef = firebase.firestore().collection("friends");
 
@@ -89,11 +88,9 @@ const UserItem = ({username, fullname, id}) => {
           var alreadyRequested = data.request_to.some(item => receiver_user_id === item.id);
           if (alreadyRequested) {
             // if user has already sent request to the user, disable add button 
-            setRequestAlreadySent(true);
             setAddDisabled(true);
             setCancelDisabled(false);
           } else {
-            setRequestAlreadySent(false);            
             // check if the users are already friends, and if so, disable add button
             friendsRef.doc(sender_user_id).get()
               .then(docSnapshot => {

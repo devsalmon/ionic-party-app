@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect } from 'react';
 import {
   IonText,
   IonPopover,
@@ -35,7 +35,6 @@ import {
   settingsSharp,
   personOutline,
   peopleOutline,
-  chevronDownCircleOutline
 } from 'ionicons/icons';
 import '../App.css'
 /* Core CSS required for Ionic components to work properly */

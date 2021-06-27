@@ -28,7 +28,6 @@ import {
   heartOutline,
   heart,
   sendOutline,
-  closeSharp,
   trashSharp,
   ellipsisHorizontal
 } from 'ionicons/icons';

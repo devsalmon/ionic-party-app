@@ -80,21 +80,21 @@ const SignIn: React.FC = () => {
     // }); 
   }, [])
 
-  var actionCodeSettings = {
-    url: 'http://localhost:8100/signup',
-    iOS: {
-      bundleId: 'com.partyuptest.partyapp'
-    },
-    android: {
-      packageName: 'com.charke.partyapp',
-      installApp: true,
-      minimumVersion: '12'
-   },
-    handleCodeInApp: false,
-    // When multiple custom dynamic link domains are defined, specify which
-    // one to use.
-   dynamicLinkDomain: "motivepartyapp.page.link"
-  };  
+  // var actionCodeSettings = {
+  //   url: 'http://localhost:8100/signup',
+  //   iOS: {
+  //     bundleId: 'com.partyuptest.partyapp'
+  //   },
+  //   android: {
+  //     packageName: 'com.charke.partyapp',
+  //     installApp: true,
+  //     minimumVersion: '12'
+  //  },
+  //   handleCodeInApp: false,
+  //   // When multiple custom dynamic link domains are defined, specify which
+  //   // one to use.
+  //  dynamicLinkDomain: "motivepartyapp.page.link"
+  // };  
 
   const clearErrors = () => {
     setEmailorphoneError('');

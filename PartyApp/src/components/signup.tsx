@@ -71,7 +71,6 @@ const SignUp: React.FC = () => {
   const [usernameError, setUsernameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   //const [phoneError, setPhoneError] = useState('');
-  const [dobError, setDobError] = useState('');
   const [fieldsMissing, setFieldsMissing] = useState(false);
   const [loading, setLoading] = useState(false);
   //const [code, setCode] = useState('');
@@ -158,7 +157,6 @@ const SignUp: React.FC = () => {
     setFullnameError('');
     setUsernameError('');
     setPasswordError('');
-    setDobError('');
     //setPhoneError('');      
     setFieldsMissing(false);  
   }

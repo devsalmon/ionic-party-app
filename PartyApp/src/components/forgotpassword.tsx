@@ -6,7 +6,6 @@ import {
   IonContent, 
   IonToolbar, 
   IonButtons, 
-  IonIcon,
   IonTitle,
   IonInput,  
   IonText,
@@ -19,9 +18,6 @@ import {
   IonLabel,
   IonFooter
 } from '@ionic/react';
-import { 
-  eyeOutline,
-} from 'ionicons/icons';
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */
@@ -52,10 +48,6 @@ const ForgotPassword: React.FC = () => {
   const [email_or_phone, setEmail_or_phone] = useState(
     window.localStorage.getItem("email_or_phone") || ""
   );
-  const [signUpMethod, setSignUpMethod] = useState(
-    window.localStorage.getItem("signUpMethod") || ""
-  );    
-  const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState('');
   // const [phoneError, setPhoneError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -63,8 +55,6 @@ const ForgotPassword: React.FC = () => {
   const [resendEmailPopover, setResendEmailPopover] = useState(false);
   const [lastSlide, setLastSlide] = useState(false);
   const [emailorphoneError, setEmailorphoneError] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [newPasswordError, setNewPasswordError] = useState("");
   const slides = useRef(null);
 
   // When this component renders
@@ -120,15 +110,15 @@ const ForgotPassword: React.FC = () => {
     setLoading(false);
   }
 
-  const prevSlide = async() => {
-    let swiper = await slides.current.getSwiper()
-    if (swiper.isBeginning) {
-      return false 
-    } else {
-      swiper.slidePrev()
-      return true 
-    }
-  }
+  // const prevSlide = async() => {
+  //   let swiper = await slides.current.getSwiper()
+  //   if (swiper.isBeginning) {
+  //     return false 
+  //   } else {
+  //     swiper.slidePrev()
+  //     return true 
+  //   }
+  // }
 
   const slideOpts = {
     allowTouchMove: false 
@@ -139,10 +129,10 @@ const ForgotPassword: React.FC = () => {
     //setPhoneError('');       
   }
 
-  const validateEmail = (email) => {
-    const re = RegExp(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
-    return re.test(email);
-  }  
+  // const validateEmail = (email) => {
+  //   const re = RegExp(/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+  //   return re.test(email);
+  // }  
 
   // const validatePhone = (num) => {
   //   var re = new RegExp(/^\+?([0-9]{1,4})\)?[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})$/g);
@@ -156,14 +146,14 @@ const ForgotPassword: React.FC = () => {
   //   }    
   // }  
   
-  const redirect = () => {
-    const user = firebase.auth().currentUser;
-    console.log(user.displayName, user.uid);
-    user.reload();
-    if (user.emailVerified && user.displayName !== null) { // if user has signed in by pressing a button in sign up, but isn't verified  
-      window.location.href=window.location.href; // reloads app
-    }  
-  }
+  // const redirect = () => {
+  //   const user = firebase.auth().currentUser;
+  //   console.log(user.displayName, user.uid);
+  //   user.reload();
+  //   if (user.emailVerified && user.displayName !== null) { // if user has signed in by pressing a button in sign up, but isn't verified  
+  //     window.location.href=window.location.href; // reloads app
+  //   }  
+  // }
 
   // const updateEmailorphone = (val) => {
   //   var re = new RegExp(/^\+?([0-9]{1,4})\)?[-. ]?([0-9]{1,4})[-. ]?([0-9]{1,4})$/g);
@@ -209,7 +199,7 @@ const ForgotPassword: React.FC = () => {
       //     })
       // } else 
       // if (validateEmail(email_or_phone)) {
-        setSignUpMethod("email")
+        //setSignUpMethod("email")
           //reset email password.
         console.log("going to reset email password")
         console.log(email_or_phone)

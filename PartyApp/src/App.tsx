@@ -343,7 +343,7 @@ const Home: React.FC = () => {
         var alreadyInReq = reqs.some(item => curr_id === item.id);
         if (alreadyInReq) { 
           setNewNotifications(false);
-        } else if (newNotifications == false){
+        } else if (newNotifications === false){
           setNewNotifications(true); 
         }
       }; 
@@ -359,7 +359,7 @@ const Home: React.FC = () => {
         var alreadyInInv = partyreqs.some(item => curr_id === item.partyid);
         if (alreadyInInv) { 
           setNewNotifications(false);
-        } else if (newNotifications == false) {
+        } else if (newNotifications === false) {
           setNewNotifications(true);
         }
       };

@@ -10,7 +10,6 @@ import {
   IonToolbar, 
   IonCard,
   IonTitle,
-  IonPage,
   IonSearchbar,
   IonPopover,
   IonInput,
@@ -280,7 +279,7 @@ const CreateParty = ({editingParty}) => {
     const startTime = (e) => {
       setDateTime(e.detail.value!)
       console.log(e.detail.value!)
-      if (endTime == "") {
+      if (endTime === "") {
         setEndTime(e.detail.value!)
       }
     }
