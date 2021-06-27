@@ -15,8 +15,6 @@ import { RefresherEventDetail } from '@ionic/core';
 import {
   IonApp,
   IonIcon,
-  IonRefresher, 
-  IonRefresherContent,
   IonRouterOutlet,
   IonTabBar,
   IonTabButton,
@@ -46,7 +44,6 @@ import { IonReactRouter } from '@ionic/react-router';
 import { 
   personAddSharp,   
   cameraOutline,
-  chevronDownCircleOutline,
   thumbsUpOutline,
   thumbsDownOutline,
   imagesOutline,
@@ -369,15 +366,15 @@ const Home: React.FC = () => {
   //This just handles the requests once they have been made.
   //On refresh check current user's 'request from' array inside friend requests and display their profile. Then see
   // accept friend.
-  function doRefresh(event: CustomEvent<RefresherEventDetail>) {
-    // toggle new parties so displayParties runs and it checks for new parties
-    checkForRequests();
-    displayParties();               
-    setNewNotifications(false);
-    setTimeout(() => {
-      event.detail.complete();
-    }, 2000);
-  }   
+  // function doRefresh(event: CustomEvent<RefresherEventDetail>) {
+  //   // toggle new parties so displayParties runs and it checks for new parties
+  //   checkForRequests();
+  //   displayParties();               
+  //   setNewNotifications(false);
+  //   setTimeout(() => {
+  //     event.detail.complete();
+  //   }, 2000);
+  // }   
 
   const checkForRequests = () => {  
       setReqs([])
