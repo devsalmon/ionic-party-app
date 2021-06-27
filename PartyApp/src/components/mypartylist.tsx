@@ -448,11 +448,11 @@ const MyPartyList = () => {
   } else {
     return(
         <>
-        <IonMenu side="end" type="overlay" contentId="myPartiesPage">
+        <IonMenu swipeGesture={true} side="end" type="overlay" contentId="myPartiesPage">
           <IonToolbar>
             <IonTitle class="ion-padding">Settings</IonTitle>
           </IonToolbar>
-          <IonContent class="list">
+          <IonContent>
             <IonList class="list">      
               <IonButton onClick={() => setNamePopover(true)}>
                 Change name              
@@ -516,7 +516,8 @@ const MyPartyList = () => {
           </IonRadioGroup>  
         </IonToolbar>
         </IonHeader>
-          <IonContent fullscreen={true}>
+          <IonContent fullscreen={true} class="myparties-content">
+          <div className="myparties-inner-content">
             {/* <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
               <IonRefresherContent
                 pullingIcon={chevronDownCircleOutline}
@@ -539,6 +540,7 @@ const MyPartyList = () => {
                 <Memory notifications={party.notifications} data={party.data} key={j} click={() => enter(party.id, party.data.hostid)}/>
               )          
             }) : null} 
+            </div>
             </IonContent>       
         <IonPopover
           id="popover"

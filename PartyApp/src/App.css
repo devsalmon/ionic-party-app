@@ -181,6 +181,14 @@
     color: #d62839;
 }
 
+.myparties-content {
+    height: 170%;
+}
+
+.myparties-inner-content {
+    padding-bottom: 30%
+}
+
 .myparties-title {
     padding-bottom: 0% !important
 }
@@ -361,7 +369,7 @@
     padding-left: 2%;
     position: relative;
     top: 40%;
-    transform: translateY(-50%);    
+    transform: translateY(-60%);    
 }
 
 #signin-content ion-item {

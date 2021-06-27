@@ -603,6 +603,7 @@ const Create: React.FC = () => {
 const FriendRequest = ({id, click}) => {
   // notification item
   const [userName, setUserName] = useState(''); // name of person who requested
+  const [fullName, setFullName] = useState(''); // name of person who requested
   const [currentUser, setCurrentUser] = useState(''); // name of current user
 
   useEffect(() => {
@@ -615,7 +616,8 @@ const FriendRequest = ({id, click}) => {
   const userRef = firebase.firestore().collection("users").doc(id); // get document of person who requested
   userRef.get().then(function(doc) {
     if (doc.exists) { 
-      setUserName(doc.data().username) // set name to the name in that document
+      setUserName(doc.data().username) // set names to the names in that document
+      setFullName(doc.data().fullname) 
     } 
   }).catch(function(error) {
     console.log(error);
@@ -718,7 +720,7 @@ const FriendRequest = ({id, click}) => {
     <IonCard class="friend-request-card">
       <IonCardHeader>
         <IonCardTitle>
-          <IonText>{userName} wants to be friends</IonText>
+          <IonText>{userName} ({fullName}) wants to be friends</IonText>
         </IonCardTitle>
       </IonCardHeader>
       <IonCardContent>
