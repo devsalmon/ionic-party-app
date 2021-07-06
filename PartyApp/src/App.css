@@ -25,7 +25,8 @@
 
 .action-sheet {
     --button-color: #ffd046;
-    --color: #ffd046
+    --color: #ffd046;
+    --button-background: #0f0e0e
 }
 
 .add-friends-button {
@@ -162,7 +163,7 @@
 .like-panel {
     position: absolute;
     color: #ffd046;
-    --ripple-color: transparent;
+    --ripple-color: none;
     right: 5px;
     font-size: 10px;  
 }
@@ -574,6 +575,10 @@ ion-title {
     font-weight: bold;
     --color: #ffd046;
   }
+
+ion-toggle {
+    --background: #e9e3e6
+}
   
 ion-toolbar {
     padding: 16px;

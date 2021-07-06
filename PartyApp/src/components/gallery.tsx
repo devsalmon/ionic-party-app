@@ -259,23 +259,21 @@ const Picture = ({doc, hostid, partyid}) => {
         buttons={[{
           text: 'Delete',
           role: 'destructive',
-          icon: trashSharp,
           handler: () => {
-            console.log('Delete clicked');
             setDeletePhotoPopover(true)
           }
-        }, {
-          text: 'Share',
-         // icon: share,
-          handler: () => {
-            console.log('Share clicked');
-          }
-        }, {
+        }, 
+        // {
+        //   text: 'Share',
+        //  // icon: share,
+        //   handler: () => {
+        //     console.log('Share clicked');
+        //   }
+        // }, 
+        {
           text: 'Cancel',
-          //icon: close,
-          role: 'cancel',
           handler: () => {
-            console.log('Cancel clicked');
+            setShowActionSheet(false)
           }
         }]}
       >
@@ -343,7 +341,7 @@ const Picture = ({doc, hostid, partyid}) => {
       <IonRow>
         {likeButton}    
         {removePicture}
-        {showComments ? 
+        {showComments && otherComments.length > 0 ? 
         <IonButton onClick={()=>setShowComments(false)} fill="clear">
           Hide comments
         </IonButton>    

@@ -34,6 +34,7 @@ import {
   chevronBackSharp,
   settingsSharp,
   peopleOutline,
+  chevronDownCircleOutline
 } from 'ionicons/icons';
 import '../App.css'
 /* Core CSS required for Ionic components to work properly */
@@ -150,7 +151,7 @@ const MyPartyList = () => {
 
   function doRefresh(event) {
     // toggle new parties so displayParties runs and it checks for new parties    
-    //setRefresh(!refresh);         
+    setRefresh(!refresh);         
     setTimeout(() => {
       event.detail.complete();
     }, 2000);
@@ -515,13 +516,13 @@ const MyPartyList = () => {
         </IonToolbar>
         </IonHeader>
           <IonContent fullscreen={true} class="myparties-content">
-          <div className="myparties-inner-content">
-            {/* <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
+          <IonRefresher slot="fixed" onIonRefresh={doRefresh} pullMin={50} pullMax={200}>
               <IonRefresherContent
                 pullingIcon={chevronDownCircleOutline}
                 refreshingSpinner="circles">
               </IonRefresherContent>
-            </IonRefresher>                      */}
+            </IonRefresher>               
+          <div className="myparties-inner-content">                  
             {selected === "attended" ? 
             attendedParties.length === 0 ?
             <IonText class="white-text">You haven't attended any parties yet..</IonText> :          

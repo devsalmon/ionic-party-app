@@ -59,11 +59,13 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>To Take Photos and Video</string>
+	<string>To allow you to take photos and upload them to party galleries. These photos will only be used in the gallery section of parties, and can only be seen by people invited to that party.</string>
+	<key>NSHumanReadableCopyright</key>
+	<string></string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Store camera photos to camera</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>To Pick Photos from Library</string>
+	<string>To allow you to upload photos from your library to party galleries. These photos will only be used in the gallery section of parties, and can only be seen by people invited to that party. </string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

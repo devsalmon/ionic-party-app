@@ -11,7 +11,7 @@ import WelcomePage from './components/welcomepage';
 import {Online, Offline} from "react-detect-offline";
 
 import { Route, Redirect, useLocation } from 'react-router-dom';
-import { RefresherEventDetail } from '@ionic/core';
+// import { RefresherEventDetail } from '@ionic/core';
 import {
   IonApp,
   IonIcon,
@@ -130,7 +130,7 @@ const Party = ({id, data, live, edit}) => {
       resultType: CameraResultType.Base64,
       source: CameraSource.Camera,
       quality: 90,
-      height: 1000,
+      height: 1350,
       width: 1000,
       preserveAspectRatio: true,
       direction: CameraDirection.Front,
@@ -145,7 +145,7 @@ const Party = ({id, data, live, edit}) => {
       resultType: CameraResultType.Base64,
       source: CameraSource.Photos,
       quality: 90,
-      height: 1000,
+      height: 1350,
       width: 1000,
       preserveAspectRatio: true,
       direction: CameraDirection.Front,
@@ -287,7 +287,7 @@ const Party = ({id, data, live, edit}) => {
       >
         <IonItem lines="full">Accepted Invites:</IonItem>
         {data.accepted_invites && data.accepted_invites.length > 0 ? data.accepted_invites.map((invitee, i) => {
-          return(<IonItem lines="none" key={i}>{invitee}</IonItem>) 
+          return(<IonItem lines="none" key={i}>{invitee}</IonItem>)           
         })
         : <IonItem lines="none">No accepted invites yet</IonItem>}
       </IonPopover>          
@@ -766,14 +766,15 @@ const PartyRequest = ({hostid, partyid, click}) => {
   // If this is successful then remove eachother from requests.
   const acceptInvite = async() => {
     var current_user_id = firebase.auth().currentUser.uid
+    var current_username = firebase.auth().currentUser.displayName
     // remove party from myinvites so the notification disappears, add to accepted invites
     firebase.firestore().collection("users").doc(current_user_id).update({
         myInvites: firebase.firestore.FieldValue.arrayRemove({hostid, partyid}),
         acceptedInvites: firebase.firestore.FieldValue.arrayUnion({hostid: hostid, partyid: partyid}),        
     }).then(() => {
-      // add current user id to party doc accepted_invites section
+      // add current user's name to party doc accepted_invites section
       firebase.firestore().collection("users").doc(hostid).collection("myParties").doc(partyid).update({
-        accepted_invites: firebase.firestore.FieldValue.arrayUnion(userName)
+        accepted_invites: firebase.firestore.FieldValue.arrayUnion(current_username)
       }).then(() => click());
     })
    

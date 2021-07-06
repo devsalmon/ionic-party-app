@@ -19,6 +19,10 @@ import {
   IonToast,
   IonIcon,
   IonText,
+  IonCol,
+  IonGrid,
+  IonRow,
+  IonToggle
 } from '@ionic/react';
 import { 
   chevronBackSharp,  
@@ -54,6 +58,7 @@ const CreateParty = ({editingParty}) => {
     const [friends, setFriends] = useState([]); // list of people who can be searched for when inviting people
     const [seeFriends, setSeeFriends] = useState(false); // boolean variable to see friends list or not 
     const [invitedPeople, setInvitedPeople] = useState(editingParty ? editingParty.invited_people : []); // array of invited people
+    const [newInvites, setNewInvites] = useState([]); // array of new invited people
     const [title, setTitle] = useState<string>(editingParty ? editingParty.title : "");
     const [address, setAddress] = useState<string>(editingParty ? editingParty.address : "");
     const [postcode, setPostcode] = useState<string>(editingParty ? editingParty.postcode : "");
@@ -69,6 +74,10 @@ const CreateParty = ({editingParty}) => {
     const [showPopover, setShowPopover] = useState(false);
     const [partyDeletedToast, setPartyDeletedToast] = useState(false);    
     const [refresh, setRefresh] = useState(false);
+    const [drinksChecked, setDrinksChecked] = useState(false);
+    const [dresscodeChecked, setDresscodeChecked] = useState(false);
+    const [postcodeChecked, setPostcodeChecked] = useState(false);
+    const [detailsChecked, setDetailsChecked] = useState(false);
 
     const searchClient = algoliasearch('N5BVZA4FRH', '10173d946e2ba5aa9ba4f9ae445cef48');
     const index = searchClient.initIndex('Users');
@@ -94,10 +103,12 @@ const CreateParty = ({editingParty}) => {
             usersCollection.doc(friend.id).get().then(doc => {
                 let data = doc.data();
                 var alreadyInFriends = friends.some(item => friend.id === doc.id);
-                data && !alreadyInFriends && setFriends(friends => [
+                var inInvitedPeople = invitedPeople.some(item => friend.id === item.id)
+                data && !alreadyInFriends && !inInvitedPeople && setFriends(friends => [
                     ...friends, 
                     {
-                        name: data.username,
+                        username: data.username,
+                        fullname: data.fullname,
                         id: doc.id
                     }
                 ]);  
@@ -145,23 +156,11 @@ const CreateParty = ({editingParty}) => {
                 // A party gets created. A person gets invited, they accept invite.
                 // Then they get access to the document that was originally created.
                 var host_user_id = currentuser.uid
-                invitedPeople && invitedPeople.map(person => {
-                  var userDocument = firebase.firestore().collection("users").doc(person.id)
-                  userDocument.get().then(doc => {
-                    var hasmyinvites = false
-                    var alreadyInMI = false
-                    for (const property in doc.data()) {
-                      if (property === "myInvites") {
-                        hasmyinvites = true;
-                        alreadyInMI = doc.data().myInvites.some(item => editingParty.id === item);    
-                      }
-                    }
-                    if (!alreadyInMI || !hasmyinvites) {
-                      userDocument.update({
-                        // add party id to user documents
-                        myInvites: firebase.firestore.FieldValue.arrayUnion({hostid: host_user_id, partyid: editingParty.id}),
-                      }) 
-                    }   
+                newInvites && newInvites.map(newInvite => {
+                  var userDocument = firebase.firestore().collection("users").doc(newInvite.id)
+                  userDocument.update({
+                    // add party id to user documents
+                    myInvites: firebase.firestore.FieldValue.arrayUnion({hostid: host_user_id, partyid: editingParty.id}),
                   })
                 })
               //clear fields
@@ -229,20 +228,39 @@ const CreateParty = ({editingParty}) => {
         }          
       
 
-    const addInvite = (id, username) => {
+    const addInvite = (id, username, fullname) => {
       setQuery(''); // reset searchbar when invite button pressed so invite item with the button stops showing
       if (invitedPeople.some(item => id === item.id) === false) {// if friend isn't already in invitedPeople
         setInvitedPeople(invitedPeople => [
           ...invitedPeople, 
           {              
             username: username,
+            fullname: fullname,
             id: id
           }
         ]);
+        if (editingParty !== null) {
+          setNewInvites(newInvites => [
+            ...newInvites,
+            {
+              username: username,
+              fullname: fullname,
+              id: id
+            }
+          ])
+        }
       }
+      // remove friend from "see friends" section
+      for (var i=0; i < friends.length; i++) {
+        if (friends[i].id === id) {
+            friends.splice(i,1);
+            setRefresh(!refresh);
+            break;
+        }   
+      }       
     }
 
-    const removeInvite = (id) => {
+    const removeInvite = (id, username, fullname) => {
       setQuery(''); // reset searchbar when invite button pressed so invite item with the button stops showing
       for (var i=0; i < invitedPeople.length; i++) {
         if (invitedPeople[i].id === id) {
@@ -250,7 +268,26 @@ const CreateParty = ({editingParty}) => {
             setRefresh(!refresh);
             break;
         }   
-      }      
+      }
+      if (editingParty !== null) { 
+        for (var i=0; i < newInvites.length; i++) {
+          if (newInvites[i].id === id) {
+              newInvites.splice(i,1);
+              setRefresh(!refresh);
+              break;
+          }   
+        }
+      }   
+      if (friends.some(item => id === item.id) === false) {// if friend isn't already in invitedPeople
+        setFriends(friends => [
+          ...friends, 
+          {
+              username: username,
+              fullname: fullname,
+              id:   id
+          }
+        ]);          
+      }
     }
 
     const deleteParty = async() => {
@@ -304,22 +341,43 @@ const CreateParty = ({editingParty}) => {
         <IonText class="black-text">You can always invite more people and edit the party details after you create it.</IonText>
         <IonCard class="create-card">
           <IonItem class="rounded-top" lines="none">
-            <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title*" clearInput></IonInput>
+            <IonInput class="create-input" value={title} onIonChange={e => setTitle(e.detail.value!)} placeholder="Title" clearInput></IonInput>
           </IonItem>
           <IonItem class="create-card-input" lines="none">   
-            <IonInput class="create-input" value={address}  onIonChange={e => setAddress(e.detail.value!)} placeholder="Location*" clearInput></IonInput>                               
+            <IonInput class="create-input" value={address}  onIonChange={e => setAddress(e.detail.value!)} placeholder="Location" clearInput></IonInput>                               
           </IonItem>
           <IonItem class="create-card-input" lines="none">   
-            <IonInput class="create-input" value={postcode}  onIonChange={e => setPostcode(e.detail.value!)} placeholder="Postcode/Zipcode" clearInput></IonInput>                               
+            <IonInput 
+            disabled={!postcodeChecked}
+            class="create-input" 
+            value={postcode}  
+            onIonChange={e => setPostcode(e.detail.value!)} 
+            placeholder="Postcode/Zipcode" 
+            clearInput></IonInput>  
+            <IonToggle checked={postcodeChecked} color="warning" onIonChange={e => setPostcodeChecked(e.detail.checked)} />
           </IonItem>
           <IonItem class="create-card-input" lines="none">
-            <IonInput class="create-input" value={dresscode}  onIonChange={e => setDresscode(e.detail.value!)} placeholder="Dress Code" clearInput></IonInput>  
+            <IonInput 
+            disabled={!dresscodeChecked}
+            class="create-input" 
+            value={dresscode}  
+            onIonChange={e => setDresscode(e.detail.value!)} 
+            placeholder="Dress Code" 
+            clearInput></IonInput>  
+            <IonToggle checked={dresscodeChecked} color="warning" onIonChange={e => setDresscodeChecked(e.detail.checked)} />
           </IonItem>
           <IonItem class="create-card-input" lines="none">
-            <IonInput class="create-input" value={drinksProvided}  onIonChange={e => setDrinksProvided(e.detail.value!)} placeholder="Drinks Provided" clearInput></IonInput>  
+            <IonInput 
+            disabled={!drinksChecked}
+            class="create-input" 
+            value={drinksProvided}  
+            onIonChange={e => setDrinksProvided(e.detail.value!)} 
+            placeholder="Drinks Provided" 
+            clearInput></IonInput>  
+            <IonToggle checked={drinksChecked} color="warning" onIonChange={e => setDrinksChecked(e.detail.checked)} />
           </IonItem>         
           <IonItem class="create-card-input" lines="none">
-            <IonLabel>Starts*</IonLabel>
+            <IonLabel>Starts</IonLabel>
             <IonDatetime 
             class="create-datetime" 
             value={dateTime} 
@@ -330,7 +388,7 @@ const CreateParty = ({editingParty}) => {
             ></IonDatetime>
           </IonItem>
           <IonItem class="create-card-input" lines="none">
-            <IonLabel>Ends*</IonLabel>
+            <IonLabel>Ends</IonLabel>
             <IonDatetime 
             class="create-datetime" 
             value={endTime} 
@@ -341,18 +399,34 @@ const CreateParty = ({editingParty}) => {
             ></IonDatetime>
           </IonItem>        
           <IonItem class="create-card-input" lines="none">
-            <IonTextarea maxlength={150} class="create-input" value={details} onIonChange={e => setDetails(e.detail.value!)} placeholder="Additional details"></IonTextarea>
+            <IonTextarea 
+            disabled={!detailsChecked}
+            maxlength={150} 
+            class="create-input" 
+            value={details} 
+            onIonChange={e => setDetails(e.detail.value!)} 
+            placeholder="Additional details"></IonTextarea>
+            <IonToggle checked={detailsChecked} color="warning" onIonChange={e => setDetailsChecked(e.detail.checked)} />
           </IonItem>
           <IonItem class="create-card-input" lines="none">
             <IonButton class="create-button" expand="block" onClick={e => setShowPeopleSearch(true)}>Invite People</IonButton>
           </IonItem>       
           {invitedPeople && invitedPeople.map((person, i) => {
             return(
-              <IonItem class="create-card-input" lines="none" key={i}>                
-                <IonText>{person.username}</IonText>
-                <IonButton slot="end" onClick={() => removeInvite(person.id)}>
-                  <IonIcon size="large" icon={removeOutline} /> 
-                </IonButton>
+              <IonItem class="create-card-input" lines="none" key={i}>  
+              <IonGrid>
+                <IonRow>
+                  <IonCol>           
+                  <IonText>{person.username}</IonText><br/>
+                  <IonText className="white-text">{person.fullname}</IonText>
+                  </IonCol>
+                  <IonCol class="ion-text-end">
+                  <IonButton onClick={() => removeInvite(person.id, person.username, person.fullname)}>
+                    <IonIcon size="large" icon={removeOutline} />  
+                  </IonButton>
+                  </IonCol>
+                </IonRow>
+              </IonGrid>
               </IonItem>
             )
           })}  
@@ -377,11 +451,20 @@ const CreateParty = ({editingParty}) => {
         <IonContent class="create-content">
           {query.trim() !== "" && (/[a-zA-z]//*all letters */).test(query) && hits.map((hit, j) => (
             hit.objectID === currentuser.uid || friends.some(item => hit.objectID === item.id) === false ? null :
-            <IonItem class="create-card-input" lines="none" key={j}>                
-              <IonText>{hit.username}</IonText>
-              <IonButton slot="end" onClick={() => addInvite(hit.objectID, hit.username)}>
-                <IonIcon size="large" icon={addOutline} />  
-              </IonButton>
+            <IonItem class="create-card-input" lines="none" key={j}>   
+              <IonGrid>
+                <IonRow>
+                  <IonCol>           
+                  <IonText>{hit.username}</IonText><br/>
+                  <IonText className="white-text">{hit.fullname}</IonText>
+                  </IonCol>
+                  <IonCol class="ion-text-end">
+                  <IonButton onClick={() => addInvite(hit.objectID, hit.username, hit.fullname)}>
+                    <IonIcon size="large" icon={addOutline} />  
+                  </IonButton>
+                  </IonCol>
+                </IonRow>
+              </IonGrid>     
             </IonItem>                  
           ))}<br/>     
 
@@ -395,21 +478,39 @@ const CreateParty = ({editingParty}) => {
           </IonButton>}
 
           {seeFriends ? friends.map((friend, k) => ( // show all friends below the searched items
-            <IonItem class="create-card-input" lines="none" key={k}>                
-              <IonText>{friend.name}</IonText>
-              <IonButton slot="end" onClick={() => addInvite(friend.id, friend.name)}>
-                <IonIcon size="large" icon={addOutline} />  
-              </IonButton>
+            <IonItem class="create-card-input" lines="none" key={k}>     
+              <IonGrid>
+                <IonRow>
+                  <IonCol>           
+                  <IonText>{friend.username}</IonText><br/>
+                  <IonText className="white-text">{friend.fullname}</IonText>
+                  </IonCol>
+                  <IonCol class="ion-text-end">
+                  <IonButton onClick={() => addInvite(friend.id, friend.username, friend.fullname)}>
+                    <IonIcon size="large" icon={addOutline} />  
+                  </IonButton>
+                  </IonCol>
+                </IonRow>
+              </IonGrid>
             </IonItem>                              
           )) : null}      
           <IonText class="black-text">People invited: </IonText>
           {invitedPeople && invitedPeople.map((person, l) => {
             return(
-              <IonItem class="create-card-input" lines="none" key={l}>                
-                <IonText>{person.username}</IonText>
-                <IonButton slot="end" onClick={() => removeInvite(person.id)}>
-                  <IonIcon size="large" icon={removeOutline} />  
-                </IonButton>
+              <IonItem class="create-card-input" lines="none" key={l}>     
+              <IonGrid>
+                <IonRow>
+                  <IonCol>           
+                  <IonText>{person.username}</IonText><br/>
+                  <IonText className="white-text">{person.fullname}</IonText>
+                  </IonCol>
+                  <IonCol class="ion-text-end">
+                  <IonButton onClick={() => removeInvite(person.id, person.username, person.fullname)}>
+                    <IonIcon size="large" icon={removeOutline} />  
+                  </IonButton>
+                  </IonCol>
+                </IonRow>
+              </IonGrid>       
               </IonItem>
             )
           })}<br/>                    
