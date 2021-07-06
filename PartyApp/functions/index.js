@@ -126,12 +126,12 @@ exports.subscribeToPartyTopic = functions.firestore
 exports.sendPartyNotification = functions.firestore
 .document("users/{userId}/{myPartiesId}/{partyId}")
   .onWrite(async (change, context) => {
-    const acceptedInvites = change.before.data().accepted_invites.length;
-    const invitedPeople = change.before.data().invited_people.length;
-    const newAcceptedInvites = change.after.data().accepted_invites.length;
-    const newInvitedPeople = change.after.data().invited_people.length;
+    // const acceptedInvites = change.before.data().accepted_invites.length;
+    // const invitedPeople = change.before.data().invited_people.length;
+    // const newAcceptedInvites = change.after.data().accepted_invites.length;
+    // const newInvitedPeople = change.after.data().invited_people.length;
     const partyTitle = change.after.data().title;
-    const hostname = change.after.data().hostname;
+    const hostname = change.after.data().hostname;  
 
     if (change.before.data().topicCreated === false && change.after.data().topicCreated === true) {
       fetch('https://fcm.googleapis.com/fcm/send', {
@@ -154,27 +154,41 @@ exports.sendPartyNotification = functions.firestore
         return
       });
     } else if (change.after.data().topicCreated === true) {
-      if (invitedPeople === newInvitedPeople && acceptedInvites === newAcceptedInvites) { // send notificationd as details have actually changed
-        fetch('https://fcm.googleapis.com/fcm/send', {
-          method: "POST", 
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-            'Authorization':'key=AAAAd7z8SLY:APA91bGDcq_D1ik3ppwxuQgp3d66IBusm8TICa04QC5nKDujDFWiLxAU0toYYgsMr9Kmz33femjOkTnl-EU6YZu_q55LQ8Vc0VA5wZNplCainzzdpyaFfSU0pLArv0HDlmvZ4-ydnO-C'
-          },
-          body: JSON.stringify({
-            "priority": "high",
-            "to": `/topics/${change.after.id}`,
-            "notification": {"title":"Party Details Changed!","body": `${hostname} has changed the details for ${partyTitle}`}
-          })          
-        }).then(res => {
-          console.log("Request complete! ", res.registration_ids);
-          return
-        }).catch(err => {
-          console.log(err.message)
-          return
-        });        
-      }
+      for (const [key1, value1] of Object.entries(change.before.data())) {
+        for (const [key2, value2] of Object.entries(change.after.data())) {
+          console.log(key1, value1);
+          console.log(key2, value2);
+          if (key1 === key2 && value1 !== value2) {
+            if (key1 === "accepted_invites" || key1 === "invited_people") {
+              console.log("accepted_invites or invited_people key")
+              // don't send notification as there hasn't been a real change in details
+            } else {
+              // send notification 
+              fetch('https://fcm.googleapis.com/fcm/send', {
+                method: "POST", 
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json',
+                  'Authorization':'key=AAAAd7z8SLY:APA91bGDcq_D1ik3ppwxuQgp3d66IBusm8TICa04QC5nKDujDFWiLxAU0toYYgsMr9Kmz33femjOkTnl-EU6YZu_q55LQ8Vc0VA5wZNplCainzzdpyaFfSU0pLArv0HDlmvZ4-ydnO-C'
+                },
+                body: JSON.stringify({
+                  "priority": "high",
+                  "to": `/topics/${change.after.id}`,
+                  "notification": {"title":"Party Details Changed!","body": `${hostname} has changed the details for ${partyTitle}`}
+                })          
+              }).then(res => {
+                console.log("Request complete! ", res.registration_ids);
+                return
+              }).catch(err => {
+                console.log(err.message)
+                return
+              });               
+            }
+          }
+        }      
+      }        
+      //if (invitedPeople === newInvitedPeople && acceptedInvites === newAcceptedInvites) { // send notificationd as details have actually changed       
+      //}
     }    
 })
 
