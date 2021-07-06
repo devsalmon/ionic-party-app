@@ -74,10 +74,10 @@ const CreateParty = ({editingParty}) => {
     const [showPopover, setShowPopover] = useState(false);
     const [partyDeletedToast, setPartyDeletedToast] = useState(false);    
     const [refresh, setRefresh] = useState(false);
-    const [drinksChecked, setDrinksChecked] = useState(false);
-    const [dresscodeChecked, setDresscodeChecked] = useState(false);
-    const [postcodeChecked, setPostcodeChecked] = useState(false);
-    const [detailsChecked, setDetailsChecked] = useState(false);
+    const [drinksChecked, setDrinksChecked] = useState(editingParty ? editingParty.drinksProvided !== "" ? true : false : false);
+    const [dresscodeChecked, setDresscodeChecked] = useState(editingParty ? editingParty.dresscode !== "" ? true : false : false);
+    const [postcodeChecked, setPostcodeChecked] = useState(editingParty ? editingParty.postcode !== "" ? true : false : false);
+    const [detailsChecked, setDetailsChecked] = useState(editingParty ? editingParty.details !== "" ? true : false : false);
 
     const searchClient = algoliasearch('N5BVZA4FRH', '10173d946e2ba5aa9ba4f9ae445cef48');
     const index = searchClient.initIndex('Users');
