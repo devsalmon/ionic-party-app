@@ -14,7 +14,7 @@ public class MainActivity extends BridgeActivity {
 
       //Intent intent = getIntent();
       //String action = intent.getAction();
-      //Uri data = intent.getData();
+      //Uri data = intent.getData(); in case we need later
     }
   }
 
